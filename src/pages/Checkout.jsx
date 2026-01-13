@@ -6,7 +6,7 @@ import MainLayout from '../layouts/MainLayout'
 const Checkout = () => {
     const location = useLocation()
     const navigate = useNavigate()
-    const { user } = useAuth()
+    const { user, subscribe } = useAuth()
 
     // Default plan fallback if navigated directly
     const defaultPlan = {
@@ -28,16 +28,20 @@ const Checkout = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [paymentMethod, setPaymentMethod] = useState('card')
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
         setIsLoading(true)
 
-        // Mock API call
-        setTimeout(() => {
-            setIsLoading(false)
+        try {
+            await subscribe(plan.name, paymentMethod)
             // Redirect to Profile with Onboarding Trigger
             navigate('/profile?onboarding=true')
-        }, 2000)
+        } catch (error) {
+            console.error("Subscription failed:", error)
+            alert("Subscription failed: " + error.message)
+        } finally {
+            setIsLoading(false)
+        }
     }
 
     return (
