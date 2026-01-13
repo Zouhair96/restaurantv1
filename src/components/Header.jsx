@@ -81,9 +81,9 @@ const Header = () => {
                         user ? (
                             <div className="flex items-center gap-3">
 
-                                <button className="bg-yum-light text-yum-primary px-4 py-2 rounded-full font-bold hover:bg-red-100 transition-colors">
+                                <Link to="/profile" className="bg-yum-light text-yum-primary px-4 py-2 rounded-full font-bold hover:bg-red-100 transition-colors">
                                     Profile
-                                </button>
+                                </Link>
                             </div>
                         ) : (
                             <Link
