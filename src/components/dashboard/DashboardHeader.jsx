@@ -1,15 +1,24 @@
 import React, { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 
-const DashboardHeader = () => {
+const DashboardHeader = ({ onMenuClick }) => {
     const { user } = useAuth()
     const [searchTerm, setSearchTerm] = useState('')
 
     return (
         <header className="bg-white/5 backdrop-blur-md border-b border-gray-800 h-16 flex items-center justify-between px-6 sticky top-0 z-10">
-            {/* Search Bar */}
-            <div className="flex-1 max-w-xl">
-                <div className="relative">
+            {/* Search Bar & Mobile Toggle */}
+            <div className="flex-1 max-w-xl flex items-center gap-4">
+                <button
+                    className="md:hidden text-gray-400 hover:text-white transition-colors p-1"
+                    onClick={onMenuClick}
+                >
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+
+                <div className="relative flex-1">
                     <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />

@@ -491,21 +491,30 @@ const Profile = () => {
         }
     }
 
+    const isAnyModalOpen = showOnboarding || showAddMemberModal || showPromoModal || isEditorOpen
+
     return (
-        <DashboardLayout rightPanel={<DashboardWidgets />} activeModule={activeModule} onModuleChange={setActiveModule}>
+        <>
+            {/* Modals - Placed outside layout to avoid blur inheritance */}
             {showOnboarding && <OnboardingOverlay onClose={handleCloseOnboarding} />}
             <AddMemberModal isOpen={showAddMemberModal} onClose={() => setShowAddMemberModal(false)} onAdd={handleAddMember} />
             <CreatePromoModal isOpen={showPromoModal} onClose={() => setShowPromoModal(false)} onCreate={handleCreatePromo} />
 
-            {/* Template Editor Modal */}
             <TemplateEditorModal
                 isOpen={isEditorOpen}
                 onClose={() => setIsEditorOpen(false)}
                 templateType={selectedTemplate || 'tacos'}
             />
 
-            {renderContent()}
-        </DashboardLayout>
+            <DashboardLayout
+                rightPanel={<DashboardWidgets />}
+                activeModule={activeModule}
+                onModuleChange={setActiveModule}
+                isBlurred={isAnyModalOpen}
+            >
+                {renderContent()}
+            </DashboardLayout>
+        </>
     )
 }
 

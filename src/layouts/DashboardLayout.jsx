@@ -2,22 +2,29 @@ import React from 'react'
 import DashboardSidebar from '../components/dashboard/DashboardSidebar'
 import DashboardHeader from '../components/dashboard/DashboardHeader'
 
-const DashboardLayout = ({ children, rightPanel, activeModule, onModuleChange }) => {
+const DashboardLayout = ({ children, rightPanel, activeModule, onModuleChange, isBlurred }) => {
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
+
     return (
-        <div className="min-h-screen bg-gray-900 text-white font-sans selection:bg-yum-primary selection:text-white overflow-hidden">
+        <div className="min-h-screen bg-gray-900 text-white font-sans selection:bg-yum-primary selection:text-white overflow-hidden relative">
             {/* Sidebar */}
-            <DashboardSidebar activeModule={activeModule} onModuleChange={onModuleChange} />
+            <DashboardSidebar
+                activeModule={activeModule}
+                onModuleChange={onModuleChange}
+                isOpen={isMobileMenuOpen}
+                onClose={() => setIsMobileMenuOpen(false)}
+            />
 
             {/* Main Content Wrapper */}
-            <div className="pl-64 flex h-screen overflow-hidden">
+            <div className={`flex h-screen overflow-hidden transition-all duration-300 md:pl-64 ${isBlurred ? 'filter blur-sm pointer-events-none select-none' : ''}`}>
                 {/* Center Content */}
                 <div className="flex-1 flex flex-col min-w-0 bg-gray-900 relative">
                     {/* Background Glow Effect */}
                     <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-yum-primary/5 to-purple-900/10 pointer-events-none"></div>
 
-                    <DashboardHeader />
+                    <DashboardHeader onMenuClick={() => setIsMobileMenuOpen(true)} />
 
-                    <main className="flex-1 overflow-y-auto p-6 relative z-0">
+                    <main className="flex-1 overflow-y-auto p-4 md:p-6 relative z-0">
                         {children}
                     </main>
                 </div>
