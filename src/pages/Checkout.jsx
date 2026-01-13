@@ -19,6 +19,7 @@ const Checkout = () => {
 
     // Form State
     const [isLoading, setIsLoading] = useState(false)
+    const [paymentMethod, setPaymentMethod] = useState('card')
 
     const handleSubmit = (e) => {
         e.preventDefault()
@@ -96,32 +97,67 @@ const Checkout = () => {
                             </div>
                         </div>
 
+                        {/* Payment Method Selector */}
+                        <div className="flex gap-4 mb-6">
+                            <button
+                                type="button"
+                                onClick={() => setPaymentMethod('card')}
+                                className={`flex-1 py-2 px-4 rounded-lg border-2 font-bold transition-all ${paymentMethod === 'card' ? 'border-yum-primary text-yum-primary bg-yum-light' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}
+                            >
+                                Credit Card
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setPaymentMethod('cash')}
+                                className={`flex-1 py-2 px-4 rounded-lg border-2 font-bold transition-all ${paymentMethod === 'cash' ? 'border-yum-primary text-yum-primary bg-yum-light' : 'border-gray-200 text-gray-500 hover:border-gray-300'}`}
+                            >
+                                Pay in Cash
+                            </button>
+                        </div>
+
                         <form onSubmit={handleSubmit} className="space-y-6">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Cardholder Name</label>
-                                <input type="text" defaultValue={user?.name} required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yum-primary focus:border-yum-primary transition-all bg-gray-50" />
-                            </div>
+                            {paymentMethod === 'card' ? (
+                                <>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Cardholder Name</label>
+                                        <input type="text" defaultValue={user?.name} required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yum-primary focus:border-yum-primary transition-all bg-gray-50" />
+                                    </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Card Information</label>
-                                <div className="relative">
-                                    <input type="text" placeholder="0000 0000 0000 0000" required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yum-primary focus:border-yum-primary transition-all pl-12" />
-                                    <svg className="w-6 h-6 text-gray-400 absolute left-3 top-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                                    </svg>
-                                </div>
-                            </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Card Information</label>
+                                        <div className="relative">
+                                            <input type="text" placeholder="0000 0000 0000 0000" required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yum-primary focus:border-yum-primary transition-all pl-12" />
+                                            <svg className="w-6 h-6 text-gray-400 absolute left-3 top-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                            </svg>
+                                        </div>
+                                    </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Expiry</label>
-                                    <input type="text" placeholder="MM/YY" required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yum-primary focus:border-yum-primary transition-all" />
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Expiry</label>
+                                            <input type="text" placeholder="MM/YY" required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yum-primary focus:border-yum-primary transition-all" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">CVC</label>
+                                            <input type="text" placeholder="123" required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yum-primary focus:border-yum-primary transition-all" />
+                                        </div>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-sm text-yellow-800">
+                                    <p className="font-bold flex items-center gap-2 mb-2">
+                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        Cash Payment Instructions
+                                    </p>
+                                    <p>
+                                        Please visit our office or contact a sales representative to complete your payment.
+                                        Your subscription will be activated immediately upon confirmation.
+                                    </p>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">CVC</label>
-                                    <input type="text" placeholder="123" required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yum-primary focus:border-yum-primary transition-all" />
-                                </div>
-                            </div>
+                            )}
 
                             <button
                                 type="submit"
@@ -137,7 +173,7 @@ const Checkout = () => {
                                         Processing...
                                     </>
                                 ) : (
-                                    `Pay ${plan.price}`
+                                    paymentMethod === 'card' ? `Pay ${plan.price}` : 'Confirm Cash Payment'
                                 )}
                             </button>
                         </form>
