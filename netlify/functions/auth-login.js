@@ -45,11 +45,12 @@ exports.handler = async (event, context) => {
 
         return {
             statusCode: 200,
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ token, user: userInfo }),
         };
 
     } catch (error) {
         console.error('Login Error:', error);
-        return { statusCode: 500, body: JSON.stringify({ error: 'Internal Server Error' }) };
+        return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Internal Server Error' }) };
     }
 };
