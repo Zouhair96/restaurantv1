@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { Link } from 'react-router-dom'
 import DashboardLayout from '../layouts/DashboardLayout'
@@ -7,6 +7,7 @@ import DashboardWidgets from '../components/dashboard/DashboardWidgets'
 
 const Profile = () => {
     const { user, loading } = useAuth()
+    const [activeModule, setActiveModule] = useState('dashboard')
 
     // Loading state
     if (loading) {
@@ -30,47 +31,80 @@ const Profile = () => {
         )
     }
 
-    return (
-        <DashboardLayout rightPanel={<DashboardWidgets />}>
-            <div className="space-y-8">
-                {/* Health Score Banner */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div className="md:col-span-3 bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-6 border border-gray-700 relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-yum-primary/10 rounded-full filter blur-3xl transform translate-x-1/2 -translate-y-1/2 group-hover:bg-yum-primary/20 transition-all duration-700"></div>
-                        <div className="relative z-10 flex justify-between items-center">
-                            <div>
-                                <h2 className="text-2xl font-bold text-white mb-1">Restaurant Health Score</h2>
-                                <p className="text-gray-400 text-sm">Your restaurant is performing better than 85% of local competitors.</p>
+    const renderDashboardOverview = () => (
+        <div className="space-y-8">
+            {/* Health Score Banner */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="md:col-span-3 bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-6 border border-gray-700 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-yum-primary/10 rounded-full filter blur-3xl transform translate-x-1/2 -translate-y-1/2 group-hover:bg-yum-primary/20 transition-all duration-700"></div>
+                    <div className="relative z-10 flex justify-between items-center">
+                        <div>
+                            <h2 className="text-2xl font-bold text-white mb-1">Overview</h2>
+                            <p className="text-gray-400 text-sm">“Restaurant Health” Widget: Overall rating (⭐️/5) based on sales, customer reviews, and preparation time.</p>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <div className="text-right">
+                                <span className="block text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600">4.8</span>
+                                <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Excellent</span>
                             </div>
-                            <div className="flex items-center gap-4">
-                                <div className="text-right">
-                                    <span className="block text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600">98</span>
-                                    <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Excellent</span>
-                                </div>
-                                <div className="h-16 w-16 relative">
-                                    <svg className="w-full h-full" viewBox="0 0 36 36">
-                                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#374151" strokeWidth="3" />
-                                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#10B981" strokeWidth="3" strokeDasharray="98, 100" />
-                                    </svg>
-                                </div>
+                            <div className="h-16 w-16 relative">
+                                <svg className="w-full h-full" viewBox="0 0 36 36">
+                                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#374151" strokeWidth="3" />
+                                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#10B981" strokeWidth="3" strokeDasharray="96, 100" />
+                                </svg>
                             </div>
                         </div>
-                    </div>
-
-                    <div className="bg-red-900/20 border border-red-500/30 rounded-2xl p-6 flex flex-col justify-center items-center text-center cursor-pointer hover:bg-red-900/30 transition-colors group">
-                        <div className="p-3 bg-red-500/20 rounded-full mb-3 group-hover:scale-110 transition-transform">
-                            <svg className="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                            </svg>
-                        </div>
-                        <h3 className="text-white font-bold">Emergency Mode</h3>
-                        <p className="text-xs text-red-300 mt-1">Activate for Rush Hour 2x boost</p>
                     </div>
                 </div>
 
-                {/* Main Order Area */}
-                <OrderGrid />
+                <div className="bg-red-900/20 border border-red-500/30 rounded-2xl p-6 flex flex-col justify-center items-center text-center cursor-pointer hover:bg-red-900/30 transition-colors group">
+                    <div className="p-3 bg-red-500/20 rounded-full mb-3 group-hover:scale-110 transition-transform">
+                        <svg className="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                    </div>
+                    <h3 className="text-white font-bold">Emergency Mode</h3>
+                    <p className="text-xs text-red-300 mt-1">Activate for Rush Hour 2x boost</p>
+                </div>
             </div>
+
+            {/* Main Order Area */}
+            <OrderGrid />
+        </div>
+    )
+
+    const renderPlaceholder = (title) => (
+        <div className="flex flex-col items-center justify-center h-full text-gray-500 space-y-4">
+            <svg className="w-16 h-16 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+            <h2 className="text-xl font-bold">{title} Module</h2>
+            <p className="text-sm">Coming soon in the next update.</p>
+        </div>
+    )
+
+    const renderContent = () => {
+        switch (activeModule) {
+            case 'dashboard':
+                return renderDashboardOverview()
+            case 'menu':
+                return renderPlaceholder('Dynamic Menu')
+            case 'analytics':
+                return renderPlaceholder('Pro Analytics')
+            case 'team':
+                return renderPlaceholder('Team Management')
+            case 'promos':
+                return renderPlaceholder('Automated Promotions')
+            case 'settings':
+                return renderPlaceholder('Advanced Settings')
+            default:
+                return renderDashboardOverview()
+        }
+    }
+
+    return (
+        <DashboardLayout rightPanel={<DashboardWidgets />} activeModule={activeModule} onModuleChange={setActiveModule}>
+            {renderContent()}
         </DashboardLayout>
     )
 }

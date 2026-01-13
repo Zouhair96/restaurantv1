@@ -1,9 +1,8 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
-const DashboardSidebar = () => {
+const DashboardSidebar = ({ activeModule, onModuleChange }) => {
     const location = useLocation()
-    const [activeModule, setActiveModule] = useState('dashboard')
 
     const modules = [
         { id: 'dashboard', label: 'Dashboard', icon: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z' },
@@ -27,7 +26,7 @@ const DashboardSidebar = () => {
                 {modules.map((module) => (
                     <button
                         key={module.id}
-                        onClick={() => setActiveModule(module.id)}
+                        onClick={() => onModuleChange(module.id)}
                         className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group
                             ${activeModule === module.id
                                 ? 'bg-yum-primary/20 text-yum-primary border border-yum-primary/50 shadow-[0_0_15px_rgba(255,107,107,0.3)]'

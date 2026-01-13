@@ -2,11 +2,11 @@ import React from 'react'
 import DashboardSidebar from '../components/dashboard/DashboardSidebar'
 import DashboardHeader from '../components/dashboard/DashboardHeader'
 
-const DashboardLayout = ({ children, rightPanel }) => {
+const DashboardLayout = ({ children, rightPanel, activeModule, onModuleChange }) => {
     return (
         <div className="min-h-screen bg-gray-900 text-white font-sans selection:bg-yum-primary selection:text-white overflow-hidden">
             {/* Sidebar */}
-            <DashboardSidebar />
+            <DashboardSidebar activeModule={activeModule} onModuleChange={onModuleChange} />
 
             {/* Main Content Wrapper */}
             <div className="pl-64 flex h-screen overflow-hidden">
