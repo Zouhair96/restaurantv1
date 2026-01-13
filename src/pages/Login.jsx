@@ -1,12 +1,13 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
+import { useAuth } from '../context/AuthContext'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
-import { loginUser, signupUser } from '../utils/auth'
 
 const Login = () => {
     const { t } = useLanguage()
+    const { login, signup } = useAuth()
     const navigate = useNavigate()
     const [isLogin, setIsLogin] = useState(true)
     const [loading, setLoading] = useState(false)
@@ -27,12 +28,12 @@ const Login = () => {
 
         try {
             if (isLogin) {
-                await loginUser(email, password)
+                await login(email, password)
                 setSuccess(t('auth.successLogin'))
                 // Redirect after short delay
                 setTimeout(() => navigate('/demo'), 1500)
             } else {
-                await signupUser({ name, email, password, restaurantName })
+                await signup({ name, email, password, restaurantName })
                 setSuccess(t('auth.successSignup'))
                 // Redirect after short delay
                 setTimeout(() => navigate('/demo'), 1500)

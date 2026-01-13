@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
+import { useAuth } from '../context/AuthContext'
 
 const Header = () => {
     const [isScrolled, setIsScrolled] = useState(false)
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const { t, language, toggleLanguage } = useLanguage()
+    const { user } = useAuth()
     const navigate = useNavigate()
     const location = useLocation()
     const isLoginPage = location.pathname === '/login'
@@ -76,12 +78,21 @@ const Header = () => {
                     </button>
 
                     {!isLoginPage && (
-                        <Link
-                            to="/login"
-                            className="text-yum-dark font-bold hover:text-yum-primary transition-colors hover:bg-yum-light px-4 py-2 rounded-full relative z-50"
-                        >
-                            {t('header.login')}
-                        </Link>
+                        user ? (
+                            <div className="flex items-center gap-3">
+                                <span className="hidden lg:block text-yum-dark font-medium">Hello, {user.name}</span>
+                                <button className="bg-yum-light text-yum-primary px-4 py-2 rounded-full font-bold hover:bg-red-100 transition-colors">
+                                    Profile
+                                </button>
+                            </div>
+                        ) : (
+                            <Link
+                                to="/login"
+                                className="text-yum-dark font-bold hover:text-yum-primary transition-colors hover:bg-yum-light px-4 py-2 rounded-full relative z-50"
+                            >
+                                {t('header.login')}
+                            </Link>
+                        )
                     )}
                     <Link to="/demo" className="bg-yum-primary text-white px-6 py-2 rounded-full font-bold hover:bg-red-500 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                         {t('header.demo')}
@@ -115,9 +126,15 @@ const Header = () => {
                         </button>
                     </div>
                     {!isLoginPage && (
-                        <Link to="/login" className="text-yum-dark font-medium w-full text-left py-2" onClick={() => setIsMenuOpen(false)}>
-                            {t('header.login')}
-                        </Link>
+                        user ? (
+                            <button className="text-yum-primary font-bold w-full text-left py-2">
+                                Profile ({user.name})
+                            </button>
+                        ) : (
+                            <Link to="/login" className="text-yum-dark font-medium w-full text-left py-2" onClick={() => setIsMenuOpen(false)}>
+                                {t('header.login')}
+                            </Link>
+                        )
                     )}
                     <Link to="/demo" className="bg-yum-primary text-white px-6 py-2 rounded-full font-bold w-full text-center block">
                         {t('header.demo')}
