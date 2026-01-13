@@ -15,12 +15,12 @@ const DashboardSidebar = ({ activeModule, onModuleChange }) => {
 
     return (
         <div className="w-64 bg-gray-900 border-r border-gray-800 flex flex-col h-screen fixed left-0 top-0">
-            <div className="p-6 border-b border-gray-800">
+            <Link to="/" className="block p-6 border-b border-gray-800 hover:bg-gray-800/50 transition-colors cursor-pointer text-left no-underline">
                 <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-yum-primary to-yum-secondary neon-text-glow">
                     YumYum
                 </h1>
                 <p className="text-xs text-gray-400 mt-1 uppercase tracking-widest">Dashboard</p>
-            </div>
+            </Link>
 
             <nav className="flex-1 py-6 space-y-2 px-3">
                 {modules.map((module) => (

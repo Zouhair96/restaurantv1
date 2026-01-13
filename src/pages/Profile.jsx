@@ -10,6 +10,8 @@ import SubscriptionPlans from '../components/subscription/SubscriptionPlans'
 import OnboardingOverlay from '../components/dashboard/OnboardingOverlay'
 import TeamMemberCard from '../components/dashboard/TeamMemberCard'
 import AddMemberModal from '../components/dashboard/AddMemberModal'
+import PromotionCard from '../components/dashboard/PromotionCard'
+import CreatePromoModal from '../components/dashboard/CreatePromoModal'
 
 const Profile = () => {
     const { user, loading, unsubscribe } = useAuth()
@@ -18,6 +20,7 @@ const Profile = () => {
     const [activeModule, setActiveModule] = useState('dashboard')
     const [showOnboarding, setShowOnboarding] = useState(false)
     const [showAddMemberModal, setShowAddMemberModal] = useState(false)
+    const [showPromoModal, setShowPromoModal] = useState(false)
 
     // Mock Team Data State
     const [teamMembers, setTeamMembers] = useState([
@@ -25,6 +28,13 @@ const Profile = () => {
         { id: 2, name: 'Sarah Chen', role: 'Manager', status: 'On Shift', hours: 38, sales: 0 },
         { id: 3, name: 'Mike Johnson', role: 'Server', status: 'On Shift', hours: 25, sales: 1250 },
         { id: 4, name: 'Emily Davis', role: 'Bartender', status: 'Off Duty', hours: 30, sales: 850 },
+    ])
+
+    // Mock Promotions Data
+    const [promotions, setPromotions] = useState([
+        { id: 1, name: 'Weekend Happy Hour', type: 'SMS', status: 'Active', sent: 1250, openRate: 98, roi: 4.5, date: 'Ends Sunday' },
+        { id: 2, name: 'New Menu Launch', type: 'Email', status: 'Scheduled', sent: 0, openRate: 0, roi: 0, date: 'Starts Nov 15' },
+        { id: 3, name: 'Halloween Special', type: 'Push', status: 'Ended', sent: 5000, openRate: 45, roi: 3.2, date: 'Oct 31' },
     ])
 
     // Check if user has an active subscription
@@ -75,6 +85,21 @@ const Profile = () => {
         if (window.confirm('Are you sure you want to remove this team member?')) {
             setTeamMembers(teamMembers.filter(m => m.id !== id))
         }
+    }
+
+    // Promo Handlers
+    const handleCreatePromo = (newPromo) => {
+        const promoWithId = {
+            ...newPromo,
+            id: Date.now(),
+            status: 'Scheduled',
+            sent: 0,
+            openRate: 0,
+            roi: 0,
+            date: 'Just Created'
+        }
+        setPromotions([promoWithId, ...promotions])
+        setShowPromoModal(false)
     }
 
     // Loading state
@@ -303,13 +328,29 @@ const Profile = () => {
         </div>
     )
 
-    const renderPlaceholder = (title) => (
-        <div className="flex flex-col items-center justify-center h-full text-gray-500 space-y-4">
-            <svg className="w-16 h-16 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-            </svg>
-            <h2 className="text-xl font-bold">{title} Module</h2>
-            <p className="text-sm">Coming soon in the next update.</p>
+    const renderPromos = () => (
+        <div>
+            <div className="flex justify-between items-center mb-6">
+                <div>
+                    <h2 className="text-2xl font-bold text-white">Automated Promotions</h2>
+                    <p className="text-gray-400 text-sm">Create marketing campaigns to boost traffic.</p>
+                </div>
+                <button
+                    onClick={() => setShowPromoModal(true)}
+                    className="flex items-center gap-2 bg-yum-primary text-white px-4 py-2 rounded-lg font-bold hover:bg-red-500 transition-colors border border-white/10"
+                >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    New Campaign
+                </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {promotions.map(promo => (
+                    <PromotionCard key={promo.id} promo={promo} />
+                ))}
+            </div>
         </div>
     )
 
@@ -356,7 +397,7 @@ const Profile = () => {
             case 'team':
                 return renderTeam()
             case 'promos':
-                return renderPlaceholder('Automated Promotions')
+                return renderPromos()
             case 'settings':
                 return renderSettings()
             default:
@@ -368,6 +409,7 @@ const Profile = () => {
         <DashboardLayout rightPanel={<DashboardWidgets />} activeModule={activeModule} onModuleChange={setActiveModule}>
             {showOnboarding && <OnboardingOverlay onClose={handleCloseOnboarding} />}
             <AddMemberModal isOpen={showAddMemberModal} onClose={() => setShowAddMemberModal(false)} onAdd={handleAddMember} />
+            <CreatePromoModal isOpen={showPromoModal} onClose={() => setShowPromoModal(false)} onCreate={handleCreatePromo} />
             {renderContent()}
         </DashboardLayout>
     )
