@@ -101,7 +101,10 @@ const Header = () => {
                                                 </Link>
                                             )}
                                             <button
-                                                onClick={() => window.location.reload()} // Quick logout hack for now, ideally call logout()
+                                                onClick={() => {
+                                                    logout()
+                                                    navigate('/')
+                                                }}
                                                 className="w-full text-left px-4 py-3 text-gray-700 hover:bg-yum-light hover:text-yum-primary font-medium transition-colors border-t border-gray-50"
                                             >
                                                 Logout
@@ -152,9 +155,21 @@ const Header = () => {
                     </div>
                     {!isLoginPage && (
                         user ? (
-                            <button className="text-yum-primary font-bold w-full text-left py-2">
-                                Profile ({user.name})
-                            </button>
+                            <>
+                                <Link to="/profile" className="text-yum-primary font-bold w-full text-left py-2 block">
+                                    Profile ({user.name})
+                                </Link>
+                                <button
+                                    onClick={() => {
+                                        logout()
+                                        navigate('/')
+                                        setIsMenuOpen(false)
+                                    }}
+                                    className="text-gray-500 font-medium w-full text-left py-2 border-t border-gray-50"
+                                >
+                                    Logout
+                                </button>
+                            </>
                         ) : (
                             <Link to="/login" className="text-yum-dark font-medium w-full text-left py-2" onClick={() => setIsMenuOpen(false)}>
                                 {t('header.login')}
