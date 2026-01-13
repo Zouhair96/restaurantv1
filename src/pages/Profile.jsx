@@ -12,6 +12,7 @@ import TeamMemberCard from '../components/dashboard/TeamMemberCard'
 import AddMemberModal from '../components/dashboard/AddMemberModal'
 import PromotionCard from '../components/dashboard/PromotionCard'
 import CreatePromoModal from '../components/dashboard/CreatePromoModal'
+import TemplateEditorModal from '../components/dashboard/TemplateEditorModal'
 
 // Assets
 import tacosTemplate from '../assets/tacos_template.png'
@@ -228,6 +229,7 @@ const Profile = () => {
 
     // Dynamic Menu Templates State
     const [selectedTemplate, setSelectedTemplate] = useState(null)
+    const [isEditorOpen, setIsEditorOpen] = useState(false)
 
     const renderDynamicMenu = () => (
         <div className="space-y-6">
@@ -333,7 +335,10 @@ const Profile = () => {
                         </h3>
                         <p className="text-gray-400 text-sm">Customizing content for your digital display...</p>
                     </div>
-                    <button className="px-6 py-2 bg-yum-primary text-white font-bold rounded-lg hover:bg-red-500 transition-colors shadow-lg">
+                    <button
+                        onClick={() => setIsEditorOpen(true)}
+                        className="px-6 py-2 bg-yum-primary text-white font-bold rounded-lg hover:bg-red-500 transition-colors shadow-lg"
+                    >
                         Edit Content
                     </button>
                 </div>
@@ -491,6 +496,14 @@ const Profile = () => {
             {showOnboarding && <OnboardingOverlay onClose={handleCloseOnboarding} />}
             <AddMemberModal isOpen={showAddMemberModal} onClose={() => setShowAddMemberModal(false)} onAdd={handleAddMember} />
             <CreatePromoModal isOpen={showPromoModal} onClose={() => setShowPromoModal(false)} onCreate={handleCreatePromo} />
+
+            {/* Template Editor Modal */}
+            <TemplateEditorModal
+                isOpen={isEditorOpen}
+                onClose={() => setIsEditorOpen(false)}
+                templateType={selectedTemplate || 'tacos'}
+            />
+
             {renderContent()}
         </DashboardLayout>
     )
