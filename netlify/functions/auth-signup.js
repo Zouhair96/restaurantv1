@@ -47,6 +47,14 @@ exports.handler = async (event, context) => {
 
     } catch (error) {
         console.error('Signup Error:', error);
-        return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Internal Server Error' }) };
+        return {
+            statusCode: 500,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                error: 'Internal Server Error',
+                details: error.message,
+                stack: error.stack
+            })
+        };
     }
 };
