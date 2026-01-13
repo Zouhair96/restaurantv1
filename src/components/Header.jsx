@@ -80,7 +80,7 @@ const Header = () => {
                     {!isLoginPage && (
                         user ? (
                             <div className="flex items-center gap-3">
-                                <span className="hidden lg:block text-yum-dark font-medium">Hello, {user.name}</span>
+
                                 <button className="bg-yum-light text-yum-primary px-4 py-2 rounded-full font-bold hover:bg-red-100 transition-colors">
                                     Profile
                                 </button>
