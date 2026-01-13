@@ -60,7 +60,6 @@ const Hero = () => {
             </div>
         </section>
     )
-    )
 }
 
 export default Hero

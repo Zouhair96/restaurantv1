@@ -1,3 +1,5 @@
+import React from 'react'
+import { useLanguage } from '../context/LanguageContext'
 import woodBg from '../assets/wood_table_bg.png'
 
 const ForRestaurants = () => {
