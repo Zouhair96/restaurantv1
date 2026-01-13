@@ -13,6 +13,11 @@ import AddMemberModal from '../components/dashboard/AddMemberModal'
 import PromotionCard from '../components/dashboard/PromotionCard'
 import CreatePromoModal from '../components/dashboard/CreatePromoModal'
 
+// Assets
+import tacosTemplate from '../assets/tacos_template.png'
+import pizzaTemplate from '../assets/pizza_template.png'
+import saladTemplate from '../assets/salad_template.png'
+
 const Profile = () => {
     const { user, loading, unsubscribe } = useAuth()
     const navigate = useNavigate()
@@ -221,42 +226,118 @@ const Profile = () => {
         </div>
     )
 
+    // Dynamic Menu Templates State
+    const [selectedTemplate, setSelectedTemplate] = useState(null)
+
     const renderDynamicMenu = () => (
         <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-white mb-2">Dish Management</h2>
-
-            {/* AI Suggestions Banner */}
-            <div className="bg-gradient-to-r from-purple-900/40 to-yum-primary/20 border border-yum-primary/30 rounded-2xl p-6 relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-4 opacity-20">
-                    <svg className="w-24 h-24 text-yum-primary" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
-                    </svg>
+            <div className="flex justify-between items-center text-white mb-2">
+                <div>
+                    <h2 className="text-2xl font-bold">Digital Menu Templates</h2>
+                    <p className="text-gray-400 text-sm">Select a creative video template for your restaurant displays.</p>
                 </div>
-                <div className="relative z-10">
-                    <h3 className="text-xl font-bold text-white flex items-center gap-2 mb-2">
-                        <span className="text-2xl">✨</span> AI Suggestions
-                    </h3>
-                    <p className="text-gray-200 text-lg">
-                        Recommends menu changes based on trends (e.g., “<span className="text-yum-primary font-bold">Add a vegetarian dish</span> — demand up 20% this month”)
-                    </p>
-                    <button className="mt-4 px-4 py-2 bg-yum-primary text-white font-bold rounded-lg hover:bg-red-500 transition-colors shadow-lg">
-                        Apply Suggestion
+                {selectedTemplate && (
+                    <button
+                        onClick={() => setSelectedTemplate(null)}
+                        className="text-sm text-yum-primary hover:text-white transition-colors"
+                    >
+                        Clear Selection
                     </button>
-                </div>
+                )}
             </div>
 
-            {/* Menu Grid Placeholder to make it look full */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[1, 2, 3].map((item) => (
-                    <div key={item} className="glass-panel p-4 rounded-xl flex gap-4 items-center opacity-60">
-                        <div className="w-20 h-20 bg-gray-800 rounded-lg"></div>
-                        <div className="space-y-2">
-                            <div className="h-4 w-32 bg-gray-800 rounded"></div>
-                            <div className="h-3 w-20 bg-gray-800 rounded"></div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {/* Tacos Template */}
+                <div
+                    onClick={() => setSelectedTemplate('tacos')}
+                    className={`group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 ${selectedTemplate === 'tacos' ? 'ring-4 ring-yum-primary scale-105' : 'hover:scale-105 hover:shadow-2xl'}`}
+                >
+                    <div className="aspect-[9/16] bg-black relative">
+                        <img
+                            src={tacosTemplate}
+                            alt="Tacos Menu Template"
+                            className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                        />
+                        {/* Play Overlay */}
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-colors">
+                            <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <svg className="w-8 h-8 text-white fill-current" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z" />
+                                </svg>
+                            </div>
+                        </div>
+                        {/* Label */}
+                        <div className="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-black/90 to-transparent">
+                            <h3 className="text-white font-bold text-lg">Tacos Edition</h3>
+                            <p className="text-gray-300 text-xs">Dynamic • High Energy</p>
                         </div>
                     </div>
-                ))}
+                </div>
+
+                {/* Pizza Template */}
+                <div
+                    onClick={() => setSelectedTemplate('pizza')}
+                    className={`group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 ${selectedTemplate === 'pizza' ? 'ring-4 ring-yum-primary scale-105' : 'hover:scale-105 hover:shadow-2xl'}`}
+                >
+                    <div className="aspect-[9/16] bg-black relative">
+                        <img
+                            src={pizzaTemplate}
+                            alt="Pizza Menu Template"
+                            className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-colors">
+                            <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <svg className="w-8 h-8 text-white fill-current" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div className="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-black/90 to-transparent">
+                            <h3 className="text-white font-bold text-lg">Pizza Party</h3>
+                            <p className="text-gray-300 text-xs">Cozy • Warm • Cinematic</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Salad Template */}
+                <div
+                    onClick={() => setSelectedTemplate('salad')}
+                    className={`group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 ${selectedTemplate === 'salad' ? 'ring-4 ring-yum-primary scale-105' : 'hover:scale-105 hover:shadow-2xl'}`}
+                >
+                    <div className="aspect-[9/16] bg-black relative">
+                        <img
+                            src={saladTemplate}
+                            alt="Salad Menu Template"
+                            className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-colors">
+                            <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <svg className="w-8 h-8 text-white fill-current" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div className="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-black/90 to-transparent">
+                            <h3 className="text-white font-bold text-lg">Fresh & Green</h3>
+                            <p className="text-gray-300 text-xs">Clean • Modern • Bright</p>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            {selectedTemplate && (
+                <div className="mt-8 p-6 bg-yum-primary/10 border border-yum-primary rounded-xl flex items-center justify-between animate-fade-in">
+                    <div>
+                        <h3 className="text-xl font-bold text-white">
+                            Editing: {selectedTemplate === 'tacos' ? 'Tacos Edition' : selectedTemplate === 'pizza' ? 'Pizza Party' : 'Fresh & Green'}
+                        </h3>
+                        <p className="text-gray-400 text-sm">Customizing content for your digital display...</p>
+                    </div>
+                    <button className="px-6 py-2 bg-yum-primary text-white font-bold rounded-lg hover:bg-red-500 transition-colors shadow-lg">
+                        Edit Content
+                    </button>
+                </div>
+            )}
         </div>
     )
 
