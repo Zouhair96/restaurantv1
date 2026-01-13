@@ -1,22 +1,39 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import DashboardLayout from '../layouts/DashboardLayout'
 import OrderGrid from '../components/dashboard/OrderGrid'
 import DashboardWidgets from '../components/dashboard/DashboardWidgets'
 import UserProfileInfo from '../components/subscription/UserProfileInfo'
 import SubscriptionPlans from '../components/subscription/SubscriptionPlans'
+import OnboardingOverlay from '../components/dashboard/OnboardingOverlay'
 
 const Profile = () => {
     const { user, loading } = useAuth()
+    const navigate = useNavigate()
+    const location = useLocation()
     const [activeModule, setActiveModule] = useState('dashboard')
     // Mock subscription state - default to false to show the flow
     const [hasSubscription, setHasSubscription] = useState(false)
+    const [showOnboarding, setShowOnboarding] = useState(false)
+
+    useEffect(() => {
+        const params = new URLSearchParams(location.search)
+        if (params.get('onboarding') === 'true') {
+            setHasSubscription(true)
+            setShowOnboarding(true)
+            // Clean URL
+            navigate('/profile', { replace: true })
+        }
+    }, [location, navigate])
 
     const handleSubscribe = (plan) => {
-        // Mock subscription process
-        alert(`Subscribing to ${plan}...`)
-        setHasSubscription(true)
+        // Navigate to checkout
+        navigate('/checkout', { state: { plan } })
+    }
+
+    const handleCloseOnboarding = () => {
+        setShowOnboarding(false)
     }
 
     // Loading state
@@ -258,6 +275,7 @@ const Profile = () => {
 
     return (
         <DashboardLayout rightPanel={<DashboardWidgets />} activeModule={activeModule} onModuleChange={setActiveModule}>
+            {showOnboarding && <OnboardingOverlay onClose={handleCloseOnboarding} />}
             {renderContent()}
         </DashboardLayout>
     )
