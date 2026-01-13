@@ -69,3 +69,28 @@ export const getCurrentUser = () => {
     const userStr = localStorage.getItem('user');
     return userStr ? JSON.parse(userStr) : null;
 };
+
+export const subscribeUser = async (plan, paymentMethod) => {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('Not authenticated');
+
+    const response = await fetch(`${API_URL}/subscribe`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ plan, paymentMethod }),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error(data.error || 'Subscription failed');
+    }
+
+    // Update local user data
+    if (data.user) {
+        localStorage.setItem('user', JSON.stringify(data.user));
+    }
+    return data;
+};
