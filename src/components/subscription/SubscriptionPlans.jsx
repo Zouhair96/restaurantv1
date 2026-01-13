@@ -51,7 +51,7 @@ const SubscriptionPlans = ({ onSubscribe }) => {
                         ))}
                     </ul>
                     <button
-                        onClick={() => onSubscribe(plan.name)}
+                        onClick={() => onSubscribe(plan)}
                         className={`w-full py-3 rounded-xl text-white font-bold transition-colors ${plan.btnColor}`}
                     >
                         Subscribe to {plan.name}
