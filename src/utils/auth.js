@@ -11,7 +11,10 @@ export const loginUser = async (email, password) => {
 
     const contentType = response.headers.get("content-type");
     if (!contentType || !contentType.includes("application/json")) {
-        throw new Error("Backend not connected. (If testing locally, functions won't work without 'netlify dev').");
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            throw new Error("⚠️ STOP! You are testing on LOCALHOST. The login will ONLY work on the deployed NETLIFY website. Please open your site on Netlify (e.g. https://your-site.netlify.app).");
+        }
+        throw new Error("Backend not connected. Application/JSON expected but got HTML.");
     }
 
     const data = await response.json();
@@ -37,7 +40,10 @@ export const signupUser = async (userData) => {
 
     const contentType = response.headers.get("content-type");
     if (!contentType || !contentType.includes("application/json")) {
-        throw new Error("Backend not connected. (If testing locally, functions won't work without 'netlify dev').");
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            throw new Error("⚠️ STOP! You are testing on LOCALHOST. The login will ONLY work on the deployed NETLIFY website. Please open your site on Netlify (e.g. https://your-site.netlify.app).");
+        }
+        throw new Error("Backend not connected. Application/JSON expected but got HTML.");
     }
 
     const data = await response.json();
