@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { loginUser as apiLogin, signupUser as apiSignup, logoutUser as apiLogout, getCurrentUser, subscribeUser as apiSubscribe } from '../utils/auth';
+import { loginUser as apiLogin, signupUser as apiSignup, logoutUser as apiLogout, getCurrentUser, subscribeUser as apiSubscribe, unsubscribeUser as apiUnsubscribe } from '../utils/auth';
 
 const AuthContext = createContext();
 
@@ -41,12 +41,19 @@ export const AuthProvider = ({ children }) => {
         return data;
     }
 
+    const unsubscribe = async () => {
+        const data = await apiUnsubscribe();
+        setUser(data.user);
+        return data;
+    }
+
     const value = {
         user,
         login,
         signup,
         logout,
         subscribe,
+        unsubscribe,
         loading
     };
 

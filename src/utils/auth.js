@@ -94,3 +94,27 @@ export const subscribeUser = async (plan, paymentMethod) => {
     }
     return data;
 };
+
+export const unsubscribeUser = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('Not authenticated');
+
+    const response = await fetch(`${API_URL}/unsubscribe`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        }
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error(data.error || 'Unsubscription failed');
+    }
+
+    // Update local user data
+    if (data.user) {
+        localStorage.setItem('user', JSON.stringify(data.user));
+    }
+    return data;
+};

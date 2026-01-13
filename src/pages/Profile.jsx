@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import DashboardLayout from '../layouts/DashboardLayout'
+import MainLayout from '../layouts/MainLayout'
 import OrderGrid from '../components/dashboard/OrderGrid'
 import DashboardWidgets from '../components/dashboard/DashboardWidgets'
 import UserProfileInfo from '../components/subscription/UserProfileInfo'
@@ -9,18 +10,18 @@ import SubscriptionPlans from '../components/subscription/SubscriptionPlans'
 import OnboardingOverlay from '../components/dashboard/OnboardingOverlay'
 
 const Profile = () => {
-    const { user, loading } = useAuth()
+    const { user, loading, unsubscribe } = useAuth()
     const navigate = useNavigate()
     const location = useLocation()
     const [activeModule, setActiveModule] = useState('dashboard')
-    // Mock subscription state - default to false to show the flow
-    const [hasSubscription, setHasSubscription] = useState(false)
     const [showOnboarding, setShowOnboarding] = useState(false)
+
+    // Check if user has an active subscription
+    const hasSubscription = user?.subscription_status === 'active'
 
     useEffect(() => {
         const params = new URLSearchParams(location.search)
         if (params.get('onboarding') === 'true') {
-            setHasSubscription(true)
             setShowOnboarding(true)
             // Clean URL
             navigate('/profile', { replace: true })
@@ -28,8 +29,18 @@ const Profile = () => {
     }, [location, navigate])
 
     const handleSubscribe = (plan) => {
-        // Navigate to checkout
+        // Navigate to checkout with full plan details
         navigate('/checkout', { state: { plan } })
+    }
+
+    const handleUnsubscribe = async () => {
+        try {
+            await unsubscribe()
+            // State update will trigger re-render and show Plans view
+        } catch (error) {
+            console.error(error)
+            alert('Failed to unsubscribe: ' + error.message)
+        }
     }
 
     const handleCloseOnboarding = () => {
@@ -43,40 +54,32 @@ const Profile = () => {
 
     if (!user) {
         return (
-            <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-                <div className="sm:mx-auto sm:w-full sm:max-w-md">
-                    <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                        Please log in to view your profile
-                    </h2>
-                    <div className="mt-8 text-center">
-                        <Link to="/login" className="font-medium text-yum-primary hover:text-red-500">
-                            Go to Login
-                        </Link>
+            <MainLayout>
+                <div className="flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+                    <div className="sm:mx-auto sm:w-full sm:max-w-md">
+                        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                            Please log in to view your profile
+                        </h2>
+                        <div className="mt-8 text-center">
+                            <Link to="/login" className="font-medium text-yum-primary hover:text-red-500">
+                                Go to Login
+                            </Link>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </MainLayout>
         )
     }
 
     // If user is not subscribed, show Profile Info & Plans
     if (!hasSubscription) {
         return (
-            <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-7xl mx-auto">
+            <MainLayout>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                     <UserProfileInfo user={user} />
                     <SubscriptionPlans onSubscribe={handleSubscribe} />
-
-                    {/* Demo Toggle for Verification */}
-                    <div className="mt-12 text-center">
-                        <button
-                            onClick={() => setHasSubscription(true)}
-                            className="text-xs text-gray-400 hover:text-gray-600 underline"
-                        >
-                            [Demo] Simulate Already Subscribed
-                        </button>
-                    </div>
                 </div>
-            </div>
+            </MainLayout>
         )
     }
 
@@ -254,6 +257,38 @@ const Profile = () => {
         </div>
     )
 
+    const renderSettings = () => (
+        <div className="space-y-6">
+            {/* Account Settings Placeholder */}
+            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+                <h2 className="text-lg font-bold text-gray-900 mb-4">Account Settings</h2>
+                <p className="text-gray-500 text-sm">Update your personal details and password.</p>
+                {/* Inputs would go here */}
+            </div>
+
+            {/* Subscription Management */}
+            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+                <h2 className="text-lg font-bold text-gray-900 mb-4">Subscription Management</h2>
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div>
+                        <p className="font-bold text-gray-800">Current Plan: <span className="text-yum-primary">{user.subscription_plan || 'Pro'}</span></p>
+                        <p className="text-xs text-green-600 font-bold uppercase mt-1">Active</p>
+                    </div>
+                    <button
+                        onClick={() => {
+                            if (window.confirm("Are you sure you want to cancel your subscription? You will lose access to the dashboard immediately.")) {
+                                handleUnsubscribe();
+                            }
+                        }}
+                        className="px-4 py-2 bg-white border border-red-200 text-red-600 rounded-lg hover:bg-red-50 text-sm font-bold transition-all"
+                    >
+                        Cancel Subscription
+                    </button>
+                </div>
+            </div>
+        </div>
+    )
+
     const renderContent = () => {
         switch (activeModule) {
             case 'dashboard':
@@ -267,7 +302,7 @@ const Profile = () => {
             case 'promos':
                 return renderPlaceholder('Automated Promotions')
             case 'settings':
-                return renderPlaceholder('Advanced Settings')
+                return renderSettings()
             default:
                 return renderDashboardOverview()
         }

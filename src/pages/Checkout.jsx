@@ -17,6 +17,13 @@ const Checkout = () => {
 
     const plan = location.state?.plan || defaultPlan
 
+    useEffect(() => {
+        if (user?.subscription_status === 'active') {
+            alert("You are already subscribed! Please unsubscribe from your profile settings if you wish to change plans.")
+            navigate('/profile')
+        }
+    }, [user, navigate])
+
     // Form State
     const [isLoading, setIsLoading] = useState(false)
     const [paymentMethod, setPaymentMethod] = useState('card')
