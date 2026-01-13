@@ -19,7 +19,8 @@ export const loginUser = async (email, password) => {
 
     const data = await response.json();
     if (!response.ok) {
-        throw new Error(data.error || 'Login failed');
+        const message = data.details ? `${data.error}: ${data.details}` : (data.error || 'Login failed');
+        throw new Error(message);
     }
 
     if (data.token) {
@@ -48,7 +49,8 @@ export const signupUser = async (userData) => {
 
     const data = await response.json();
     if (!response.ok) {
-        throw new Error(data.error || 'Signup failed');
+        const message = data.details ? `${data.error}: ${data.details}` : (data.error || 'Signup failed');
+        throw new Error(message);
     }
 
     if (data.token) {
