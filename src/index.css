@@ -6,7 +6,27 @@
   html {
     scroll-behavior: smooth;
   }
+
   body {
     @apply font-sans antialiased text-yum-dark bg-yum-light;
+  }
+}
+
+@layer components {
+  .neon-glow {
+    box-shadow: 0 0 5px theme('colors.yum.primary'), 0 0 10px theme('colors.yum.primary');
+  }
+
+  .neon-text-glow {
+    text-shadow: 0 0 5px theme('colors.yum.primary');
+  }
+
+  .glass-panel {
+    @apply bg-gray-900 bg-opacity-90 backdrop-blur-lg border border-gray-800;
+  }
+
+  .neon-border-b {
+    border-bottom: 2px solid theme('colors.yum.primary');
+    box-shadow: 0 4px 6px -1px rgba(255, 107, 107, 0.1);
   }
 }
