@@ -290,38 +290,64 @@ const Profile = () => {
             <div className="flex justify-between items-center text-white mb-6">
                 <div>
                     <h2 className="text-2xl font-bold">Digital Menu Templates</h2>
-                    <p className="text-gray-400 text-sm">Select a template to create a new menu.</p>
+                    <p className="text-gray-400 text-sm">Select a template to create your restaurant's menu.</p>
                 </div>
             </div>
 
-            {/* Saved Menus List */}
-            {savedMenus.length > 0 && (
-                <div className="mb-8">
-                    <h3 className="text-xl font-bold text-white mb-4">Your Saved Menus</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {savedMenus.map(menu => (
-                            <div key={menu.id} className="bg-gray-800 rounded-xl p-5 border border-gray-700 hover:border-yum-primary transition-all group">
-                                <div className="flex justify-between items-start mb-3">
-                                    <h4 className="font-bold text-white text-lg">{menu.name}</h4>
-                                    <span className="text-xs bg-gray-700 text-gray-300 px-2 py-1 rounded capitalize">{menu.template_type}</span>
+            {/* Active Menu Widget */}
+            {hasMenu && savedMenus.length > 0 && (
+                <div className="mb-8 animate-fade-in">
+                    <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl p-1 border border-gray-700 shadow-xl">
+                        <div className="bg-gray-900/50 rounded-xl p-6 backdrop-blur-sm">
+                            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+                                {/* Left: Menu Info */}
+                                <div className="flex items-center gap-6 w-full md:w-auto">
+                                    <div className="w-20 h-20 rounded-xl bg-yum-primary/10 flex items-center justify-center border border-yum-primary/20 shrink-0">
+                                        <span className="text-4xl">
+                                            {savedMenus[0].template_type === 'tacos' ? '🌮' :
+                                                savedMenus[0].template_type === 'pizza' ? '🍕' : '🍽️'}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-2xl font-black text-white mb-1">{savedMenus[0].name}</h3>
+                                        <div className="flex items-center gap-3 text-sm">
+                                            <span className="bg-gray-800 text-gray-300 px-3 py-1 rounded-full border border-gray-700 capitalize font-medium">
+                                                {savedMenus[0].template_type} Template
+                                            </span>
+                                            <span className="text-gray-500">
+                                                Updated {new Date(savedMenus[0].updated_at).toLocaleDateString()}
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <p className="text-gray-400 text-sm mb-4">Last updated: {new Date(menu.updated_at).toLocaleDateString()}</p>
-                                <div className="flex gap-2">
+
+                                {/* Right: Actions */}
+                                <div className="flex items-center gap-3 w-full md:w-auto">
                                     <button
-                                        onClick={() => handleEditMenu(menu)}
-                                        className="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold py-2 rounded-lg transition-colors"
+                                        onClick={() => handleEditMenu(savedMenus[0])}
+                                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-bold transition-all border border-gray-700 group"
                                     >
-                                        Edit
+                                        <span className="group-hover:scale-110 transition-transform">✏️</span> Edit
                                     </button>
-                                    <button
-                                        onClick={(e) => handleDeleteMenu(menu.id, e)}
-                                        className="px-3 bg-red-900/50 hover:bg-red-900 text-red-400 rounded-lg transition-colors"
+
+                                    <a
+                                        href={`${window.location.origin}/${user.restaurant_name}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition-all shadow-lg shadow-blue-900/20 group"
                                     >
-                                        🗑️
+                                        <span className="group-hover:scale-110 transition-transform">👁️</span> Show
+                                    </a>
+
+                                    <button
+                                        onClick={(e) => handleDeleteMenu(savedMenus[0].id, e)}
+                                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-red-900/20 hover:bg-red-900/40 text-red-500 rounded-xl font-bold transition-all border border-red-900/30 group"
+                                    >
+                                        <span className="group-hover:scale-110 transition-transform">🗑️</span> Delete
                                     </button>
                                 </div>
                             </div>
-                        ))}
+                        </div>
                     </div>
                 </div>
             )}
@@ -335,7 +361,9 @@ const Profile = () => {
                         setEditingMenu(null)
                         setIsEditorOpen(true)
                     }}
-                    className={`group relative rounded-2xl overflow-hidden transition-all duration-300 ${hasMenu ? 'cursor-not-allowed opacity-60 grayscale' : 'cursor-pointer hover:shadow-2xl hover:scale-[1.02]'}`}
+                    className={`group relative rounded-2xl overflow-hidden transition-all duration-300 border-2 ${hasMenu
+                        ? 'cursor-not-allowed opacity-40 grayscale border-transparent'
+                        : 'cursor-pointer hover:shadow-2xl hover:scale-[1.02] border-transparent hover:border-yum-primary'}`}
                 >
                     <div className="aspect-[9/16] bg-black relative">
                         <img
@@ -347,18 +375,16 @@ const Profile = () => {
                         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 group-hover:bg-black/60 transition-colors">
                             {hasMenu ? (
                                 <div className="text-center px-4">
-                                    <div className="w-16 h-16 rounded-full bg-red-500/20 backdrop-blur-sm flex items-center justify-center mb-4 mx-auto">
-                                        <span className="text-3xl">🔒</span>
+                                    <div className="w-16 h-16 rounded-full bg-gray-800/80 backdrop-blur-sm flex items-center justify-center mb-4 mx-auto">
+                                        <span className="text-3xl text-gray-500">🔒</span>
                                     </div>
-                                    <p className="text-white font-bold text-lg mb-1">Limit Reached</p>
-                                    <p className="text-gray-400 text-xs">You can only create one menu.</p>
+                                    <p className="text-white font-bold text-lg mb-1">Locked</p>
+                                    <p className="text-gray-400 text-xs">Delete current menu to unlock</p>
                                 </div>
                             ) : (
                                 <>
                                     <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                        <svg className="w-8 h-8 text-white fill-current" viewBox="0 0 24 24">
-                                            <path d="M8 5v14l11-7z" />
-                                        </svg>
+                                        <span className="text-3xl">🌮</span>
                                     </div>
                                     <button className="px-6 py-2 bg-yum-primary text-white font-bold rounded-lg opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
                                         Create This Menu
@@ -382,7 +408,9 @@ const Profile = () => {
                         setEditingMenu(null)
                         setIsEditorOpen(true)
                     }}
-                    className={`group relative rounded-2xl overflow-hidden transition-all duration-300 ${hasMenu ? 'cursor-not-allowed opacity-60 grayscale' : 'cursor-pointer hover:shadow-2xl hover:scale-[1.02]'}`}
+                    className={`group relative rounded-2xl overflow-hidden transition-all duration-300 border-2 ${hasMenu
+                        ? 'cursor-not-allowed opacity-40 grayscale border-transparent'
+                        : 'cursor-pointer hover:shadow-2xl hover:scale-[1.02] border-transparent hover:border-yum-primary'}`}
                 >
                     <div className="aspect-[9/16] bg-black relative">
                         <img
@@ -393,18 +421,16 @@ const Profile = () => {
                         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 group-hover:bg-black/60 transition-colors">
                             {hasMenu ? (
                                 <div className="text-center px-4">
-                                    <div className="w-16 h-16 rounded-full bg-red-500/20 backdrop-blur-sm flex items-center justify-center mb-4 mx-auto">
-                                        <span className="text-3xl">🔒</span>
+                                    <div className="w-16 h-16 rounded-full bg-gray-800/80 backdrop-blur-sm flex items-center justify-center mb-4 mx-auto">
+                                        <span className="text-3xl text-gray-500">🔒</span>
                                     </div>
-                                    <p className="text-white font-bold text-lg mb-1">Limit Reached</p>
-                                    <p className="text-gray-400 text-xs">You can only create one menu.</p>
+                                    <p className="text-white font-bold text-lg mb-1">Locked</p>
+                                    <p className="text-gray-400 text-xs">Delete current menu to unlock</p>
                                 </div>
                             ) : (
                                 <>
                                     <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                        <svg className="w-8 h-8 text-white fill-current" viewBox="0 0 24 24">
-                                            <path d="M8 5v14l11-7z" />
-                                        </svg>
+                                        <span className="text-3xl">🍕</span>
                                     </div>
                                     <button className="px-6 py-2 bg-yum-primary text-white font-bold rounded-lg opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
                                         Create This Menu
@@ -419,47 +445,47 @@ const Profile = () => {
                     </div>
                 </div>
 
-                {/* Salad Template */}
+                {/* Other Template (formerly Salad) */}
                 <div
                     onClick={() => {
                         if (hasMenu) return
-                        setSelectedTemplate('salad')
+                        setSelectedTemplate('other')
                         setEditingMenu(null)
                         setIsEditorOpen(true)
                     }}
-                    className={`group relative rounded-2xl overflow-hidden transition-all duration-300 ${hasMenu ? 'cursor-not-allowed opacity-60 grayscale' : 'cursor-pointer hover:shadow-2xl hover:scale-[1.02]'}`}
+                    className={`group relative rounded-2xl overflow-hidden transition-all duration-300 border-2 ${hasMenu
+                        ? 'cursor-not-allowed opacity-40 grayscale border-transparent'
+                        : 'cursor-pointer hover:shadow-2xl hover:scale-[1.02] border-transparent hover:border-yum-primary'}`}
                 >
                     <div className="aspect-[9/16] bg-black relative">
                         <img
                             src={saladTemplate}
-                            alt="Salad Menu Template"
+                            alt="Other Menu Template"
                             className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
                         />
                         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 group-hover:bg-black/60 transition-colors">
                             {hasMenu ? (
                                 <div className="text-center px-4">
-                                    <div className="w-16 h-16 rounded-full bg-red-500/20 backdrop-blur-sm flex items-center justify-center mb-4 mx-auto">
-                                        <span className="text-3xl">🔒</span>
+                                    <div className="w-16 h-16 rounded-full bg-gray-800/80 backdrop-blur-sm flex items-center justify-center mb-4 mx-auto">
+                                        <span className="text-3xl text-gray-500">🔒</span>
                                     </div>
-                                    <p className="text-white font-bold text-lg mb-1">Limit Reached</p>
-                                    <p className="text-gray-400 text-xs">You can only create one menu.</p>
+                                    <p className="text-white font-bold text-lg mb-1">Locked</p>
+                                    <p className="text-gray-400 text-xs">Delete current menu to unlock</p>
                                 </div>
                             ) : (
                                 <>
                                     <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                        <svg className="w-8 h-8 text-white fill-current" viewBox="0 0 24 24">
-                                            <path d="M8 5v14l11-7z" />
-                                        </svg>
+                                        <span className="text-3xl">🍽️</span>
                                     </div>
                                     <button className="px-6 py-2 bg-yum-primary text-white font-bold rounded-lg opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-                                        Create This Menu
+                                        Create Custom Menu
                                     </button>
                                 </>
                             )}
                         </div>
                         <div className="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-black/90 to-transparent">
-                            <h3 className="text-white font-bold text-lg">Fresh & Green</h3>
-                            <p className="text-gray-300 text-xs">Clean • Modern • Bright</p>
+                            <h3 className="text-white font-bold text-lg">Other / Custom</h3>
+                            <p className="text-gray-300 text-xs">Flexible • Universal • Clean</p>
                         </div>
                     </div>
                 </div>
