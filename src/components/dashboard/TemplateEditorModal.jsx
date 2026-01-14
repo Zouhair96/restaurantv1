@@ -73,6 +73,19 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType }) => {
         if (currentStep > 1) setCurrentStep(prev => prev - 1)
     }
 
+    const handlePublish = () => {
+        const finalConfig = {
+            sizes,
+            friesOption,
+            mealsOption,
+            designConfig,
+            templateType
+        }
+        console.log('🚀 Publishing Menu Configuration:', finalConfig)
+        alert('Menu Published Successfully! (Check Console for Data)')
+        onClose()
+    }
+
     // --- Renderers ---
 
     const renderStep1 = () => (
@@ -303,6 +316,135 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType }) => {
         </div>
     )
 
+    const renderStepPreview = () => (
+        <div className="animate-fade-in max-w-5xl mx-auto flex flex-col lg:flex-row gap-8 items-start">
+            {/* Left: Configuration Summary */}
+            <div className="w-full lg:w-1/3 space-y-6">
+                <div className="bg-gray-900/50 p-6 rounded-2xl border border-gray-800">
+                    <h3 className="text-white font-bold mb-4 border-b border-gray-700 pb-2">Configuration Summary</h3>
+
+                    <div className="space-y-4 text-sm">
+                        <div>
+                            <p className="text-gray-400">Template Type</p>
+                            <p className="text-white font-medium capitalize">{templateType || 'Standard Menu'}</p>
+                        </div>
+                        <div>
+                            <p className="text-gray-400">Total Variants</p>
+                            <p className="text-white font-medium">{sizes.length} Sizes Configured</p>
+                        </div>
+                        <div>
+                            <p className="text-gray-400">Fries Options</p>
+                            <p className="text-white font-medium">{friesOption.length} Selected</p>
+                        </div>
+                        <div>
+                            <p className="text-gray-400">Chicken Options</p>
+                            <p className="text-white font-medium">{mealsOption.length} Selected</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-blue-500/10 p-5 rounded-2xl border border-blue-500/20">
+                    <h4 className="flex items-center gap-2 text-blue-400 font-bold mb-2">
+                        <span>ℹ️</span> Ready to Publish?
+                    </h4>
+                    <p className="text-blue-200/70 text-sm">
+                        Review your menu card preview on the right. If everything looks good, click the "Publish Menu" button to make it live!
+                    </p>
+                </div>
+            </div>
+
+            {/* Right: Live Preview Card */}
+            <div className="w-full lg:w-2/3">
+                <div
+                    className="relative overflow-hidden rounded-3xl shadow-2xl transition-all duration-500 transform hover:scale-[1.01]"
+                    style={{
+                        backgroundColor: '#1a1a1a',
+                        borderLeft: `8px solid ${designConfig.accentColor}`
+                    }}
+                >
+                    {/* Header Section */}
+                    <div className="p-8 relative overflow-hidden" style={{ backgroundColor: `${designConfig.accentColor}15` }}>
+                        <div className="absolute top-0 right-0 p-4 opacity-10 text-9xl font-black text-white pointer-events-none">
+                            MENU
+                        </div>
+                        <div className="relative z-10">
+                            <h2
+                                className="text-3xl md:text-5xl font-black text-white mb-2 tracking-tight"
+                                style={{ fontFamily: designConfig.fontTheme === 'handwritten' ? 'cursive' : 'inherit' }}
+                            >
+                                {designConfig.mainTitle || 'Menu Title'}
+                            </h2>
+                            <p className="text-lg text-white/80 font-medium">
+                                {designConfig.subtitle || 'Subtitle goes here'}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Content Section */}
+                    <div className="p-8 space-y-8 bg-gradient-to-b from-[#1a1a1a] to-[#0f0f0f]">
+
+                        {/* Sizes */}
+                        <div>
+                            <h3 className="text-gray-400 text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
+                                <span className="w-8 h-0.5" style={{ backgroundColor: designConfig.accentColor }}></span>
+                                Available Sizes
+                            </h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {sizes.map(size => (
+                                    <div key={size.id} className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/5 hover:border-white/10 transition-colors">
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-2xl">🌮</span>
+                                            <span className="font-bold text-white text-lg">{size.size}</span>
+                                        </div>
+                                        <span className="text-xl font-bold" style={{ color: designConfig.accentColor }}>
+                                            ${Number(size.price).toFixed(2)}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Fries & Meals Badges */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            {friesOption.length > 0 && (
+                                <div>
+                                    <h3 className="text-gray-400 text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
+                                        <span className="w-8 h-0.5 bg-yellow-500"></span>
+                                        Fries Options
+                                    </h3>
+                                    <div className="flex flex-wrap gap-2">
+                                        {friesOption.map(opt => (
+                                            <span key={opt} className="px-3 py-1 bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 rounded-lg text-sm font-medium capitalize">
+                                                {opt.replace('_', ' ')}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {mealsOption.length > 0 && (
+                                <div>
+                                    <h3 className="text-gray-400 text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
+                                        <span className="w-8 h-0.5 bg-green-500"></span>
+                                        Chicken Options
+                                    </h3>
+                                    <div className="flex flex-wrap gap-2">
+                                        {mealsOption.map(opt => (
+                                            <span key={opt} className="px-3 py-1 bg-green-500/10 text-green-500 border border-green-500/20 rounded-lg text-sm font-medium capitalize">
+                                                {opt.replace('_', ' ')}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+
     const renderStep2 = () => (
         <div className="space-y-8 animate-fade-in max-w-4xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -389,7 +531,7 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType }) => {
             case 2: return renderStepFries()
             case 3: return renderStepMeals()
             case 4: return renderStep2()
-            case 5: return <div className="text-white text-center py-20 text-xl font-medium">Final Preview & Publish <br /><span className="text-sm text-gray-400">Coming Soon</span></div>
+            case 5: return renderStepPreview()
             default: return renderStep1()
         }
     }
@@ -450,7 +592,7 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType }) => {
                     </button>
 
                     <button
-                        onClick={handleNext}
+                        onClick={currentStep === 5 ? handlePublish : handleNext}
                         disabled={currentStep === 1 && sizes.length === 0}
                         className={`px-8 py-3 rounded-xl font-bold text-lg transition-all transform hover:scale-105 flex items-center gap-2 ${(currentStep === 1 && sizes.length > 0) || currentStep > 1
                             ? 'bg-gradient-to-r from-yum-primary to-orange-600 text-white shadow-lg hover:shadow-orange-500/30'
