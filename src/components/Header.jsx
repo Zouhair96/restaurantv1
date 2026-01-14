@@ -91,7 +91,11 @@ const Header = () => {
 
                                     <div className="absolute right-0 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 w-48">
                                         <div className="bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden">
-                                            {user.subscription_status === 'active' ? (
+                                            {user.role === 'admin' ? (
+                                                <Link to="/admin" className="block px-4 py-3 text-gray-700 hover:bg-yum-light hover:text-yum-primary font-medium transition-colors">
+                                                    Admin Dashboard
+                                                </Link>
+                                            ) : user.subscription_status === 'active' ? (
                                                 <Link to="/profile" className="block px-4 py-3 text-gray-700 hover:bg-yum-light hover:text-yum-primary font-medium transition-colors">
                                                     Dashboard
                                                 </Link>
@@ -156,8 +160,8 @@ const Header = () => {
                     {!isLoginPage && (
                         user ? (
                             <>
-                                <Link to="/profile" className="text-yum-primary font-bold w-full text-left py-2 block">
-                                    Profile ({user.name})
+                                <Link to={user.role === 'admin' ? "/admin" : "/profile"} className="text-yum-primary font-bold w-full text-left py-2 block">
+                                    {user.role === 'admin' ? 'Admin Dashboard' : 'Profile'} ({user.name})
                                 </Link>
                                 <button
                                     onClick={() => {
