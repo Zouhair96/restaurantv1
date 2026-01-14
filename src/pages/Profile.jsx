@@ -283,6 +283,8 @@ const Profile = () => {
     const [selectedTemplate, setSelectedTemplate] = useState(null)
     const [isEditorOpen, setIsEditorOpen] = useState(false)
 
+    const hasMenu = savedMenus.length > 0
+
     const renderDynamicMenu = () => (
         <div className="space-y-6">
             <div className="flex justify-between items-center text-white mb-6">
@@ -328,11 +330,12 @@ const Profile = () => {
                 {/* Tacos Template */}
                 <div
                     onClick={() => {
+                        if (hasMenu) return
                         setSelectedTemplate('tacos')
                         setEditingMenu(null)
                         setIsEditorOpen(true)
                     }}
-                    className="group relative rounded-2xl overflow-hidden cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition-all duration-300"
+                    className={`group relative rounded-2xl overflow-hidden transition-all duration-300 ${hasMenu ? 'cursor-not-allowed opacity-60 grayscale' : 'cursor-pointer hover:shadow-2xl hover:scale-[1.02]'}`}
                 >
                     <div className="aspect-[9/16] bg-black relative">
                         <img
@@ -342,14 +345,26 @@ const Profile = () => {
                         />
                         {/* Play Overlay */}
                         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 group-hover:bg-black/60 transition-colors">
-                            <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                <svg className="w-8 h-8 text-white fill-current" viewBox="0 0 24 24">
-                                    <path d="M8 5v14l11-7z" />
-                                </svg>
-                            </div>
-                            <button className="px-6 py-2 bg-yum-primary text-white font-bold rounded-lg opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-                                Create This Menu
-                            </button>
+                            {hasMenu ? (
+                                <div className="text-center px-4">
+                                    <div className="w-16 h-16 rounded-full bg-red-500/20 backdrop-blur-sm flex items-center justify-center mb-4 mx-auto">
+                                        <span className="text-3xl">🔒</span>
+                                    </div>
+                                    <p className="text-white font-bold text-lg mb-1">Limit Reached</p>
+                                    <p className="text-gray-400 text-xs">You can only create one menu.</p>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                        <svg className="w-8 h-8 text-white fill-current" viewBox="0 0 24 24">
+                                            <path d="M8 5v14l11-7z" />
+                                        </svg>
+                                    </div>
+                                    <button className="px-6 py-2 bg-yum-primary text-white font-bold rounded-lg opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+                                        Create This Menu
+                                    </button>
+                                </>
+                            )}
                         </div>
                         {/* Label */}
                         <div className="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-black/90 to-transparent">
@@ -362,11 +377,12 @@ const Profile = () => {
                 {/* Pizza Template */}
                 <div
                     onClick={() => {
+                        if (hasMenu) return
                         setSelectedTemplate('pizza')
                         setEditingMenu(null)
                         setIsEditorOpen(true)
                     }}
-                    className="group relative rounded-2xl overflow-hidden cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition-all duration-300"
+                    className={`group relative rounded-2xl overflow-hidden transition-all duration-300 ${hasMenu ? 'cursor-not-allowed opacity-60 grayscale' : 'cursor-pointer hover:shadow-2xl hover:scale-[1.02]'}`}
                 >
                     <div className="aspect-[9/16] bg-black relative">
                         <img
@@ -375,14 +391,26 @@ const Profile = () => {
                             className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
                         />
                         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 group-hover:bg-black/60 transition-colors">
-                            <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                <svg className="w-8 h-8 text-white fill-current" viewBox="0 0 24 24">
-                                    <path d="M8 5v14l11-7z" />
-                                </svg>
-                            </div>
-                            <button className="px-6 py-2 bg-yum-primary text-white font-bold rounded-lg opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-                                Create This Menu
-                            </button>
+                            {hasMenu ? (
+                                <div className="text-center px-4">
+                                    <div className="w-16 h-16 rounded-full bg-red-500/20 backdrop-blur-sm flex items-center justify-center mb-4 mx-auto">
+                                        <span className="text-3xl">🔒</span>
+                                    </div>
+                                    <p className="text-white font-bold text-lg mb-1">Limit Reached</p>
+                                    <p className="text-gray-400 text-xs">You can only create one menu.</p>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                        <svg className="w-8 h-8 text-white fill-current" viewBox="0 0 24 24">
+                                            <path d="M8 5v14l11-7z" />
+                                        </svg>
+                                    </div>
+                                    <button className="px-6 py-2 bg-yum-primary text-white font-bold rounded-lg opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+                                        Create This Menu
+                                    </button>
+                                </>
+                            )}
                         </div>
                         <div className="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-black/90 to-transparent">
                             <h3 className="text-white font-bold text-lg">Pizza Party</h3>
@@ -394,11 +422,12 @@ const Profile = () => {
                 {/* Salad Template */}
                 <div
                     onClick={() => {
+                        if (hasMenu) return
                         setSelectedTemplate('salad')
                         setEditingMenu(null)
                         setIsEditorOpen(true)
                     }}
-                    className="group relative rounded-2xl overflow-hidden cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition-all duration-300"
+                    className={`group relative rounded-2xl overflow-hidden transition-all duration-300 ${hasMenu ? 'cursor-not-allowed opacity-60 grayscale' : 'cursor-pointer hover:shadow-2xl hover:scale-[1.02]'}`}
                 >
                     <div className="aspect-[9/16] bg-black relative">
                         <img
@@ -407,14 +436,26 @@ const Profile = () => {
                             className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
                         />
                         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 group-hover:bg-black/60 transition-colors">
-                            <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                <svg className="w-8 h-8 text-white fill-current" viewBox="0 0 24 24">
-                                    <path d="M8 5v14l11-7z" />
-                                </svg>
-                            </div>
-                            <button className="px-6 py-2 bg-yum-primary text-white font-bold rounded-lg opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-                                Create This Menu
-                            </button>
+                            {hasMenu ? (
+                                <div className="text-center px-4">
+                                    <div className="w-16 h-16 rounded-full bg-red-500/20 backdrop-blur-sm flex items-center justify-center mb-4 mx-auto">
+                                        <span className="text-3xl">🔒</span>
+                                    </div>
+                                    <p className="text-white font-bold text-lg mb-1">Limit Reached</p>
+                                    <p className="text-gray-400 text-xs">You can only create one menu.</p>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                        <svg className="w-8 h-8 text-white fill-current" viewBox="0 0 24 24">
+                                            <path d="M8 5v14l11-7z" />
+                                        </svg>
+                                    </div>
+                                    <button className="px-6 py-2 bg-yum-primary text-white font-bold rounded-lg opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+                                        Create This Menu
+                                    </button>
+                                </>
+                            )}
                         </div>
                         <div className="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-black/90 to-transparent">
                             <h3 className="text-white font-bold text-lg">Fresh & Green</h3>
