@@ -1,11 +1,23 @@
 const { Pool } = require('pg');
 
-// For local development, load .env file if available
+// For local development, load .env file if available (Zero-dependency version)
+const fs = require('fs');
+const path = require('path');
+
 try {
-    require('dotenv').config();
+    const envPath = path.resolve(__dirname, '../../.env');
+    if (fs.existsSync(envPath)) {
+        const envConfig = fs.readFileSync(envPath, 'utf8');
+        envConfig.split('\n').forEach(line => {
+            const [key, value] = line.split('=');
+            if (key && value) {
+                // Remove quotes and whitespace
+                process.env[key.trim()] = value.trim().replace(/^["']|["']$/g, '');
+            }
+        });
+    }
 } catch (e) {
-    // dotenv might not be available in production or if not installed, which is fine for Netlify 
-    // as it injects vars automatically. But valid for local `node` runs.
+    // Ignore error if file doesn't exist
 }
 
 // Enforce Environment Variable
