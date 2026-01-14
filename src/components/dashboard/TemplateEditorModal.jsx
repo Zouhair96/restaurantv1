@@ -15,7 +15,7 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType }) => {
     const [editingId, setEditingId] = useState(null)
 
     // Step 2 State: Fries Quantity
-    const [friesOption, setFriesOption] = useState('moyenne')
+    const [friesOption, setFriesOption] = useState(['moyenne'])
 
     // Step 3 State: Design & Text
     const [designConfig, setDesignConfig] = useState({
@@ -213,29 +213,42 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType }) => {
                     { id: 'sans', label: 'Sans Frites', icon: '🚫', desc: 'Just the main dish' },
                     { id: 'un_peu', label: 'Un Peu', icon: '🍟', desc: 'Small portion' },
                     { id: 'moyenne', label: 'Moyenne', icon: '🍟🍟', desc: 'Standard side' },
-                    { id: 'beaucoup', label: 'Beaucoup', icon: '🍟🍟🍟', desc: 'For the hungry!' }
-                ].map((option) => (
-                    <div
-                        key={option.id}
-                        onClick={() => setFriesOption(option.id)}
-                        className={`cursor-pointer rounded-2xl p-6 border-2 transition-all duration-300 flex flex-col items-center justify-center gap-4 group ${friesOption === option.id
-                            ? 'bg-yum-primary/10 border-yum-primary shadow-lg shadow-yum-primary/20 scale-105'
-                            : 'bg-gray-800 border-gray-700 hover:border-gray-500 hover:bg-gray-750'
-                            }`}
-                    >
-                        <div className="text-5xl group-hover:scale-110 transition-transform duration-300">{option.icon}</div>
-                        <div className="text-center">
-                            <h4 className={`font-bold text-lg ${friesOption === option.id ? 'text-yum-primary' : 'text-white'}`}>
-                                {option.label}
-                            </h4>
-                            <p className="text-gray-400 text-sm mt-1">{option.desc}</p>
+                    { id: 'beaucoup', label: 'Beaucoup', icon: '🍟🍟🍟', desc: 'For the hungry!' },
+                    { id: 'inside', label: 'Fries Inside', icon: '🥙', desc: 'Wrapped inside' },
+                    { id: 'outside', label: 'Fries Outside', icon: '🍽️', desc: 'Served on side' }
+                ].map((option) => {
+                    const isSelected = friesOption.includes(option.id)
+                    return (
+                        <div
+                            key={option.id}
+                            onClick={() => {
+                                setFriesOption(prev => {
+                                    if (prev.includes(option.id)) {
+                                        return prev.filter(id => id !== option.id)
+                                    } else {
+                                        return [...prev, option.id]
+                                    }
+                                })
+                            }}
+                            className={`cursor-pointer rounded-2xl p-6 border-2 transition-all duration-300 flex flex-col items-center justify-center gap-4 group ${isSelected
+                                ? 'bg-yum-primary/10 border-yum-primary shadow-lg shadow-yum-primary/20 scale-105'
+                                : 'bg-gray-800 border-gray-700 hover:border-gray-500 hover:bg-gray-750'
+                                }`}
+                        >
+                            <div className="text-5xl group-hover:scale-110 transition-transform duration-300">{option.icon}</div>
+                            <div className="text-center">
+                                <h4 className={`font-bold text-lg ${isSelected ? 'text-yum-primary' : 'text-white'}`}>
+                                    {option.label}
+                                </h4>
+                                <p className="text-gray-400 text-sm mt-1">{option.desc}</p>
+                            </div>
+                            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center mt-2 ${isSelected ? 'border-yum-primary bg-yum-primary' : 'border-gray-600'
+                                }`}>
+                                {isSelected && <div className="w-2.5 h-2.5 bg-white rounded-full"></div>}
+                            </div>
                         </div>
-                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center mt-2 ${friesOption === option.id ? 'border-yum-primary bg-yum-primary' : 'border-gray-600'
-                            }`}>
-                            {friesOption === option.id && <div className="w-2.5 h-2.5 bg-white rounded-full"></div>}
-                        </div>
-                    </div>
-                ))}
+                    )
+                })}
             </div>
         </div>
     )
