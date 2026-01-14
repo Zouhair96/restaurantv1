@@ -82,9 +82,9 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
             designConfig
         }
 
-        // Simple prompt for name for now
-        const name = prompt('Enter a name for this menu:', initialData?.name || `${templateType} Menu`)
-        if (!name) return
+
+        // Auto-generate name from Restaurant Name or default
+        const name = initialData?.name || restaurantName || 'Main Menu'
 
         try {
             await onSave(name, finalConfig)
