@@ -26,7 +26,7 @@ exports.handler = async (event, context) => {
 
         // Insert user
         const newUser = await query(
-            'INSERT INTO users (name, email, password_hash, restaurant_name, address, phone_number) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, name, email, restaurant_name',
+            'INSERT INTO users (name, email, password_hash, restaurant_name, address, phone_number) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, name, email, restaurant_name, role',
             [name, email, passwordHash, restaurantName, address, phoneNumber]
         );
 
@@ -34,7 +34,7 @@ exports.handler = async (event, context) => {
 
         // Create Token
         const token = jwt.sign(
-            { id: user.id, email: user.email },
+            { id: user.id, email: user.email, role: user.role },
             process.env.JWT_SECRET || 'secret_fallback', // Fallback for dev only
             { expiresIn: '1h' }
         );

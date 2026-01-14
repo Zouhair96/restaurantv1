@@ -30,7 +30,7 @@ exports.handler = async (event, context) => {
 
         // Create Token
         const token = jwt.sign(
-            { id: user.id, email: user.email },
+            { id: user.id, email: user.email, role: user.role },
             process.env.JWT_SECRET || 'secret_fallback',
             { expiresIn: '1h' }
         );
@@ -43,7 +43,8 @@ exports.handler = async (event, context) => {
             restaurant_name: user.restaurant_name,
             subscription_status: user.subscription_status,
             subscription_plan: user.subscription_plan,
-            subscription_start_date: user.subscription_start_date
+            subscription_start_date: user.subscription_start_date,
+            role: user.role
         };
 
         return {

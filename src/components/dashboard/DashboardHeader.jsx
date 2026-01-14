@@ -51,9 +51,16 @@ const DashboardHeader = ({ onMenuClick }) => {
                     </button>
 
                     <div className="flex items-center space-x-3 border-l border-gray-700 pl-4">
+                        {/* Admin Link if Admin */}
+                        {user?.role === 'admin' && (
+                            <a href="/admin" className="mr-2 p-2 bg-purple-500/10 text-purple-400 rounded-lg border border-purple-500/20 hover:bg-purple-500/20 transition-colors" title="Admin Dashboard">
+                                🛡️
+                            </a>
+                        )}
+
                         <div className="flex flex-col text-right hidden sm:flex">
                             <span className="text-sm font-medium text-white">{user?.name || 'Owner'}</span>
-                            <span className="text-xs text-yum-primary">Manager</span>
+                            <span className="text-xs text-yum-primary uppercase font-bold">{user?.role === 'admin' ? 'Admin' : 'Manager'}</span>
                         </div>
                         <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-yum-primary to-orange-500 p-[2px]">
                             <div className="h-full w-full rounded-full bg-gray-900 flex items-center justify-center text-xs font-bold text-white">

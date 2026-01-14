@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS users (
     name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
+    role TEXT DEFAULT 'user', -- 'admin' or 'user'
     restaurant_name TEXT,     -- "restaurant name"
     address TEXT,             -- "location/address"
     phone_number TEXT,        -- "phone number"
