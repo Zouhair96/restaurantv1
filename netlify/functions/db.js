@@ -9,10 +9,21 @@ try {
     if (fs.existsSync(envPath)) {
         const envConfig = fs.readFileSync(envPath, 'utf8');
         envConfig.split('\n').forEach(line => {
-            const [key, value] = line.split('=');
-            if (key && value) {
-                // Remove quotes and whitespace
-                process.env[key.trim()] = value.trim().replace(/^["']|["']$/g, '');
+            // Skip comments and empty lines
+            if (!line || line.startsWith('#')) return;
+
+            const parts = line.split('=');
+            if (parts.length >= 2) {
+                const key = parts.shift().trim();
+                let value = parts.join('=').trim();
+
+                // Remove surrounding quotes if present
+                if ((value.startsWith('"') && value.endsWith('"')) ||
+                    (value.startsWith("'") && value.endsWith("'"))) {
+                    value = value.substring(1, value.length - 1);
+                }
+
+                process.env[key] = value;
             }
         });
     }
