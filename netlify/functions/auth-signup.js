@@ -66,8 +66,8 @@ exports.handler = async (event, context) => {
             statusCode: 500,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                error: 'Internal Server Error'
-                // details and stack removed for security
+                error: 'Internal Server Error',
+                details: error.message // TEMPORARY DEBUGGING
             })
         };
     }
