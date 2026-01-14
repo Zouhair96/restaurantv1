@@ -17,7 +17,10 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType }) => {
     // Step 2 State: Fries Quantity
     const [friesOption, setFriesOption] = useState(['moyenne'])
 
-    // Step 3 State: Design & Text
+    // Step 3 State: Meals
+    const [mealsOption, setMealsOption] = useState([])
+
+    // Step 4 State: Design & Text
     const [designConfig, setDesignConfig] = useState({
         mainTitle: 'Tacos Festival',
         subtitle: 'Fresh & Spicy - Limited Time',
@@ -63,7 +66,7 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType }) => {
 
     // --- Navigation Handlers ---
     const handleNext = () => {
-        if (currentStep < 4) setCurrentStep(prev => prev + 1)
+        if (currentStep < 5) setCurrentStep(prev => prev + 1)
     }
 
     const handleBack = () => {
@@ -231,20 +234,67 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType }) => {
                                 })
                             }}
                             className={`cursor-pointer rounded-2xl p-6 border-2 transition-all duration-300 flex flex-col items-center justify-center gap-4 group ${isSelected
-                                ? 'bg-yum-primary/10 border-yum-primary shadow-lg shadow-yum-primary/20 scale-105'
+                                ? 'bg-green-500/10 border-green-500 shadow-lg shadow-green-500/20 scale-105'
                                 : 'bg-gray-800 border-gray-700 hover:border-gray-500 hover:bg-gray-750'
                                 }`}
                         >
                             <div className="text-5xl group-hover:scale-110 transition-transform duration-300">{option.icon}</div>
                             <div className="text-center">
-                                <h4 className={`font-bold text-lg ${isSelected ? 'text-yum-primary' : 'text-white'}`}>
+                                <h4 className={`font-bold text-lg ${isSelected ? 'text-green-500' : 'text-white'}`}>
                                     {option.label}
                                 </h4>
                                 <p className="text-gray-400 text-sm mt-1">{option.desc}</p>
                             </div>
-                            <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center mt-2 ${isSelected ? 'border-yum-primary bg-yum-primary' : 'border-gray-600'
-                                }`}>
-                                {isSelected && <div className="w-2.5 h-2.5 bg-white rounded-full"></div>}
+                        </div>
+                    )
+                })}
+            </div>
+        </div>
+    )
+
+    const renderStepMeals = () => (
+        <div className="animate-fade-in max-w-4xl mx-auto">
+            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                <span className="bg-orange-500/20 text-orange-500 w-8 h-8 rounded-full flex items-center justify-center text-sm">🍗</span>
+                Choose Meals (Chicken)
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[
+                    { id: 'calssique', label: 'Classique', icon: '🍗' },
+                    { id: 'tandoori', label: 'Tandoori', icon: '🌶️' },
+                    { id: 'curry', label: 'Curry', icon: '🍛' },
+                    { id: 'bbq', label: 'BBQ', icon: '🔥' },
+                    { id: 'nuggets', label: 'Nuggets', icon: '🥡' },
+                    { id: 'crispy', label: 'Crispy', icon: '🥪' },
+                    { id: 'filet', label: 'Filet', icon: '🥩' },
+                    { id: 'cordon_bleu', label: 'Cordon Bleu', icon: '🧀' },
+                    { id: 'fajita', label: 'Fajita', icon: '🌮' },
+                    { id: 'minced', label: 'Minced', icon: '🥢' }
+                ].map((option) => {
+                    const isSelected = mealsOption.includes(option.id)
+                    return (
+                        <div
+                            key={option.id}
+                            onClick={() => {
+                                setMealsOption(prev => {
+                                    if (prev.includes(option.id)) {
+                                        return prev.filter(id => id !== option.id)
+                                    } else {
+                                        return [...prev, option.id]
+                                    }
+                                })
+                            }}
+                            className={`cursor-pointer rounded-2xl p-6 border-2 transition-all duration-300 flex flex-col items-center justify-center gap-4 group ${isSelected
+                                ? 'bg-green-500/10 border-green-500 shadow-lg shadow-green-500/20 scale-105'
+                                : 'bg-gray-800 border-gray-700 hover:border-gray-500 hover:bg-gray-750'
+                                }`}
+                        >
+                            <div className="text-4xl group-hover:scale-110 transition-transform duration-300">{option.icon}</div>
+                            <div className="text-center">
+                                <h4 className={`font-bold text-lg ${isSelected ? 'text-green-500' : 'text-white'}`}>
+                                    {option.label}
+                                </h4>
                             </div>
                         </div>
                     )
@@ -337,8 +387,9 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType }) => {
         switch (currentStep) {
             case 1: return renderStep1()
             case 2: return renderStepFries()
-            case 3: return renderStep2()
-            case 4: return <div className="text-white text-center py-20 text-xl font-medium">Final Preview & Publish <br /><span className="text-sm text-gray-400">Coming Soon</span></div>
+            case 3: return renderStepMeals()
+            case 4: return renderStep2()
+            case 5: return <div className="text-white text-center py-20 text-xl font-medium">Final Preview & Publish <br /><span className="text-sm text-gray-400">Coming Soon</span></div>
             default: return renderStep1()
         }
     }
@@ -355,7 +406,8 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType }) => {
                         <p className="text-gray-400 text-sm">Step {currentStep}: {
                             currentStep === 1 ? 'Configure Sizes' :
                                 currentStep === 2 ? 'Fries Options' :
-                                    currentStep === 3 ? 'Customize Design' : 'Preview'
+                                    currentStep === 3 ? 'Meal Options' :
+                                        currentStep === 4 ? 'Customize Design' : 'Preview'
                         }</p>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-gray-800 rounded-full text-gray-400 hover:text-white transition-colors">
@@ -366,16 +418,16 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType }) => {
                 {/* Steps Progress */}
                 <div className="bg-gray-900/30 py-3 border-b border-gray-800">
                     <div className="flex justify-center items-center gap-4">
-                        {[1, 2, 3, 4].map(step => (
+                        {[1, 2, 3, 4, 5].map(step => (
                             <div key={step} className="flex items-center gap-2">
                                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${currentStep >= step ? 'bg-yum-primary text-white shadow-lg shadow-yum-primary/30' : 'bg-gray-800 text-gray-500'
                                     }`}>
                                     {step}
                                 </div>
                                 <span className={`text-sm font-medium ${currentStep >= step ? 'text-white' : 'text-gray-600'} hidden sm:block`}>
-                                    {step === 1 ? 'Sizes' : step === 2 ? 'Fries' : step === 3 ? 'Design' : 'Preview'}
+                                    {step === 1 ? 'Sizes' : step === 2 ? 'Fries' : step === 3 ? 'Meals' : step === 4 ? 'Design' : 'Preview'}
                                 </span>
-                                {step < 4 && <div className="w-8 md:w-12 h-0.5 bg-gray-800"></div>}
+                                {step < 5 && <div className="w-8 md:w-12 h-0.5 bg-gray-800"></div>}
                             </div>
                         ))}
                     </div>
@@ -405,7 +457,7 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType }) => {
                             : 'bg-gray-800 text-gray-500 cursor-not-allowed'
                             }`}
                     >
-                        {currentStep === 4 ? 'Publish Menu 🚀' : 'Next Step →'}
+                        {currentStep === 5 ? 'Publish Menu 🚀' : 'Next Step →'}
                     </button>
                 </div>
             </div>
