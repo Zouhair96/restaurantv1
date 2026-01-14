@@ -40,7 +40,10 @@ exports.handler = async (event, context) => {
             id: user.id,
             name: user.name,
             email: user.email,
-            restaurant_name: user.restaurant_name
+            restaurant_name: user.restaurant_name,
+            subscription_status: user.subscription_status,
+            subscription_plan: user.subscription_plan,
+            subscription_start_date: user.subscription_start_date
         };
 
         return {
