@@ -92,3 +92,6 @@ public
 
 # Dist
 dist/
+
+# Local Netlify folder
+.netlify
