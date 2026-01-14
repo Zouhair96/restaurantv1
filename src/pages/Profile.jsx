@@ -13,6 +13,7 @@ import AddMemberModal from '../components/dashboard/AddMemberModal'
 import PromotionCard from '../components/dashboard/PromotionCard'
 import CreatePromoModal from '../components/dashboard/CreatePromoModal'
 import TemplateEditorModal from '../components/dashboard/TemplateEditorModal'
+import { fetchMenus, createMenu, updateMenu, deleteMenu } from '../utils/menus'
 
 // Assets
 import tacosTemplate from '../assets/tacos_template.png'
@@ -27,6 +28,59 @@ const Profile = () => {
     const [showOnboarding, setShowOnboarding] = useState(false)
     const [showAddMemberModal, setShowAddMemberModal] = useState(false)
     const [showPromoModal, setShowPromoModal] = useState(false)
+
+    // Menus State
+    const [savedMenus, setSavedMenus] = useState([])
+    const [editingMenu, setEditingMenu] = useState(null)
+
+    useEffect(() => {
+        loadMenus()
+    }, [user])
+
+    const loadMenus = async () => {
+        if (!user) return
+        try {
+            const data = await fetchMenus()
+            setSavedMenus(data)
+        } catch (error) {
+            console.error('Error loading menus:', error)
+        }
+    }
+
+    const handleSaveMenu = async (name, config) => {
+        try {
+            if (editingMenu) {
+                await updateMenu(editingMenu.id, name, config)
+            } else {
+                await createMenu(name, selectedTemplate || 'custom', config)
+            }
+            await loadMenus()
+            setEditingMenu(null)
+            setSelectedTemplate(null)
+            setIsEditorOpen(false)
+        } catch (error) {
+            console.error('Error saving menu:', error)
+            alert('Failed to save menu')
+        }
+    }
+
+    const handleDeleteMenu = async (id, e) => {
+        e.stopPropagation()
+        if (window.confirm('Are you sure you want to delete this menu?')) {
+            try {
+                await deleteMenu(id)
+                await loadMenus()
+            } catch (error) {
+                console.error('Error deleting menu:', error)
+            }
+        }
+    }
+
+    const handleEditMenu = (menu) => {
+        setEditingMenu(menu)
+        setSelectedTemplate(menu.template_type)
+        setIsEditorOpen(true)
+    }
 
     // Mock Team Data State
     const [teamMembers, setTeamMembers] = useState([
@@ -247,6 +301,38 @@ const Profile = () => {
                     </button>
                 )}
             </div>
+
+            {/* Saved Menus List */}
+            {savedMenus.length > 0 && (
+                <div className="mb-8">
+                    <h3 className="text-xl font-bold text-white mb-4">Your Saved Menus</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {savedMenus.map(menu => (
+                            <div key={menu.id} className="bg-gray-800 rounded-xl p-5 border border-gray-700 hover:border-yum-primary transition-all group">
+                                <div className="flex justify-between items-start mb-3">
+                                    <h4 className="font-bold text-white text-lg">{menu.name}</h4>
+                                    <span className="text-xs bg-gray-700 text-gray-300 px-2 py-1 rounded capitalize">{menu.template_type}</span>
+                                </div>
+                                <p className="text-gray-400 text-sm mb-4">Last updated: {new Date(menu.updated_at).toLocaleDateString()}</p>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => handleEditMenu(menu)}
+                                        className="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold py-2 rounded-lg transition-colors"
+                                    >
+                                        Edit
+                                    </button>
+                                    <button
+                                        onClick={(e) => handleDeleteMenu(menu.id, e)}
+                                        className="px-3 bg-red-900/50 hover:bg-red-900 text-red-400 rounded-lg transition-colors"
+                                    >
+                                        🗑️
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* Tacos Template */}
@@ -502,8 +588,14 @@ const Profile = () => {
 
             <TemplateEditorModal
                 isOpen={isEditorOpen}
-                onClose={() => setIsEditorOpen(false)}
+                onClose={() => {
+                    setIsEditorOpen(false)
+                    setEditingMenu(null)
+                    setSelectedTemplate(null)
+                }}
                 templateType={selectedTemplate || 'tacos'}
+                initialData={editingMenu}
+                onSave={handleSaveMenu}
             />
 
             <DashboardLayout

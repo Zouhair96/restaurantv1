@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
 
-const TemplateEditorModal = ({ isOpen, onClose, templateType }) => {
+const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSave }) => {
     if (!isOpen) return null
 
     const [currentStep, setCurrentStep] = useState(1)
 
     // Step 1 State: Sizes
-    const [sizes, setSizes] = useState([])
+    const [sizes, setSizes] = useState(initialData?.config?.sizes || [])
     const [formData, setFormData] = useState({
         size: '',
         price: '',
@@ -15,13 +15,13 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType }) => {
     const [editingId, setEditingId] = useState(null)
 
     // Step 2 State: Fries Quantity
-    const [friesOption, setFriesOption] = useState(['moyenne'])
+    const [friesOption, setFriesOption] = useState(initialData?.config?.friesOption || ['moyenne'])
 
     // Step 3 State: Meals
-    const [mealsOption, setMealsOption] = useState([])
+    const [mealsOption, setMealsOption] = useState(initialData?.config?.mealsOption || [])
 
     // Step 4 State: Design & Text
-    const [designConfig, setDesignConfig] = useState({
+    const [designConfig, setDesignConfig] = useState(initialData?.config?.designConfig || {
         mainTitle: 'Tacos Festival',
         subtitle: 'Fresh & Spicy - Limited Time',
         accentColor: '#FF4500', // Orange Red
@@ -73,17 +73,24 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType }) => {
         if (currentStep > 1) setCurrentStep(prev => prev - 1)
     }
 
-    const handlePublish = () => {
+    const handlePublish = async () => {
         const finalConfig = {
             sizes,
             friesOption,
             mealsOption,
-            designConfig,
-            templateType
+            designConfig
         }
-        console.log('🚀 Publishing Menu Configuration:', finalConfig)
-        alert('Menu Published Successfully! (Check Console for Data)')
-        onClose()
+
+        // Simple prompt for name for now
+        const name = prompt('Enter a name for this menu:', initialData?.name || `${templateType} Menu`)
+        if (!name) return
+
+        try {
+            await onSave(name, finalConfig)
+            onClose()
+        } catch (error) {
+            alert('Failed to save menu: ' + error.message)
+        }
     }
 
     // --- Renderers ---
