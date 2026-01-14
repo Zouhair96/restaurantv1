@@ -5,8 +5,23 @@ const fs = require('fs');
 const path = require('path');
 
 try {
-    const envPath = path.resolve(__dirname, '../../.env');
-    if (fs.existsSync(envPath)) {
+    // Try multiple paths to find .env
+    const pathsToCheck = [
+        path.resolve(process.cwd(), '.env'),
+        path.resolve(__dirname, '../../.env'),
+        path.resolve(__dirname, '../.env'),
+        path.resolve(process.cwd(), '..', '.env')
+    ];
+
+    let envPath = null;
+    for (const p of pathsToCheck) {
+        if (fs.existsSync(p)) {
+            envPath = p;
+            break;
+        }
+    }
+
+    if (envPath) {
         const envConfig = fs.readFileSync(envPath, 'utf8');
         envConfig.split('\n').forEach(line => {
             // Skip comments and empty lines
