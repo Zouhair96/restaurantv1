@@ -1,8 +1,19 @@
-const { query } = require('./db');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-
 exports.handler = async (event, context) => {
+    // Move imports inside to catch loading errors
+    let query, bcrypt, jwt;
+    try {
+        const db = require('./db');
+        query = db.query;
+        bcrypt = require('bcryptjs');
+        jwt = require('jsonwebtoken');
+    } catch (e) {
+        return {
+            statusCode: 500,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ error: 'Dependency Load Error', details: e.message })
+        };
+    }
+
     try {
         if (event.httpMethod !== 'POST') {
             return { statusCode: 405, body: 'Method Not Allowed' };
