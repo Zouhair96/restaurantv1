@@ -8,7 +8,12 @@ const getUserFromToken = (headers) => {
 
     const token = authHeader.replace('Bearer ', '');
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret_fallback');
+        const secret = process.env.JWT_SECRET;
+        if (!secret) {
+            console.error("CRITICAL: JWT_SECRET missing in menus.js");
+            return null;
+        }
+        const decoded = jwt.verify(token, secret);
         return decoded;
     } catch (e) {
         return null;
@@ -107,10 +112,10 @@ exports.handler = async (event, context) => {
         return { statusCode: 405, body: 'Method Not Allowed' };
 
     } catch (error) {
-        console.error('API Error:', error);
+        console.error('API Error:', error.message);
         return {
             statusCode: 500,
-            body: JSON.stringify({ error: 'Internal Server Error', details: error.message })
+            body: JSON.stringify({ error: 'Internal Server Error' })
         };
     }
 };
