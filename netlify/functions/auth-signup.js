@@ -3,27 +3,27 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 exports.handler = async (event, context) => {
-    if (event.httpMethod !== 'POST') {
-        return { statusCode: 405, body: 'Method Not Allowed' };
-    }
-
-    const { name, email, password, restaurantName, address, phoneNumber } = JSON.parse(event.body);
-
-    if (!email || !password) {
-        return { statusCode: 400, body: JSON.stringify({ error: 'Email and password are required' }) };
-    }
-
-    // Security Hardening: Input Validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        return { statusCode: 400, body: JSON.stringify({ error: 'Invalid email format' }) };
-    }
-
-    if (password.length < 8) {
-        return { statusCode: 400, body: JSON.stringify({ error: 'Password must be at least 8 characters long' }) };
-    }
-
     try {
+        if (event.httpMethod !== 'POST') {
+            return { statusCode: 405, body: 'Method Not Allowed' };
+        }
+
+        const { name, email, password, restaurantName, address, phoneNumber } = JSON.parse(event.body);
+
+        if (!email || !password) {
+            return { statusCode: 400, body: JSON.stringify({ error: 'Email and password are required' }) };
+        }
+
+        // Security Hardening: Input Validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return { statusCode: 400, body: JSON.stringify({ error: 'Invalid email format' }) };
+        }
+
+        if (password.length < 8) {
+            return { statusCode: 400, body: JSON.stringify({ error: 'Password must be at least 8 characters long' }) };
+        }
+
         // Check if user exists
         const checkUser = await query('SELECT * FROM users WHERE email = $1', [email]);
         if (checkUser.rows.length > 0) {
@@ -61,13 +61,14 @@ exports.handler = async (event, context) => {
         };
 
     } catch (error) {
-        console.error('Signup Error:', error.message); // Log message only, not full object if it contains sensitive info (though headers usually don't)
+        console.error('Signup Error:', error);
         return {
             statusCode: 500,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 error: 'Internal Server Error',
-                details: error.message // TEMPORARY DEBUGGING
+                details: error.message,
+                stack: error.stack // Parsing errors often need stack to identify source
             })
         };
     }
