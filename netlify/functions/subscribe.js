@@ -21,6 +21,9 @@ exports.handler = async (event, context) => {
         // 2. Extract Data
         const { plan, paymentMethod } = JSON.parse(event.body);
 
+        // Handle if plan is an object (new way) or string (old way)
+        const planName = typeof plan === 'object' ? plan.name : plan;
+
         if (!plan) {
             return { statusCode: 400, body: JSON.stringify({ error: 'Plan details required' }) };
         }
@@ -36,7 +39,7 @@ exports.handler = async (event, context) => {
             RETURNING id, name, email, restaurant_name, subscription_plan, subscription_status
         `;
 
-        const result = await query(updateQuery, [plan.name, userId]);
+        const result = await query(updateQuery, [planName, userId]);
 
         if (result.rows.length === 0) {
             return { statusCode: 404, body: JSON.stringify({ error: 'User not found' }) };
