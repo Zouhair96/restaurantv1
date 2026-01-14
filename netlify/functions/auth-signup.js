@@ -7,7 +7,7 @@ exports.handler = async (event, context) => {
         return { statusCode: 405, body: 'Method Not Allowed' };
     }
 
-    const { name, email, password, restaurantName } = JSON.parse(event.body);
+    const { name, email, password, restaurantName, address, phoneNumber } = JSON.parse(event.body);
 
     if (!email || !password) {
         return { statusCode: 400, body: JSON.stringify({ error: 'Email and password are required' }) };
@@ -26,8 +26,8 @@ exports.handler = async (event, context) => {
 
         // Insert user
         const newUser = await query(
-            'INSERT INTO users (name, email, password_hash, restaurant_name) VALUES ($1, $2, $3, $4) RETURNING id, name, email, restaurant_name',
-            [name, email, passwordHash, restaurantName]
+            'INSERT INTO users (name, email, password_hash, restaurant_name, address, phone_number) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, name, email, restaurant_name',
+            [name, email, passwordHash, restaurantName, address, phoneNumber]
         );
 
         const user = newUser.rows[0];

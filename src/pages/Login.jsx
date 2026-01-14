@@ -19,6 +19,8 @@ const Login = () => {
     const [password, setPassword] = useState('')
     const [name, setName] = useState('')
     const [restaurantName, setRestaurantName] = useState('')
+    const [address, setAddress] = useState('')
+    const [phoneNumber, setPhoneNumber] = useState('')
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -33,7 +35,13 @@ const Login = () => {
                 // Redirect after short delay
                 setTimeout(() => navigate('/demo'), 1500)
             } else {
-                await signup({ name, email, password, restaurantName })
+                // Validation for Restaurant Name
+                const restaurantNameRegex = /^[a-zA-Z0-9.\-\_\s]+$/
+                if (!restaurantNameRegex.test(restaurantName)) {
+                    throw new Error(t('auth.invalidRestaurantName') || "Restaurant name contains invalid characters.")
+                }
+
+                await signup({ name, email, password, restaurantName, address, phoneNumber })
                 setSuccess(t('auth.successSignup'))
                 // Redirect after short delay
                 setTimeout(() => navigate('/demo'), 1500)
@@ -86,13 +94,36 @@ const Login = () => {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-2">{t('auth.restaurantName')}</label>
+                                        <label className="block text-sm font-bold text-gray-700 mb-2">{t('auth.restaurantName')} <span className="text-red-500">*</span></label>
                                         <input
                                             type="text"
                                             value={restaurantName}
                                             onChange={(e) => setRestaurantName(e.target.value)}
                                             className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yum-primary focus:ring-2 focus:ring-yum-primary/20 outline-none transition-all placeholder-gray-400"
+                                            placeholder="Letters, numbers, . - _"
                                             required={!isLogin}
+                                        />
+                                        <p className="text-xs text-gray-500 mt-1">Allowed: letters, numbers, . - _</p>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-2">{t('auth.phone')} <span className="text-red-500">*</span></label>
+                                        <input
+                                            type="tel"
+                                            value={phoneNumber}
+                                            onChange={(e) => setPhoneNumber(e.target.value)}
+                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yum-primary focus:ring-2 focus:ring-yum-primary/20 outline-none transition-all placeholder-gray-400"
+                                            required={!isLogin}
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-2">{t('auth.address')}</label>
+                                        <input
+                                            type="text"
+                                            value={address}
+                                            onChange={(e) => setAddress(e.target.value)}
+                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yum-primary focus:ring-2 focus:ring-yum-primary/20 outline-none transition-all placeholder-gray-400"
                                         />
                                     </div>
                                 </>
