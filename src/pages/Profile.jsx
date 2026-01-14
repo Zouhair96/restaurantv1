@@ -335,7 +335,11 @@ const Profile = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* Tacos Template */}
                 <div
-                    onClick={() => setSelectedTemplate('tacos')}
+                    onClick={() => {
+                        setSelectedTemplate('tacos')
+                        setEditingMenu(null)
+                        setIsEditorOpen(true)
+                    }}
                     className={`group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 ${selectedTemplate === 'tacos' ? 'ring-4 ring-yum-primary scale-105' : 'hover:scale-105 hover:shadow-2xl'}`}
                 >
                     <div className="aspect-[9/16] bg-black relative">
@@ -362,7 +366,11 @@ const Profile = () => {
 
                 {/* Pizza Template */}
                 <div
-                    onClick={() => setSelectedTemplate('pizza')}
+                    onClick={() => {
+                        setSelectedTemplate('pizza')
+                        setEditingMenu(null)
+                        setIsEditorOpen(true)
+                    }}
                     className={`group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 ${selectedTemplate === 'pizza' ? 'ring-4 ring-yum-primary scale-105' : 'hover:scale-105 hover:shadow-2xl'}`}
                 >
                     <div className="aspect-[9/16] bg-black relative">
@@ -387,7 +395,11 @@ const Profile = () => {
 
                 {/* Salad Template */}
                 <div
-                    onClick={() => setSelectedTemplate('salad')}
+                    onClick={() => {
+                        setSelectedTemplate('salad')
+                        setEditingMenu(null)
+                        setIsEditorOpen(true)
+                    }}
                     className={`group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 ${selectedTemplate === 'salad' ? 'ring-4 ring-yum-primary scale-105' : 'hover:scale-105 hover:shadow-2xl'}`}
                 >
                     <div className="aspect-[9/16] bg-black relative">
@@ -411,22 +423,6 @@ const Profile = () => {
                 </div>
             </div>
 
-            {selectedTemplate && (
-                <div className="mt-8 p-6 bg-yum-primary/10 border border-yum-primary rounded-xl flex items-center justify-between animate-fade-in">
-                    <div>
-                        <h3 className="text-xl font-bold text-white">
-                            Editing: {selectedTemplate === 'tacos' ? 'Tacos Edition' : selectedTemplate === 'pizza' ? 'Pizza Party' : 'Fresh & Green'}
-                        </h3>
-                        <p className="text-gray-400 text-sm">Customizing content for your digital display...</p>
-                    </div>
-                    <button
-                        onClick={() => setIsEditorOpen(true)}
-                        className="px-6 py-2 bg-yum-primary text-white font-bold rounded-lg hover:bg-red-500 transition-colors shadow-lg"
-                    >
-                        Edit Content
-                    </button>
-                </div>
-            )}
         </div>
     )
 

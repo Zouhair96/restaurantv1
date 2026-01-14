@@ -545,7 +545,7 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
     }
 
     if (showSuccessModal) {
-        const publicUrl = `${window.location.origin}/menu/${restaurantName}`
+        const publicUrl = `${window.location.origin}/${restaurantName}`
         return (
             <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
                 <div className="bg-gray-900 border border-green-500/30 p-8 rounded-3xl max-w-md w-full text-center shadow-2xl shadow-green-500/20">

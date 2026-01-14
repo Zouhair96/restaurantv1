@@ -22,7 +22,8 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/checkout" element={<Checkout />} />
-            <Route path="/menu/:restaurantName" element={<PublicMenu />} />
+            {/* Public Menu Route - Must be last to avoid conflicts */}
+            <Route path="/:restaurantName" element={<PublicMenu />} />
           </Routes>
         </Router>
       </AuthProvider>
