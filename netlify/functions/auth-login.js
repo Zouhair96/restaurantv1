@@ -29,9 +29,13 @@ exports.handler = async (event, context) => {
         }
 
         // Create Token
+        if (!process.env.JWT_SECRET) {
+            throw new Error("CRITICAL: JWT_SECRET is missing.");
+        }
+
         const token = jwt.sign(
             { id: user.id, email: user.email, role: user.role },
-            process.env.JWT_SECRET || 'secret_fallback',
+            process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
 
@@ -54,14 +58,13 @@ exports.handler = async (event, context) => {
         };
 
     } catch (error) {
-        console.error('Login Error:', error);
+        console.error('Login Error:', error.message);
         return {
             statusCode: 500,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                error: 'Internal Server Error',
-                details: error.message,
-                stack: error.stack
+                error: 'Internal Server Error'
+                // details/stack removed
             })
         };
     }

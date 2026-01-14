@@ -14,7 +14,8 @@ exports.handler = async (event, context) => {
         }
 
         const token = authHeader.split(' ')[1];
-        const secret = process.env.JWT_SECRET || 'secret_fallback';
+        const secret = process.env.JWT_SECRET;
+        if (!secret) throw new Error("JWT_SECRET missing");
         const decoded = jwt.verify(token, secret);
         const userId = decoded.id;
 
@@ -62,8 +63,7 @@ exports.handler = async (event, context) => {
             statusCode: 500,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                error: 'Internal Server Error',
-                details: error.message
+                error: 'Internal Server Error'
             })
         };
     }

@@ -1,11 +1,12 @@
 const { Pool } = require('pg');
 
-// HARDCODED CONNECTION STRING FOR DEMO
-// Note: In a real production app, this should be an Environment Variable.
-const connectionString = "postgresql://neondb_owner:npg_K7WXZeLJY0Sv@ep-old-fire-ae5lg5tk-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require";
+// Enforce Environment Variable
+if (!process.env.DATABASE_URL) {
+    throw new Error("CRITICAL: DATABASE_URL is missing! Please set this in your Netlify Environment Variables.");
+}
 
 const pool = new Pool({
-    connectionString,
+    connectionString: process.env.DATABASE_URL,
     ssl: {
         rejectUnauthorized: false
     }

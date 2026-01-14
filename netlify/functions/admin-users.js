@@ -16,7 +16,9 @@ exports.handler = async (event, context) => {
     const token = authHeader.split(' ')[1];
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret_fallback');
+        const secret = process.env.JWT_SECRET;
+        if (!secret) throw new Error("JWT_SECRET missing");
+        const decoded = jwt.verify(token, secret);
 
         // 3. Check Admin Role
         if (decoded.role !== 'admin') {
@@ -39,7 +41,7 @@ exports.handler = async (event, context) => {
         };
 
     } catch (error) {
-        console.error('Admin Fetch Error:', error);
+        console.error('Admin Fetch Error:', error.message);
         return {
             statusCode: 401,
             body: JSON.stringify({ error: 'Unauthorized: Invalid token' })
