@@ -596,6 +596,7 @@ const Profile = () => {
                 templateType={selectedTemplate || 'tacos'}
                 initialData={editingMenu}
                 onSave={handleSaveMenu}
+                restaurantName={user.restaurant_name}
             />
 
             <DashboardLayout

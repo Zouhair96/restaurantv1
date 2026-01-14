@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
 
-const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSave }) => {
+const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSave, restaurantName }) => {
     if (!isOpen) return null
 
     const [currentStep, setCurrentStep] = useState(1)
+    const [showSuccessModal, setShowSuccessModal] = useState(false)
 
     // Step 1 State: Sizes
     const [sizes, setSizes] = useState(initialData?.config?.sizes || [])
@@ -87,7 +88,7 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
 
         try {
             await onSave(name, finalConfig)
-            onClose()
+            setShowSuccessModal(true)
         } catch (error) {
             alert('Failed to save menu: ' + error.message)
         }
@@ -541,6 +542,45 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
             case 5: return renderStepPreview()
             default: return renderStep1()
         }
+    }
+
+    if (showSuccessModal) {
+        const publicUrl = `${window.location.origin}/menu/${restaurantName}`
+        return (
+            <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+                <div className="bg-gray-900 border border-green-500/30 p-8 rounded-3xl max-w-md w-full text-center shadow-2xl shadow-green-500/20">
+                    <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <span className="text-4xl">🎉</span>
+                    </div>
+                    <h2 className="text-3xl font-bold text-white mb-2">Menu Published!</h2>
+                    <p className="text-gray-400 mb-6">Your menu is now live and accessible to the world.</p>
+
+                    <div className="bg-gray-800 p-4 rounded-xl mb-6 break-all">
+                        <p className="text-xs text-gray-500 uppercase font-bold mb-1">Public Link</p>
+                        <a href={publicUrl} target="_blank" rel="noopener noreferrer" className="text-yum-primary hover:underline text-sm font-mono">
+                            {publicUrl}
+                        </a>
+                    </div>
+
+                    <div className="flex gap-3">
+                        <button
+                            onClick={onClose}
+                            className="flex-1 py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-xl font-bold text-white transition-colors"
+                        >
+                            Close
+                        </button>
+                        <a
+                            href={publicUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-1 py-3 px-4 bg-green-600 hover:bg-green-500 rounded-xl font-bold text-white transition-colors flex items-center justify-center gap-2"
+                        >
+                            Open Link 🚀
+                        </a>
+                    </div>
+                </div>
+            </div>
+        )
     }
 
     return (
