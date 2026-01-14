@@ -63,9 +63,7 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType }) => {
 
     // --- Navigation Handlers ---
     const handleNext = () => {
-        const handleNext = () => {
-            if (currentStep < 4) setCurrentStep(prev => prev + 1)
-        }
+        if (currentStep < 4) setCurrentStep(prev => prev + 1)
     }
 
     const handleBack = () => {
@@ -221,8 +219,8 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType }) => {
                         key={option.id}
                         onClick={() => setFriesOption(option.id)}
                         className={`cursor-pointer rounded-2xl p-6 border-2 transition-all duration-300 flex flex-col items-center justify-center gap-4 group ${friesOption === option.id
-                                ? 'bg-yum-primary/10 border-yum-primary shadow-lg shadow-yum-primary/20 scale-105'
-                                : 'bg-gray-800 border-gray-700 hover:border-gray-500 hover:bg-gray-750'
+                            ? 'bg-yum-primary/10 border-yum-primary shadow-lg shadow-yum-primary/20 scale-105'
+                            : 'bg-gray-800 border-gray-700 hover:border-gray-500 hover:bg-gray-750'
                             }`}
                     >
                         <div className="text-5xl group-hover:scale-110 transition-transform duration-300">{option.icon}</div>
