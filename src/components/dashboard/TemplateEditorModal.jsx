@@ -14,7 +14,10 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType }) => {
     })
     const [editingId, setEditingId] = useState(null)
 
-    // Step 2 State: Design & Text
+    // Step 2 State: Fries Quantity
+    const [friesOption, setFriesOption] = useState('moyenne')
+
+    // Step 3 State: Design & Text
     const [designConfig, setDesignConfig] = useState({
         mainTitle: 'Tacos Festival',
         subtitle: 'Fresh & Spicy - Limited Time',
@@ -60,7 +63,9 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType }) => {
 
     // --- Navigation Handlers ---
     const handleNext = () => {
-        if (currentStep < 3) setCurrentStep(prev => prev + 1)
+        const handleNext = () => {
+            if (currentStep < 4) setCurrentStep(prev => prev + 1)
+        }
     }
 
     const handleBack = () => {
@@ -198,6 +203,45 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType }) => {
         </div>
     )
 
+    const renderStepFries = () => (
+        <div className="animate-fade-in max-w-4xl mx-auto">
+            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                <span className="bg-yellow-500/20 text-yellow-500 w-8 h-8 rounded-full flex items-center justify-center text-sm">🍟</span>
+                Choose Fries Quantity
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[
+                    { id: 'sans', label: 'Sans Frites', icon: '🚫', desc: 'Just the main dish' },
+                    { id: 'un_peu', label: 'Un Peu', icon: '🍟', desc: 'Small portion' },
+                    { id: 'moyenne', label: 'Moyenne', icon: '🍟🍟', desc: 'Standard side' },
+                    { id: 'beaucoup', label: 'Beaucoup', icon: '🍟🍟🍟', desc: 'For the hungry!' }
+                ].map((option) => (
+                    <div
+                        key={option.id}
+                        onClick={() => setFriesOption(option.id)}
+                        className={`cursor-pointer rounded-2xl p-6 border-2 transition-all duration-300 flex flex-col items-center justify-center gap-4 group ${friesOption === option.id
+                                ? 'bg-yum-primary/10 border-yum-primary shadow-lg shadow-yum-primary/20 scale-105'
+                                : 'bg-gray-800 border-gray-700 hover:border-gray-500 hover:bg-gray-750'
+                            }`}
+                    >
+                        <div className="text-5xl group-hover:scale-110 transition-transform duration-300">{option.icon}</div>
+                        <div className="text-center">
+                            <h4 className={`font-bold text-lg ${friesOption === option.id ? 'text-yum-primary' : 'text-white'}`}>
+                                {option.label}
+                            </h4>
+                            <p className="text-gray-400 text-sm mt-1">{option.desc}</p>
+                        </div>
+                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center mt-2 ${friesOption === option.id ? 'border-yum-primary bg-yum-primary' : 'border-gray-600'
+                            }`}>
+                            {friesOption === option.id && <div className="w-2.5 h-2.5 bg-white rounded-full"></div>}
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    )
+
     const renderStep2 = () => (
         <div className="space-y-8 animate-fade-in max-w-4xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -263,8 +307,8 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType }) => {
                                         key={font}
                                         onClick={() => setDesignConfig({ ...designConfig, fontTheme: font })}
                                         className={`px-4 py-3 rounded-xl border text-sm capitalize transition-all ${designConfig.fontTheme === font
-                                                ? 'bg-white text-black border-white font-bold'
-                                                : 'bg-gray-800 text-gray-400 border-gray-700 hover:border-gray-500'
+                                            ? 'bg-white text-black border-white font-bold'
+                                            : 'bg-gray-800 text-gray-400 border-gray-700 hover:border-gray-500'
                                             }`}
                                     >
                                         {font}
@@ -281,8 +325,9 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType }) => {
     const renderContent = () => {
         switch (currentStep) {
             case 1: return renderStep1()
-            case 2: return renderStep2()
-            case 3: return <div className="text-white text-center py-20 text-xl font-medium">Final Preview & Publish <br /><span className="text-sm text-gray-400">Coming Soon</span></div>
+            case 2: return renderStepFries()
+            case 3: return renderStep2()
+            case 4: return <div className="text-white text-center py-20 text-xl font-medium">Final Preview & Publish <br /><span className="text-sm text-gray-400">Coming Soon</span></div>
             default: return renderStep1()
         }
     }
@@ -296,7 +341,11 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType }) => {
                         <h2 className="text-2xl font-black text-white tracking-tight">
                             Template Editor <span className="text-yum-primary">.</span>
                         </h2>
-                        <p className="text-gray-400 text-sm">Step {currentStep}: {currentStep === 1 ? 'Configure Sizes' : currentStep === 2 ? 'Customize Design' : 'Preview'}</p>
+                        <p className="text-gray-400 text-sm">Step {currentStep}: {
+                            currentStep === 1 ? 'Configure Sizes' :
+                                currentStep === 2 ? 'Fries Options' :
+                                    currentStep === 3 ? 'Customize Design' : 'Preview'
+                        }</p>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-gray-800 rounded-full text-gray-400 hover:text-white transition-colors">
                         ✕
@@ -306,16 +355,16 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType }) => {
                 {/* Steps Progress */}
                 <div className="bg-gray-900/30 py-3 border-b border-gray-800">
                     <div className="flex justify-center items-center gap-4">
-                        {[1, 2, 3].map(step => (
+                        {[1, 2, 3, 4].map(step => (
                             <div key={step} className="flex items-center gap-2">
                                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${currentStep >= step ? 'bg-yum-primary text-white shadow-lg shadow-yum-primary/30' : 'bg-gray-800 text-gray-500'
                                     }`}>
                                     {step}
                                 </div>
-                                <span className={`text-sm font-medium ${currentStep >= step ? 'text-white' : 'text-gray-600'}`}>
-                                    {step === 1 ? 'Sizes & Prices' : step === 2 ? 'Design' : 'Preview'}
+                                <span className={`text-sm font-medium ${currentStep >= step ? 'text-white' : 'text-gray-600'} hidden sm:block`}>
+                                    {step === 1 ? 'Sizes' : step === 2 ? 'Fries' : step === 3 ? 'Design' : 'Preview'}
                                 </span>
-                                {step < 3 && <div className="w-12 h-0.5 bg-gray-800"></div>}
+                                {step < 4 && <div className="w-8 md:w-12 h-0.5 bg-gray-800"></div>}
                             </div>
                         ))}
                     </div>
@@ -341,11 +390,11 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType }) => {
                         onClick={handleNext}
                         disabled={currentStep === 1 && sizes.length === 0}
                         className={`px-8 py-3 rounded-xl font-bold text-lg transition-all transform hover:scale-105 flex items-center gap-2 ${(currentStep === 1 && sizes.length > 0) || currentStep > 1
-                                ? 'bg-gradient-to-r from-yum-primary to-orange-600 text-white shadow-lg hover:shadow-orange-500/30'
-                                : 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                            ? 'bg-gradient-to-r from-yum-primary to-orange-600 text-white shadow-lg hover:shadow-orange-500/30'
+                            : 'bg-gray-800 text-gray-500 cursor-not-allowed'
                             }`}
                     >
-                        {currentStep === 3 ? 'Publish Menu 🚀' : 'Next Step →'}
+                        {currentStep === 4 ? 'Publish Menu 🚀' : 'Next Step →'}
                     </button>
                 </div>
             </div>
