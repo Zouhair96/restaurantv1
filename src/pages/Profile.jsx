@@ -55,9 +55,7 @@ const Profile = () => {
                 await createMenu(name, selectedTemplate || 'custom', config)
             }
             await loadMenus()
-            setEditingMenu(null)
-            setSelectedTemplate(null)
-            setIsEditorOpen(false)
+            await loadMenus()
         } catch (error) {
             console.error('Error saving menu:', error)
             alert('Failed to save menu')
