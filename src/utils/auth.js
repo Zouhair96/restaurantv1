@@ -11,8 +11,9 @@ export const loginUser = async (email, password) => {
 
     const contentType = response.headers.get("content-type");
     if (!contentType || !contentType.includes("application/json")) {
-        console.error("Backend returned non-JSON response:", await response.text());
-        throw new Error("Backend not connected or returned an error page. Please ensure 'npm start' (netlify dev) is running.");
+        const text = await response.text();
+        console.error("Backend returned non-JSON response:", text);
+        throw new Error(`Backend error (${response.status}): Expected JSON but got ${contentType || 'text'}. Please ensure 'npm start' is running on the correct port.`);
     }
 
     const data = await response.json();
@@ -39,8 +40,9 @@ export const signupUser = async (userData) => {
 
     const contentType = response.headers.get("content-type");
     if (!contentType || !contentType.includes("application/json")) {
-        console.error("Backend returned non-JSON response:", await response.text());
-        throw new Error("Backend not connected or returned an error page. Please ensure 'npm start' (netlify dev) is running.");
+        const text = await response.text();
+        console.error("Backend returned non-JSON response:", text);
+        throw new Error(`Backend error (${response.status}): Expected JSON but got ${contentType || 'text'}. Please ensure 'npm start' is running on the correct port.`);
     }
 
     const data = await response.json();

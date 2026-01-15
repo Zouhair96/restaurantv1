@@ -9,17 +9,19 @@ export default defineConfig({
   },
   server: {
     host: true,
-    proxy: {
-      '/.netlify/functions': {
-        target: 'http://localhost:8888', // Netlify Dev default port
-        changeOrigin: true,
-        secure: false,
-      },
-      '/api': {
-        target: 'http://localhost:8888', // Netlify Dev default port
-        changeOrigin: true,
-        secure: false,
-      },
-    },
+    // Netlify Dev handles proxying /.netlify/functions and /api
+    // The hardcoded localhost:8888 can cause issues if that port is blocked.
+    // proxy: {
+    //   '/.netlify/functions': {
+    //     target: 'http://localhost:8888',
+    //     changeOrigin: true,
+    //     secure: false,
+    //   },
+    //   '/api': {
+    //     target: 'http://localhost:8888',
+    //     changeOrigin: true,
+    //     secure: false,
+    //   },
+    // },
   }
 })

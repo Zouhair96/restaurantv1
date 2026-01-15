@@ -109,7 +109,11 @@ export const handler = async (event, context) => {
             };
         }
 
-        return { statusCode: 405, body: 'Method Not Allowed' };
+        return {
+            statusCode: 405,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ error: 'Method Not Allowed' })
+        };
 
     } catch (error) {
         console.error('API Error:', error.message);

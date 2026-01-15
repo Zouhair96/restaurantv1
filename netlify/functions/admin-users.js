@@ -4,7 +4,11 @@ import jwt from 'jsonwebtoken';
 export const handler = async (event, context) => {
     // 1. Check Method
     if (event.httpMethod !== 'GET') {
-        return { statusCode: 405, body: 'Method Not Allowed' };
+        return {
+            statusCode: 405,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ error: 'Method Not Allowed' })
+        };
     }
 
     // 2. Verify Token
