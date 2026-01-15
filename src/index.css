@@ -29,4 +29,69 @@
     border-bottom: 2px solid theme('colors.yum.primary');
     box-shadow: 0 4px 6px -1px rgba(255, 107, 107, 0.1);
   }
+
+  .floating {
+    animation: floating 3s ease-in-out infinite;
+  }
+
+  .floating-delayed {
+    animation: floating 4s ease-in-out infinite;
+    animation-delay: 1s;
+  }
+
+  .parallax-layer {
+    transition: transform 0.1s ease-out;
+  }
+
+  @keyframes floating {
+    0% {
+      transform: translate(0, 0px);
+    }
+
+    50% {
+      transform: translate(0, 15px);
+    }
+
+    100% {
+      transform: translate(0, -0px);
+    }
+  }
+
+  .hero-gradient {
+    background: linear-gradient(135deg, #ffffff 0%, #ffffff 50%, #ff4d4d 50.1%, #ff4d4d 100%);
+  }
+
+  .text-white-stroke {
+    -webkit-text-stroke: 1px white;
+    color: transparent;
+  }
+}
+
+@layer utilities {
+  .clip-wave {
+    clip-path: polygon(0 0, 100% 0, 100% 85%, 0% 100%);
+  }
+
+  .bg-primary-red {
+    background-color: #ff4d4d;
+  }
+
+  .vertical-text {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+  }
+
+  .animate-spin-slow {
+    animation: spin 20s linear infinite;
+  }
+
+  @keyframes spin {
+    from {
+      transform: translate(-50%, -50%) rotate(0deg);
+    }
+
+    to {
+      transform: translate(-50%, -50%) rotate(360deg);
+    }
+  }
 }

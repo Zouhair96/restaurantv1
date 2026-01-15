@@ -14,11 +14,11 @@ const Features = () => {
     ]
 
     return (
-        <section className="py-20 bg-yum-light">
-            <div className="container mx-auto px-4">
+        <section className="py-20 relative">
+            <div className="container mx-auto px-4 relative z-10">
                 <div className="text-center mb-16">
-                    <h2 className="text-3xl lg:text-4xl font-bold text-yum-dark mb-4">{t('features.title')}</h2>
-                    <div className="h-1 w-20 bg-yum-primary mx-auto rounded-full"></div>
+                    <h2 className="text-5xl lg:text-7xl font-black text-gray-900 mb-6 tracking-tighter uppercase">{t('features.title')}</h2>
+                    <div className="h-2 w-24 bg-yum-primary mx-auto rounded-full"></div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

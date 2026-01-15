@@ -11,20 +11,24 @@ import FAQ from '../components/FAQ'
 import Contact from '../components/Contact'
 import Footer from '../components/Footer'
 
+import ParallaxBackground from '../components/ParallaxBackground'
+
 const Home = () => {
     return (
-        <div className="min-h-screen bg-yum-light text-yum-dark font-sans selection:bg-yum-primary selection:text-white">
+        <div className="min-h-screen text-yum-dark font-sans selection:bg-yum-primary selection:text-white">
             <Header />
             <main>
-                <Hero />
-                <HowItWorks />
-                <ForRestaurants />
-                <CustomerExperience />
-                <Pricing />
-                <Features />
-                <Testimonials />
-                <FAQ />
-                <Contact />
+                <ParallaxBackground>
+                    <Hero />
+                    <HowItWorks />
+                    <ForRestaurants />
+                    <CustomerExperience />
+                    <Pricing />
+                    <Features />
+                    <Testimonials />
+                    <FAQ />
+                    <Contact />
+                </ParallaxBackground>
             </main>
             <Footer />
         </div>
