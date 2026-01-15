@@ -60,107 +60,272 @@ const PublicMenu = () => {
         )
     }
 
+    const [currentStep, setCurrentStep] = useState(1)
+    const [selections, setSelections] = useState({
+        size: null,
+        fries: [],
+        chicken: []
+    })
+
     const { config } = data.menu
-    // Handle case where config is a string (double encoded) or object
     const menuConfig = typeof config === 'string' ? JSON.parse(config) : config
-    const { designConfig, sizes, friesOption, mealsOption } = menuConfig
+    const { designConfig, sizes, friesOption = [], mealsOption = [] } = menuConfig
+
+    const steps = [
+        { id: 1, name: 'Select Size', icon: '🌮' },
+        ...(friesOption.length > 0 ? [{ id: 2, name: 'Choose Fries', icon: '🍟' }] : []),
+        ...(mealsOption.length > 0 ? [{ id: 3, name: 'Pick Chicken', icon: '🍗' }] : []),
+        { id: 'final', name: 'Review Order', icon: '✨' }
+    ]
+
+    const totalSteps = steps.length
+    const currentStepIndex = steps.findIndex(s => s.id === currentStep)
+
+    const nextStep = () => {
+        const nextIdx = currentStepIndex + 1
+        if (nextIdx < totalSteps) {
+            setCurrentStep(steps[nextIdx].id)
+        }
+    }
+
+    const prevStep = () => {
+        const prevIdx = currentStepIndex - 1
+        if (prevIdx >= 0) {
+            setCurrentStep(steps[prevIdx].id)
+        }
+    }
+
+    const handleToggleSelection = (category, value) => {
+        setSelections(prev => {
+            const current = prev[category]
+            if (category === 'size') return { ...prev, size: value }
+
+            const exists = current.includes(value)
+            const updated = exists
+                ? current.filter(item => item !== value)
+                : [...current, value]
+
+            return { ...prev, [category]: updated }
+        })
+    }
+
+    const renderStepContent = () => {
+        switch (currentStep) {
+            case 1:
+                return (
+                    <div className="animate-fade-in space-y-8">
+                        <div className="text-center mb-8">
+                            <h3 className="text-3xl font-black text-white mb-2">Choose Your Size</h3>
+                            <p className="text-gray-400">Select the perfect portion for your craving</p>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {sizes.map(size => (
+                                <button
+                                    key={size.id}
+                                    onClick={() => {
+                                        handleToggleSelection('size', size)
+                                        nextStep()
+                                    }}
+                                    className={`flex items-center justify-between p-6 rounded-2xl border-2 transition-all group ${selections.size?.id === size.id
+                                            ? 'bg-yum-primary/20 border-yum-primary shadow-lg shadow-yum-primary/20'
+                                            : 'bg-white/5 border-white/5 hover:border-white/20'
+                                        }`}
+                                >
+                                    <div className="flex items-center gap-4 text-left">
+                                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-3xl transition-transform group-hover:scale-110 ${selections.size?.id === size.id ? 'bg-yum-primary text-white' : 'bg-gray-800 text-gray-400'
+                                            }`}>
+                                            🌮
+                                        </div>
+                                        <div>
+                                            <span className="block font-black text-white text-xl">{size.size}</span>
+                                            <span className="text-gray-400 text-sm font-bold">Premium Option</span>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <span className={`text-2xl font-black ${selections.size?.id === size.id ? 'text-white' : ''}`} style={{ color: selections.size?.id === size.id ? '' : designConfig.accentColor }}>
+                                            ${Number(size.price).toFixed(2)}
+                                        </span>
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )
+            case 2:
+                return (
+                    <div className="animate-fade-in space-y-8">
+                        <div className="text-center mb-8">
+                            <h3 className="text-3xl font-black text-white mb-2">Customize Your Sides</h3>
+                            <p className="text-gray-400">Select as many as you'd like</p>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {friesOption.map(opt => (
+                                <button
+                                    key={opt}
+                                    onClick={() => handleToggleSelection('fries', opt)}
+                                    className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${selections.fries.includes(opt)
+                                            ? 'bg-yellow-500/20 border-yellow-500'
+                                            : 'bg-white/5 border-white/5 hover:bg-white/10'
+                                        }`}
+                                >
+                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${selections.fries.includes(opt) ? 'bg-yellow-500 text-white' : 'bg-gray-800'
+                                        }`}>
+                                        🍟
+                                    </div>
+                                    <span className="font-bold text-white capitalize">{opt.replace(/_/g, ' ')}</span>
+                                    {selections.fries.includes(opt) && (
+                                        <div className="ml-auto text-yellow-500">
+                                            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+                        <div className="flex justify-between pt-8">
+                            <button onClick={prevStep} className="px-8 py-4 bg-gray-800 text-white font-bold rounded-2xl hover:bg-gray-700 transition-colors">Back</button>
+                            <button onClick={nextStep} className="px-12 py-4 bg-yum-primary text-white font-black rounded-2xl hover:bg-red-500 transition-all shadow-xl shadow-yum-primary/20">Next</button>
+                        </div>
+                    </div>
+                )
+            case 3:
+                return (
+                    <div className="animate-fade-in space-y-8">
+                        <div className="text-center mb-8">
+                            <h3 className="text-3xl font-black text-white mb-2">Chicken Choices</h3>
+                            <p className="text-gray-400">Pick your protein style</p>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {mealsOption.map(opt => (
+                                <button
+                                    key={opt}
+                                    onClick={() => handleToggleSelection('chicken', opt)}
+                                    className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${selections.chicken.includes(opt)
+                                            ? 'bg-green-500/20 border-green-500'
+                                            : 'bg-white/5 border-white/5 hover:bg-white/10'
+                                        }`}
+                                >
+                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${selections.chicken.includes(opt) ? 'bg-green-500 text-white' : 'bg-gray-800'
+                                        }`}>
+                                        🍗
+                                    </div>
+                                    <span className="font-bold text-white capitalize">{opt.replace(/_/g, ' ')}</span>
+                                    {selections.chicken.includes(opt) && (
+                                        <div className="ml-auto text-green-500">
+                                            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                            </svg>
+                                        </div>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+                        <div className="flex justify-between pt-8">
+                            <button onClick={prevStep} className="px-8 py-4 bg-gray-800 text-white font-bold rounded-2xl hover:bg-gray-700 transition-colors">Back</button>
+                            <button onClick={nextStep} className="px-12 py-4 bg-yum-primary text-white font-black rounded-2xl hover:bg-red-500 transition-all shadow-xl shadow-yum-primary/20">Finalize</button>
+                        </div>
+                    </div>
+                )
+            case 'final':
+                return (
+                    <div className="animate-fade-in space-y-8">
+                        <div className="text-center mb-4">
+                            <div className="w-20 h-20 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center text-5xl mx-auto mb-4">✨</div>
+                            <h3 className="text-3xl font-black text-white mb-2">Order Summary</h3>
+                            <p className="text-gray-400">Review your delicious selection</p>
+                        </div>
+
+                        <div className="bg-white/5 rounded-3xl p-8 border border-white/10 space-y-6">
+                            {/* Selected Size */}
+                            <div className="flex justify-between items-center pb-4 border-b border-white/5">
+                                <div className="flex items-center gap-4">
+                                    <span className="text-2xl">🌮</span>
+                                    <div>
+                                        <p className="text-gray-400 text-xs uppercase font-bold tracking-widest">Selected Size</p>
+                                        <p className="text-white font-black text-xl">{selections.size?.size || 'N/A'}</p>
+                                    </div>
+                                </div>
+                                <p className="text-2xl font-black text-white">${Number(selections.size?.price || 0).toFixed(2)}</p>
+                            </div>
+
+                            {/* Sides */}
+                            <div>
+                                <p className="text-gray-400 text-xs uppercase font-bold tracking-widest mb-3">Extras & Sides</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {selections.fries.length > 0 ? selections.fries.map(f => (
+                                        <span key={f} className="px-4 py-2 bg-yellow-500/10 text-yellow-500 rounded-xl text-sm font-bold border border-yellow-500/20 capitalize">🍟 {f.replace(/_/g, ' ')}</span>
+                                    )) : <span className="text-gray-600 italic">No sides selected</span>}
+                                </div>
+                            </div>
+
+                            {/* Chicken */}
+                            <div>
+                                <p className="text-gray-400 text-xs uppercase font-bold tracking-widest mb-3">Preparation</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {selections.chicken.length > 0 ? selections.chicken.map(c => (
+                                        <span key={c} className="px-4 py-2 bg-green-500/10 text-green-500 rounded-xl text-sm font-bold border border-green-500/20 capitalize">🍗 {c.replace(/_/g, ' ')}</span>
+                                    )) : <span className="text-gray-600 italic">Standard preparation</span>}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col gap-4">
+                            <button
+                                onClick={() => window.location.reload()}
+                                className="w-full py-5 bg-yum-primary text-white font-black text-xl rounded-2xl hover:bg-red-500 transition-all shadow-2xl shadow-yum-primary/30"
+                            >
+                                Place Order
+                            </button>
+                            <button
+                                onClick={() => setCurrentStep(1)}
+                                className="w-full py-4 text-gray-500 font-bold hover:text-white transition-colors"
+                            >
+                                Edit Selection
+                            </button>
+                        </div>
+                    </div>
+                )
+            default:
+                return null
+        }
+    }
 
     return (
         <div className="min-h-screen bg-[#0f1115] py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-4xl mx-auto">
                 <div
-                    className="relative overflow-hidden rounded-3xl shadow-2xl animate-fade-in"
+                    className="relative overflow-hidden rounded-3xl shadow-2xl animate-fade-in mb-8"
                     style={{
                         backgroundColor: '#1a1a1a',
                         borderLeft: `8px solid ${designConfig.accentColor}`
                     }}
                 >
-                    {/* Header Section */}
-                    <div className="p-8 md:p-12 relative overflow-hidden" style={{ backgroundColor: `${designConfig.accentColor}15` }}>
-                        <div className="absolute top-0 right-0 p-4 opacity-10 text-9xl font-black text-white pointer-events-none">
-                            MENU
+                    {/* Progress Header */}
+                    <div className="px-8 pt-8 md:px-12 md:pt-12 flex justify-between items-center mb-6">
+                        <div className="flex gap-2">
+                            {steps.map((s, idx) => (
+                                <div
+                                    key={s.id}
+                                    className={`h-2 w-12 rounded-full transition-all duration-500 ${idx <= currentStepIndex ? 'bg-yum-primary' : 'bg-gray-800'
+                                        }`}
+                                />
+                            ))}
                         </div>
-                        <div className="relative z-10 text-center md:text-left">
-                            <h2
-                                className="text-4xl md:text-6xl font-black text-white mb-4 tracking-tight"
-                                style={{ fontFamily: designConfig.fontTheme === 'handwritten' ? 'cursive' : 'inherit' }}
-                            >
-                                {designConfig.mainTitle || 'Our Menu'}
-                            </h2>
-                            <p className="text-xl text-white/80 font-medium max-w-2xl">
-                                {designConfig.subtitle || 'Delicious food, made with love.'}
-                            </p>
-                        </div>
+                        <span className="text-gray-500 font-bold text-sm tracking-widest uppercase">
+                            Step {currentStepIndex + 1} / {totalSteps}
+                        </span>
                     </div>
 
-                    {/* Content Section */}
-                    <div className="p-8 md:p-12 space-y-12 bg-gradient-to-b from-[#1a1a1a] to-[#0f0f0f]">
-
-                        {/* Sizes */}
-                        <div>
-                            <h3 className="text-gray-400 text-sm font-bold uppercase tracking-widest mb-6 flex items-center gap-3">
-                                <span className="w-12 h-1 rounded-full" style={{ backgroundColor: designConfig.accentColor }}></span>
-                                Menu Options
-                            </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {sizes.map(size => (
-                                    <div key={size.id} className="flex items-center justify-between p-6 bg-white/5 rounded-2xl border border-white/5 hover:border-white/10 hover:bg-white/10 transition-all group">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-                                                🌮
-                                            </div>
-                                            <span className="font-bold text-white text-xl">{size.size}</span>
-                                        </div>
-                                        <span className="text-2xl font-black" style={{ color: designConfig.accentColor }}>
-                                            ${Number(size.price).toFixed(2)}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Fries & Meals Badges */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 pt-8 border-t border-gray-800">
-                            {friesOption && friesOption.length > 0 && (
-                                <div>
-                                    <h3 className="text-gray-400 text-sm font-bold uppercase tracking-widest mb-6 flex items-center gap-3">
-                                        <span className="w-8 h-0.5 bg-yellow-500"></span>
-                                        Sides & Fries
-                                    </h3>
-                                    <div className="flex flex-wrap gap-3">
-                                        {friesOption.map(opt => (
-                                            <span key={opt} className="px-4 py-2 bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 rounded-xl text-sm font-bold capitalize flex items-center gap-2">
-                                                <span>🍟</span>
-                                                {opt.replace(/_/g, ' ')}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {mealsOption && mealsOption.length > 0 && (
-                                <div>
-                                    <h3 className="text-gray-400 text-sm font-bold uppercase tracking-widest mb-6 flex items-center gap-3">
-                                        <span className="w-8 h-0.5 bg-green-500"></span>
-                                        Chicken Choices
-                                    </h3>
-                                    <div className="flex flex-wrap gap-3">
-                                        {mealsOption.map(opt => (
-                                            <span key={opt} className="px-4 py-2 bg-green-500/10 text-green-500 border border-green-500/20 rounded-xl text-sm font-bold capitalize flex items-center gap-2">
-                                                <span>🍗</span>
-                                                {opt.replace(/_/g, ' ')}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
+                    <div className="px-8 pb-12 md:px-12 md:pb-12">
+                        {renderStepContent()}
                     </div>
 
                     {/* Footer */}
-                    <div className="bg-black/50 p-6 text-center border-t border-gray-800">
-                        <p className="text-gray-600 text-sm">Powered by {data.restaurant} • {new Date().getFullYear()}</p>
+                    <div className="bg-black/20 p-6 text-center border-t border-gray-800/50">
+                        <p className="text-gray-600 text-[10px] sm:text-xs uppercase tracking-widest font-bold">
+                            Powered by {data.restaurant} • {new Date().getFullYear()} • Secure Ordering
+                        </p>
                     </div>
                 </div>
             </div>
