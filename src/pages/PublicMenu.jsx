@@ -172,6 +172,25 @@ const PublicMenu = () => {
 
             const current = prev[category]
             const exists = current.includes(value)
+
+            // Logic for limits based on size
+            const isSizeS = prev.size?.size === 'S'
+
+            if (isSizeS) {
+                if (category === 'chicken') {
+                    // Limit to 1: If selecting a new one, replace the old one (radio behavior)
+                    if (!exists) {
+                        return { ...prev, [category]: [value] }
+                    }
+                }
+                if (category === 'sauce') {
+                    // Limit to 2: Prevent adding more than 2
+                    if (!exists && current.length >= 2) {
+                        return prev
+                    }
+                }
+            }
+
             const updated = exists
                 ? current.filter(item => item !== value)
                 : [...current, value]
