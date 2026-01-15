@@ -5,6 +5,7 @@ import { useLanguage } from '../context/LanguageContext'
 const Demo = () => {
     const { t } = useLanguage()
     const [currentStep, setCurrentStep] = useState(1)
+    const [isOrderPlaced, setIsOrderPlaced] = useState(false)
     const [selections, setSelections] = useState({
         burger: null,
         salad: null,
