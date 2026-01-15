@@ -1,4 +1,4 @@
-const API_URL = '/.netlify/functions';
+const API_URL = '/api';
 
 export const loginUser = async (email, password) => {
     const response = await fetch(`${API_URL}/auth-login`, {
