@@ -4,9 +4,12 @@ import { useLanguage } from '../context/LanguageContext'
 
 const Demo = () => {
     const { t } = useLanguage()
-    const [cart, setCart] = useState([])
-    const [activeCategory, setActiveCategory] = useState('Burgers')
-    const [isOrderPlaced, setIsOrderPlaced] = useState(false)
+    const [currentStep, setCurrentStep] = useState(1)
+    const [selections, setSelections] = useState({
+        burger: null,
+        salad: null,
+        boisson: null
+    })
 
     const categories = ['Burgers', 'Salades', 'Boissons']
 
@@ -26,18 +29,135 @@ const Demo = () => {
         ]
     }
 
-    const addToCart = (product) => {
-        setCart([...cart, product])
+    const nextStep = () => setCurrentStep(prev => prev + 1)
+    const prevStep = () => setCurrentStep(prev => prev - 1)
+
+    const selectItem = (category, product) => {
+        setSelections(prev => ({ ...prev, [category]: product }))
+        nextStep()
     }
 
-    const cartTotal = cart.reduce((sum, item) => sum + item.price, 0)
+    const cartTotal = Object.values(selections).reduce((sum, item) => sum + (item?.price || 0), 0)
 
     const handleOrder = () => {
         setIsOrderPlaced(true)
         setTimeout(() => {
-            setCart([])
+            setSelections({ burger: null, salad: null, boisson: null })
+            setCurrentStep(1)
             setIsOrderPlaced(false)
         }, 3000)
+    }
+
+    const renderStep = () => {
+        switch (currentStep) {
+            case 1:
+                return (
+                    <div className="animate-fade-in">
+                        <h2 className="text-2xl font-bold text-gray-800 mb-6">Étape 1: Choisissez votre Burger</h2>
+                        <div className="space-y-6">
+                            {products['Burgers'].map(product => (
+                                <div key={product.id} className="flex gap-4 items-center group cursor-pointer p-4 rounded-2xl bg-gray-50 hover:bg-yum-primary/5 transition-colors" onClick={() => selectItem('burger', product)}>
+                                    <div className="w-20 h-20 bg-white rounded-2xl p-2 flex items-center justify-center relative">
+                                        <img src={product.img} alt={product.name} className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="flex justify-between items-start">
+                                            <h3 className="font-bold text-gray-800">{product.name}</h3>
+                                            <span className="font-bold text-yum-primary">{product.price}€</span>
+                                        </div>
+                                        <p className="text-gray-400 text-sm mt-1">{product.desc}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )
+            case 2:
+                return (
+                    <div className="animate-fade-in">
+                        <h2 className="text-2xl font-bold text-gray-800 mb-6">Étape 2: Une petite salade ?</h2>
+                        <div className="space-y-6">
+                            {products['Salades'].map(product => (
+                                <div key={product.id} className="flex gap-4 items-center group cursor-pointer p-4 rounded-2xl bg-gray-50 hover:bg-yum-primary/5 transition-colors" onClick={() => selectItem('salad', product)}>
+                                    <div className="w-20 h-20 bg-white rounded-2xl p-2 flex items-center justify-center relative">
+                                        <img src={product.img} alt={product.name} className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="flex justify-between items-start">
+                                            <h3 className="font-bold text-gray-800">{product.name}</h3>
+                                            <span className="font-bold text-yum-primary">{product.price}€</span>
+                                        </div>
+                                        <p className="text-gray-400 text-sm mt-1">{product.desc}</p>
+                                    </div>
+                                </div>
+                            ))}
+                            <button onClick={nextStep} className="w-full py-4 bg-gray-200 text-gray-600 rounded-2xl font-bold hover:bg-gray-300">Non merci, suivant</button>
+                        </div>
+                        <button onClick={prevStep} className="mt-8 text-gray-400 font-bold underline">Retour</button>
+                    </div>
+                )
+            case 3:
+                return (
+                    <div className="animate-fade-in">
+                        <h2 className="text-2xl font-bold text-gray-800 mb-6">Étape 3: Pour accompagner ça ?</h2>
+                        <div className="space-y-6">
+                            {products['Boissons'].map(product => (
+                                <div key={product.id} className="flex gap-4 items-center group cursor-pointer p-4 rounded-2xl bg-gray-50 hover:bg-yum-primary/5 transition-colors" onClick={() => selectItem('boisson', product)}>
+                                    <div className="w-20 h-20 bg-white rounded-2xl p-2 flex items-center justify-center relative">
+                                        <img src={product.img} alt={product.name} className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="flex justify-between items-start">
+                                            <h3 className="font-bold text-gray-800">{product.name}</h3>
+                                            <span className="font-bold text-yum-primary">{product.price}€</span>
+                                        </div>
+                                        <p className="text-gray-400 text-sm mt-1">{product.desc}</p>
+                                    </div>
+                                </div>
+                            ))}
+                            <button onClick={nextStep} className="w-full py-4 bg-gray-200 text-gray-600 rounded-2xl font-bold hover:bg-gray-300">Non merci, suivant</button>
+                        </div>
+                        <button onClick={prevStep} className="mt-8 text-gray-400 font-bold underline">Retour</button>
+                    </div>
+                )
+            case 4:
+                return (
+                    <div className="animate-fade-in h-full flex flex-col justify-between">
+                        <div>
+                            <h2 className="text-2xl font-bold text-gray-800 mb-6">Récapitulatif de votre commande</h2>
+                            <div className="space-y-4">
+                                {Object.entries(selections).map(([key, item]) => item && (
+                                    <div key={key} className="flex justify-between items-center p-4 bg-gray-50 rounded-2xl">
+                                        <div className="flex items-center gap-3">
+                                            <img src={item.img} className="w-10 h-10 object-contain" />
+                                            <span className="font-bold text-gray-800">{item.name}</span>
+                                        </div>
+                                        <span className="font-bold text-yum-primary">{item.price}€</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="mt-auto">
+                            <div className="flex justify-between items-end mb-6">
+                                <div>
+                                    <span className="text-gray-400 text-sm">Total à payer</span>
+                                    <div className="text-3xl font-black text-gray-900">{cartTotal}€</div>
+                                </div>
+                                <button onClick={() => setCurrentStep(1)} className="text-yum-primary font-bold underline">Modifier</button>
+                            </div>
+                            <button
+                                onClick={handleOrder}
+                                className="w-full bg-yum-primary text-white font-bold py-5 rounded-2xl shadow-xl shadow-yum-primary/30 active:scale-95 transition-all"
+                            >
+                                Payer maintenant
+                            </button>
+                        </div>
+                    </div>
+                )
+            default:
+                return null
+        }
     }
 
     return (
@@ -52,89 +172,30 @@ const Demo = () => {
                         <div className="w-8 h-8 bg-yum-primary rounded-full flex items-center justify-center text-white font-bold text-xs">Y</div>
                         <span className="font-bold text-gray-800">YumYum Demo</span>
                     </div>
-                    <div className="flex gap-1">
-                        <div className="w-1 h-1 bg-black rounded-full"></div>
-                        <div className="w-1 h-1 bg-black rounded-full"></div>
-                        <div className="w-1 h-1 bg-black rounded-full"></div>
+                    <div className="text-xs font-bold text-gray-400">
+                        {currentStep < 4 ? `Step ${currentStep}/3` : 'Review'}
                     </div>
                 </div>
 
-                {/* Categories */}
-                <div className="px-6 py-4 flex gap-4 overflow-x-auto scrollbar-hide">
-                    {categories.map(cat => (
-                        <button
-                            key={cat}
-                            onClick={() => setActiveCategory(cat)}
-                            className={`px-6 py-2 rounded-full whitespace-nowrap font-bold transition-all ${activeCategory === cat ? 'bg-yum-dark text-white shadow-lg' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
-                        >
-                            {cat}
-                        </button>
-                    ))}
+                {/* Progress Bar */}
+                <div className="h-1.5 w-full bg-gray-100 flex">
+                    <div
+                        className="h-full bg-yum-primary transition-all duration-500"
+                        style={{ width: `${(Math.min(currentStep, 3) / 3) * 100}%` }}
+                    ></div>
                 </div>
 
-                {/* Products */}
-                <div className="flex-1 overflow-y-auto px-6 pb-32">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-6">{activeCategory}</h2>
-                    <div className="space-y-6">
-                        {products[activeCategory].map(product => (
-                            <div key={product.id} className="flex gap-4 items-center group cursor-pointer" onClick={() => addToCart(product)}>
-                                <div className="w-20 h-20 bg-gray-50 rounded-2xl p-2 flex items-center justify-center relative">
-                                    <img src={product.img} alt={product.name} className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300" />
-                                    <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-yum-primary rounded-full text-white flex items-center justify-center text-sm shadow-md opacity-0 group-hover:opacity-100 transition-all">+</div>
-                                </div>
-                                <div className="flex-1">
-                                    <div className="flex justify-between items-start">
-                                        <h3 className="font-bold text-gray-800">{product.name}</h3>
-                                        <span className="font-bold text-yum-primary">{product.price}€</span>
-                                    </div>
-                                    <p className="text-gray-400 text-sm mt-1 line-clamp-2">{product.desc}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Floating Cart */}
-                <div className="absolute bottom-0 left-0 w-full bg-white border-t border-gray-100 p-6 rounded-t-[2rem] shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+                {/* Content Area */}
+                <div className="flex-1 overflow-y-auto px-6 pt-6 pb-32">
                     {isOrderPlaced ? (
-                        <div className="bg-green-100 text-green-600 p-4 rounded-2xl text-center font-bold animate-pulse">
-                            Commande envoyée en cuisine ! 👨‍🍳
+                        <div className="h-full flex flex-col items-center justify-center text-center">
+                            <div className="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-5xl mb-6 animate-bounce">👨‍🍳</div>
+                            <h2 className="text-2xl font-black text-gray-800 mb-2">C'est parti !</h2>
+                            <p className="text-gray-400">Votre commande est en préparation.</p>
                         </div>
-                    ) : (
-                        <>
-                            <div className="flex justify-between items-center mb-4">
-                                <div>
-                                    <span className="text-gray-400 text-sm">Total commande</span>
-                                    <div className="text-2xl font-bold text-gray-800">{cartTotal}€</div>
-                                </div>
-                                <div className="flex -space-x-2 overflow-hidden">
-                                    {cart.slice(-3).map((item, i) => (
-                                        <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-gray-100 flex items-center justify-center overflow-hidden">
-                                            <img src={item.img} alt="" className="w-full h-full object-contain" />
-                                        </div>
-                                    ))}
-                                    {cart.length > 3 && (
-                                        <div className="w-8 h-8 rounded-full border-2 border-white bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-500">
-                                            +{cart.length - 3}
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                            <button
-                                onClick={handleOrder}
-                                disabled={cart.length === 0}
-                                className="w-full bg-yum-primary text-white font-bold py-4 rounded-2xl shadow-lg shadow-yum-primary/30 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                Payer maintenant
-                            </button>
-                        </>
-                    )}
+                    ) : renderStep()}
                 </div>
             </div>
-
-            <Link to="/" className="fixed top-8 left-8 bg-white text-yum-dark w-12 h-12 rounded-full flex items-center justify-center font-bold shadow-lg hover:scale-110 transition-transform z-50">
-                ✕
-            </Link>
 
             <div className="fixed bottom-8 text-gray-400 text-sm">
                 Ceci est une simulation interactive

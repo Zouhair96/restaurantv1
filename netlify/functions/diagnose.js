@@ -44,6 +44,13 @@ export const handler = async (event, context) => {
         JWT_SECRET_SET: !!process.env.JWT_SECRET
     };
 
+    try {
+        const res = await db.query('SELECT restaurant_name FROM users WHERE restaurant_name IS NOT NULL');
+        results.restaurants = res.rows.map(r => r.restaurant_name);
+    } catch (e) {
+        results.restaurants = 'FAIL: ' + e.message;
+    }
+
     return {
         statusCode: 200,
         headers: { 'Content-Type': 'application/json' },
