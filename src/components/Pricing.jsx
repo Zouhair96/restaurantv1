@@ -1,14 +1,15 @@
+```
 import React from 'react'
 
 const Pricing = () => {
     return (
         <section id="pricing" className="py-20 relative overflow-hidden">
             <div className="container mx-auto px-4 relative z-10">
-                <div className="text-center mb-20">
-                    <h2 className="text-6xl lg:text-8xl font-black mb-6 tracking-tighter text-gray-900 leading-none">
-                        PRICING <br /> <span className="text-yum-primary">PLANS</span>
+                <div className="text-center mb-16 px-4">
+                    <h2 className="text-4xl md:text-6xl font-black mb-4 tracking-tighter text-gray-900 leading-none uppercase">
+                        Pricing <span className="text-yum-primary">Plans</span>
                     </h2>
-                    <p className="text-gray-500 max-w-2xl mx-auto font-medium text-lg">
+                    <p className="text-gray-500 max-w-xl mx-auto font-medium text-lg">
                         Choose the perfect plan for your business scale.
                     </p>
                 </div>

@@ -31,13 +31,13 @@ const Hero = () => {
                             <span className="text-yum-primary font-black text-xs uppercase tracking-widest">{t('hero.badgeText')}</span>
                         </div>
 
-                        <h1 className="text-6xl md:text-8xl font-black text-gray-900 leading-[0.9] mb-8 animate-fade-in-up tracking-tighter">
+                        <h1 className="text-6xl md:text-7xl font-black text-gray-900 leading-[1.1] mb-8 animate-fade-in-up tracking-tighter">
                             {t('hero.title').split(' ').map((word, i) => (
-                                <span key={i} className="block">{word}</span>
+                                <span key={i} className={`${i % 2 === 0 ? 'block' : 'inline-block mr-4'}`}>{word}</span>
                             ))}
                         </h1>
 
-                        <p className="text-xl md:text-2xl text-gray-600 font-medium mb-12 max-w-xl mx-auto lg:mx-0 animate-fade-in-up delay-100 leading-relaxed">
+                        <p className="text-lg md:text-xl text-gray-700 font-medium mb-12 max-w-xl mx-auto lg:mx-0 animate-fade-in-up delay-100 leading-relaxed">
                             {t('hero.subtitle')}
                         </p>
 
