@@ -9,7 +9,9 @@ const PublicMenu = () => {
     const [currentStep, setCurrentStep] = useState(1)
     const [selections, setSelections] = useState({
         size: null,
-        fries: [],
+        size: null,
+        friesType: null,
+        friesPlacement: null,
         chicken: [],
         sauce: [],
         drink: null,
@@ -152,9 +154,23 @@ const PublicMenu = () => {
 
     const handleToggleSelection = (category, value) => {
         setSelections(prev => {
-            const current = prev[category]
-            if (category === 'size' || category === 'drink') return { ...prev, [category]: value }
+            if (category === 'size' || category === 'drink') {
+                return { ...prev, [category]: value }
+            }
+            if (category === 'friesType') {
+                return {
+                    ...prev,
+                    friesType: value,
+                    friesPlacement: value === 'sans' ? null : prev.friesPlacement
+                }
+            }
+            if (category === 'friesPlacement') {
+                // Prevent selection if sans is active
+                if (prev.friesType === 'sans') return prev
+                return { ...prev, friesPlacement: value }
+            }
 
+            const current = prev[category]
             const exists = current.includes(value)
             const updated = exists
                 ? current.filter(item => item !== value)
@@ -217,39 +233,83 @@ const PublicMenu = () => {
                     <div className="animate-fade-in space-y-8">
                         <div className="text-center mb-8">
                             <h3 className="text-3xl font-black text-white mb-2">Customize Your Sides</h3>
-                            <p className="text-gray-400">Select as many as you'd like</p>
+                            <p className="text-gray-400">Select quantity and placement</p>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {friesOption.map(opt => {
-                                const info = menuOptions.fries[opt] || { label: opt, icon: '🍟' }
-                                return (
-                                    <button
-                                        key={opt}
-                                        onClick={() => handleToggleSelection('fries', opt)}
-                                        className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${selections.fries.includes(opt)
-                                            ? 'bg-yellow-500/20 border-yellow-500'
-                                            : 'bg-white/5 border-white/5 hover:bg-white/10'
-                                            }`}
-                                    >
-                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${selections.fries.includes(opt) ? 'bg-yellow-500 text-white' : 'bg-gray-800'
-                                            }`}>
-                                            {info.icon}
-                                        </div>
-                                        <span className="font-bold text-white capitalize">{info.label}</span>
-                                        {selections.fries.includes(opt) && (
-                                            <div className="ml-auto text-yellow-500">
-                                                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                                </svg>
+
+                        {/* Quantity Section */}
+                        <div className="mb-8">
+                            <h4 className="text-gray-400 text-sm font-bold uppercase tracking-widest mb-4">Quantity</h4>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {friesOption.filter(opt => ['sans', 'un_peu', 'moyenne', 'beaucoup'].includes(opt)).map(opt => {
+                                    const info = menuOptions.fries[opt] || { label: opt, icon: '🍟' }
+                                    const isSelected = selections.friesType === opt
+                                    return (
+                                        <button
+                                            key={opt}
+                                            onClick={() => handleToggleSelection('friesType', opt)}
+                                            className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${isSelected
+                                                ? 'bg-yellow-500/20 border-yellow-500'
+                                                : 'bg-white/5 border-white/5 hover:bg-white/10'
+                                                }`}
+                                        >
+                                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${isSelected ? 'bg-yellow-500 text-white' : 'bg-gray-800'
+                                                }`}>
+                                                {info.icon}
                                             </div>
-                                        )}
-                                    </button>
-                                )
-                            })}
+                                            <span className="font-bold text-white capitalize">{info.label}</span>
+                                            {isSelected && (
+                                                <div className="ml-auto text-yellow-500">
+                                                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                                    </svg>
+                                                </div>
+                                            )}
+                                        </button>
+                                    )
+                                })}
+                            </div>
                         </div>
+
+                        {/* Placement Section */}
+                        <div>
+                            <h4 className={`text-sm font-bold uppercase tracking-widest mb-4 ${selections.friesType === 'sans' ? 'text-gray-600' : 'text-gray-400'}`}>Placement</h4>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {friesOption.filter(opt => ['inside', 'outside'].includes(opt)).map(opt => {
+                                    const info = menuOptions.fries[opt] || { label: opt, icon: '🍟' }
+                                    const isSelected = selections.friesPlacement === opt
+                                    const isDisabled = selections.friesType === 'sans'
+
+                                    return (
+                                        <button
+                                            key={opt}
+                                            onClick={() => handleToggleSelection('friesPlacement', opt)}
+                                            disabled={isDisabled}
+                                            className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all 
+                                                ${isDisabled ? 'opacity-30 cursor-not-allowed bg-black/20 border-transparent' :
+                                                    isSelected ? 'bg-yellow-500/20 border-yellow-500' : 'bg-white/5 border-white/5 hover:bg-white/10'
+                                                }`}
+                                        >
+                                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${isSelected ? 'bg-yellow-500 text-white' : 'bg-gray-800'
+                                                }`}>
+                                                {info.icon}
+                                            </div>
+                                            <span className="font-bold text-white capitalize">{info.label}</span>
+                                            {isSelected && (
+                                                <div className="ml-auto text-yellow-500">
+                                                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                                    </svg>
+                                                </div>
+                                            )}
+                                        </button>
+                                    )
+                                })}
+                            </div>
+                        </div>
+
                         <div className="flex justify-between pt-8">
                             <button onClick={prevStep} className="px-8 py-4 bg-gray-800 text-white font-bold rounded-2xl hover:bg-gray-700 transition-colors">Back</button>
-                            <button onClick={nextStep} className="px-12 py-4 bg-yum-primary text-white font-black rounded-2xl hover:bg-red-500 transition-all shadow-xl shadow-yum-primary/20">Next</button>
+                            <button onClick={nextStep} disabled={!selections.friesType && !selections.friesPlacement && friesOption.length > 0} className="px-12 py-4 bg-yum-primary text-white font-black rounded-2xl hover:bg-red-500 transition-all shadow-xl shadow-yum-primary/20 disabled:opacity-50">Next</button>
                         </div>
                     </div>
                 )
@@ -422,10 +482,19 @@ const PublicMenu = () => {
                             <div>
                                 <p className="text-gray-400 text-xs uppercase font-bold tracking-widest mb-3">Extras & Sides</p>
                                 <div className="flex flex-wrap gap-2">
-                                    {selections.fries.length > 0 ? selections.fries.map(f => {
-                                        const info = menuOptions.fries[f] || { label: f, icon: '🍟' }
-                                        return <span key={f} className="px-4 py-2 bg-yellow-500/10 text-yellow-500 rounded-xl text-sm font-bold border border-yellow-500/20 capitalize">{info.icon} {info.label}</span>
-                                    }) : <span className="text-gray-600 italic">No sides selected</span>}
+                                    {selections.friesType && (
+                                        (() => {
+                                            const info = menuOptions.fries[selections.friesType] || { label: selections.friesType, icon: '🍟' }
+                                            return <span className="px-4 py-2 bg-yellow-500/10 text-yellow-500 rounded-xl text-sm font-bold border border-yellow-500/20 capitalize">{info.icon} {info.label}</span>
+                                        })()
+                                    )}
+                                    {selections.friesPlacement && (
+                                        (() => {
+                                            const info = menuOptions.fries[selections.friesPlacement] || { label: selections.friesPlacement, icon: '🍟' }
+                                            return <span className="px-4 py-2 bg-yellow-500/10 text-yellow-500 rounded-xl text-sm font-bold border border-yellow-500/20 capitalize">{info.icon} {info.label}</span>
+                                        })()
+                                    )}
+                                    {!selections.friesType && !selections.friesPlacement && <span className="text-gray-600 italic">No sides selected</span>}
                                 </div>
                             </div>
 
