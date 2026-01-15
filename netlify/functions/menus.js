@@ -24,7 +24,11 @@ export const handler = async (event, context) => {
     // Check Auth
     const user = getUserFromToken(event.headers);
     if (!user) {
-        return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized' }) };
+        return {
+            statusCode: 401,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ error: 'Unauthorized' })
+        };
     }
 
     const { httpMethod } = event;
@@ -48,7 +52,11 @@ export const handler = async (event, context) => {
             const { name, templateType, config } = JSON.parse(event.body);
 
             if (!name || !config) {
-                return { statusCode: 400, body: JSON.stringify({ error: 'Name and config are required' }) };
+                return {
+                    statusCode: 400,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ error: 'Name and config are required' })
+                };
             }
 
             const result = await query(
@@ -68,13 +76,21 @@ export const handler = async (event, context) => {
             const { id, name, config } = JSON.parse(event.body);
 
             if (!id || !config) {
-                return { statusCode: 400, body: JSON.stringify({ error: 'ID and config are required' }) };
+                return {
+                    statusCode: 400,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ error: 'ID and config are required' })
+                };
             }
 
             // Verify ownership first
             const check = await query('SELECT * FROM menus WHERE id = $1 AND user_id = $2', [id, user.id]);
             if (check.rows.length === 0) {
-                return { statusCode: 404, body: JSON.stringify({ error: 'Menu not found' }) };
+                return {
+                    statusCode: 404,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ error: 'Menu not found' })
+                };
             }
 
             const result = await query(
@@ -99,7 +115,11 @@ export const handler = async (event, context) => {
             );
 
             if (result.rows.length === 0) {
-                return { statusCode: 404, body: JSON.stringify({ error: 'Menu not found' }) };
+                return {
+                    statusCode: 404,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ error: 'Menu not found' })
+                };
             }
 
             return {
@@ -119,6 +139,7 @@ export const handler = async (event, context) => {
         console.error('API Error:', error.message);
         return {
             statusCode: 500,
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ error: 'Internal Server Error' })
         };
     }

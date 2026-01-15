@@ -15,7 +15,11 @@ export const handler = async (event, context) => {
         const { email, password } = JSON.parse(event.body);
 
         if (!email || !password) {
-            return { statusCode: 400, body: JSON.stringify({ error: 'Email and password are required' }) };
+            return {
+                statusCode: 400,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ error: 'Email and password are required' })
+            };
         }
 
         // Find user
@@ -23,13 +27,21 @@ export const handler = async (event, context) => {
         const user = result.rows[0];
 
         if (!user) {
-            return { statusCode: 401, body: JSON.stringify({ error: 'Invalid credentials' }) };
+            return {
+                statusCode: 401,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ error: 'Invalid credentials' })
+            };
         }
 
         // Check password
         const isMatch = await bcrypt.compare(password, user.password_hash);
         if (!isMatch) {
-            return { statusCode: 401, body: JSON.stringify({ error: 'Invalid credentials' }) };
+            return {
+                statusCode: 401,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ error: 'Invalid credentials' })
+            };
         }
 
         // Create Token

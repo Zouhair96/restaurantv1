@@ -14,7 +14,11 @@ export const handler = async (event, context) => {
         // 1. Verify Token
         const authHeader = event.headers.authorization;
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized: Missing token' }) };
+            return {
+                statusCode: 401,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ error: 'Unauthorized: Missing token' })
+            };
         }
 
         const token = authHeader.split(' ')[1];
@@ -37,7 +41,11 @@ export const handler = async (event, context) => {
         const result = await query(updateQuery, [userId]);
 
         if (result.rows.length === 0) {
-            return { statusCode: 404, body: JSON.stringify({ error: 'User not found' }) };
+            return {
+                statusCode: 404,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ error: 'User not found' })
+            };
         }
 
         const updatedUser = result.rows[0];

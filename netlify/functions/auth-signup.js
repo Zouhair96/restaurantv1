@@ -15,23 +15,39 @@ export const handler = async (event, context) => {
         const { name, email, password, restaurantName, address, phoneNumber } = JSON.parse(event.body);
 
         if (!email || !password) {
-            return { statusCode: 400, body: JSON.stringify({ error: 'Email and password are required' }) };
+            return {
+                statusCode: 400,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ error: 'Email and password are required' })
+            };
         }
 
         // Security Hardening: Input Validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            return { statusCode: 400, body: JSON.stringify({ error: 'Invalid email format' }) };
+            return {
+                statusCode: 400,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ error: 'Invalid email format' })
+            };
         }
 
         if (password.length < 8) {
-            return { statusCode: 400, body: JSON.stringify({ error: 'Password must be at least 8 characters long' }) };
+            return {
+                statusCode: 400,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ error: 'Password must be at least 8 characters long' })
+            };
         }
 
         // Check if user exists
         const checkUser = await query('SELECT * FROM users WHERE email = $1', [email]);
         if (checkUser.rows.length > 0) {
-            return { statusCode: 409, body: JSON.stringify({ error: 'User already exists' }) };
+            return {
+                statusCode: 409,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ error: 'User already exists' })
+            };
         }
 
         // Hash password

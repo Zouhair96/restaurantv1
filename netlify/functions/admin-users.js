@@ -14,7 +14,11 @@ export const handler = async (event, context) => {
     // 2. Verify Token
     const authHeader = event.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized: No token provided' }) };
+        return {
+            statusCode: 401,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ error: 'Unauthorized: No token provided' })
+        };
     }
 
     const token = authHeader.split(' ')[1];
@@ -26,7 +30,11 @@ export const handler = async (event, context) => {
 
         // 3. Check Admin Role
         if (decoded.role !== 'admin') {
-            return { statusCode: 403, body: JSON.stringify({ error: 'Forbidden: Admins only' }) };
+            return {
+                statusCode: 403,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ error: 'Forbidden: Admins only' })
+            };
         }
 
         // 4. Fetch Users
@@ -48,6 +56,7 @@ export const handler = async (event, context) => {
         console.error('Admin Fetch Error:', error.message);
         return {
             statusCode: 401,
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ error: 'Unauthorized: Invalid token' })
         };
     }
