@@ -1,7 +1,7 @@
-const { query } = require('./db');
-const jwt = require('jsonwebtoken');
+import { query } from './db.js';
+import jwt from 'jsonwebtoken';
 
-exports.handler = async (event, context) => {
+export const handler = async (event, context) => {
     if (event.httpMethod !== 'POST') {
         return { statusCode: 405, body: 'Method Not Allowed' };
     }
@@ -24,8 +24,8 @@ exports.handler = async (event, context) => {
         const updateQuery = `
             UPDATE users 
             SET subscription_plan = NULL, 
-                subscription_status = 'inactive', 
-                subscription_start_date = NULL
+            subscription_status = 'inactive', 
+            subscription_start_date = NULL
             WHERE id = $1
             RETURNING id, name, email, restaurant_name, subscription_plan, subscription_status
         `;

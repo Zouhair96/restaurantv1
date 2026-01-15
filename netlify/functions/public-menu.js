@@ -1,6 +1,6 @@
-const { query } = require('./db');
+import { query } from './db.js';
 
-exports.handler = async (event, context) => {
+export const handler = async (event, context) => {
     // Enable CORS for public access
     const headers = {
         'Access-Control-Allow-Origin': '*',

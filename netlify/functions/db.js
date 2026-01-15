@@ -1,8 +1,11 @@
-const { Pool } = require('pg');
+import pg from 'pg';
+const { Pool } = pg;
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-// For local development, load .env file if available (Zero-dependency version)
-const fs = require('fs');
-const path = require('path');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 try {
     // Try multiple paths to find .env
@@ -61,6 +64,4 @@ const pool = new Pool({
     }
 });
 
-module.exports = {
-    query: (text, params) => pool.query(text, params),
-};
+export const query = (text, params) => pool.query(text, params);

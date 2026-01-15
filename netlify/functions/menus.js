@@ -1,5 +1,5 @@
-const { query } = require('./db');
-const jwt = require('jsonwebtoken');
+import { query } from './db.js';
+import jwt from 'jsonwebtoken';
 
 // Helper to verify token
 const getUserFromToken = (headers) => {
@@ -20,7 +20,7 @@ const getUserFromToken = (headers) => {
     }
 };
 
-exports.handler = async (event, context) => {
+export const handler = async (event, context) => {
     // Check Auth
     const user = getUserFromToken(event.headers);
     if (!user) {

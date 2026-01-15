@@ -1,4 +1,9 @@
-exports.handler = async (event, context) => {
+import pg from 'pg';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import * as db from './db.js';
+
+export const handler = async (event, context) => {
     const results = {
         pg: 'pending',
         bcrypt: 'pending',
@@ -7,30 +12,29 @@ exports.handler = async (event, context) => {
         env_vars: 'pending'
     };
 
+    // Since imports are static in ESM, if we are running this code, imports largely succeeded.
+    // However, we can check basic functionality.
+
     try {
-        require('pg');
-        results.pg = 'OK';
+        results.pg = pg ? 'OK' : 'FAIL';
     } catch (e) {
         results.pg = 'FAIL: ' + e.message;
     }
 
     try {
-        require('bcryptjs');
-        results.bcrypt = 'OK';
+        results.bcrypt = bcrypt ? 'OK' : 'FAIL';
     } catch (e) {
         results.bcrypt = 'FAIL: ' + e.message;
     }
 
     try {
-        require('jsonwebtoken');
-        results.jsonwebtoken = 'OK';
+        results.jsonwebtoken = jwt ? 'OK' : 'FAIL';
     } catch (e) {
         results.jsonwebtoken = 'FAIL: ' + e.message;
     }
 
     try {
-        require('./db');
-        results.db_file = 'OK';
+        results.db_file = db ? 'OK' : 'FAIL';
     } catch (e) {
         results.db_file = 'FAIL: ' + e.message;
     }

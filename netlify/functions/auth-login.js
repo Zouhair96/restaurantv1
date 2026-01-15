@@ -1,19 +1,8 @@
-exports.handler = async (event, context) => {
-    let query, bcrypt, jwt;
-    try {
-        // Move imports inside to catch loading errors
-        const db = require('./db');
-        query = db.query;
-        bcrypt = require('bcryptjs');
-        jwt = require('jsonwebtoken');
-    } catch (e) {
-        return {
-            statusCode: 500,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ error: 'Dependency Load Error', details: e.message })
-        };
-    }
+import { query } from './db.js';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
+export const handler = async (event, context) => {
     try {
         if (event.httpMethod !== 'POST') {
             return { statusCode: 405, body: 'Method Not Allowed' };
@@ -72,8 +61,8 @@ exports.handler = async (event, context) => {
             statusCode: 500,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                error: 'Internal Server Error'
-                // details/stack removed
+                error: 'Internal Server Error',
+                details: error.message
             })
         };
     }
