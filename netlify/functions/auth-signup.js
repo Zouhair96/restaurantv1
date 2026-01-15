@@ -54,14 +54,12 @@ exports.handler = async (event, context) => {
         const user = newUser.rows[0];
 
         // Create Token
-        // Enforce Environment Variable for Secret
-        if (!process.env.JWT_SECRET) {
-            throw new Error("CRITICAL: JWT_SECRET is missing.");
-        }
+        // REVERT: Use fallback if missing
+        const secret = process.env.JWT_SECRET || 'secret_fallback_key_12345';
 
         const token = jwt.sign(
             { id: user.id, email: user.email, role: user.role },
-            process.env.JWT_SECRET,
+            secret, // Use variable
             { expiresIn: '1h' }
         );
 
