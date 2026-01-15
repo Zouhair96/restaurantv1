@@ -154,9 +154,12 @@ const PublicMenu = () => {
 
     const handleToggleSelection = (category, value) => {
         setSelections(prev => {
+            // 1. Handle Single Select Categories
             if (category === 'size' || category === 'drink') {
                 return { ...prev, [category]: value }
             }
+
+            // 2. Handle Fries Special Logic
             if (category === 'friesType') {
                 return {
                     ...prev,
@@ -165,32 +168,28 @@ const PublicMenu = () => {
                 }
             }
             if (category === 'friesPlacement') {
-                // Prevent selection if sans is active
                 if (prev.friesType === 'sans') return prev
                 return { ...prev, friesPlacement: value }
             }
 
-            const current = prev[category]
+            // 3. Handle Array Categories
+            const current = prev[category] || []
             const exists = current.includes(value)
 
-            // Logic for limits based on size
+            // 4. Apply Limits based on Size 'S'
             const isSizeS = prev.size?.size === 'S'
-
             if (isSizeS) {
                 if (category === 'chicken') {
-                    // Limit to 1: If selecting a new one, replace the old one (radio behavior)
-                    if (!exists) {
-                        return { ...prev, [category]: [value] }
-                    }
+                    // Step 3: Limit 1 (Radio behavior)
+                    if (!exists) return { ...prev, [category]: [value] }
                 }
                 if (category === 'sauce') {
-                    // Limit to 2: Prevent adding more than 2
-                    if (!exists && current.length >= 2) {
-                        return prev
-                    }
+                    // Step 4: Limit 2
+                    if (!exists && current.length >= 2) return prev
                 }
             }
 
+            // 5. Default Toggle Logic (Array)
             const updated = exists
                 ? current.filter(item => item !== value)
                 : [...current, value]
