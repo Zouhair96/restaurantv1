@@ -3,7 +3,7 @@ const { Pool } = pg;
 
 // Enforce Environment Variable - SOFTENED for stability
 // Default to the new working URL if env var is missing
-const FALLBACK_DB_URL = "postgresql://neondb_owner:npg_dV5QMK4YHegU@ep-late-pine-aeobw0le-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
+const FALLBACK_DB_URL = "postgresql://neondb_owner:npg_A2ZDmPEvJ7ud@ep-aged-moon-ah85ucw4-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
 
 if (!process.env.DATABASE_URL) {
     console.warn("WARNING: DATABASE_URL is missing. Using Fallback URL.");
