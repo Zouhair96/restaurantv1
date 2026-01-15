@@ -312,8 +312,14 @@ const Profile = () => {
                                             <span className="bg-gray-800 text-gray-300 px-3 py-1 rounded-full border border-gray-700 capitalize font-medium">
                                                 {savedMenus[0].template_type} Template
                                             </span>
-                                            <span className="text-gray-500">
-                                                Updated {new Date(savedMenus[0].updated_at).toLocaleDateString()}
+                                            <span className="text-gray-500 font-medium">
+                                                {(() => {
+                                                    const configData = typeof savedMenus[0].config === 'string' ? JSON.parse(savedMenus[0].config) : savedMenus[0].config
+                                                    const sizeCount = configData.sizes?.length || 0
+                                                    const steps = [configData.friesOption, configData.mealsOption, configData.saucesOption, configData.drinksOption, configData.extrasOption]
+                                                    const activeSteps = steps.filter(opt => opt && opt.length > 0).length
+                                                    return `${sizeCount} Sizes • ${activeSteps} Customized Categories`
+                                                })()}
                                             </span>
                                         </div>
                                     </div>

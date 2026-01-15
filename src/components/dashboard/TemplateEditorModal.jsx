@@ -584,6 +584,40 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
                             )}
                         </div>
 
+                        {/* Sauces, Drinks, Extras Preview */}
+                        <div className="space-y-4 pt-4 border-t border-white/5">
+                            {saucesOption.length > 0 && (
+                                <div className="flex items-center gap-3">
+                                    <span className="text-gray-400 text-[10px] font-bold uppercase tracking-wider w-20">Sauces:</span>
+                                    <div className="flex flex-wrap gap-1">
+                                        {saucesOption.map(s => (
+                                            <span key={s} className="px-2 py-0.5 bg-red-500/10 text-red-400 rounded text-[10px] font-bold border border-red-500/10 capitalize">{s.replace('_', ' ')}</span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                            {drinksOption.length > 0 && (
+                                <div className="flex items-center gap-3">
+                                    <span className="text-gray-400 text-[10px] font-bold uppercase tracking-wider w-20">Drinks:</span>
+                                    <div className="flex flex-wrap gap-1">
+                                        {drinksOption.map(d => (
+                                            <span key={d} className="px-2 py-0.5 bg-blue-500/10 text-blue-400 rounded text-[10px] font-bold border border-blue-500/10 capitalize">{d.replace('_', ' ')}</span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                            {extrasOption.length > 0 && (
+                                <div className="flex items-center gap-3">
+                                    <span className="text-gray-400 text-[10px] font-bold uppercase tracking-wider w-20">Extras:</span>
+                                    <div className="flex flex-wrap gap-1">
+                                        {extrasOption.map(e => (
+                                            <span key={e} className="px-2 py-0.5 bg-purple-500/10 text-purple-400 rounded text-[10px] font-bold border border-purple-500/10 capitalize">{e.replace('_', ' ')}</span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
                     </div>
                 </div>
             </div>

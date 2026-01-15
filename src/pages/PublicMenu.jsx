@@ -101,6 +101,55 @@ const PublicMenu = () => {
         }
     }
 
+    const menuOptions = {
+        fries: {
+            'sans': { label: 'Sans Frites', icon: '🚫' },
+            'un_peu': { label: 'Un Peu', icon: '🍟' },
+            'moyenne': { label: 'Moyenne', icon: '🍟🍟' },
+            'beaucoup': { label: 'Beaucoup', icon: '🍟🍟🍟' },
+            'inside': { label: 'Fries Inside', icon: '🥙' },
+            'outside': { label: 'Fries Outside', icon: '🍽️' }
+        },
+        chicken: {
+            'calssique': { label: 'Classique', icon: '🍗' },
+            'tandoori': { label: 'Tandoori', icon: '🌶️' },
+            'curry': { label: 'Curry', icon: '🍛' },
+            'bbq': { label: 'BBQ', icon: '🔥' },
+            'nuggets': { label: 'Nuggets', icon: '🥡' },
+            'crispy': { label: 'Crispy', icon: '🥪' },
+            'filet': { label: 'Filet', icon: '🥩' },
+            'cordon_bleu': { label: 'Cordon Bleu', icon: '🧀' },
+            'fajita': { label: 'Fajita', icon: '🌮' },
+            'minced': { label: 'Minced', icon: '🥢' }
+        },
+        sauce: {
+            'ketchup': { label: 'Ketchup', icon: '🍅' },
+            'mayo': { label: 'Mayo', icon: '🥛' },
+            'algerienne': { label: 'Algérienne', icon: '🔥' },
+            'samourai': { label: 'Samouraï', icon: '⚔️' },
+            'blanche': { label: 'Blanche', icon: '☁️' },
+            'biggy': { label: 'Biggy', icon: '🍔' },
+            'andalouse': { label: 'Andalouse', icon: '🇪🇸' },
+            'cheese': { label: 'Sauce Cheese', icon: '🧀' }
+        },
+        drink: {
+            'coca': { label: 'Coca-Cola', icon: '🥤' },
+            'fanta': { label: 'Fanta', icon: '🍊' },
+            'sprite': { label: 'Sprite', icon: '🍋' },
+            'oasis': { label: 'Oasis', icon: '🍎' },
+            'water': { label: 'Eau Minérale', icon: '💧' },
+            'tea': { label: 'Ice Tea', icon: '🍃' },
+            'tropico': { label: 'Tropico', icon: '🏝️' }
+        },
+        extras: {
+            'gratinage': { label: 'Gratinage', icon: '🧀' },
+            'raclette': { label: 'Raclette', icon: '🍖' },
+            'egg': { label: 'Oeuf', icon: '🍳' },
+            'bacon': { label: 'Bacon Beef', icon: '🥓' },
+            'double_cheese': { label: 'Double Cheese', icon: '🧀🧀' }
+        }
+    }
+
     const handleToggleSelection = (category, value) => {
         setSelections(prev => {
             const current = prev[category]
@@ -171,29 +220,32 @@ const PublicMenu = () => {
                             <p className="text-gray-400">Select as many as you'd like</p>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {friesOption.map(opt => (
-                                <button
-                                    key={opt}
-                                    onClick={() => handleToggleSelection('fries', opt)}
-                                    className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${selections.fries.includes(opt)
-                                        ? 'bg-yellow-500/20 border-yellow-500'
-                                        : 'bg-white/5 border-white/5 hover:bg-white/10'
-                                        }`}
-                                >
-                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${selections.fries.includes(opt) ? 'bg-yellow-500 text-white' : 'bg-gray-800'
-                                        }`}>
-                                        🍟
-                                    </div>
-                                    <span className="font-bold text-white capitalize">{opt.replace(/_/g, ' ')}</span>
-                                    {selections.fries.includes(opt) && (
-                                        <div className="ml-auto text-yellow-500">
-                                            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                            </svg>
+                            {friesOption.map(opt => {
+                                const info = menuOptions.fries[opt] || { label: opt, icon: '🍟' }
+                                return (
+                                    <button
+                                        key={opt}
+                                        onClick={() => handleToggleSelection('fries', opt)}
+                                        className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${selections.fries.includes(opt)
+                                            ? 'bg-yellow-500/20 border-yellow-500'
+                                            : 'bg-white/5 border-white/5 hover:bg-white/10'
+                                            }`}
+                                    >
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${selections.fries.includes(opt) ? 'bg-yellow-500 text-white' : 'bg-gray-800'
+                                            }`}>
+                                            {info.icon}
                                         </div>
-                                    )}
-                                </button>
-                            ))}
+                                        <span className="font-bold text-white capitalize">{info.label}</span>
+                                        {selections.fries.includes(opt) && (
+                                            <div className="ml-auto text-yellow-500">
+                                                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                                </svg>
+                                            </div>
+                                        )}
+                                    </button>
+                                )
+                            })}
                         </div>
                         <div className="flex justify-between pt-8">
                             <button onClick={prevStep} className="px-8 py-4 bg-gray-800 text-white font-bold rounded-2xl hover:bg-gray-700 transition-colors">Back</button>
@@ -209,29 +261,32 @@ const PublicMenu = () => {
                             <p className="text-gray-400">Pick your protein style</p>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {mealsOption.map(opt => (
-                                <button
-                                    key={opt}
-                                    onClick={() => handleToggleSelection('chicken', opt)}
-                                    className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${selections.chicken.includes(opt)
-                                        ? 'bg-green-500/20 border-green-500'
-                                        : 'bg-white/5 border-white/5 hover:bg-white/10'
-                                        }`}
-                                >
-                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${selections.chicken.includes(opt) ? 'bg-green-500 text-white' : 'bg-gray-800'
-                                        }`}>
-                                        🍗
-                                    </div>
-                                    <span className="font-bold text-white capitalize">{opt.replace(/_/g, ' ')}</span>
-                                    {selections.chicken.includes(opt) && (
-                                        <div className="ml-auto text-green-500">
-                                            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                            </svg>
+                            {mealsOption.map(opt => {
+                                const info = menuOptions.chicken[opt] || { label: opt, icon: '🍗' }
+                                return (
+                                    <button
+                                        key={opt}
+                                        onClick={() => handleToggleSelection('chicken', opt)}
+                                        className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${selections.chicken.includes(opt)
+                                            ? 'bg-green-500/20 border-green-500'
+                                            : 'bg-white/5 border-white/5 hover:bg-white/10'
+                                            }`}
+                                    >
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${selections.chicken.includes(opt) ? 'bg-green-500 text-white' : 'bg-gray-800'
+                                            }`}>
+                                            {info.icon}
                                         </div>
-                                    )}
-                                </button>
-                            ))}
+                                        <span className="font-bold text-white capitalize">{info.label}</span>
+                                        {selections.chicken.includes(opt) && (
+                                            <div className="ml-auto text-green-500">
+                                                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                                </svg>
+                                            </div>
+                                        )}
+                                    </button>
+                                )
+                            })}
                         </div>
                         <div className="flex justify-between pt-8">
                             <button onClick={prevStep} className="px-8 py-4 bg-gray-800 text-white font-bold rounded-2xl hover:bg-gray-700 transition-colors">Back</button>
@@ -247,22 +302,25 @@ const PublicMenu = () => {
                             <p className="text-gray-400">Add some flavor to your tacos</p>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {saucesOption.map(opt => (
-                                <button
-                                    key={opt}
-                                    onClick={() => handleToggleSelection('sauce', opt)}
-                                    className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${selections.sauce.includes(opt)
-                                        ? 'bg-red-500/20 border-red-500'
-                                        : 'bg-white/5 border-white/5 hover:bg-white/10'
-                                        }`}
-                                >
-                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${selections.sauce.includes(opt) ? 'bg-red-500 text-white' : 'bg-gray-800'
-                                        }`}>
-                                        🌶️
-                                    </div>
-                                    <span className="font-bold text-white capitalize">{opt.replace(/_/g, ' ')}</span>
-                                </button>
-                            ))}
+                            {saucesOption.map(opt => {
+                                const info = menuOptions.sauce[opt] || { label: opt, icon: '🌶️' }
+                                return (
+                                    <button
+                                        key={opt}
+                                        onClick={() => handleToggleSelection('sauce', opt)}
+                                        className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${selections.sauce.includes(opt)
+                                            ? 'bg-red-500/20 border-red-500'
+                                            : 'bg-white/5 border-white/5 hover:bg-white/10'
+                                            }`}
+                                    >
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${selections.sauce.includes(opt) ? 'bg-red-500 text-white' : 'bg-gray-800'
+                                            }`}>
+                                            {info.icon}
+                                        </div>
+                                        <span className="font-bold text-white capitalize">{info.label}</span>
+                                    </button>
+                                )
+                            })}
                         </div>
                         <div className="flex justify-between pt-8">
                             <button onClick={prevStep} className="px-8 py-4 bg-gray-800 text-white font-bold rounded-2xl hover:bg-gray-700 transition-colors">Back</button>
@@ -278,22 +336,25 @@ const PublicMenu = () => {
                             <p className="text-gray-400">Pick a refreshing drink</p>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {drinksOption.map(opt => (
-                                <button
-                                    key={opt}
-                                    onClick={() => handleToggleSelection('drink', opt)}
-                                    className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${selections.drink === opt
-                                        ? 'bg-blue-500/20 border-blue-500'
-                                        : 'bg-white/5 border-white/5 hover:bg-white/10'
-                                        }`}
-                                >
-                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${selections.drink === opt ? 'bg-blue-500 text-white' : 'bg-gray-800'
-                                        }`}>
-                                        🥤
-                                    </div>
-                                    <span className="font-bold text-white capitalize">{opt.replace(/_/g, ' ')}</span>
-                                </button>
-                            ))}
+                            {drinksOption.map(opt => {
+                                const info = menuOptions.drink[opt] || { label: opt, icon: '🥤' }
+                                return (
+                                    <button
+                                        key={opt}
+                                        onClick={() => handleToggleSelection('drink', opt)}
+                                        className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${selections.drink === opt
+                                            ? 'bg-blue-500/20 border-blue-500'
+                                            : 'bg-white/5 border-white/5 hover:bg-white/10'
+                                            }`}
+                                    >
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${selections.drink === opt ? 'bg-blue-500 text-white' : 'bg-gray-800'
+                                            }`}>
+                                            {info.icon}
+                                        </div>
+                                        <span className="font-bold text-white capitalize">{info.label}</span>
+                                    </button>
+                                )
+                            })}
                         </div>
                         <div className="flex justify-between pt-8">
                             <button onClick={prevStep} className="px-8 py-4 bg-gray-800 text-white font-bold rounded-2xl hover:bg-gray-700 transition-colors">Back</button>
@@ -309,22 +370,25 @@ const PublicMenu = () => {
                             <p className="text-gray-400">Make it even more special</p>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {extrasOption.map(opt => (
-                                <button
-                                    key={opt}
-                                    onClick={() => handleToggleSelection('extras', opt)}
-                                    className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${selections.extras.includes(opt)
-                                        ? 'bg-purple-500/20 border-purple-500'
-                                        : 'bg-white/5 border-white/5 hover:bg-white/10'
-                                        }`}
-                                >
-                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${selections.extras.includes(opt) ? 'bg-purple-500 text-white' : 'bg-gray-800'
-                                        }`}>
-                                        ✨
-                                    </div>
-                                    <span className="font-bold text-white capitalize">{opt.replace(/_/g, ' ')}</span>
-                                </button>
-                            ))}
+                            {extrasOption.map(opt => {
+                                const info = menuOptions.extras[opt] || { label: opt, icon: '✨' }
+                                return (
+                                    <button
+                                        key={opt}
+                                        onClick={() => handleToggleSelection('extras', opt)}
+                                        className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${selections.extras.includes(opt)
+                                            ? 'bg-purple-500/20 border-purple-500'
+                                            : 'bg-white/5 border-white/5 hover:bg-white/10'
+                                            }`}
+                                    >
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${selections.extras.includes(opt) ? 'bg-purple-500 text-white' : 'bg-gray-800'
+                                            }`}>
+                                            {info.icon}
+                                        </div>
+                                        <span className="font-bold text-white capitalize">{info.label}</span>
+                                    </button>
+                                )
+                            })}
                         </div>
                         <div className="flex justify-between pt-8">
                             <button onClick={prevStep} className="px-8 py-4 bg-gray-800 text-white font-bold rounded-2xl hover:bg-gray-700 transition-colors">Back</button>
@@ -358,9 +422,10 @@ const PublicMenu = () => {
                             <div>
                                 <p className="text-gray-400 text-xs uppercase font-bold tracking-widest mb-3">Extras & Sides</p>
                                 <div className="flex flex-wrap gap-2">
-                                    {selections.fries.length > 0 ? selections.fries.map(f => (
-                                        <span key={f} className="px-4 py-2 bg-yellow-500/10 text-yellow-500 rounded-xl text-sm font-bold border border-yellow-500/20 capitalize">🍟 {f.replace(/_/g, ' ')}</span>
-                                    )) : <span className="text-gray-600 italic">No sides selected</span>}
+                                    {selections.fries.length > 0 ? selections.fries.map(f => {
+                                        const info = menuOptions.fries[f] || { label: f, icon: '🍟' }
+                                        return <span key={f} className="px-4 py-2 bg-yellow-500/10 text-yellow-500 rounded-xl text-sm font-bold border border-yellow-500/20 capitalize">{info.icon} {info.label}</span>
+                                    }) : <span className="text-gray-600 italic">No sides selected</span>}
                                 </div>
                             </div>
 
@@ -368,9 +433,10 @@ const PublicMenu = () => {
                             <div className="pb-4 border-b border-white/5">
                                 <p className="text-gray-400 text-xs uppercase font-bold tracking-widest mb-3">Preparation</p>
                                 <div className="flex flex-wrap gap-2">
-                                    {selections.chicken.length > 0 ? selections.chicken.map(c => (
-                                        <span key={c} className="px-4 py-2 bg-green-500/10 text-green-500 rounded-xl text-sm font-bold border border-green-500/20 capitalize">🍗 {c.replace(/_/g, ' ')}</span>
-                                    )) : <span className="text-gray-600 italic">Standard preparation</span>}
+                                    {selections.chicken.length > 0 ? selections.chicken.map(c => {
+                                        const info = menuOptions.chicken[c] || { label: c, icon: '🍗' }
+                                        return <span key={c} className="px-4 py-2 bg-green-500/10 text-green-500 rounded-xl text-sm font-bold border border-green-500/20 capitalize">{info.icon} {info.label}</span>
+                                    }) : <span className="text-gray-600 italic">Standard preparation</span>}
                                 </div>
                             </div>
 
@@ -379,9 +445,10 @@ const PublicMenu = () => {
                                 <div>
                                     <p className="text-gray-400 text-xs uppercase font-bold tracking-widest mb-3">Sauces</p>
                                     <div className="flex flex-wrap gap-2">
-                                        {selections.sauce.length > 0 ? selections.sauce.map(s => (
-                                            <span key={s} className="px-4 py-2 bg-red-500/10 text-red-500 rounded-xl text-sm font-bold border border-red-500/20 capitalize">🌶️ {s.replace(/_/g, ' ')}</span>
-                                        )) : <span className="text-gray-600 italic">No sauce selected</span>}
+                                        {selections.sauce.length > 0 ? selections.sauce.map(s => {
+                                            const info = menuOptions.sauce[s] || { label: s, icon: '🌶️' }
+                                            return <span key={s} className="px-4 py-2 bg-red-500/10 text-red-500 rounded-xl text-sm font-bold border border-red-500/20 capitalize">{info.icon} {info.label}</span>
+                                        }) : <span className="text-gray-600 italic">No sauce selected</span>}
                                     </div>
                                 </div>
 
@@ -389,7 +456,10 @@ const PublicMenu = () => {
                                     <p className="text-gray-400 text-xs uppercase font-bold tracking-widest mb-3">Drink</p>
                                     <div className="flex flex-wrap gap-2">
                                         {selections.drink ? (
-                                            <span className="px-4 py-2 bg-blue-500/10 text-blue-500 rounded-xl text-sm font-bold border border-blue-500/20 capitalize">🥤 {selections.drink.replace(/_/g, ' ')}</span>
+                                            (() => {
+                                                const info = menuOptions.drink[selections.drink] || { label: selections.drink, icon: '🥤' }
+                                                return <span className="px-4 py-2 bg-blue-500/10 text-blue-500 rounded-xl text-sm font-bold border border-blue-500/20 capitalize">{info.icon} {info.label}</span>
+                                            })()
                                         ) : <span className="text-gray-600 italic">No drink selected</span>}
                                     </div>
                                 </div>
@@ -399,9 +469,10 @@ const PublicMenu = () => {
                             <div>
                                 <p className="text-gray-400 text-xs uppercase font-bold tracking-widest mb-3">Extras & Gratinage</p>
                                 <div className="flex flex-wrap gap-2">
-                                    {selections.extras.length > 0 ? selections.extras.map(e => (
-                                        <span key={e} className="px-4 py-2 bg-purple-500/10 text-purple-500 rounded-xl text-sm font-bold border border-purple-500/20 capitalize">✨ {e.replace(/_/g, ' ')}</span>
-                                    )) : <span className="text-gray-600 italic">No extras added</span>}
+                                    {selections.extras.length > 0 ? selections.extras.map(e => {
+                                        const info = menuOptions.extras[e] || { label: e, icon: '✨' }
+                                        return <span key={e} className="px-4 py-2 bg-purple-500/10 text-purple-500 rounded-xl text-sm font-bold border border-purple-500/20 capitalize">{info.icon} {info.label}</span>
+                                    }) : <span className="text-gray-600 italic">No extras added</span>}
                                 </div>
                             </div>
                         </div>
@@ -454,6 +525,24 @@ const PublicMenu = () => {
                     </div>
 
                     <div className="px-8 pb-12 md:px-12 md:pb-12">
+                        {/* Menu Header */}
+                        <div className="mb-12 text-center border-b border-white/5 pb-12">
+                            <h1
+                                className="text-5xl md:text-7xl font-black text-white mb-4 tracking-tighter"
+                                style={{
+                                    fontFamily: designConfig.fontTheme === 'handwritten' ? 'cursive' :
+                                        designConfig.fontTheme === 'modern' ? 'Outfit, sans-serif' : 'inherit'
+                                }}
+                            >
+                                {designConfig.mainTitle}
+                            </h1>
+                            <div className="flex justify-center items-center gap-4">
+                                <div className="h-1 w-12 rounded-full" style={{ backgroundColor: designConfig.accentColor }}></div>
+                                <p className="text-xl text-gray-400 font-medium">{designConfig.subtitle}</p>
+                                <div className="h-1 w-12 rounded-full" style={{ backgroundColor: designConfig.accentColor }}></div>
+                            </div>
+                        </div>
+
                         {renderStepContent()}
                     </div>
 
