@@ -93,15 +93,15 @@ const Header = () => {
                                         <div className="bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden">
                                             {user.role === 'admin' ? (
                                                 <Link to="/admin" className="block px-4 py-3 text-gray-700 hover:bg-yum-light hover:text-yum-primary font-medium transition-colors">
-                                                    Admin Dashboard
+                                                    {t('header.adminDashboard') || 'Admin Dashboard'}
                                                 </Link>
                                             ) : user.subscription_status === 'active' ? (
                                                 <Link to="/profile" className="block px-4 py-3 text-gray-700 hover:bg-yum-light hover:text-yum-primary font-medium transition-colors">
-                                                    Dashboard
+                                                    {t('header.dashboard') || 'Dashboard'}
                                                 </Link>
                                             ) : (
                                                 <Link to="/profile" className="block px-4 py-3 text-gray-700 hover:bg-yum-light hover:text-yum-primary font-medium transition-colors">
-                                                    Profile
+                                                    {t('header.profile') || 'Profile'}
                                                 </Link>
                                             )}
                                             <button
@@ -111,7 +111,7 @@ const Header = () => {
                                                 }}
                                                 className="w-full text-left px-4 py-3 text-gray-700 hover:bg-yum-light hover:text-yum-primary font-medium transition-colors border-t border-gray-50"
                                             >
-                                                Logout
+                                                {t('header.logout') || 'Logout'}
                                             </button>
                                         </div>
                                     </div>
@@ -152,7 +152,7 @@ const Header = () => {
                         </button>
                     ))}
                     <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                        <span className="font-bold text-yum-dark">Langue / Language</span>
+                        <span className="font-bold text-yum-dark">{t('header.language') || 'Language'}</span>
                         <button onClick={toggleLanguage} className="bg-gray-100 px-4 py-2 rounded-lg text-yum-dark font-bold hover:bg-yum-primary hover:text-white uppercase transition-colors text-sm">
                             {language === 'fr' ? 'English' : 'Français'}
                         </button>
@@ -161,7 +161,7 @@ const Header = () => {
                         user ? (
                             <>
                                 <Link to={user.role === 'admin' ? "/admin" : "/profile"} className="text-yum-primary font-bold w-full text-left py-2 block">
-                                    {user.role === 'admin' ? 'Admin Dashboard' : 'Profile'} ({user.name})
+                                    {user.role === 'admin' ? (t('header.adminDashboard') || 'Admin Dashboard') : (t('header.profile') || 'Profile')} ({user.name})
                                 </Link>
                                 <button
                                     onClick={() => {
@@ -171,7 +171,7 @@ const Header = () => {
                                     }}
                                     className="text-gray-500 font-medium w-full text-left py-2 border-t border-gray-50"
                                 >
-                                    Logout
+                                    {t('header.logout') || 'Logout'}
                                 </button>
                             </>
                         ) : (
@@ -180,11 +180,12 @@ const Header = () => {
                             </Link>
                         )
                     )}
-                    <Link to="/demo" className="bg-yum-primary text-white px-6 py-2 rounded-full font-bold w-full text-center block">
+                    <Link to="/demo" className="bg-yum-primary text-white px-6 py-2 rounded-full font-bold w-full text-center block" onClick={() => setIsMenuOpen(false)}>
                         {t('header.demo')}
                     </Link>
                 </div>
             )}
+
         </header>
     )
 }

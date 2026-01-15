@@ -32,6 +32,8 @@ const Profile = () => {
     // Menus State
     const [savedMenus, setSavedMenus] = useState([])
     const [editingMenu, setEditingMenu] = useState(null)
+    const [selectedTemplate, setSelectedTemplate] = useState(null)
+    const [isEditorOpen, setIsEditorOpen] = useState(false)
 
     useEffect(() => {
         loadMenus()
@@ -278,10 +280,6 @@ const Profile = () => {
             </div>
         </div>
     )
-
-    // Dynamic Menu Templates State
-    const [selectedTemplate, setSelectedTemplate] = useState(null)
-    const [isEditorOpen, setIsEditorOpen] = useState(false)
 
     const hasMenu = savedMenus.length > 0
 
