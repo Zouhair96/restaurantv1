@@ -1,19 +1,30 @@
-const { query } = require('./db');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-
 exports.handler = async (event, context) => {
-    if (event.httpMethod !== 'POST') {
-        return { statusCode: 405, body: 'Method Not Allowed' };
-    }
-
-    const { email, password } = JSON.parse(event.body);
-
-    if (!email || !password) {
-        return { statusCode: 400, body: JSON.stringify({ error: 'Email and password are required' }) };
+    let query, bcrypt, jwt;
+    try {
+        // Move imports inside to catch loading errors
+        const db = require('./db');
+        query = db.query;
+        bcrypt = require('bcryptjs');
+        jwt = require('jsonwebtoken');
+    } catch (e) {
+        return {
+            statusCode: 500,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ error: 'Dependency Load Error', details: e.message })
+        };
     }
 
     try {
+        if (event.httpMethod !== 'POST') {
+            return { statusCode: 405, body: 'Method Not Allowed' };
+        }
+
+        const { email, password } = JSON.parse(event.body);
+
+        if (!email || !password) {
+            return { statusCode: 400, body: JSON.stringify({ error: 'Email and password are required' }) };
+        }
+
         // Find user
         const result = await query('SELECT * FROM users WHERE email = $1', [email]);
         const user = result.rows[0];
