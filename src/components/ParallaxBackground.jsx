@@ -22,7 +22,7 @@ const ParallaxBackground = ({ children }) => {
                 <div
                     className="absolute inset-x-0 top-0 h-[150vh] bg-primary-red transition-transform duration-100 ease-out"
                     style={{
-                        transform: `translateY(${50 + offset * 0.2}vh) rotate(${-5 + offset * 0.01}deg) scale(1.5)`,
+                        transform: `translateY(${85 + offset * 0.2}vh) rotate(${-5 + offset * 0.01}deg) scale(1.5)`,
                         clipPath: 'ellipse(100% 50% at 50% 0%)',
                         opacity: 0.95
                     }}
@@ -32,7 +32,7 @@ const ParallaxBackground = ({ children }) => {
                 <div
                     className="absolute inset-x-0 top-0 h-[150vh] bg-red-600 transition-transform duration-150 ease-out"
                     style={{
-                        transform: `translateY(${60 + offset * 0.15}vh) rotate(${2 + offset * 0.005}deg) scale(1.6)`,
+                        transform: `translateY(${90 + offset * 0.15}vh) rotate(${2 + offset * 0.005}deg) scale(1.6)`,
                         clipPath: 'ellipse(100% 50% at 50% 0%)',
                         opacity: 0.4
                     }}
