@@ -18,4 +18,15 @@ const pool = new Pool({
     }
 });
 
-export const query = (text, params) => pool.query(text, params);
+export const query = async (text, params) => {
+    try {
+        return await pool.query(text, params);
+    } catch (error) {
+        console.error("Database Query Error:", {
+            message: error.message,
+            stack: error.stack,
+            query: text
+        });
+        throw error;
+    }
+};

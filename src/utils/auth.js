@@ -11,7 +11,8 @@ export const loginUser = async (email, password) => {
 
     const contentType = response.headers.get("content-type");
     if (!contentType || !contentType.includes("application/json")) {
-        throw new Error("Backend not connected. Application/JSON expected but got HTML.");
+        console.error("Backend returned non-JSON response:", await response.text());
+        throw new Error("Backend not connected or returned an error page. Please ensure 'npm start' (netlify dev) is running.");
     }
 
     const data = await response.json();
@@ -38,7 +39,8 @@ export const signupUser = async (userData) => {
 
     const contentType = response.headers.get("content-type");
     if (!contentType || !contentType.includes("application/json")) {
-        throw new Error("Backend not connected. Application/JSON expected but got HTML.");
+        console.error("Backend returned non-JSON response:", await response.text());
+        throw new Error("Backend not connected or returned an error page. Please ensure 'npm start' (netlify dev) is running.");
     }
 
     const data = await response.json();

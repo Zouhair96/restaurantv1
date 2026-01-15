@@ -11,12 +11,12 @@ export default defineConfig({
     host: true,
     proxy: {
       '/.netlify/functions': {
-        target: 'http://localhost:3000',
+        target: 'http://localhost:8888', // Netlify Dev default port
         changeOrigin: true,
         secure: false,
       },
       '/api': {
-        target: 'http://localhost:3000',
+        target: 'http://localhost:8888', // Netlify Dev default port
         changeOrigin: true,
         secure: false,
       },
