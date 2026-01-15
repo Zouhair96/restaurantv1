@@ -10,7 +10,10 @@ const PublicMenu = () => {
     const [selections, setSelections] = useState({
         size: null,
         fries: [],
-        chicken: []
+        chicken: [],
+        sauce: [],
+        drink: null,
+        extras: []
     })
 
     useEffect(() => {
@@ -69,12 +72,15 @@ const PublicMenu = () => {
 
     const { config } = data.menu
     const menuConfig = typeof config === 'string' ? JSON.parse(config) : config
-    const { designConfig, sizes, friesOption = [], mealsOption = [] } = menuConfig
+    const { designConfig, sizes, friesOption = [], mealsOption = [], saucesOption = [], drinksOption = [], extrasOption = [] } = menuConfig
 
     const steps = [
         { id: 1, name: 'Select Size', icon: '🌮' },
         ...(friesOption.length > 0 ? [{ id: 2, name: 'Choose Fries', icon: '🍟' }] : []),
         ...(mealsOption.length > 0 ? [{ id: 3, name: 'Pick Chicken', icon: '🍗' }] : []),
+        ...(saucesOption.length > 0 ? [{ id: 4, name: 'Select Sauce', icon: '🌶️' }] : []),
+        ...(drinksOption.length > 0 ? [{ id: 5, name: 'Pick Drink', icon: '🥤' }] : []),
+        ...(extrasOption.length > 0 ? [{ id: 6, name: 'Add Extras', icon: '✨' }] : []),
         { id: 'final', name: 'Review Order', icon: '✨' }
     ]
 
@@ -98,7 +104,7 @@ const PublicMenu = () => {
     const handleToggleSelection = (category, value) => {
         setSelections(prev => {
             const current = prev[category]
-            if (category === 'size') return { ...prev, size: value }
+            if (category === 'size' || category === 'drink') return { ...prev, [category]: value }
 
             const exists = current.includes(value)
             const updated = exists
@@ -233,6 +239,99 @@ const PublicMenu = () => {
                         </div>
                     </div>
                 )
+            case 4:
+                return (
+                    <div className="animate-fade-in space-y-8">
+                        <div className="text-center mb-8">
+                            <h3 className="text-3xl font-black text-white mb-2">Select Your Sauces</h3>
+                            <p className="text-gray-400">Add some flavor to your tacos</p>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {saucesOption.map(opt => (
+                                <button
+                                    key={opt}
+                                    onClick={() => handleToggleSelection('sauce', opt)}
+                                    className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${selections.sauce.includes(opt)
+                                        ? 'bg-red-500/20 border-red-500'
+                                        : 'bg-white/5 border-white/5 hover:bg-white/10'
+                                        }`}
+                                >
+                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${selections.sauce.includes(opt) ? 'bg-red-500 text-white' : 'bg-gray-800'
+                                        }`}>
+                                        🌶️
+                                    </div>
+                                    <span className="font-bold text-white capitalize">{opt.replace(/_/g, ' ')}</span>
+                                </button>
+                            ))}
+                        </div>
+                        <div className="flex justify-between pt-8">
+                            <button onClick={prevStep} className="px-8 py-4 bg-gray-800 text-white font-bold rounded-2xl hover:bg-gray-700 transition-colors">Back</button>
+                            <button onClick={nextStep} className="px-12 py-4 bg-yum-primary text-white font-black rounded-2xl hover:bg-red-500 transition-all shadow-xl shadow-yum-primary/20">Next</button>
+                        </div>
+                    </div>
+                )
+            case 5:
+                return (
+                    <div className="animate-fade-in space-y-8">
+                        <div className="text-center mb-8">
+                            <h3 className="text-3xl font-black text-white mb-2">Quench Your Thirst</h3>
+                            <p className="text-gray-400">Pick a refreshing drink</p>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {drinksOption.map(opt => (
+                                <button
+                                    key={opt}
+                                    onClick={() => handleToggleSelection('drink', opt)}
+                                    className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${selections.drink === opt
+                                        ? 'bg-blue-500/20 border-blue-500'
+                                        : 'bg-white/5 border-white/5 hover:bg-white/10'
+                                        }`}
+                                >
+                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${selections.drink === opt ? 'bg-blue-500 text-white' : 'bg-gray-800'
+                                        }`}>
+                                        🥤
+                                    </div>
+                                    <span className="font-bold text-white capitalize">{opt.replace(/_/g, ' ')}</span>
+                                </button>
+                            ))}
+                        </div>
+                        <div className="flex justify-between pt-8">
+                            <button onClick={prevStep} className="px-8 py-4 bg-gray-800 text-white font-bold rounded-2xl hover:bg-gray-700 transition-colors">Back</button>
+                            <button onClick={nextStep} className="px-12 py-4 bg-yum-primary text-white font-black rounded-2xl hover:bg-red-500 transition-all shadow-xl shadow-yum-primary/20">Next</button>
+                        </div>
+                    </div>
+                )
+            case 6:
+                return (
+                    <div className="animate-fade-in space-y-8">
+                        <div className="text-center mb-8">
+                            <h3 className="text-3xl font-black text-white mb-2">Extra Indulgence</h3>
+                            <p className="text-gray-400">Make it even more special</p>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {extrasOption.map(opt => (
+                                <button
+                                    key={opt}
+                                    onClick={() => handleToggleSelection('extras', opt)}
+                                    className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${selections.extras.includes(opt)
+                                        ? 'bg-purple-500/20 border-purple-500'
+                                        : 'bg-white/5 border-white/5 hover:bg-white/10'
+                                        }`}
+                                >
+                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${selections.extras.includes(opt) ? 'bg-purple-500 text-white' : 'bg-gray-800'
+                                        }`}>
+                                        ✨
+                                    </div>
+                                    <span className="font-bold text-white capitalize">{opt.replace(/_/g, ' ')}</span>
+                                </button>
+                            ))}
+                        </div>
+                        <div className="flex justify-between pt-8">
+                            <button onClick={prevStep} className="px-8 py-4 bg-gray-800 text-white font-bold rounded-2xl hover:bg-gray-700 transition-colors">Back</button>
+                            <button onClick={nextStep} className="px-12 py-4 bg-yum-primary text-white font-black rounded-2xl hover:bg-red-500 transition-all shadow-xl shadow-yum-primary/20">Finalize</button>
+                        </div>
+                    </div>
+                )
             case 'final':
                 return (
                     <div className="animate-fade-in space-y-8">
@@ -266,12 +365,43 @@ const PublicMenu = () => {
                             </div>
 
                             {/* Chicken */}
-                            <div>
+                            <div className="pb-4 border-b border-white/5">
                                 <p className="text-gray-400 text-xs uppercase font-bold tracking-widest mb-3">Preparation</p>
                                 <div className="flex flex-wrap gap-2">
                                     {selections.chicken.length > 0 ? selections.chicken.map(c => (
                                         <span key={c} className="px-4 py-2 bg-green-500/10 text-green-500 rounded-xl text-sm font-bold border border-green-500/20 capitalize">🍗 {c.replace(/_/g, ' ')}</span>
                                     )) : <span className="text-gray-600 italic">Standard preparation</span>}
+                                </div>
+                            </div>
+
+                            {/* Sauces */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <p className="text-gray-400 text-xs uppercase font-bold tracking-widest mb-3">Sauces</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {selections.sauce.length > 0 ? selections.sauce.map(s => (
+                                            <span key={s} className="px-4 py-2 bg-red-500/10 text-red-500 rounded-xl text-sm font-bold border border-red-500/20 capitalize">🌶️ {s.replace(/_/g, ' ')}</span>
+                                        )) : <span className="text-gray-600 italic">No sauce selected</span>}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <p className="text-gray-400 text-xs uppercase font-bold tracking-widest mb-3">Drink</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {selections.drink ? (
+                                            <span className="px-4 py-2 bg-blue-500/10 text-blue-500 rounded-xl text-sm font-bold border border-blue-500/20 capitalize">🥤 {selections.drink.replace(/_/g, ' ')}</span>
+                                        ) : <span className="text-gray-600 italic">No drink selected</span>}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Extras */}
+                            <div>
+                                <p className="text-gray-400 text-xs uppercase font-bold tracking-widest mb-3">Extras & Gratinage</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {selections.extras.length > 0 ? selections.extras.map(e => (
+                                        <span key={e} className="px-4 py-2 bg-purple-500/10 text-purple-500 rounded-xl text-sm font-bold border border-purple-500/20 capitalize">✨ {e.replace(/_/g, ' ')}</span>
+                                    )) : <span className="text-gray-600 italic">No extras added</span>}
                                 </div>
                             </div>
                         </div>

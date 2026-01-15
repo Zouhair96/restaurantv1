@@ -21,13 +21,24 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
     // Step 3 State: Meals
     const [mealsOption, setMealsOption] = useState(initialData?.config?.mealsOption || [])
 
-    // Step 4 State: Design & Text
+    // Step 4 State: Sauces
+    const [saucesOption, setSaucesOption] = useState(initialData?.config?.saucesOption || [])
+
+    // Step 5 State: Drinks
+    const [drinksOption, setDrinksOption] = useState(initialData?.config?.drinksOption || [])
+
+    // Step 6 State: Extras (Gratinage)
+    const [extrasOption, setExtrasOption] = useState(initialData?.config?.extrasOption || [])
+
+    // Step 7 State: Design & Text
     const [designConfig, setDesignConfig] = useState(initialData?.config?.designConfig || {
         mainTitle: 'Tacos Festival',
         subtitle: 'Fresh & Spicy - Limited Time',
         accentColor: '#FF4500', // Orange Red
         fontTheme: 'modern'
     })
+
+    const stepsCount = 8;
 
     // --- Handlers for Step 1 ---
     const handleInputChange = (e) => {
@@ -67,7 +78,7 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
 
     // --- Navigation Handlers ---
     const handleNext = () => {
-        if (currentStep < 5) setCurrentStep(prev => prev + 1)
+        if (currentStep < stepsCount) setCurrentStep(prev => prev + 1)
     }
 
     const handleBack = () => {
@@ -79,6 +90,9 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
             sizes,
             friesOption,
             mealsOption,
+            saucesOption,
+            drinksOption,
+            extrasOption,
             designConfig
         }
 
@@ -324,6 +338,129 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
         </div>
     )
 
+    const renderStepSauces = () => (
+        <div className="animate-fade-in max-w-4xl mx-auto">
+            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                <span className="bg-red-500/20 text-red-500 w-8 h-8 rounded-full flex items-center justify-center text-sm">🌶️</span>
+                Choose Sauces
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[
+                    { id: 'ketchup', label: 'Ketchup', icon: '🍅' },
+                    { id: 'mayo', label: 'Mayo', icon: '🥛' },
+                    { id: 'algerienne', label: 'Algérienne', icon: '🔥' },
+                    { id: 'samourai', label: 'Samouraï', icon: '⚔️' },
+                    { id: 'blanche', label: 'Blanche', icon: '☁️' },
+                    { id: 'biggy', label: 'Biggy', icon: '🍔' },
+                    { id: 'andalouse', label: 'Andalouse', icon: '🇪🇸' },
+                    { id: 'cheese', label: 'Sauce Cheese', icon: '🧀' }
+                ].map((option) => {
+                    const isSelected = saucesOption.includes(option.id)
+                    return (
+                        <div
+                            key={option.id}
+                            onClick={() => {
+                                setSaucesOption(prev => isSelected ? prev.filter(id => id !== option.id) : [...prev, option.id])
+                            }}
+                            className={`cursor-pointer rounded-2xl p-6 border-2 transition-all duration-300 flex flex-col items-center justify-center gap-4 group ${isSelected
+                                ? 'bg-red-500/10 border-red-500 shadow-lg shadow-red-500/20 scale-105'
+                                : 'bg-gray-800 border-gray-700 hover:border-gray-500 hover:bg-gray-750'
+                                }`}
+                        >
+                            <div className="text-4xl group-hover:scale-110 transition-transform duration-300">{option.icon}</div>
+                            <div className="text-center">
+                                <h4 className={`font-bold text-lg ${isSelected ? 'text-red-500' : 'text-white'}`}>
+                                    {option.label}
+                                </h4>
+                            </div>
+                        </div>
+                    )
+                })}
+            </div>
+        </div>
+    )
+
+    const renderStepDrinks = () => (
+        <div className="animate-fade-in max-w-4xl mx-auto">
+            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                <span className="bg-blue-500/20 text-blue-500 w-8 h-8 rounded-full flex items-center justify-center text-sm">🥤</span>
+                Choose Drinks
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[
+                    { id: 'coca', label: 'Coca-Cola', icon: '🥤' },
+                    { id: 'fanta', label: 'Fanta', icon: '🍊' },
+                    { id: 'sprite', label: 'Sprite', icon: '🍋' },
+                    { id: 'oasis', label: 'Oasis', icon: '🍎' },
+                    { id: 'water', label: 'Eau Minérale', icon: '💧' },
+                    { id: 'tea', label: 'Ice Tea', icon: '🍃' },
+                    { id: 'tropico', label: 'Tropico', icon: '🏝️' }
+                ].map((option) => {
+                    const isSelected = drinksOption.includes(option.id)
+                    return (
+                        <div
+                            key={option.id}
+                            onClick={() => {
+                                setDrinksOption(prev => isSelected ? prev.filter(id => id !== option.id) : [...prev, option.id])
+                            }}
+                            className={`cursor-pointer rounded-2xl p-6 border-2 transition-all duration-300 flex flex-col items-center justify-center gap-4 group ${isSelected
+                                ? 'bg-blue-500/10 border-blue-500 shadow-lg shadow-blue-500/20 scale-105'
+                                : 'bg-gray-800 border-gray-700 hover:border-gray-500 hover:bg-gray-750'
+                                }`}
+                        >
+                            <div className="text-4xl group-hover:scale-110 transition-transform duration-300">{option.icon}</div>
+                            <div className="text-center">
+                                <h4 className={`font-bold text-lg ${isSelected ? 'text-blue-500' : 'text-white'}`}>
+                                    {option.label}
+                                </h4>
+                            </div>
+                        </div>
+                    )
+                })}
+            </div>
+        </div>
+    )
+
+    const renderStepExtras = () => (
+        <div className="animate-fade-in max-w-4xl mx-auto">
+            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                <span className="bg-purple-500/20 text-purple-500 w-8 h-8 rounded-full flex items-center justify-center text-sm">✨</span>
+                Configure Extras (Gratinage)
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[
+                    { id: 'gratinage', label: 'Gratinage', icon: '🧀', desc: 'Baked top' },
+                    { id: 'raclette', label: 'Raclette', icon: '🍖', desc: 'Melted cheese' },
+                    { id: 'egg', label: 'Oeuf', icon: '🍳', desc: 'Fried egg' },
+                    { id: 'bacon', label: 'Bacon Beef', icon: '🥓', desc: 'Smoked beef' },
+                    { id: 'double_cheese', label: 'Double Cheese', icon: '🧀🧀', desc: 'Extra creamy' }
+                ].map((option) => {
+                    const isSelected = extrasOption.includes(option.id)
+                    return (
+                        <div
+                            key={option.id}
+                            onClick={() => {
+                                setExtrasOption(prev => isSelected ? prev.filter(id => id !== option.id) : [...prev, option.id])
+                            }}
+                            className={`cursor-pointer rounded-2xl p-6 border-2 transition-all duration-300 flex flex-col items-center justify-center gap-4 group ${isSelected
+                                ? 'bg-purple-500/10 border-purple-500 shadow-lg shadow-purple-500/20 scale-105'
+                                : 'bg-gray-800 border-gray-700 hover:border-gray-500 hover:bg-gray-750'
+                                }`}
+                        >
+                            <div className="text-4xl group-hover:scale-110 transition-transform duration-300">{option.icon}</div>
+                            <div className="text-center">
+                                <h4 className={`font-bold text-lg ${isSelected ? 'text-purple-500' : 'text-white'}`}>
+                                    {option.label}
+                                </h4>
+                                <p className="text-gray-400 text-sm mt-1">{option.desc}</p>
+                            </div>
+                        </div>
+                    )
+                })}
+            </div>
+        </div>
+    )
+
     const renderStepPreview = () => (
         <div className="animate-fade-in max-w-5xl mx-auto flex flex-col lg:flex-row gap-8 items-start">
             {/* Left: Configuration Summary */}
@@ -341,12 +478,12 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
                             <p className="text-white font-medium">{sizes.length} Sizes Configured</p>
                         </div>
                         <div>
-                            <p className="text-gray-400">Fries Options</p>
-                            <p className="text-white font-medium">{friesOption.length} Selected</p>
-                        </div>
-                        <div>
-                            <p className="text-gray-400">Chicken Options</p>
-                            <p className="text-white font-medium">{mealsOption.length} Selected</p>
+                            <p className="text-gray-400">Extra Steps</p>
+                            <p className="text-white font-medium">
+                                {saucesOption.length > 0 ? '✓ Sauces ' : ''}
+                                {drinksOption.length > 0 ? '✓ Drinks ' : ''}
+                                {extrasOption.length > 0 ? '✓ Extras' : ''}
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -538,8 +675,11 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
             case 1: return renderStep1()
             case 2: return renderStepFries()
             case 3: return renderStepMeals()
-            case 4: return renderStep2()
-            case 5: return renderStepPreview()
+            case 4: return renderStepSauces()
+            case 5: return renderStepDrinks()
+            case 6: return renderStepExtras()
+            case 7: return renderStep2()
+            case 8: return renderStepPreview()
             default: return renderStep1()
         }
     }
@@ -596,7 +736,10 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
                             currentStep === 1 ? 'Configure Sizes' :
                                 currentStep === 2 ? 'Fries Options' :
                                     currentStep === 3 ? 'Meal Options' :
-                                        currentStep === 4 ? 'Customize Design' : 'Preview'
+                                        currentStep === 4 ? 'Sauce Options' :
+                                            currentStep === 5 ? 'Drink Options' :
+                                                currentStep === 6 ? 'Extra Options' :
+                                                    currentStep === 7 ? 'Customize Design' : 'Preview'
                         }</p>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-gray-800 rounded-full text-gray-400 hover:text-white transition-colors">
@@ -606,17 +749,17 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
 
                 {/* Steps Progress */}
                 <div className="bg-gray-900/30 py-3 border-b border-gray-800">
-                    <div className="flex justify-center items-center gap-4">
-                        {[1, 2, 3, 4, 5].map(step => (
+                    <div className="flex justify-center items-center gap-2">
+                        {[1, 2, 3, 4, 5, 6, 7, 8].map(step => (
                             <div key={step} className="flex items-center gap-2">
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${currentStep >= step ? 'bg-yum-primary text-white shadow-lg shadow-yum-primary/30' : 'bg-gray-800 text-gray-500'
+                                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${currentStep >= step ? 'bg-yum-primary text-white shadow-lg shadow-yum-primary/30' : 'bg-gray-800 text-gray-500'
                                     }`}>
                                     {step}
                                 </div>
-                                <span className={`text-sm font-medium ${currentStep >= step ? 'text-white' : 'text-gray-600'} hidden sm:block`}>
-                                    {step === 1 ? 'Sizes' : step === 2 ? 'Fries' : step === 3 ? 'Meals' : step === 4 ? 'Design' : 'Preview'}
+                                <span className={`text-[10px] font-medium ${currentStep >= step ? 'text-white' : 'text-gray-600'} hidden md:block`}>
+                                    {step === 1 ? 'Sizes' : step === 2 ? 'Fries' : step === 3 ? 'Meals' : step === 4 ? 'Sauces' : step === 5 ? 'Drinks' : step === 6 ? 'Extras' : step === 7 ? 'Design' : 'Preview'}
                                 </span>
-                                {step < 5 && <div className="w-8 md:w-12 h-0.5 bg-gray-800"></div>}
+                                {step < 8 && <div className="w-4 lg:w-8 h-0.5 bg-gray-800"></div>}
                             </div>
                         ))}
                     </div>
@@ -639,14 +782,14 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
                     </button>
 
                     <button
-                        onClick={currentStep === 5 ? handlePublish : handleNext}
+                        onClick={currentStep === 8 ? handlePublish : handleNext}
                         disabled={currentStep === 1 && sizes.length === 0}
                         className={`px-8 py-3 rounded-xl font-bold text-lg transition-all transform hover:scale-105 flex items-center gap-2 ${(currentStep === 1 && sizes.length > 0) || currentStep > 1
                             ? 'bg-gradient-to-r from-yum-primary to-orange-600 text-white shadow-lg hover:shadow-orange-500/30'
                             : 'bg-gray-800 text-gray-500 cursor-not-allowed'
                             }`}
                     >
-                        {currentStep === 5 ? 'Publish Menu 🚀' : 'Next Step →'}
+                        {currentStep === 8 ? 'Publish Menu 🚀' : 'Next Step →'}
                     </button>
                 </div>
             </div>
