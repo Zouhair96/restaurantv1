@@ -402,90 +402,48 @@ const Profile = () => {
 
                 {/* Pizza Template */}
                 <div
-                    onClick={() => {
-                        if (hasMenu) return
-                        setSelectedTemplate('pizza')
-                        setEditingMenu(null)
-                        setIsEditorOpen(true)
-                    }}
-                    className={`group relative rounded-2xl overflow-hidden transition-all duration-300 border-2 ${hasMenu
-                        ? 'cursor-not-allowed opacity-40 grayscale border-transparent'
-                        : 'cursor-pointer hover:shadow-2xl hover:scale-[1.02] border-transparent hover:border-yum-primary'}`}
+                    className={`group relative rounded-2xl overflow-hidden transition-all duration-300 border-2 border-transparent cursor-not-allowed opacity-60 grayscale`}
                 >
                     <div className="aspect-[9/16] bg-black relative">
                         <img
                             src={pizzaTemplate}
                             alt="Pizza Menu Template"
-                            className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                            className="w-full h-full object-cover opacity-50"
                         />
-                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 group-hover:bg-black/60 transition-colors">
-                            {hasMenu ? (
-                                <div className="text-center px-4">
-                                    <div className="w-16 h-16 rounded-full bg-gray-800/80 backdrop-blur-sm flex items-center justify-center mb-4 mx-auto">
-                                        <span className="text-3xl text-gray-500">🔒</span>
-                                    </div>
-                                    <p className="text-white font-bold text-lg mb-1">Locked</p>
-                                    <p className="text-gray-400 text-xs">Delete current menu to unlock</p>
-                                </div>
-                            ) : (
-                                <>
-                                    <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                        <span className="text-3xl">🍕</span>
-                                    </div>
-                                    <button className="px-6 py-2 bg-yum-primary text-white font-bold rounded-lg opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-                                        Create This Menu
-                                    </button>
-                                </>
-                            )}
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60">
+                            <div className="w-16 h-16 rounded-full bg-gray-800/80 backdrop-blur-sm flex items-center justify-center mb-4">
+                                <span className="text-3xl grayscale">🍕</span>
+                            </div>
+                            <p className="text-white font-black text-xl mb-1 uppercase tracking-tighter">Coming Soon</p>
+                            <p className="text-gray-400 text-xs font-bold px-4 py-1 bg-gray-900/80 rounded-full border border-gray-700">Not yet developed</p>
                         </div>
                         <div className="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-black/90 to-transparent">
                             <h3 className="text-white font-bold text-lg">Pizza Party</h3>
-                            <p className="text-gray-300 text-xs">Cozy • Warm • Cinematic</p>
+                            <p className="text-gray-300 text-xs text-yum-primary font-bold">DEVELOPMENT IN PROGRESS</p>
                         </div>
                     </div>
                 </div>
 
                 {/* Other Template (formerly Salad) */}
                 <div
-                    onClick={() => {
-                        if (hasMenu) return
-                        setSelectedTemplate('other')
-                        setEditingMenu(null)
-                        setIsEditorOpen(true)
-                    }}
-                    className={`group relative rounded-2xl overflow-hidden transition-all duration-300 border-2 ${hasMenu
-                        ? 'cursor-not-allowed opacity-40 grayscale border-transparent'
-                        : 'cursor-pointer hover:shadow-2xl hover:scale-[1.02] border-transparent hover:border-yum-primary'}`}
+                    className={`group relative rounded-2xl overflow-hidden transition-all duration-300 border-2 border-transparent cursor-not-allowed opacity-60 grayscale`}
                 >
                     <div className="aspect-[9/16] bg-black relative">
                         <img
                             src={saladTemplate}
                             alt="Other Menu Template"
-                            className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                            className="w-full h-full object-cover opacity-50"
                         />
-                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 group-hover:bg-black/60 transition-colors">
-                            {hasMenu ? (
-                                <div className="text-center px-4">
-                                    <div className="w-16 h-16 rounded-full bg-gray-800/80 backdrop-blur-sm flex items-center justify-center mb-4 mx-auto">
-                                        <span className="text-3xl text-gray-500">🔒</span>
-                                    </div>
-                                    <p className="text-white font-bold text-lg mb-1">Locked</p>
-                                    <p className="text-gray-400 text-xs">Delete current menu to unlock</p>
-                                </div>
-                            ) : (
-                                <>
-                                    <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                        <span className="text-3xl">🍽️</span>
-                                    </div>
-                                    <button className="px-6 py-2 bg-yum-primary text-white font-bold rounded-lg opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-                                        Create Custom Menu
-                                    </button>
-                                </>
-                            )}
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60">
+                            <div className="w-16 h-16 rounded-full bg-gray-800/80 backdrop-blur-sm flex items-center justify-center mb-4">
+                                <span className="text-3xl grayscale">🍽️</span>
+                            </div>
+                            <p className="text-white font-black text-xl mb-1 uppercase tracking-tighter">Coming Soon</p>
+                            <p className="text-gray-400 text-xs font-bold px-4 py-1 bg-gray-900/80 rounded-full border border-gray-700">Not yet developed</p>
                         </div>
                         <div className="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-black/90 to-transparent">
                             <h3 className="text-white font-bold text-lg">Other / Custom</h3>
-                            <p className="text-gray-300 text-xs">Flexible • Universal • Clean</p>
+                            <p className="text-gray-300 text-xs text-yum-primary font-bold">DEVELOPMENT IN PROGRESS</p>
                         </div>
                     </div>
                 </div>
