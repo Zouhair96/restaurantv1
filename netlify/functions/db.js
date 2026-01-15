@@ -1,53 +1,5 @@
 import pg from 'pg';
 const { Pool } = pg;
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-try {
-    // Try multiple paths to find .env
-    const pathsToCheck = [
-        path.resolve(process.cwd(), '.env'),
-        path.resolve(__dirname, '../../.env'),
-        path.resolve(__dirname, '../.env'),
-        path.resolve(process.cwd(), '..', '.env')
-    ];
-
-    let envPath = null;
-    for (const p of pathsToCheck) {
-        if (fs.existsSync(p)) {
-            envPath = p;
-            break;
-        }
-    }
-
-    if (envPath) {
-        const envConfig = fs.readFileSync(envPath, 'utf8');
-        envConfig.split('\n').forEach(line => {
-            // Skip comments and empty lines
-            if (!line || line.startsWith('#')) return;
-
-            const parts = line.split('=');
-            if (parts.length >= 2) {
-                const key = parts.shift().trim();
-                let value = parts.join('=').trim();
-
-                // Remove surrounding quotes if present
-                if ((value.startsWith('"') && value.endsWith('"')) ||
-                    (value.startsWith("'") && value.endsWith("'"))) {
-                    value = value.substring(1, value.length - 1);
-                }
-
-                process.env[key] = value;
-            }
-        });
-    }
-} catch (e) {
-    // Ignore error if file doesn't exist
-}
 
 // Enforce Environment Variable - SOFTENED for stability
 // Default to the new working URL if env var is missing
