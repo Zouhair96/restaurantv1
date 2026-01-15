@@ -6,6 +6,12 @@ const PublicMenu = () => {
     const [data, setData] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
+    const [currentStep, setCurrentStep] = useState(1)
+    const [selections, setSelections] = useState({
+        size: null,
+        fries: [],
+        chicken: []
+    })
 
     useEffect(() => {
         const fetchMenu = async () => {
@@ -60,12 +66,6 @@ const PublicMenu = () => {
         )
     }
 
-    const [currentStep, setCurrentStep] = useState(1)
-    const [selections, setSelections] = useState({
-        size: null,
-        fries: [],
-        chicken: []
-    })
 
     const { config } = data.menu
     const menuConfig = typeof config === 'string' ? JSON.parse(config) : config
