@@ -11,6 +11,10 @@ export const translations = {
         },
         hero: {
             title: "Le menu digital qui augmente votre chiffre d'affaires",
+            titleP1: "Le menu",
+            titleP1Highlight: "digital",
+            titleP2: "qui augmente",
+            titleP3: "votre chiffre d'affaires",
             subtitle: "Menu digital, commandes, paiements et recommandations IA, directement depuis le smartphone de vos clients. Sans application à télécharger.",
             ctaPrimary: "Commencer avec YumYum",
             ctaSecondary: "Voir une démo",
@@ -166,6 +170,10 @@ export const translations = {
         },
         hero: {
             title: "The digital menu that boosts your revenue",
+            titleP1: "The digital",
+            titleP1Highlight: "menu",
+            titleP2: "that boosts",
+            titleP3: "your revenue",
             subtitle: "Digital menu, ordering, payments, and AI recommendations, directly from your customers' smartphones. No app download required.",
             ctaPrimary: "Get Started with YumYum",
             ctaSecondary: "See a Demo",

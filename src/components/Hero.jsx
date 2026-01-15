@@ -38,13 +38,13 @@ const Hero = () => {
 
                         <h1 className="text-gray-900 animate-fade-in-up tracking-tighter mb-8">
                             <span className="block text-4xl md:text-6xl font-black leading-none mb-1">
-                                Le menu <span className="text-yum-primary">digital</span>
+                                {t('hero.titleP1')} <span className="text-yum-primary">{t('hero.titleP1Highlight')}</span>
                             </span>
                             <span className="block text-xl md:text-3xl font-medium italic text-gray-400 mb-4 lowercase tracking-normal">
-                                qui augmente
+                                {t('hero.titleP2')}
                             </span>
                             <span className="block text-5xl md:text-8xl font-black uppercase leading-[0.9] tracking-tighter">
-                                votre chiffre <br className="hidden md:block" /> d'affaires
+                                {t('hero.titleP3')}
                             </span>
                         </h1>
 
