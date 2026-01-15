@@ -9,9 +9,11 @@ if (!process.env.DATABASE_URL) {
     console.warn("WARNING: DATABASE_URL is missing. Using Fallback URL.");
 }
 
+const isLocal = (process.env.DATABASE_URL || '').includes('localhost') || (process.env.DATABASE_URL || '').includes('127.0.0.1');
+
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL || FALLBACK_DB_URL,
-    ssl: {
+    ssl: isLocal ? false : {
         rejectUnauthorized: false
     }
 });
