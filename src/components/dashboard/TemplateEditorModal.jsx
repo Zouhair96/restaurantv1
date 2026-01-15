@@ -121,15 +121,21 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
                 <form onSubmit={handleAddOrUpdate} className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-400 mb-1">Size Name <span className="text-red-500">*</span></label>
-                        <input
-                            type="text"
-                            name="size"
-                            value={formData.size}
-                            onChange={handleInputChange}
-                            placeholder="e.g. Small, Grande, Family Pack"
-                            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-yum-primary focus:border-transparent outline-none transition-all"
-                            required
-                        />
+                        <div className="grid grid-cols-4 gap-3">
+                            {['S', 'L', 'XL', 'XXL'].map(size => (
+                                <button
+                                    key={size}
+                                    type="button"
+                                    onClick={() => setFormData(prev => ({ ...prev, size }))}
+                                    className={`py-3 rounded-lg font-bold border transition-all ${formData.size === size
+                                        ? 'bg-yum-primary text-white border-yum-primary shadow-lg shadow-yum-primary/30'
+                                        : 'bg-gray-800 text-gray-400 border-gray-700 hover:border-gray-500 hover:text-white'
+                                        }`}
+                                >
+                                    {size}
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
                     <div>
