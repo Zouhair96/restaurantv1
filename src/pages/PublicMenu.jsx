@@ -122,13 +122,10 @@ const PublicMenu = () => {
                             {sizes.map(size => (
                                 <button
                                     key={size.id}
-                                    onClick={() => {
-                                        handleToggleSelection('size', size)
-                                        nextStep()
-                                    }}
+                                    onClick={() => handleToggleSelection('size', size)}
                                     className={`flex items-center justify-between p-6 rounded-2xl border-2 transition-all group ${selections.size?.id === size.id
-                                            ? 'bg-yum-primary/20 border-yum-primary shadow-lg shadow-yum-primary/20'
-                                            : 'bg-white/5 border-white/5 hover:border-white/20'
+                                        ? 'bg-yum-primary/20 border-yum-primary shadow-lg shadow-yum-primary/20'
+                                        : 'bg-white/5 border-white/5 hover:border-white/20'
                                         }`}
                                 >
                                     <div className="flex items-center gap-4 text-left">
@@ -138,7 +135,7 @@ const PublicMenu = () => {
                                         </div>
                                         <div>
                                             <span className="block font-black text-white text-xl">{size.size}</span>
-                                            <span className="text-gray-400 text-sm font-bold">Premium Option</span>
+                                            <span className="text-gray-400 text-sm font-bold">Base Option</span>
                                         </div>
                                     </div>
                                     <div className="text-right">
@@ -148,6 +145,15 @@ const PublicMenu = () => {
                                     </div>
                                 </button>
                             ))}
+                        </div>
+                        <div className="flex justify-end pt-8">
+                            <button
+                                onClick={nextStep}
+                                disabled={!selections.size}
+                                className="px-12 py-4 bg-yum-primary text-white font-black rounded-2xl hover:bg-red-500 transition-all shadow-xl shadow-yum-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Next
+                            </button>
                         </div>
                     </div>
                 )
@@ -164,8 +170,8 @@ const PublicMenu = () => {
                                     key={opt}
                                     onClick={() => handleToggleSelection('fries', opt)}
                                     className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${selections.fries.includes(opt)
-                                            ? 'bg-yellow-500/20 border-yellow-500'
-                                            : 'bg-white/5 border-white/5 hover:bg-white/10'
+                                        ? 'bg-yellow-500/20 border-yellow-500'
+                                        : 'bg-white/5 border-white/5 hover:bg-white/10'
                                         }`}
                                 >
                                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${selections.fries.includes(opt) ? 'bg-yellow-500 text-white' : 'bg-gray-800'
@@ -202,8 +208,8 @@ const PublicMenu = () => {
                                     key={opt}
                                     onClick={() => handleToggleSelection('chicken', opt)}
                                     className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${selections.chicken.includes(opt)
-                                            ? 'bg-green-500/20 border-green-500'
-                                            : 'bg-white/5 border-white/5 hover:bg-white/10'
+                                        ? 'bg-green-500/20 border-green-500'
+                                        : 'bg-white/5 border-white/5 hover:bg-white/10'
                                         }`}
                                 >
                                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${selections.chicken.includes(opt) ? 'bg-green-500 text-white' : 'bg-gray-800'
