@@ -36,10 +36,16 @@ const Hero = () => {
                             <span className="text-yum-primary font-bold text-[9px] uppercase tracking-[0.2em]">{t('hero.badgeText')}</span>
                         </div>
 
-                        <h1 className="text-4xl md:text-6xl font-black text-gray-900 leading-[1.1] mb-6 animate-fade-in-up tracking-tighter">
-                            {t('hero.title').split(' ').map((word, i) => (
-                                <span key={i} className={`${i % 2 === 0 ? 'block' : 'inline-block mr-3'}`}>{word}</span>
-                            ))}
+                        <h1 className="text-gray-900 animate-fade-in-up tracking-tighter mb-8">
+                            <span className="block text-4xl md:text-6xl font-black leading-none mb-1">
+                                Le menu <span className="text-yum-primary">digital</span>
+                            </span>
+                            <span className="block text-xl md:text-3xl font-medium italic text-gray-400 mb-4 lowercase tracking-normal">
+                                qui augmente
+                            </span>
+                            <span className="block text-5xl md:text-8xl font-black uppercase leading-[0.9] tracking-tighter">
+                                votre chiffre <br className="hidden md:block" /> d'affaires
+                            </span>
                         </h1>
 
                         <p className="text-base md:text-[17px] text-gray-700 font-medium mb-10 max-w-lg animate-fade-in-up delay-100 leading-relaxed opacity-90">
