@@ -22,7 +22,7 @@ const authenticate = (req, res, next) => {
 // GET /api/menus - Get all menus for the logged-in user
 router.get('/menus', authenticate, async (req, res) => {
     try {
-        const result = await query('SELECT * FROM menus WHERE user_id = $1 ORDER BY created_at DESC', [req.user.userId]);
+        const result = await query('SELECT * FROM menus WHERE user_id = $1 ORDER BY created_at DESC', [req.user.id]);
         res.json(result.rows);
     } catch (error) {
         console.error('Get Menus Error:', error);
@@ -36,7 +36,7 @@ router.post('/menus', authenticate, async (req, res) => {
         const { name, template_type, config } = req.body;
 
         // Check limit (1 menu per user)
-        const existing = await query('SELECT id FROM menus WHERE user_id = $1', [req.user.userId]);
+        const existing = await query('SELECT id FROM menus WHERE user_id = $1', [req.user.id]);
         if (existing.rows.length >= 1) {
             return res.status(403).json({ error: 'Menu limit reached (Max 1 per user)' });
         }
@@ -45,7 +45,7 @@ router.post('/menus', authenticate, async (req, res) => {
             `INSERT INTO menus (user_id, name, template_type, config)
        VALUES ($1, $2, $3, $4)
        RETURNING *`,
-            [req.user.userId, name, template_type, config]
+            [req.user.id, name, template_type, config]
         );
         res.status(201).json(result.rows[0]);
     } catch (error) {
@@ -61,7 +61,7 @@ router.put('/menus/:id', authenticate, async (req, res) => {
         const { name, config } = req.body;
 
         // Ensure user owns the menu
-        const check = await query('SELECT id FROM menus WHERE id = $1 AND user_id = $2', [id, req.user.userId]);
+        const check = await query('SELECT id FROM menus WHERE id = $1 AND user_id = $2', [id, req.user.id]);
         if (check.rows.length === 0) {
             return res.status(404).json({ error: 'Menu not found or unauthorized' });
         }
@@ -82,7 +82,7 @@ router.put('/menus/:id', authenticate, async (req, res) => {
 router.delete('/menus/:id', authenticate, async (req, res) => {
     try {
         const { id } = req.params;
-        const result = await query('DELETE FROM menus WHERE id = $1 AND user_id = $2 RETURNING id', [id, req.user.userId]);
+        const result = await query('DELETE FROM menus WHERE id = $1 AND user_id = $2 RETURNING id', [id, req.user.id]);
 
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'Menu not found or unauthorized' });

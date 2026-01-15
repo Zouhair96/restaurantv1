@@ -40,6 +40,9 @@ router.post('/subscribe', authenticate, async (req, res) => {
     try {
         const { plan, paymentMethod } = req.body;
 
+        // Handle if plan is an object or string
+        const planName = typeof plan === 'object' ? plan.name : plan;
+
         // Simulate subscription logic
         const status = 'active';
         const startDate = new Date().toISOString();
@@ -49,7 +52,7 @@ router.post('/subscribe', authenticate, async (req, res) => {
        SET subscription_plan = $1, subscription_status = $2, subscription_start_date = $3
        WHERE id = $4
        RETURNING id, name, email, role, subscription_plan, subscription_status`,
-            [plan, status, startDate, req.user.userId]
+            [planName, status, startDate, req.user.id]
         );
 
         if (result.rows.length === 0) {
@@ -72,7 +75,7 @@ router.post('/unsubscribe', authenticate, async (req, res) => {
        SET subscription_status = 'inactive'
        WHERE id = $1
        RETURNING id, name, email, role, subscription_plan, subscription_status`,
-            [req.user.userId]
+            [req.user.id]
         );
 
         if (result.rows.length === 0) {

@@ -33,7 +33,7 @@ const Checkout = () => {
         setIsLoading(true)
 
         try {
-            await subscribe(plan, paymentMethod)
+            await subscribe(plan.name, paymentMethod)
             // Redirect to Profile with Onboarding Trigger
             navigate('/profile?onboarding=true')
         } catch (error) {
