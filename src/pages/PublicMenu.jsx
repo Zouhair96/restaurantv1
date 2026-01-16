@@ -775,14 +775,6 @@ const PublicMenu = () => {
                             {data.restaurant}
                         </h2>
                     </div>
-
-                    <button
-                        onClick={() => setShowSidebar(true)}
-                        className="flex items-center gap-2 px-4 py-2 bg-yum-primary/10 hover:bg-yum-primary/20 text-yum-primary rounded-xl transition-all border border-yum-primary/20 group"
-                    >
-                        <HiOutlineUserCircle size={20} className="group-hover:scale-110 transition-transform" />
-                        <span className="text-sm font-bold hidden sm:inline">My Orders</span>
-                    </button>
                 </div>
             </header>
 
