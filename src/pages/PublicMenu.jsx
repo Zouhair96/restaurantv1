@@ -28,6 +28,7 @@ const PublicMenu = () => {
     const [submitting, setSubmitting] = useState(false)
     const [orderSuccess, setOrderSuccess] = useState(false)
     const [showSidebar, setShowSidebar] = useState(false)
+    const [maxStepReached, setMaxStepReached] = useState(1)
 
     useEffect(() => {
         const fetchMenu = async () => {
@@ -82,7 +83,14 @@ const PublicMenu = () => {
     const nextStep = () => {
         const nextIdx = currentStepIndex + 1
         if (nextIdx < totalSteps) {
-            setCurrentStep(steps[nextIdx].id)
+            const nextStepId = steps[nextIdx].id
+            setCurrentStep(nextStepId)
+
+            // Update max step reached
+            const stepNum = typeof nextStepId === 'number' ? nextStepId : totalSteps
+            if (stepNum > maxStepReached) {
+                setMaxStepReached(stepNum)
+            }
         }
     }
 
@@ -90,6 +98,16 @@ const PublicMenu = () => {
         const prevIdx = currentStepIndex - 1
         if (prevIdx >= 0) {
             setCurrentStep(steps[prevIdx].id)
+        }
+    }
+
+    const goToStep = (stepId) => {
+        // Only allow jumping to steps already reached
+        const stepIndex = steps.findIndex(s => s.id === stepId)
+        const stepNum = typeof stepId === 'number' ? stepId : totalSteps
+
+        if (stepNum <= maxStepReached || stepIndex <= currentStepIndex) {
+            setCurrentStep(stepId)
         }
     }
 
@@ -279,6 +297,10 @@ const PublicMenu = () => {
         setSelections(prev => {
             // 1. Handle Single Select Categories
             if (category === 'size' || category === 'drink') {
+                if (category === 'size' && prev.size?.id !== value.id) {
+                    // Reset progress if size changes
+                    setMaxStepReached(1)
+                }
                 return { ...prev, [category]: value }
             }
 
@@ -331,13 +353,14 @@ const PublicMenu = () => {
                             <p className="text-gray-400">Select the perfect portion for your craving</p>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {sizes.map(size => (
+                            {sizes.map((size, idx) => (
                                 <button
                                     key={size.id}
+                                    style={{ animationDelay: `${idx * 100}ms` }}
                                     onClick={() => handleToggleSelection('size', size)}
-                                    className={`flex items-center justify-between p-6 rounded-2xl border-2 transition-all group ${selections.size?.id === size.id
-                                        ? 'bg-yum-primary/20 border-yum-primary shadow-lg shadow-yum-primary/20'
-                                        : 'bg-white/5 border-white/5 hover:border-white/20'
+                                    className={`p-6 rounded-3xl border-2 transition-all group animate-fade-in ${selections.size?.id === size.id
+                                        ? 'bg-yum-primary/10 border-yum-primary'
+                                        : 'bg-white/5 border-white/10 hover:border-white/30'
                                         }`}
                                 >
                                     <div className="flex items-center gap-4 text-left">
@@ -462,23 +485,25 @@ const PublicMenu = () => {
                             <p className="text-gray-400">Pick your protein style</p>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {mealsOption.map(opt => {
-                                const info = menuOptions.chicken[opt] || { label: opt, icon: '🍗' }
+                            {mealsOption.map((mealId, idx) => {
+                                const meal = menuOptions.chicken[mealId] || { label: mealId, icon: '🍗' }
+                                const isSelected = selections.chicken.includes(mealId)
                                 return (
                                     <button
-                                        key={opt}
-                                        onClick={() => handleToggleSelection('chicken', opt)}
-                                        className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${selections.chicken.includes(opt)
-                                            ? 'bg-green-500/20 border-green-500'
-                                            : 'bg-white/5 border-white/5 hover:bg-white/10'
+                                        key={mealId}
+                                        style={{ animationDelay: `${idx * 50}ms` }}
+                                        onClick={() => handleToggleSelection('chicken', mealId)}
+                                        className={`flex items-center justify-between p-6 rounded-2xl border-2 transition-all group animate-fade-in ${isSelected
+                                            ? 'bg-yum-primary/20 border-yum-primary shadow-lg shadow-yum-primary/20'
+                                            : 'bg-white/5 border-white/5 hover:border-white/20'
                                             }`}
                                     >
-                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${selections.chicken.includes(opt) ? 'bg-green-500 text-white' : 'bg-gray-800'
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${isSelected ? 'bg-green-500 text-white' : 'bg-gray-800'
                                             }`}>
-                                            {info.icon}
+                                            {meal.icon}
                                         </div>
-                                        <span className="font-bold text-white capitalize">{info.label}</span>
-                                        {selections.chicken.includes(opt) && (
+                                        <span className="font-bold text-white capitalize">{meal.label}</span>
+                                        {isSelected && (
                                             <div className="ml-auto text-green-500">
                                                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -502,23 +527,32 @@ const PublicMenu = () => {
                             <h3 className="text-3xl font-black text-white mb-2">Select Your Sauces</h3>
                             <p className="text-gray-400">Add some flavor to your tacos</p>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {saucesOption.map(opt => {
-                                const info = menuOptions.sauce[opt] || { label: opt, icon: '🌶️' }
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                            {saucesOption.map((sauceId, idx) => {
+                                const sauce = menuOptions.sauce[sauceId] || { label: sauceId, icon: '🌶️' }
+                                const isSelected = selections.sauce.includes(sauceId)
                                 return (
                                     <button
-                                        key={opt}
-                                        onClick={() => handleToggleSelection('sauce', opt)}
-                                        className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${selections.sauce.includes(opt)
-                                            ? 'bg-red-500/20 border-red-500'
-                                            : 'bg-white/5 border-white/5 hover:bg-white/10'
+                                        key={sauceId}
+                                        style={{ animationDelay: `${idx * 50}ms` }}
+                                        onClick={() => handleToggleSelection('sauce', sauceId)}
+                                        className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all group animate-fade-in ${isSelected
+                                            ? 'bg-yum-primary/20 border-yum-primary shadow-lg shadow-yum-primary/20'
+                                            : 'bg-white/5 border-white/5 hover:border-white/20'
                                             }`}
                                     >
-                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${selections.sauce.includes(opt) ? 'bg-red-500 text-white' : 'bg-gray-800'
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${isSelected ? 'bg-red-500 text-white' : 'bg-gray-800'
                                             }`}>
-                                            {info.icon}
+                                            {sauce.icon}
                                         </div>
-                                        <span className="font-bold text-white capitalize">{info.label}</span>
+                                        <span className="font-bold text-white capitalize">{sauce.label}</span>
+                                        {isSelected && (
+                                            <div className="ml-auto text-red-500">
+                                                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                                </svg>
+                                            </div>
+                                        )}
                                     </button>
                                 )
                             })}
@@ -536,23 +570,32 @@ const PublicMenu = () => {
                             <h3 className="text-3xl font-black text-white mb-2">Quench Your Thirst</h3>
                             <p className="text-gray-400">Pick a refreshing drink</p>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {drinksOption.map(opt => {
-                                const info = menuOptions.drink[opt] || { label: opt, icon: '🥤' }
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                            {drinksOption.map((drinkId, idx) => {
+                                const drink = menuOptions.drink[drinkId] || { label: drinkId, icon: '🥤' }
+                                const isSelected = selections.drink === drinkId
                                 return (
                                     <button
-                                        key={opt}
-                                        onClick={() => handleToggleSelection('drink', opt)}
-                                        className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${selections.drink === opt
-                                            ? 'bg-blue-500/20 border-blue-500'
-                                            : 'bg-white/5 border-white/5 hover:bg-white/10'
+                                        key={drinkId}
+                                        style={{ animationDelay: `${idx * 50}ms` }}
+                                        onClick={() => handleToggleSelection('drink', drinkId)}
+                                        className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all group animate-fade-in ${isSelected
+                                            ? 'bg-yum-primary/20 border-yum-primary shadow-lg shadow-yum-primary/20'
+                                            : 'bg-white/5 border-white/5 hover:border-white/20'
                                             }`}
                                     >
-                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${selections.drink === opt ? 'bg-blue-500 text-white' : 'bg-gray-800'
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${isSelected ? 'bg-blue-500 text-white' : 'bg-gray-800'
                                             }`}>
-                                            {info.icon}
+                                            {drink.icon}
                                         </div>
-                                        <span className="font-bold text-white capitalize">{info.label}</span>
+                                        <span className="font-bold text-white capitalize">{drink.label}</span>
+                                        {isSelected && (
+                                            <div className="ml-auto text-blue-500">
+                                                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                                </svg>
+                                            </div>
+                                        )}
                                     </button>
                                 )
                             })}
@@ -571,22 +614,29 @@ const PublicMenu = () => {
                             <p className="text-gray-400">Make it even more special</p>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {extrasOption.map(opt => {
-                                const info = menuOptions.extras[opt] || { label: opt, icon: '✨' }
+                            {extrasOption.map((extraId, idx) => {
+                                const extra = menuOptions.extras[extraId] || { label: extraId, icon: '✨' }
+                                const isSelected = selections.extras.includes(extraId)
                                 return (
                                     <button
-                                        key={opt}
-                                        onClick={() => handleToggleSelection('extras', opt)}
-                                        className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${selections.extras.includes(opt)
-                                            ? 'bg-purple-500/20 border-purple-500'
-                                            : 'bg-white/5 border-white/5 hover:bg-white/10'
+                                        key={extraId}
+                                        style={{ animationDelay: `${idx * 50}ms` }}
+                                        onClick={() => handleToggleSelection('extras', extraId)}
+                                        className={`flex items-center justify-between p-6 rounded-2xl border-2 transition-all group animate-fade-in ${isSelected
+                                            ? 'bg-yum-primary/20 border-yum-primary shadow-lg shadow-yum-primary/20'
+                                            : 'bg-white/5 border-white/5 hover:border-white/20'
                                             }`}
                                     >
-                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${selections.extras.includes(opt) ? 'bg-purple-500 text-white' : 'bg-gray-800'
-                                            }`}>
-                                            {info.icon}
+                                        <div className="flex items-center gap-4 text-left">
+                                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${isSelected ? 'bg-yum-primary text-white' : 'bg-gray-800 text-gray-400'}`}>
+                                                {extra.icon}
+                                            </div>
+                                            <div>
+                                                <span className="font-black text-white block capitalize">{extra.label}</span>
+                                                <span className="text-gray-500 text-xs font-bold uppercase tracking-widest">Extra Upgrade</span>
+                                            </div>
                                         </div>
-                                        <span className="font-bold text-white capitalize">{info.label}</span>
+                                        {isSelected && <div className="w-6 h-6 rounded-full bg-yum-primary flex items-center justify-center text-white text-xs">✓</div>}
                                     </button>
                                 )
                             })}
@@ -730,6 +780,36 @@ const PublicMenu = () => {
             />
 
             <div className={`max-w-4xl mx-auto transition-all duration-300 ${showSidebar ? 'sm:ml-96 blur-sm sm:blur-0' : ''}`}>
+                {/* Navigation Steps */}
+                <div className="max-w-4xl mx-auto mb-12">
+                    <div className="flex flex-wrap justify-center gap-4">
+                        {steps.map((step, index) => {
+                            const isReached = (typeof step.id === 'number' ? step.id : totalSteps) <= maxStepReached;
+                            const isActive = currentStep === step.id;
+
+                            return (
+                                <button
+                                    key={step.id}
+                                    onClick={() => isReached && goToStep(step.id)}
+                                    disabled={!isReached}
+                                    className={`flex items-center gap-2 px-6 py-3 rounded-2xl transition-all ${isActive
+                                        ? 'bg-yum-primary text-white shadow-lg shadow-red-500/20 scale-105'
+                                        : isReached
+                                            ? 'bg-white/10 text-gray-300 hover:bg-white/20'
+                                            : 'bg-white/5 text-gray-600 cursor-not-allowed'
+                                        }`}
+                                >
+                                    <span className="text-xl">{step.icon}</span>
+                                    <span className={`font-bold hidden sm:inline ${isActive ? '' : 'text-sm'}`}>{step.name}</span>
+                                    {isReached && !isActive && (
+                                        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                                    )}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+
                 <div
                     className="relative overflow-hidden rounded-3xl shadow-2xl animate-fade-in mb-8"
                     style={{
@@ -909,8 +989,9 @@ const PublicMenu = () => {
                         )}
                     </div>
                 </div>
-            )}
-        </div>
+            )
+            }
+        </div >
     )
 }
 
