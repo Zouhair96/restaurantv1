@@ -140,22 +140,13 @@ const LiveOrders = () => {
                     {/* Order Type Filters */}
                     <div className="flex flex-wrap gap-2">
                         <button
-                            onClick={() => setOrderTypeFilter('all')}
-                            className={`px-4 py-2 rounded-xl font-bold text-sm transition-all ${orderTypeFilter === 'all'
-                                ? 'bg-purple-600 text-white shadow-lg'
-                                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
-                                }`}
-                        >
-                            🍽️ All Types
-                        </button>
-                        <button
                             onClick={() => setOrderTypeFilter('dine_in')}
                             className={`px-4 py-2 rounded-xl font-bold text-sm transition-all ${orderTypeFilter === 'dine_in'
                                 ? 'bg-blue-600 text-white shadow-lg'
                                 : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                                 }`}
                         >
-                            🍽️ Dine In
+                            Dine In
                         </button>
                         <button
                             onClick={() => setOrderTypeFilter('take_out')}
@@ -164,7 +155,7 @@ const LiveOrders = () => {
                                 : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                                 }`}
                         >
-                            🥡 Take Out
+                            Take Out
                         </button>
                     </div>
                 </div>
