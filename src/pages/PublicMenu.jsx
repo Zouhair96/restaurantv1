@@ -111,17 +111,17 @@ const PublicMenu = () => {
         }
     }
 
-    // Auto-advance Step 1: Size selected
+    // Auto-advance Step 1: Size selected (only if not revisiting)
     useEffect(() => {
-        if (currentStep === 1 && selections.size) {
+        if (currentStep === 1 && selections.size && maxStepReached === 1) {
             const timer = setTimeout(() => nextStep(), 400);
             return () => clearTimeout(timer);
         }
-    }, [selections.size, currentStep]);
+    }, [selections.size, currentStep, maxStepReached]);
 
-    // Auto-advance Step 2: Fries options complete
+    // Auto-advance Step 2: Fries options complete (only if not revisiting)
     useEffect(() => {
-        if (currentStep === 2) {
+        if (currentStep === 2 && maxStepReached === 2) {
             const hasPlacementOptions = friesOption.some(opt => ['inside', 'outside'].includes(opt));
             const hasTypeSelected = selections.friesType !== null;
             const hasPlacementSelected = selections.friesPlacement !== null;
@@ -134,7 +134,7 @@ const PublicMenu = () => {
                 }
             }
         }
-    }, [selections.friesType, selections.friesPlacement, currentStep, friesOption]);
+    }, [selections.friesType, selections.friesPlacement, currentStep, friesOption, maxStepReached]);
 
     if (loading) {
         return (
@@ -780,33 +780,35 @@ const PublicMenu = () => {
             />
 
             <div className={`max-w-4xl mx-auto transition-all duration-300 ${showSidebar ? 'sm:ml-96 blur-sm sm:blur-0' : ''}`}>
-                {/* Navigation Steps */}
-                <div className="max-w-4xl mx-auto mb-12">
-                    <div className="flex flex-wrap justify-center gap-4">
-                        {steps.map((step, index) => {
-                            const isReached = (typeof step.id === 'number' ? step.id : totalSteps) <= maxStepReached;
-                            const isActive = currentStep === step.id;
+                {/* Navigation Steps - Scrollable on mobile */}
+                <div className="mb-12">
+                    <div className="flex overflow-x-auto pb-4 gap-4 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 sm:justify-center">
+                        <div className="flex flex-nowrap sm:flex-wrap gap-3">
+                            {steps.map((step, index) => {
+                                const isReached = (typeof step.id === 'number' ? step.id : totalSteps) <= maxStepReached;
+                                const isActive = currentStep === step.id;
 
-                            return (
-                                <button
-                                    key={step.id}
-                                    onClick={() => isReached && goToStep(step.id)}
-                                    disabled={!isReached}
-                                    className={`flex items-center gap-2 px-6 py-3 rounded-2xl transition-all ${isActive
-                                        ? 'bg-yum-primary text-white shadow-lg shadow-red-500/20 scale-105'
-                                        : isReached
-                                            ? 'bg-white/10 text-gray-300 hover:bg-white/20'
-                                            : 'bg-white/5 text-gray-600 cursor-not-allowed'
-                                        }`}
-                                >
-                                    <span className="text-xl">{step.icon}</span>
-                                    <span className={`font-bold hidden sm:inline ${isActive ? '' : 'text-sm'}`}>{step.name}</span>
-                                    {isReached && !isActive && (
-                                        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                                    )}
-                                </button>
-                            );
-                        })}
+                                return (
+                                    <button
+                                        key={step.id}
+                                        onClick={() => isReached && goToStep(step.id)}
+                                        disabled={!isReached}
+                                        className={`flex-shrink-0 flex items-center gap-2 px-5 py-3 rounded-2xl transition-all ${isActive
+                                            ? 'bg-yum-primary text-white shadow-lg shadow-red-500/20 scale-105'
+                                            : isReached
+                                                ? 'bg-white/10 text-gray-300 hover:bg-white/20'
+                                                : 'bg-white/5 text-gray-600 cursor-not-allowed'
+                                            }`}
+                                    >
+                                        <span className="text-xl">{step.icon}</span>
+                                        <span className={`font-bold ${isActive ? 'block' : 'hidden md:block'} text-sm`}>{step.name}</span>
+                                        {isReached && !isActive && (
+                                            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                                        )}
+                                    </button>
+                                );
+                            })}
+                        </div>
                     </div>
                 </div>
 
@@ -818,26 +820,26 @@ const PublicMenu = () => {
                     }}
                 >
                     {/* Progress Header */}
-                    <div className="px-8 pt-8 md:px-12 md:pt-12 flex justify-between items-center mb-6">
-                        <div className="flex gap-2">
+                    <div className="px-6 pt-6 md:px-12 md:pt-12 flex justify-between items-center mb-6">
+                        <div className="flex gap-1 sm:gap-2">
                             {steps.map((s, idx) => (
                                 <div
                                     key={s.id}
-                                    className={`h-2 w-12 rounded-full transition-all duration-500 ${idx <= currentStepIndex ? 'bg-yum-primary' : 'bg-gray-800'
+                                    className={`h-1.5 w-8 sm:w-12 rounded-full transition-all duration-500 ${idx <= currentStepIndex ? 'bg-yum-primary' : 'bg-gray-800'
                                         }`}
                                 />
                             ))}
                         </div>
-                        <span className="text-gray-500 font-bold text-sm tracking-widest uppercase">
-                            Step {currentStepIndex + 1} / {totalSteps}
+                        <span className="text-gray-500 font-bold text-[10px] sm:text-sm tracking-widest uppercase">
+                            {currentStepIndex + 1} / {totalSteps}
                         </span>
                     </div>
 
-                    <div className="px-8 pb-12 md:px-12 md:pb-12">
+                    <div className="px-6 pb-12 md:px-12 md:pb-12">
                         {/* Menu Header */}
                         <div className="mb-12 text-center border-b border-white/5 pb-12">
                             <h1
-                                className="text-5xl md:text-7xl font-black text-white mb-4 tracking-tighter"
+                                className="text-3xl sm:text-5xl md:text-7xl font-black text-white mb-4 tracking-tighter"
                                 style={{
                                     fontFamily: designConfig.fontTheme === 'handwritten' ? 'cursive' :
                                         designConfig.fontTheme === 'modern' ? 'Outfit, sans-serif' : 'inherit'
@@ -845,10 +847,10 @@ const PublicMenu = () => {
                             >
                                 {designConfig.mainTitle}
                             </h1>
-                            <div className="flex justify-center items-center gap-4">
-                                <div className="h-1 w-12 rounded-full" style={{ backgroundColor: designConfig.accentColor }}></div>
-                                <p className="text-xl text-gray-400 font-medium">{designConfig.subtitle}</p>
-                                <div className="h-1 w-12 rounded-full" style={{ backgroundColor: designConfig.accentColor }}></div>
+                            <div className="flex justify-center items-center gap-2 sm:gap-4">
+                                <div className="h-1 w-8 sm:w-12 rounded-full" style={{ backgroundColor: designConfig.accentColor }}></div>
+                                <p className="text-sm sm:text-xl text-gray-400 font-medium">{designConfig.subtitle}</p>
+                                <div className="h-1 w-8 sm:w-12 rounded-full" style={{ backgroundColor: designConfig.accentColor }}></div>
                             </div>
                         </div>
 
