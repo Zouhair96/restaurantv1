@@ -4,6 +4,7 @@ const LiveOrders = () => {
     const [orders, setOrders] = useState([])
     const [loading, setLoading] = useState(true)
     const [filter, setFilter] = useState('all')
+    const [orderTypeFilter, setOrderTypeFilter] = useState('all')
     const [error, setError] = useState(null)
 
     const fetchOrders = async () => {
@@ -81,9 +82,12 @@ const LiveOrders = () => {
         }
     }
 
-    const filteredOrders = filter === 'all'
-        ? orders
-        : orders.filter(order => order.status === filter)
+    // Filter by both status and order type
+    const filteredOrders = orders.filter(order => {
+        const statusMatch = filter === 'all' || order.status === filter
+        const typeMatch = orderTypeFilter === 'all' || order.order_type === orderTypeFilter
+        return statusMatch && typeMatch
+    })
 
     if (loading) {
         return (
@@ -111,24 +115,58 @@ const LiveOrders = () => {
                 <div>
                     <h2 className="text-3xl font-black text-gray-800 dark:text-white">Live Orders</h2>
                     <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-                        {filteredOrders.length} {filter === 'all' ? 'total' : filter} order{filteredOrders.length !== 1 ? 's' : ''}
+                        {filteredOrders.length} order{filteredOrders.length !== 1 ? 's' : ''}
                     </p>
                 </div>
 
                 {/* Filter Buttons */}
-                <div className="flex flex-wrap gap-2">
-                    {['all', 'pending', 'preparing', 'ready', 'completed'].map(status => (
-                        <button
-                            key={status}
-                            onClick={() => setFilter(status)}
-                            className={`px-4 py-2 rounded-xl font-bold text-sm transition-all capitalize ${filter === status
+                <div className="flex flex-col gap-3">
+                    {/* Status Filters */}
+                    <div className="flex flex-wrap gap-2">
+                        {['all', 'pending', 'preparing', 'ready', 'completed'].map(status => (
+                            <button
+                                key={status}
+                                onClick={() => setFilter(status)}
+                                className={`px-4 py-2 rounded-xl font-bold text-sm transition-all capitalize ${filter === status
                                     ? 'bg-yum-primary text-white shadow-lg'
                                     : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                                    }`}
+                            >
+                                {status}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Order Type Filters */}
+                    <div className="flex flex-wrap gap-2">
+                        <button
+                            onClick={() => setOrderTypeFilter('all')}
+                            className={`px-4 py-2 rounded-xl font-bold text-sm transition-all ${orderTypeFilter === 'all'
+                                ? 'bg-purple-600 text-white shadow-lg'
+                                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                                 }`}
                         >
-                            {status}
+                            🍽️ All Types
                         </button>
-                    ))}
+                        <button
+                            onClick={() => setOrderTypeFilter('dine_in')}
+                            className={`px-4 py-2 rounded-xl font-bold text-sm transition-all ${orderTypeFilter === 'dine_in'
+                                ? 'bg-blue-600 text-white shadow-lg'
+                                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                                }`}
+                        >
+                            🍽️ Dine In
+                        </button>
+                        <button
+                            onClick={() => setOrderTypeFilter('take_out')}
+                            className={`px-4 py-2 rounded-xl font-bold text-sm transition-all ${orderTypeFilter === 'take_out'
+                                ? 'bg-orange-600 text-white shadow-lg'
+                                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                                }`}
+                        >
+                            🥡 Take Out
+                        </button>
+                    </div>
                 </div>
             </div>
 
