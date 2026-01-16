@@ -201,82 +201,142 @@ const Profile = () => {
     // --- Dashboard Views ---
 
     const renderAnalytics = () => (
-        <div className="space-y-6">
-            <div className="flex justify-between items-end">
-                <div>
-                    <h2 className="text-2xl font-bold text-white">Pro Analytics</h2>
-                    <p className="text-gray-400 text-sm">Sales predictions powered by local data & AI.</p>
-                </div>
-                <div className="flex gap-2">
-                    <span className="px-3 py-1 bg-gray-800 rounded-lg text-xs text-gray-300 border border-gray-700">Last 24h</span>
-                    <span className="px-3 py-1 bg-yum-primary/20 rounded-lg text-xs text-yum-primary border border-yum-primary/50 font-bold">Next 24h (Predicted)</span>
-                </div>
-            </div>
+        <div className="space-y-8">
+            {/* Top Section: Overview & Main Actions */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-            {/* Smart Insights Banner */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Weather Widget */}
-                <div className="glass-panel p-5 rounded-2xl flex items-center justify-between relative overflow-hidden group">
-                    <div className="absolute inset-0 bg-blue-900/10 group-hover:bg-blue-900/20 transition-colors"></div>
-                    <div className="relative z-10">
-                        <p className="text-gray-400 text-xs uppercase tracking-widest font-bold">Tonight's Forecast</p>
-                        <h3 className="text-2xl font-bold text-white mt-1">Heavy Rain</h3>
-                        <p className="text-blue-400 text-sm mt-1 flex items-center gap-1">
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                            </svg>
-                            +15% Delivery Demand
-                        </p>
-                    </div>
-                    <div className="relative z-10 text-5xl">
-                        🌧️
-                    </div>
-                </div>
+                {/* Main Overview Chart Card (Purple Gradient) */}
+                <div className="lg:col-span-2 bg-[#6c5ce7] bg-gradient-to-br from-[#6c5ce7] to-[#8e44ad] rounded-[2.5rem] p-8 text-white shadow-2xl shadow-purple-200 relative overflow-hidden">
+                    {/* Background decorations */}
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2"></div>
+                    <div className="absolute bottom-0 left-0 w-48 h-48 bg-pink-500/20 rounded-full blur-3xl transform -translate-x-1/2 translate-y-1/2"></div>
 
-                {/* Event Widget */}
-                <div className="glass-panel p-5 rounded-2xl flex items-center justify-between relative overflow-hidden group">
-                    <div className="absolute inset-0 bg-purple-900/10 group-hover:bg-purple-900/20 transition-colors"></div>
-                    <div className="relative z-10">
-                        <p className="text-gray-400 text-xs uppercase tracking-widest font-bold">Local Event</p>
-                        <h3 className="text-2xl font-bold text-white mt-1">Jazz Concert</h3>
-                        <p className="text-purple-400 text-sm mt-1 flex items-center gap-1">
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                            </svg>
-                            +30% Walk-ins (20:00)
-                        </p>
-                    </div>
-                    <div className="relative z-10 text-5xl">
-                        🎷
-                    </div>
-                </div>
-
-                {/* Overall Prediction */}
-                <div className="bg-gradient-to-br from-yum-primary to-orange-600 rounded-2xl p-5 text-white flex flex-col justify-center items-center text-center shadow-lg shadow-yum-primary/20">
-                    <p className="text-xs uppercase tracking-widest font-bold text-white/80">Predicted Revenue</p>
-                    <h3 className="text-4xl font-black mt-1">$3,250</h3>
-                    <p className="text-sm font-bold bg-white/20 px-3 py-1 rounded-full mt-2">+18% vs Last Friday</p>
-                </div>
-            </div>
-
-            {/* Sales Graph */}
-            <div className="glass-panel p-6 rounded-2xl">
-                <h3 className="text-lg font-bold text-white mb-6">Hourly Sales Prediction</h3>
-                <div className="h-64 flex items-end justify-between gap-2">
-                    {[30, 45, 35, 60, 80, 100, 70, 50, 40, 60, 90, 85].map((h, i) => (
-                        <div key={i} className="flex-1 flex flex-col items-center gap-2 group relative">
-                            {/* Tooltip */}
-                            <div className="absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-800 text-white text-xs px-2 py-1 rounded pointer-events-none whitespace-nowrap z-20">
-                                {12 + i}:00 - ${h * 30}
-                            </div>
-                            <div
-                                className={`w-full rounded-t-lg transition-all duration-500 hover:opacity-80 ${i > 7 ? 'bg-yum-primary border-t-2 border-white/50 pattern-diagonal-lines' : 'bg-gray-700'}`}
-                                style={{ height: `${h}%` }}
-                            ></div>
-                            <span className="text-xs text-gray-500 font-medium">{12 + i}:00</span>
+                    <div className="relative z-10 flex justify-between items-start mb-8">
+                        <div>
+                            <h2 className="text-3xl font-bold mb-1">Overview</h2>
+                            <p className="text-purple-200">Monthly Sales Performance</p>
                         </div>
-                    ))}
+                        <div className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl text-sm font-medium border border-white/10">
+                            Monthly ▼
+                        </div>
+                    </div>
+
+                    {/* Fake Chart Visualization */}
+                    <div className="h-64 flex items-end justify-between gap-3 px-2">
+                        {[40, 65, 45, 80, 55, 90, 70, 85, 60, 75, 50, 95].map((h, i) => (
+                            <div key={i} className="flex-1 flex flex-col items-center gap-3">
+                                <div
+                                    className="w-full bg-white/20 rounded-full relative group transition-all duration-300 hover:bg-white/40"
+                                    style={{ height: `${h}%` }}
+                                >
+                                    {/* Tooltip */}
+                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white text-purple-600 text-xs font-bold px-2 py-1 rounded-lg shadow-lg whitespace-nowrap">
+                                        ${h * 50}
+                                    </div>
+
+                                    {/* Top Dot */}
+                                    {i === 11 && (
+                                        <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.8)]"></div>
+                                    )}
+                                </div>
+                                <span className="text-xs text-purple-200 font-medium">{['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][i]}</span>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Stats Summary Bubble */}
+                    <div className="mt-8 flex gap-4">
+                        <div className="flex-1 bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/5">
+                            <p className="text-purple-200 text-xs uppercase tracking-wider mb-1">Total Sales</p>
+                            <h3 className="text-2xl font-bold">748 Hrs</h3>
+                        </div>
+                        <div className="flex-1 bg-white/20 backdrop-blur-md rounded-2xl p-4 border border-white/20 shadow-lg">
+                            <p className="text-white text-xs uppercase tracking-wider mb-1">Total Orders</p>
+                            <h3 className="text-3xl font-black">9,178</h3>
+                        </div>
+                        <div className="flex-1 bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/5">
+                            <p className="text-purple-200 text-xs uppercase tracking-wider mb-1">Target</p>
+                            <h3 className="text-2xl font-bold">9.2k</h3>
+                        </div>
+                    </div>
                 </div>
+
+                {/* Right Column Widgets */}
+                <div className="flex flex-col gap-6">
+                    {/* Daily Stats (Purple Blue) */}
+                    <div className="bg-[#6c5ce7] rounded-[2rem] p-6 text-white shadow-xl shadow-indigo-200 relative overflow-hidden group cursor-pointer transition-transform hover:scale-[1.02]">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2"></div>
+                        <div className="relative z-10 flex items-center justify-between">
+                            <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center text-3xl backdrop-blur-sm">
+                                👟
+                            </div>
+                            <div className="text-right">
+                                <h3 className="text-xl font-bold">Daily Jogging</h3>
+                                <p className="text-indigo-200 text-sm">2km today</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* My Jogging (Pink) */}
+                    <div className="flex-1 bg-[#fd79a8] bg-gradient-to-br from-[#fd79a8] to-[#e84393] rounded-[2rem] p-6 text-white shadow-xl shadow-pink-200 relative overflow-hidden group">
+                        <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-black/10 to-transparent"></div>
+                        <div className="relative z-10">
+                            <div className="flex justify-between items-start mb-6">
+                                <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center text-2xl backdrop-blur-sm">
+                                    🏃
+                                </div>
+                                <h3 className="text-xl font-bold">My Jogging</h3>
+                            </div>
+
+                            <div className="mt-8">
+                                <p className="text-pink-100 text-xs uppercase font-bold">Total Time</p>
+                                <div className="flex justify-between items-end">
+                                    <h2 className="text-4xl font-bold">748 hr</h2>
+                                    <button className="w-10 h-10 rounded-full bg-white text-pink-500 flex items-center justify-center shadow-lg hover:scale-110 transition-transform">
+                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Bottom Section: Info Cards (White glass) */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {[
+                    { title: "Bicycle Drill", subtitle: "36 km / week", icon: "🚴", color: "text-indigo-500", progress: 45 },
+                    { title: "Jogging Hero", subtitle: "12 km / month", icon: "🏃", color: "text-pink-500", progress: 13 },
+                    { title: "Healthy Busy", subtitle: "3600 steps", icon: "🧘", color: "text-purple-500", progress: 90 },
+                ].map((item, i) => (
+                    <div key={i} className="bg-white rounded-[2rem] p-6 shadow-lg shadow-gray-100 border border-gray-50 flex flex-col items-center text-center group hover:-translate-y-1 transition-transform duration-300">
+                        <div className={`w-16 h-16 rounded-2xl bg-${item.color.split('-')[1]}-50 flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform duration-300 text-shadow-sm`}>
+                            {item.icon}
+                        </div>
+                        <h3 className="text-gray-800 font-bold text-lg">{item.title}</h3>
+                        <p className="text-gray-400 text-sm mb-6">{item.subtitle}</p>
+
+                        <div className="w-full mt-auto">
+                            <div className="flex justify-between text-xs font-bold text-gray-400 mb-2">
+                                <span>Progress</span>
+                                <span>{item.progress}%</span>
+                            </div>
+                            <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                                <div
+                                    className={`h-full rounded-full bg-${item.color.split('-')[1]}-500 transition-all duration-1000 ease-out`}
+                                    style={{ width: `${item.progress}%` }}
+                                ></div>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-between w-full mt-4 pt-4 border-t border-gray-50">
+                            <span className="text-xs text-gray-400">17 / 30km</span>
+                            <span className="text-xs font-bold text-pink-400 bg-pink-50 px-2 py-0.5 rounded-md">2 days left</span>
+                        </div>
+                    </div>
+                ))}
             </div>
         </div>
     )
@@ -460,36 +520,36 @@ const Profile = () => {
         <div className="space-y-8">
             {/* Health Score Banner */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div className="md:col-span-3 bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-6 border border-gray-700 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-yum-primary/10 rounded-full filter blur-3xl transform translate-x-1/2 -translate-y-1/2 group-hover:bg-yum-primary/20 transition-all duration-700"></div>
+                <div className="md:col-span-3 bg-[#6c5ce7] bg-gradient-to-r from-[#6c5ce7] to-[#a29bfe] rounded-[2rem] p-8 border border-white/20 relative overflow-hidden group shadow-xl shadow-purple-200">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full filter blur-3xl transform translate-x-1/2 -translate-y-1/2 group-hover:bg-white/20 transition-all duration-700"></div>
                     <div className="relative z-10 flex justify-between items-center">
                         <div>
-                            <h2 className="text-2xl font-bold text-white mb-1">Overview</h2>
-                            <p className="text-gray-400 text-sm">“Restaurant Health” Widget: Overall rating (⭐️/5) based on sales, customer reviews, and preparation time.</p>
+                            <h2 className="text-3xl font-bold text-white mb-2">Restaurant Health</h2>
+                            <p className="text-purple-100 text-sm max-w-md">Your overall rating based on sales performance, customer reviews, and preparation time efficiency.</p>
                         </div>
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-6">
                             <div className="text-right">
-                                <span className="block text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600">4.8</span>
-                                <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Excellent</span>
+                                <span className="block text-5xl font-black text-white">4.8</span>
+                                <span className="text-xs font-bold text-purple-200 uppercase tracking-widest">Excellent</span>
                             </div>
-                            <div className="h-16 w-16 relative">
-                                <svg className="w-full h-full" viewBox="0 0 36 36">
-                                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#374151" strokeWidth="3" />
-                                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#10B981" strokeWidth="3" strokeDasharray="96, 100" />
+                            <div className="h-20 w-20 relative">
+                                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="3" />
+                                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#fff" strokeWidth="3" strokeDasharray="96, 100" />
                                 </svg>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="bg-red-900/20 border border-red-500/30 rounded-2xl p-6 flex flex-col justify-center items-center text-center cursor-pointer hover:bg-red-900/30 transition-colors group">
-                    <div className="p-3 bg-red-500/20 rounded-full mb-3 group-hover:scale-110 transition-transform">
-                        <svg className="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="bg-white rounded-[2rem] p-6 flex flex-col justify-center items-center text-center cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-gray-100 group">
+                    <div className="p-4 bg-red-50 rounded-full mb-3 group-hover:bg-red-100 transition-colors">
+                        <svg className="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
                     </div>
-                    <h3 className="text-white font-bold">Emergency Mode</h3>
-                    <p className="text-xs text-red-300 mt-1">Activate for Rush Hour 2x boost</p>
+                    <h3 className="text-gray-800 font-bold text-lg">Emergency Mode</h3>
+                    <p className="text-xs text-gray-400 mt-1">Activate for Rush Hour 2x</p>
                 </div>
             </div>
 
