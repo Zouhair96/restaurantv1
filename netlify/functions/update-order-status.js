@@ -81,7 +81,7 @@ export const handler = async (event, context) => {
             `UPDATE orders 
              SET status = $1, updated_at = CURRENT_TIMESTAMP
              WHERE id = $2
-             RETURNING id, status, updated_at`,
+             RETURNING id, order_type, table_number, delivery_address, payment_method, items, total_price, status, created_at, updated_at`,
             [status, orderId]
         );
 

@@ -3,7 +3,7 @@ import React from 'react'
 const OrderDetailsModal = ({ order, isOpen, onClose, onStatusUpdate, getStatusColor }) => {
     if (!isOpen || !order) return null
 
-    const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items
+    const items = order.items ? (typeof order.items === 'string' ? JSON.parse(order.items) : order.items) : {}
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
@@ -107,8 +107,10 @@ const OrderDetailsModal = ({ order, isOpen, onClose, onStatusUpdate, getStatusCo
                     {/* Payment & Action */}
                     <div className="flex flex-col md:flex-row justify-between items-center gap-6 pt-4">
                         <div className="text-center md:text-left">
-                            <span className="text-xs font-black uppercase tracking-widest text-gray-400 block mb-1">Total Payment ({order.payment_method.replace('_', ' ')})</span>
-                            <span className="text-4xl font-black text-yum-primary">${order.total_price}</span>
+                            <span className="text-xs font-black uppercase tracking-widest text-gray-400 block mb-1">
+                                Total Payment ({order.payment_method?.replace('_', ' ') || 'N/A'})
+                            </span>
+                            <span className="text-4xl font-black text-yum-primary">${order.total_price || 0}</span>
                         </div>
                         <div className="w-full md:w-auto">
                             <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Update Order Status</label>
