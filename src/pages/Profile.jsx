@@ -246,7 +246,7 @@ const Profile = () => {
 
                     {/* Stats Summary Bubble */}
                     <div className="mt-8 flex gap-4">
-                        <div className="flex-1 bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/5">
+                        <div className="flex-1 bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/5 dark:border-white/10">
                             <p className="text-purple-200 text-xs uppercase tracking-wider mb-1">Total Sales</p>
                             <h3 className="text-2xl font-bold">748 Hrs</h3>
                         </div>
@@ -254,7 +254,7 @@ const Profile = () => {
                             <p className="text-white text-xs uppercase tracking-wider mb-1">Total Orders</p>
                             <h3 className="text-3xl font-black">9,178</h3>
                         </div>
-                        <div className="flex-1 bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/5">
+                        <div className="flex-1 bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/5 dark:border-white/10">
                             <p className="text-purple-200 text-xs uppercase tracking-wider mb-1">Target</p>
                             <h3 className="text-2xl font-bold">9.2k</h3>
                         </div>
@@ -311,19 +311,19 @@ const Profile = () => {
                     { title: "Jogging Hero", subtitle: "12 km / month", icon: "🏃", color: "text-pink-500", progress: 13 },
                     { title: "Healthy Busy", subtitle: "3600 steps", icon: "🧘", color: "text-purple-500", progress: 90 },
                 ].map((item, i) => (
-                    <div key={i} className="bg-white rounded-[2rem] p-6 shadow-lg shadow-gray-100 border border-gray-50 flex flex-col items-center text-center group hover:-translate-y-1 transition-transform duration-300">
-                        <div className={`w-16 h-16 rounded-2xl bg-${item.color.split('-')[1]}-50 flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform duration-300 text-shadow-sm`}>
+                    <div key={i} className="bg-white dark:bg-gray-800 rounded-[2rem] p-6 shadow-lg shadow-gray-100 dark:shadow-none border border-gray-50 dark:border-gray-700 flex flex-col items-center text-center group hover:-translate-y-1 transition-all duration-300">
+                        <div className={`w-16 h-16 rounded-2xl bg-${item.color.split('-')[1]}-50 dark:bg-${item.color.split('-')[1]}-900/20 flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform duration-300 text-shadow-sm`}>
                             {item.icon}
                         </div>
-                        <h3 className="text-gray-800 font-bold text-lg">{item.title}</h3>
-                        <p className="text-gray-400 text-sm mb-6">{item.subtitle}</p>
+                        <h3 className="text-gray-800 dark:text-gray-100 font-bold text-lg">{item.title}</h3>
+                        <p className="text-gray-400 dark:text-gray-500 text-sm mb-6">{item.subtitle}</p>
 
                         <div className="w-full mt-auto">
-                            <div className="flex justify-between text-xs font-bold text-gray-400 mb-2">
+                            <div className="flex justify-between text-xs font-bold text-gray-400 dark:text-gray-500 mb-2">
                                 <span>Progress</span>
                                 <span>{item.progress}%</span>
                             </div>
-                            <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-2 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                                 <div
                                     className={`h-full rounded-full bg-${item.color.split('-')[1]}-500 transition-all duration-1000 ease-out`}
                                     style={{ width: `${item.progress}%` }}
@@ -331,9 +331,9 @@ const Profile = () => {
                             </div>
                         </div>
 
-                        <div className="flex justify-between w-full mt-4 pt-4 border-t border-gray-50">
-                            <span className="text-xs text-gray-400">17 / 30km</span>
-                            <span className="text-xs font-bold text-pink-400 bg-pink-50 px-2 py-0.5 rounded-md">2 days left</span>
+                        <div className="flex justify-between w-full mt-4 pt-4 border-t border-gray-50 dark:border-gray-700">
+                            <span className="text-xs text-gray-400 dark:text-gray-500">17 / 30km</span>
+                            <span className="text-xs font-bold text-pink-400 bg-pink-50 dark:bg-pink-900/20 px-2 py-0.5 rounded-md">2 days left</span>
                         </div>
                     </div>
                 ))}
@@ -345,10 +345,10 @@ const Profile = () => {
 
     const renderDynamicMenu = () => (
         <div className="space-y-6">
-            <div className="flex justify-between items-center text-gray-900 mb-6">
+            <div className="flex justify-between items-center text-gray-900 dark:text-white mb-6">
                 <div>
                     <h2 className="text-2xl font-bold">Digital Menu Templates</h2>
-                    <p className="text-gray-500 text-sm">Select a template to create your restaurant's menu.</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">Select a template to create your restaurant's menu.</p>
                 </div>
             </div>
 
@@ -542,14 +542,14 @@ const Profile = () => {
                     </div>
                 </div>
 
-                <div className="bg-white rounded-[2rem] p-6 flex flex-col justify-center items-center text-center cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-gray-100 group">
-                    <div className="p-4 bg-red-50 rounded-full mb-3 group-hover:bg-red-100 transition-colors">
-                        <svg className="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="bg-white dark:bg-gray-800 rounded-[2rem] p-6 flex flex-col justify-center items-center text-center cursor-pointer hover:shadow-xl dark:shadow-none hover:-translate-y-1 transition-all duration-300 border border-gray-100 dark:border-gray-700 group">
+                    <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-full mb-3 group-hover:bg-red-100 dark:group-hover:bg-red-900/40 transition-colors">
+                        <svg className="w-8 h-8 text-red-500 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
                     </div>
-                    <h3 className="text-gray-800 font-bold text-lg">Emergency Mode</h3>
-                    <p className="text-xs text-gray-400 mt-1">Activate for Rush Hour 2x</p>
+                    <h3 className="text-gray-800 dark:text-white font-bold text-lg">Emergency Mode</h3>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Activate for Rush Hour 2x</p>
                 </div>
             </div>
 
@@ -562,8 +562,8 @@ const Profile = () => {
         <div>
             <div className="flex justify-between items-center mb-6">
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-900">Team Management</h2>
-                    <p className="text-gray-500 text-sm">Manage your restaurant staff, roles, and shifts.</p>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Team Management</h2>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">Manage your restaurant staff, roles, and shifts.</p>
                 </div>
                 <button
                     onClick={() => setShowAddMemberModal(true)}
@@ -588,8 +588,8 @@ const Profile = () => {
         <div>
             <div className="flex justify-between items-center mb-6">
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-900">Automated Promotions</h2>
-                    <p className="text-gray-500 text-sm">Create marketing campaigns to boost traffic.</p>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Automated Promotions</h2>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">Create marketing campaigns to boost traffic.</p>
                 </div>
                 <button
                     onClick={() => setShowPromoModal(true)}
@@ -620,12 +620,12 @@ const Profile = () => {
             </div>
 
             {/* Subscription Management */}
-            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-                <h2 className="text-lg font-bold text-gray-900 mb-4">Subscription Management</h2>
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Subscription Management</h2>
+                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                     <div>
-                        <p className="font-bold text-gray-800">Current Plan: <span className="text-yum-primary">{user.subscription_plan || 'Pro'}</span></p>
-                        <p className="text-xs text-green-600 font-bold uppercase mt-1">Active</p>
+                        <p className="font-bold text-gray-800 dark:text-gray-200">Current Plan: <span className="text-yum-primary">{user.subscription_plan || 'Pro'}</span></p>
+                        <p className="text-xs text-green-600 dark:text-green-400 font-bold uppercase mt-1">Active</p>
                     </div>
                     <button
                         onClick={() => {
@@ -633,7 +633,7 @@ const Profile = () => {
                                 handleUnsubscribe();
                             }
                         }}
-                        className="px-4 py-2 bg-white border border-red-200 text-red-600 rounded-lg hover:bg-red-50 text-sm font-bold transition-all"
+                        className="px-4 py-2 bg-white dark:bg-gray-700 border border-red-200 dark:border-red-900/30 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-bold transition-all"
                     >
                         Cancel Subscription
                     </button>

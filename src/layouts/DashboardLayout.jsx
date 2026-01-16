@@ -6,7 +6,7 @@ const DashboardLayout = ({ children, rightPanel, activeModule, onModuleChange, i
     const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
 
     return (
-        <div className="min-h-screen bg-[#f3f4f6] text-gray-800 font-sans selection:bg-indigo-500 selection:text-white overflow-hidden relative">
+        <div className="min-h-screen bg-[#f3f4f6] dark:bg-[#0f1115] text-gray-800 dark:text-gray-100 font-sans selection:bg-indigo-500 selection:text-white overflow-hidden relative transition-colors duration-300">
             {/* Sidebar */}
             <DashboardSidebar
                 activeModule={activeModule}
@@ -18,11 +18,11 @@ const DashboardLayout = ({ children, rightPanel, activeModule, onModuleChange, i
             {/* Main Content Wrapper */}
             <div className={`flex h-screen overflow-hidden transition-all duration-300 md:pl-28 ${isBlurred ? 'filter blur-sm pointer-events-none select-none' : ''}`}>
                 {/* Center Content */}
-                <div className="flex-1 flex flex-col min-w-0 bg-[#f3f4f6] relative">
+                <div className="flex-1 flex flex-col min-w-0 bg-[#f3f4f6] dark:bg-[#0f1115] relative transition-colors duration-300">
                     {/* Background Glow Effect - Subtle mesh gradient */}
                     <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
-                        <div className="absolute -top-[20%] -left-[10%] w-[70%] h-[70%] bg-purple-200/30 rounded-full blur-[100px]"></div>
-                        <div className="absolute top-[20%] -right-[10%] w-[60%] h-[60%] bg-pink-200/30 rounded-full blur-[100px]"></div>
+                        <div className="absolute -top-[20%] -left-[10%] w-[70%] h-[70%] bg-purple-200/30 dark:bg-purple-900/20 rounded-full blur-[100px] transition-colors duration-500"></div>
+                        <div className="absolute top-[20%] -right-[10%] w-[60%] h-[60%] bg-pink-200/30 dark:bg-pink-900/20 rounded-full blur-[100px] transition-colors duration-500"></div>
                     </div>
 
                     <DashboardHeader onMenuClick={() => setIsMobileMenuOpen(true)} />
@@ -34,7 +34,7 @@ const DashboardLayout = ({ children, rightPanel, activeModule, onModuleChange, i
 
                 {/* Right Panel (Widgets) */}
                 {rightPanel && (
-                    <aside className="w-80 bg-white/50 backdrop-blur-xl border-l border-white/20 overflow-y-auto hidden xl:block p-6 shadow-sm">
+                    <aside className="w-80 bg-white/50 dark:bg-black/20 backdrop-blur-xl border-l border-white/20 dark:border-white/5 overflow-y-auto hidden xl:block p-6 shadow-sm transition-colors duration-300">
                         {rightPanel}
                     </aside>
                 )}
