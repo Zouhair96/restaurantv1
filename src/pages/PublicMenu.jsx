@@ -54,6 +54,44 @@ const PublicMenu = () => {
             fetchMenu()
         }
     }, [restaurantName])
+    const config = data?.menu?.config;
+    const menuConfig = typeof config === 'string' ? JSON.parse(config) : (config || {});
+    const {
+        designConfig = {},
+        sizes = [],
+        friesOption = [],
+        mealsOption = [],
+        saucesOption = [],
+        drinksOption = [],
+        extrasOption = []
+    } = menuConfig;
+
+    const steps = [
+        { id: 1, name: 'Select Size', icon: '🌮' },
+        ...(friesOption.length > 0 ? [{ id: 2, name: 'Choose Fries', icon: '🍟' }] : []),
+        ...(mealsOption.length > 0 ? [{ id: 3, name: 'Pick Chicken', icon: '🍗' }] : []),
+        ...(saucesOption.length > 0 ? [{ id: 4, name: 'Select Sauce', icon: '🌶️' }] : []),
+        ...(drinksOption.length > 0 ? [{ id: 5, name: 'Pick Drink', icon: '🥤' }] : []),
+        ...(extrasOption.length > 0 ? [{ id: 6, name: 'Add Extras', icon: '✨' }] : []),
+        { id: 'final', name: 'Review Order', icon: '✨' }
+    ]
+
+    const totalSteps = steps.length
+    const currentStepIndex = steps.findIndex(s => s.id === currentStep)
+
+    const nextStep = () => {
+        const nextIdx = currentStepIndex + 1
+        if (nextIdx < totalSteps) {
+            setCurrentStep(steps[nextIdx].id)
+        }
+    }
+
+    const prevStep = () => {
+        const prevIdx = currentStepIndex - 1
+        if (prevIdx >= 0) {
+            setCurrentStep(steps[prevIdx].id)
+        }
+    }
 
     // Auto-advance Step 1: Size selected
     useEffect(() => {
@@ -108,36 +146,7 @@ const PublicMenu = () => {
     }
 
 
-    const { config } = data.menu
-    const menuConfig = typeof config === 'string' ? JSON.parse(config) : config
-    const { designConfig, sizes, friesOption = [], mealsOption = [], saucesOption = [], drinksOption = [], extrasOption = [] } = menuConfig
 
-    const steps = [
-        { id: 1, name: 'Select Size', icon: '🌮' },
-        ...(friesOption.length > 0 ? [{ id: 2, name: 'Choose Fries', icon: '🍟' }] : []),
-        ...(mealsOption.length > 0 ? [{ id: 3, name: 'Pick Chicken', icon: '🍗' }] : []),
-        ...(saucesOption.length > 0 ? [{ id: 4, name: 'Select Sauce', icon: '🌶️' }] : []),
-        ...(drinksOption.length > 0 ? [{ id: 5, name: 'Pick Drink', icon: '🥤' }] : []),
-        ...(extrasOption.length > 0 ? [{ id: 6, name: 'Add Extras', icon: '✨' }] : []),
-        { id: 'final', name: 'Review Order', icon: '✨' }
-    ]
-
-    const totalSteps = steps.length
-    const currentStepIndex = steps.findIndex(s => s.id === currentStep)
-
-    const nextStep = () => {
-        const nextIdx = currentStepIndex + 1
-        if (nextIdx < totalSteps) {
-            setCurrentStep(steps[nextIdx].id)
-        }
-    }
-
-    const prevStep = () => {
-        const prevIdx = currentStepIndex - 1
-        if (prevIdx >= 0) {
-            setCurrentStep(steps[prevIdx].id)
-        }
-    }
 
     const calculateTotal = () => {
         let total = selections.size ? parseFloat(selections.size.price) : 0
