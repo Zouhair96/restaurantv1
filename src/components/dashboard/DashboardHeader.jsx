@@ -8,36 +8,38 @@ const DashboardHeader = ({ onMenuClick }) => {
     const [searchTerm, setSearchTerm] = useState('')
 
     return (
-        <header className="bg-transparent h-20 flex items-center justify-between px-8 z-10 transition-colors duration-300">
+        <header className="bg-transparent h-20 flex items-center justify-between px-4 md:px-8 z-10 transition-colors duration-300 gap-4">
+
+            {/* Mobile Menu Button - Moved to start for standard UX */}
+            <button
+                className="md:hidden p-2 text-gray-500 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-colors shrink-0"
+                onClick={onMenuClick}
+            >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
+                </svg>
+            </button>
+
             {/* Title & Search */}
-            <div className="flex-1 flex flex-col md:flex-row md:items-center gap-6">
-                <div className="hidden md:block">
+            <div className="flex-1 flex items-center md:gap-6">
+                <div className="hidden md:block shrink-0">
                     <h1 className="text-2xl font-bold text-gray-800 dark:text-white transition-colors">Primary Dashboard</h1>
                 </div>
 
                 <div className="relative flex-1 max-w-md">
-                    <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <span className="absolute inset-y-0 left-0 pl-3 md:pl-4 flex items-center pointer-events-none">
+                        <svg className="h-4 w-4 md:h-5 md:w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </span>
                     <input
                         type="text"
-                        className="block w-full pl-11 pr-4 py-3 border-none rounded-2xl bg-white dark:bg-gray-800/50 shadow-sm hover:shadow-md focus:shadow-lg text-gray-600 dark:text-gray-200 placeholder-gray-400 focus:outline-none transition-all duration-300"
+                        className="block w-full pl-9 md:pl-11 pr-4 py-2 md:py-3 text-sm md:text-base border-none rounded-xl md:rounded-2xl bg-white dark:bg-gray-800/50 shadow-sm hover:shadow-md focus:shadow-lg text-gray-600 dark:text-gray-200 placeholder-gray-400 focus:outline-none transition-all duration-300"
                         placeholder="Search..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
-
-                <button
-                    className="md:hidden text-gray-800 dark:text-white p-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm"
-                    onClick={onMenuClick}
-                >
-                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </button>
             </div>
 
             {/* Notifications & Actions */}
