@@ -129,7 +129,7 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
                                     onClick={() => setFormData(prev => ({ ...prev, size }))}
                                     className={`py-3 rounded-lg font-bold border transition-all ${formData.size === size
                                         ? 'bg-yum-primary text-white border-yum-primary shadow-lg shadow-yum-primary/30'
-                                        : 'bg-gray-800 text-gray-400 border-gray-700 hover:border-gray-500 hover:text-white'
+                                        : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500 hover:text-gray-900 dark:hover:text-white'
                                         }`}
                                 >
                                     {size}
@@ -139,7 +139,7 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">Price ($) <span className="text-red-500">*</span></label>
+                        <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Price ($) <span className="text-red-500">*</span></label>
                         <input
                             type="number"
                             name="price"
@@ -147,7 +147,7 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
                             onChange={handleInputChange}
                             placeholder="0.00"
                             step="0.01"
-                            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-yum-primary focus:border-transparent outline-none transition-all"
+                            className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-yum-primary focus:border-transparent outline-none transition-all"
                             required
                         />
                     </div>
@@ -155,12 +155,12 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
                     <div>
                         <label className="block text-sm font-medium text-gray-400 mb-1">Variant Image (Optional)</label>
                         <div className="flex gap-4 items-center">
-                            <label className="flex-1 cursor-pointer bg-gray-800 border-2 border-dashed border-gray-700 rounded-lg p-4 flex flex-col items-center justify-center hover:border-yum-primary hover:bg-gray-800/50 transition-all group">
+                            <label className="flex-1 cursor-pointer bg-white dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg p-4 flex flex-col items-center justify-center hover:border-yum-primary hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all group">
                                 <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
-                                <svg className="w-6 h-6 text-gray-500 group-hover:text-yum-primary mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg className="w-6 h-6 text-gray-400 dark:text-gray-500 group-hover:text-yum-primary mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
-                                <span className="text-xs text-gray-500 group-hover:text-white">Upload / Gallery</span>
+                                <span className="text-xs text-gray-500 group-hover:text-gray-700 dark:group-hover:text-white">Upload / Gallery</span>
                             </label>
 
                             {formData.image && (
@@ -195,27 +195,27 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
             </div>
 
             {/* Right: List View */}
-            <div className="bg-gray-900/50 rounded-xl border border-gray-800 p-6 flex flex-col h-full">
-                <h3 className="text-lg font-bold text-white mb-4 flex items-center justify-between">
+            <div className="bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-800 p-6 flex flex-col h-full">
+                <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4 flex items-center justify-between">
                     <span>Configured Sizes</span>
-                    <span className="text-xs bg-gray-800 text-gray-400 px-2 py-1 rounded-full">{sizes.length} Items</span>
+                    <span className="text-xs bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-2 py-1 rounded-full border border-gray-200 dark:border-transparent">{sizes.length} Items</span>
                 </h3>
 
                 <div className="flex-1 overflow-y-auto space-y-3 custom-scrollbar pr-2">
                     {sizes.length === 0 ? (
-                        <div className="h-40 flex flex-col items-center justify-center text-gray-500 border-2 border-dashed border-gray-800 rounded-lg">
+                        <div className="h-40 flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 border-2 border-dashed border-gray-300 dark:border-gray-800 rounded-lg">
                             <p>No sizes added yet.</p>
                             <p className="text-xs mt-1">Add items using the form on the left.</p>
                         </div>
                     ) : (
                         sizes.map((item) => (
-                            <div key={item.id} className="bg-gray-800 p-3 rounded-lg flex items-center justify-between group hover:border-gray-600 border border-transparent transition-all">
+                            <div key={item.id} className="bg-white dark:bg-gray-800 p-3 rounded-lg flex items-center justify-between group hover:border-gray-300 dark:hover:border-gray-600 border border-gray-200 dark:border-transparent transition-all shadow-sm dark:shadow-none">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded bg-gray-700 flex items-center justify-center overflow-hidden text-2xl">
+                                    <div className="w-12 h-12 rounded bg-gray-100 dark:bg-gray-700 flex items-center justify-center overflow-hidden text-2xl">
                                         {item.image ? <img src={item.image} alt="" className="w-full h-full object-cover" /> : '🌮'}
                                     </div>
                                     <div>
-                                        <p className="font-bold text-white">{item.size}</p>
+                                        <p className="font-bold text-gray-800 dark:text-white">{item.size}</p>
                                         <p className="text-yum-primary font-mono text-sm">${Number(item.price).toFixed(2)}</p>
                                     </div>
                                 </div>
@@ -247,8 +247,8 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
 
     const renderStepFries = () => (
         <div className="animate-fade-in max-w-4xl mx-auto">
-            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                <span className="bg-yellow-500/20 text-yellow-500 w-8 h-8 rounded-full flex items-center justify-center text-sm">🍟</span>
+            <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-6 flex items-center gap-2">
+                <span className="bg-yellow-100 dark:bg-yellow-500/20 text-yellow-600 dark:text-yellow-500 w-8 h-8 rounded-full flex items-center justify-center text-sm">🍟</span>
                 Choose Fries Quantity
             </h3>
 
@@ -275,16 +275,16 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
                                 })
                             }}
                             className={`cursor-pointer rounded-2xl p-6 border-2 transition-all duration-300 flex flex-col items-center justify-center gap-4 group ${isSelected
-                                ? 'bg-green-500/10 border-green-500 shadow-lg shadow-green-500/20 scale-105'
-                                : 'bg-gray-800 border-gray-700 hover:border-gray-500 hover:bg-gray-750'
+                                ? 'bg-green-100/50 dark:bg-green-500/10 border-green-500 shadow-lg shadow-green-500/20 scale-105'
+                                : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-750'
                                 }`}
                         >
                             <div className="text-5xl group-hover:scale-110 transition-transform duration-300">{option.icon}</div>
                             <div className="text-center">
-                                <h4 className={`font-bold text-lg ${isSelected ? 'text-green-500' : 'text-white'}`}>
+                                <h4 className={`font-bold text-lg ${isSelected ? 'text-green-600 dark:text-green-500' : 'text-gray-700 dark:text-white'}`}>
                                     {option.label}
                                 </h4>
-                                <p className="text-gray-400 text-sm mt-1">{option.desc}</p>
+                                <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">{option.desc}</p>
                             </div>
                         </div>
                     )
@@ -295,8 +295,8 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
 
     const renderStepMeals = () => (
         <div className="animate-fade-in max-w-4xl mx-auto">
-            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                <span className="bg-orange-500/20 text-orange-500 w-8 h-8 rounded-full flex items-center justify-center text-sm">🍗</span>
+            <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-6 flex items-center gap-2">
+                <span className="bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-orange-500 w-8 h-8 rounded-full flex items-center justify-center text-sm">🍗</span>
                 Choose Meals (Chicken)
             </h3>
 
@@ -333,7 +333,7 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
                         >
                             <div className="text-4xl group-hover:scale-110 transition-transform duration-300">{option.icon}</div>
                             <div className="text-center">
-                                <h4 className={`font-bold text-lg ${isSelected ? 'text-green-500' : 'text-white'}`}>
+                                <h4 className={`font-bold text-lg ${isSelected ? 'text-green-600 dark:text-green-500' : 'text-gray-700 dark:text-white'}`}>
                                     {option.label}
                                 </h4>
                             </div>
@@ -346,8 +346,8 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
 
     const renderStepSauces = () => (
         <div className="animate-fade-in max-w-4xl mx-auto">
-            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                <span className="bg-red-500/20 text-red-500 w-8 h-8 rounded-full flex items-center justify-center text-sm">🌶️</span>
+            <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-6 flex items-center gap-2">
+                <span className="bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-500 w-8 h-8 rounded-full flex items-center justify-center text-sm">🌶️</span>
                 Choose Sauces
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -369,13 +369,13 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
                                 setSaucesOption(prev => isSelected ? prev.filter(id => id !== option.id) : [...prev, option.id])
                             }}
                             className={`cursor-pointer rounded-2xl p-6 border-2 transition-all duration-300 flex flex-col items-center justify-center gap-4 group ${isSelected
-                                ? 'bg-red-500/10 border-red-500 shadow-lg shadow-red-500/20 scale-105'
-                                : 'bg-gray-800 border-gray-700 hover:border-gray-500 hover:bg-gray-750'
+                                ? 'bg-red-100/50 dark:bg-red-500/10 border-red-500 shadow-lg shadow-red-500/20 scale-105'
+                                : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-750'
                                 }`}
                         >
                             <div className="text-4xl group-hover:scale-110 transition-transform duration-300">{option.icon}</div>
                             <div className="text-center">
-                                <h4 className={`font-bold text-lg ${isSelected ? 'text-red-500' : 'text-white'}`}>
+                                <h4 className={`font-bold text-lg ${isSelected ? 'text-red-600 dark:text-red-500' : 'text-gray-700 dark:text-white'}`}>
                                     {option.label}
                                 </h4>
                             </div>
@@ -388,8 +388,8 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
 
     const renderStepDrinks = () => (
         <div className="animate-fade-in max-w-4xl mx-auto">
-            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                <span className="bg-blue-500/20 text-blue-500 w-8 h-8 rounded-full flex items-center justify-center text-sm">🥤</span>
+            <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-6 flex items-center gap-2">
+                <span className="bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-500 w-8 h-8 rounded-full flex items-center justify-center text-sm">🥤</span>
                 Choose Drinks
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -410,13 +410,13 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
                                 setDrinksOption(prev => isSelected ? prev.filter(id => id !== option.id) : [...prev, option.id])
                             }}
                             className={`cursor-pointer rounded-2xl p-6 border-2 transition-all duration-300 flex flex-col items-center justify-center gap-4 group ${isSelected
-                                ? 'bg-blue-500/10 border-blue-500 shadow-lg shadow-blue-500/20 scale-105'
-                                : 'bg-gray-800 border-gray-700 hover:border-gray-500 hover:bg-gray-750'
+                                ? 'bg-blue-100/50 dark:bg-blue-500/10 border-blue-500 shadow-lg shadow-blue-500/20 scale-105'
+                                : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-750'
                                 }`}
                         >
                             <div className="text-4xl group-hover:scale-110 transition-transform duration-300">{option.icon}</div>
                             <div className="text-center">
-                                <h4 className={`font-bold text-lg ${isSelected ? 'text-blue-500' : 'text-white'}`}>
+                                <h4 className={`font-bold text-lg ${isSelected ? 'text-blue-600 dark:text-blue-500' : 'text-gray-700 dark:text-white'}`}>
                                     {option.label}
                                 </h4>
                             </div>
@@ -429,8 +429,8 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
 
     const renderStepExtras = () => (
         <div className="animate-fade-in max-w-4xl mx-auto">
-            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                <span className="bg-purple-500/20 text-purple-500 w-8 h-8 rounded-full flex items-center justify-center text-sm">✨</span>
+            <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-6 flex items-center gap-2">
+                <span className="bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-500 w-8 h-8 rounded-full flex items-center justify-center text-sm">✨</span>
                 Configure Extras (Gratinage)
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -449,16 +449,16 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
                                 setExtrasOption(prev => isSelected ? prev.filter(id => id !== option.id) : [...prev, option.id])
                             }}
                             className={`cursor-pointer rounded-2xl p-6 border-2 transition-all duration-300 flex flex-col items-center justify-center gap-4 group ${isSelected
-                                ? 'bg-purple-500/10 border-purple-500 shadow-lg shadow-purple-500/20 scale-105'
-                                : 'bg-gray-800 border-gray-700 hover:border-gray-500 hover:bg-gray-750'
+                                ? 'bg-purple-100/50 dark:bg-purple-500/10 border-purple-500 shadow-lg shadow-purple-500/20 scale-105'
+                                : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-750'
                                 }`}
                         >
                             <div className="text-4xl group-hover:scale-110 transition-transform duration-300">{option.icon}</div>
                             <div className="text-center">
-                                <h4 className={`font-bold text-lg ${isSelected ? 'text-purple-500' : 'text-white'}`}>
+                                <h4 className={`font-bold text-lg ${isSelected ? 'text-purple-600 dark:text-purple-500' : 'text-gray-700 dark:text-white'}`}>
                                     {option.label}
                                 </h4>
-                                <p className="text-gray-400 text-sm mt-1">{option.desc}</p>
+                                <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">{option.desc}</p>
                             </div>
                         </div>
                     )
@@ -471,21 +471,21 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
         <div className="animate-fade-in max-w-5xl mx-auto flex flex-col lg:flex-row gap-8 items-start">
             {/* Left: Configuration Summary */}
             <div className="w-full lg:w-1/3 space-y-6">
-                <div className="bg-gray-900/50 p-6 rounded-2xl border border-gray-800">
-                    <h3 className="text-white font-bold mb-4 border-b border-gray-700 pb-2">Configuration Summary</h3>
+                <div className="bg-white dark:bg-gray-900/50 p-6 rounded-2xl border border-gray-200 dark:border-gray-800">
+                    <h3 className="text-gray-800 dark:text-white font-bold mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">Configuration Summary</h3>
 
                     <div className="space-y-4 text-sm">
                         <div>
-                            <p className="text-gray-400">Template Type</p>
-                            <p className="text-white font-medium capitalize">{templateType || 'Standard Menu'}</p>
+                            <p className="text-gray-500 dark:text-gray-400">Template Type</p>
+                            <p className="text-gray-800 dark:text-white font-medium capitalize">{templateType || 'Standard Menu'}</p>
                         </div>
                         <div>
-                            <p className="text-gray-400">Total Variants</p>
-                            <p className="text-white font-medium">{sizes.length} Sizes Configured</p>
+                            <p className="text-gray-500 dark:text-gray-400">Total Variants</p>
+                            <p className="text-gray-800 dark:text-white font-medium">{sizes.length} Sizes Configured</p>
                         </div>
                         <div>
-                            <p className="text-gray-400">Extra Steps</p>
-                            <p className="text-white font-medium">
+                            <p className="text-gray-500 dark:text-gray-400">Extra Steps</p>
+                            <p className="text-gray-800 dark:text-white font-medium">
                                 {saucesOption.length > 0 ? '✓ Sauces ' : ''}
                                 {drinksOption.length > 0 ? '✓ Drinks ' : ''}
                                 {extrasOption.length > 0 ? '✓ Extras' : ''}
@@ -635,29 +635,29 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Text Content */}
                 <div className="space-y-6">
-                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                        <span className="bg-blue-500/20 text-blue-400 w-8 h-8 rounded-full flex items-center justify-center text-sm">A</span>
+                    <h3 className="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                        <span className="bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 w-8 h-8 rounded-full flex items-center justify-center text-sm">A</span>
                         Text Content
                     </h3>
 
                     <div className="space-y-4">
                         <div>
-                            <label className="block text-gray-400 text-sm font-medium mb-1">Main Headline</label>
+                            <label className="block text-gray-500 dark:text-gray-400 text-sm font-medium mb-1">Main Headline</label>
                             <input
                                 type="text"
                                 value={designConfig.mainTitle}
                                 onChange={(e) => setDesignConfig({ ...designConfig, mainTitle: e.target.value })}
-                                className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-yum-primary transition-colors font-bold text-lg"
+                                className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-gray-800 dark:text-white focus:outline-none focus:border-yum-primary transition-colors font-bold text-lg"
                                 placeholder="e.g. Taco Tuesday"
                             />
                         </div>
                         <div>
-                            <label className="block text-gray-400 text-sm font-medium mb-1">Subtitle / Tagline</label>
+                            <label className="block text-gray-500 dark:text-gray-400 text-sm font-medium mb-1">Subtitle / Tagline</label>
                             <input
                                 type="text"
                                 value={designConfig.subtitle}
                                 onChange={(e) => setDesignConfig({ ...designConfig, subtitle: e.target.value })}
-                                className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-yum-primary transition-colors"
+                                className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-gray-800 dark:text-white focus:outline-none focus:border-yum-primary transition-colors"
                                 placeholder="e.g. 50% Off All Tacos"
                             />
                         </div>
@@ -666,14 +666,14 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
 
                 {/* Visual Style */}
                 <div className="space-y-6">
-                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                        <span className="bg-purple-500/20 text-purple-400 w-8 h-8 rounded-full flex items-center justify-center text-sm">🎨</span>
+                    <h3 className="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                        <span className="bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 w-8 h-8 rounded-full flex items-center justify-center text-sm">🎨</span>
                         Visual Style
                     </h3>
 
                     <div className="space-y-4">
                         <div>
-                            <label className="block text-gray-400 text-sm font-medium mb-2">Accent Color</label>
+                            <label className="block text-gray-500 dark:text-gray-400 text-sm font-medium mb-2">Accent Color</label>
                             <div className="flex gap-3">
                                 {['#FF4500', '#FFD700', '#32CD32', '#00BFFF', '#FF1493'].map((color) => (
                                     <button
@@ -688,15 +688,15 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
                         </div>
 
                         <div>
-                            <label className="block text-gray-400 text-sm font-medium mb-2">Font Style</label>
+                            <label className="block text-gray-500 dark:text-gray-400 text-sm font-medium mb-2">Font Style</label>
                             <div className="grid grid-cols-2 gap-3">
                                 {['modern', 'handwritten', 'bold', 'elegant'].map((font) => (
                                     <button
                                         key={font}
                                         onClick={() => setDesignConfig({ ...designConfig, fontTheme: font })}
                                         className={`px-4 py-3 rounded-xl border text-sm capitalize transition-all ${designConfig.fontTheme === font
-                                            ? 'bg-white text-black border-white font-bold'
-                                            : 'bg-gray-800 text-gray-400 border-gray-700 hover:border-gray-500'
+                                            ? 'bg-white dark:bg-white text-black border-gray-300 dark:border-white font-bold'
+                                            : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500'
                                             }`}
                                     >
                                         {font}
@@ -728,14 +728,14 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
         const publicUrl = `${window.location.origin}/${restaurantName}`
         return (
             <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
-                <div className="bg-gray-900 border border-green-500/30 p-8 rounded-3xl max-w-md w-full text-center shadow-2xl shadow-green-500/20">
-                    <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <div className="bg-white dark:bg-gray-900 border border-green-500/30 p-8 rounded-3xl max-w-md w-full text-center shadow-2xl shadow-green-500/20">
+                    <div className="w-20 h-20 bg-green-100 dark:bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
                         <span className="text-4xl">🎉</span>
                     </div>
-                    <h2 className="text-3xl font-bold text-white mb-2">Menu Published!</h2>
-                    <p className="text-gray-400 mb-6">Your menu is now live and accessible to the world.</p>
+                    <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">Menu Published!</h2>
+                    <p className="text-gray-500 dark:text-gray-400 mb-6">Your menu is now live and accessible to the world.</p>
 
-                    <div className="bg-gray-800 p-4 rounded-xl mb-6 break-all">
+                    <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-xl mb-6 break-all">
                         <p className="text-xs text-gray-500 uppercase font-bold mb-1">Public Link</p>
                         <a href={publicUrl} target="_blank" rel="noopener noreferrer" className="text-yum-primary hover:underline text-sm font-mono">
                             {publicUrl}
@@ -745,7 +745,7 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
                     <div className="flex gap-3">
                         <button
                             onClick={onClose}
-                            className="flex-1 py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-xl font-bold text-white transition-colors"
+                            className="flex-1 py-3 px-4 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-xl font-bold text-gray-800 dark:text-white transition-colors"
                         >
                             Close
                         </button>
@@ -765,14 +765,14 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-            <div className="bg-[#0f1115] w-full max-w-5xl h-[90vh] rounded-3xl border border-gray-800 shadow-2xl flex flex-col overflow-hidden">
+            <div className="bg-white dark:bg-[#0f1115] w-full max-w-5xl h-[90vh] rounded-3xl border border-white/20 dark:border-gray-800 shadow-2xl flex flex-col overflow-hidden transition-colors duration-300">
                 {/* Header */}
-                <div className="bg-gray-900/50 p-6 border-b border-gray-800 flex justify-between items-center">
+                <div className="bg-white dark:bg-gray-900/50 p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
                     <div>
-                        <h2 className="text-2xl font-black text-white tracking-tight">
+                        <h2 className="text-2xl font-black text-gray-800 dark:text-white tracking-tight">
                             Template Editor <span className="text-yum-primary">.</span>
                         </h2>
-                        <p className="text-gray-400 text-sm">Step {currentStep}: {
+                        <p className="text-gray-500 dark:text-gray-400 text-sm">Step {currentStep}: {
                             currentStep === 1 ? 'Configure Sizes' :
                                 currentStep === 2 ? 'Fries Options' :
                                     currentStep === 3 ? 'Meal Options' :
@@ -782,17 +782,17 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
                                                     currentStep === 7 ? 'Customize Design' : 'Preview'
                         }</p>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-800 rounded-full text-gray-400 hover:text-white transition-colors">
+                    <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors">
                         ✕
                     </button>
                 </div>
 
                 {/* Steps Progress */}
-                <div className="bg-gray-900/30 py-3 border-b border-gray-800">
+                <div className="bg-gray-50 dark:bg-gray-900/30 py-3 border-b border-gray-100 dark:border-gray-800">
                     <div className="flex justify-center items-center gap-2">
                         {[1, 2, 3, 4, 5, 6, 7, 8].map(step => (
                             <div key={step} className="flex items-center gap-2">
-                                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${currentStep >= step ? 'bg-yum-primary text-white shadow-lg shadow-yum-primary/30' : 'bg-gray-800 text-gray-500'
+                                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${currentStep >= step ? 'bg-yum-primary text-white shadow-lg shadow-yum-primary/30' : 'bg-gray-200 dark:bg-gray-800 text-gray-500'
                                     }`}>
                                     {step}
                                 </div>
@@ -811,11 +811,11 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
                 </div>
 
                 {/* Footer Controls */}
-                <div className="p-6 border-t border-gray-800 bg-gray-900/50 flex justify-between items-center">
+                <div className="p-6 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 flex justify-between items-center">
                     <button
                         onClick={handleBack}
                         disabled={currentStep === 1}
-                        className={`px-6 py-2 rounded-xl font-bold text-gray-400 hover:text-white transition-colors ${currentStep === 1 ? 'opacity-0 cursor-default' : 'opacity-100'
+                        className={`px-6 py-2 rounded-xl font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800 hover:text-gray-800 dark:hover:text-white transition-colors ${currentStep === 1 ? 'opacity-0 cursor-default' : 'opacity-100'
                             }`}
                     >
                         ← Back
@@ -826,7 +826,7 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
                         disabled={currentStep === 1 && sizes.length === 0}
                         className={`px-8 py-3 rounded-xl font-bold text-lg transition-all transform hover:scale-105 flex items-center gap-2 ${(currentStep === 1 && sizes.length > 0) || currentStep > 1
                             ? 'bg-gradient-to-r from-yum-primary to-orange-600 text-white shadow-lg hover:shadow-orange-500/30'
-                            : 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                            : 'bg-gray-200 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed'
                             }`}
                     >
                         {currentStep === 8 ? 'Publish Menu 🚀' : 'Next Step →'}
