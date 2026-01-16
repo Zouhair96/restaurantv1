@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { HiOutlineUserCircle, HiOutlineX, HiOutlineShoppingBag, HiOutlineLogout, HiOutlineLogin, HiOutlineClipboardList, HiOutlineUserAdd } from 'react-icons/hi';
+import { HiOutlineUserCircle, HiOutlineX, HiOutlineShoppingBag, HiOutlineLogout, HiOutlineLogin, HiOutlineClipboardList, HiOutlineUserAdd, HiOutlineSun, HiOutlineMoon } from 'react-icons/hi';
 
-const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig }) => {
+const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDarkMode, setIsDarkMode }) => {
     const [view, setView] = useState('login'); // 'login', 'signup', 'profile'
     const [clientUser, setClientUser] = useState(null);
     const [orders, setOrders] = useState([]);
@@ -122,21 +122,37 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig }) =>
     };
 
     return (
-        <div className={`fixed inset-y-0 left-0 z-[100] w-full sm:w-96 bg-[#0f1115] border-r border-white/10 shadow-2xl transition-transform duration-300 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className={`fixed inset-y-0 left-0 z-[100] w-full sm:w-96 border-r shadow-2xl transition-all duration-300 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} ${isDarkMode
+            ? 'bg-[#0f1115] border-white/10'
+            : 'bg-white border-gray-200'}`}>
             {/* Header */}
-            <div className="p-6 border-b border-white/5 flex items-center justify-between bg-[#1a1c23]">
+            <div className={`p-6 border-b flex items-center justify-between transition-colors ${isDarkMode
+                ? 'bg-[#1a1c23] border-white/5'
+                : 'bg-gray-50 border-gray-100'}`}>
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-yum-primary/20 flex items-center justify-center text-yum-primary">
                         <HiOutlineUserCircle size={24} />
                     </div>
                     <div>
-                        <h2 className="text-white font-black text-lg">My Profile</h2>
-                        <p className="text-gray-500 text-xs uppercase tracking-widest font-bold">{restaurantName}</p>
+                        <h2 className={`font-black text-lg transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>My Profile</h2>
+                        <p className={`text-xs uppercase tracking-widest font-bold transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{restaurantName}</p>
                     </div>
                 </div>
-                <button onClick={onClose} className="p-2 text-gray-400 hover:text-white transition-colors">
-                    <HiOutlineX size={24} />
-                </button>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => setIsDarkMode(!isDarkMode)}
+                        className={`p-2 rounded-xl transition-all border ${isDarkMode
+                            ? 'bg-white/5 border-white/10 text-gray-400 hover:text-white hover:bg-white/10'
+                            : 'bg-black/5 border-black/10 text-gray-500 hover:text-black hover:bg-black/10'
+                            }`}
+                        title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                    >
+                        {isDarkMode ? <HiOutlineSun size={20} /> : <HiOutlineMoon size={20} />}
+                    </button>
+                    <button onClick={onClose} className={`p-2 transition-colors ${isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-400 hover:text-gray-900'}`}>
+                        <HiOutlineX size={24} />
+                    </button>
+                </div>
             </div>
 
             <div className="p-6 overflow-y-auto h-[calc(100vh-88px)]">
@@ -149,26 +165,30 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig }) =>
                 {view === 'login' && (
                     <div className="animate-fade-in">
                         <div className="text-center mb-8">
-                            <h3 className="text-2xl font-black text-white mb-2">Welcome Back!</h3>
-                            <p className="text-gray-400 text-sm">Log in to track your orders and earn rewards.</p>
+                            <h3 className={`text-2xl font-black mb-2 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Welcome Back!</h3>
+                            <p className={isDarkMode ? 'text-gray-400 text-sm' : 'text-gray-500 text-sm'}>Log in to track your orders and earn rewards.</p>
                         </div>
                         <form onSubmit={handleLogin} className="space-y-4">
                             <div>
-                                <label className="block text-gray-400 text-xs font-bold uppercase tracking-widest mb-2">Email Address</label>
+                                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Email Address</label>
                                 <input
                                     type="email"
                                     required
-                                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-yum-primary transition-all"
+                                    className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:border-yum-primary transition-all ${isDarkMode
+                                        ? 'bg-white/5 border-white/10 text-white'
+                                        : 'bg-gray-50 border-gray-200 text-gray-900'}`}
                                     value={formData.email}
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                 />
                             </div>
                             <div>
-                                <label className="block text-gray-400 text-xs font-bold uppercase tracking-widest mb-2">Password</label>
+                                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Password</label>
                                 <input
                                     type="password"
                                     required
-                                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-yum-primary transition-all"
+                                    className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:border-yum-primary transition-all ${isDarkMode
+                                        ? 'bg-white/5 border-white/10 text-white'
+                                        : 'bg-gray-50 border-gray-200 text-gray-900'}`}
                                     value={formData.password}
                                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                 />
@@ -176,12 +196,12 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig }) =>
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full py-4 bg-yum-primary text-white font-black rounded-xl hover:bg-red-500 transition-all flex items-center justify-center gap-2"
+                                className="w-full py-4 bg-yum-primary text-white font-black rounded-xl hover:bg-red-500 transition-all flex items-center justify-center gap-2 shadow-lg shadow-yum-primary/20"
                             >
                                 {loading ? 'Logging in...' : <><HiOutlineLogin size={20} /> Login</>}
                             </button>
                         </form>
-                        <p className="mt-8 text-center text-gray-500 text-sm">
+                        <p className={`mt-8 text-center text-sm transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
                             Don't have an account?{' '}
                             <button onClick={() => setView('signup')} className="text-yum-primary font-bold hover:underline">Sign up</button>
                         </p>
@@ -191,36 +211,42 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig }) =>
                 {view === 'signup' && (
                     <div className="animate-fade-in">
                         <div className="text-center mb-8">
-                            <h3 className="text-2xl font-black text-white mb-2">Join Us!</h3>
-                            <p className="text-gray-400 text-sm">Create an account for a personalized experience.</p>
+                            <h3 className={`text-2xl font-black mb-2 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Join Us!</h3>
+                            <p className={isDarkMode ? 'text-gray-400 text-sm' : 'text-gray-500 text-sm'}>Create an account for a personalized experience.</p>
                         </div>
                         <form onSubmit={handleSignup} className="space-y-4">
                             <div>
-                                <label className="block text-gray-400 text-xs font-bold uppercase tracking-widest mb-2">Full Name</label>
+                                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Full Name</label>
                                 <input
                                     type="text"
                                     required
-                                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-yum-primary transition-all"
+                                    className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:border-yum-primary transition-all ${isDarkMode
+                                        ? 'bg-white/5 border-white/10 text-white'
+                                        : 'bg-gray-50 border-gray-200 text-gray-900'}`}
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 />
                             </div>
                             <div>
-                                <label className="block text-gray-400 text-xs font-bold uppercase tracking-widest mb-2">Email Address</label>
+                                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Email Address</label>
                                 <input
                                     type="email"
                                     required
-                                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-yum-primary transition-all"
+                                    className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:border-yum-primary transition-all ${isDarkMode
+                                        ? 'bg-white/5 border-white/10 text-white'
+                                        : 'bg-gray-50 border-gray-200 text-gray-900'}`}
                                     value={formData.email}
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                 />
                             </div>
                             <div>
-                                <label className="block text-gray-400 text-xs font-bold uppercase tracking-widest mb-2">Password</label>
+                                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Password</label>
                                 <input
                                     type="password"
                                     required
-                                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-yum-primary transition-all"
+                                    className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:border-yum-primary transition-all ${isDarkMode
+                                        ? 'bg-white/5 border-white/10 text-white'
+                                        : 'bg-gray-50 border-gray-200 text-gray-900'}`}
                                     value={formData.password}
                                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                 />
@@ -228,12 +254,12 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig }) =>
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full py-4 bg-yum-primary text-white font-black rounded-xl hover:bg-red-500 transition-all flex items-center justify-center gap-2"
+                                className="w-full py-4 bg-yum-primary text-white font-black rounded-xl hover:bg-red-500 transition-all flex items-center justify-center gap-2 shadow-lg shadow-yum-primary/20"
                             >
                                 {loading ? 'Creating account...' : <><HiOutlineUserAdd size={20} /> Sign Up</>}
                             </button>
                         </form>
-                        <p className="mt-8 text-center text-gray-500 text-sm">
+                        <p className={`mt-8 text-center text-sm transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
                             Already have an account?{' '}
                             <button onClick={() => setView('login')} className="text-yum-primary font-bold hover:underline">Login</button>
                         </p>
@@ -243,12 +269,16 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig }) =>
                 {view === 'profile' && clientUser && (
                     <div className="animate-fade-in space-y-8">
                         {/* User Summary */}
-                        <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
-                            <h4 className="text-white font-black text-xl mb-1">{clientUser.name}</h4>
-                            <p className="text-gray-500 text-sm mb-6">{clientUser.email}</p>
+                        <div className={`p-6 rounded-2xl border transition-colors ${isDarkMode
+                            ? 'bg-white/5 border-white/10'
+                            : 'bg-gray-50 border-gray-100'}`}>
+                            <h4 className={`font-black text-xl mb-1 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{clientUser.name}</h4>
+                            <p className={`text-sm mb-6 transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{clientUser.email}</p>
                             <button
                                 onClick={handleLogout}
-                                className="flex items-center gap-2 text-gray-400 hover:text-red-500 transition-colors font-bold text-sm"
+                                className={`flex items-center gap-2 transition-colors font-bold text-sm ${isDarkMode
+                                    ? 'text-gray-400 hover:text-red-500'
+                                    : 'text-gray-500 hover:text-red-500'}`}
                             >
                                 <HiOutlineLogout size={18} /> Logout
                             </button>
@@ -258,16 +288,18 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig }) =>
                         <div>
                             <div className="flex items-center gap-2 mb-4">
                                 <HiOutlineClipboardList className="text-yum-primary" size={20} />
-                                <h3 className="text-white font-black uppercase tracking-widest text-sm">Order History</h3>
+                                <h3 className={`font-black uppercase tracking-widest text-sm transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Order History</h3>
                             </div>
 
                             <div className="space-y-4">
                                 {orders.length > 0 ? orders.map(order => (
-                                    <div key={order.id} className="bg-white/5 border border-white/10 rounded-2xl p-4 hover:border-white/20 transition-all group">
+                                    <div key={order.id} className={`border rounded-2xl p-4 transition-all group ${isDarkMode
+                                        ? 'bg-white/5 border-white/10 hover:border-white/20'
+                                        : 'bg-white border-gray-100 hover:border-gray-200 hover:shadow-md'}`}>
                                         <div className="flex justify-between items-start mb-2">
                                             <div>
-                                                <span className="text-white font-bold block">Order #{order.id}</span>
-                                                <span className="text-gray-500 text-xs">{new Date(order.created_at).toLocaleDateString()}</span>
+                                                <span className={`font-bold block transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Order #{order.id}</span>
+                                                <span className={`text-xs transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{new Date(order.created_at).toLocaleDateString()}</span>
                                             </div>
                                             <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${order.status === 'completed' ? 'bg-green-500/20 text-green-500' :
                                                 order.status === 'cancelled' ? 'bg-red-500/20 text-red-500' :
@@ -277,15 +309,17 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig }) =>
                                             </span>
                                         </div>
                                         <div className="flex justify-between items-center mt-4">
-                                            <span className="text-gray-400 text-sm">{order.order_type === 'dine_in' ? '🍽️ Dine In' : '🥡 Take Out'}</span>
-                                            <span className="text-white font-black text-lg">${Number(order.total_price).toFixed(2)}</span>
+                                            <span className={`text-sm transition-colors ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{order.order_type === 'dine_in' ? '🍽️ Dine In' : '🥡 Take Out'}</span>
+                                            <span className={`font-black text-lg transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>${Number(order.total_price).toFixed(2)}</span>
                                         </div>
                                     </div>
                                 )) : (
-                                    <div className="text-center py-12 bg-white/5 rounded-2xl border border-dashed border-white/10">
-                                        <HiOutlineShoppingBag size={48} className="mx-auto text-gray-700 mb-4" />
-                                        <p className="text-gray-500 font-bold">No orders yet</p>
-                                        <p className="text-gray-600 text-xs mt-1">Your delicious meals will appear here!</p>
+                                    <div className={`text-center py-12 rounded-2xl border border-dashed transition-colors ${isDarkMode
+                                        ? 'bg-white/5 border-white/10'
+                                        : 'bg-gray-50 border-gray-200'}`}>
+                                        <HiOutlineShoppingBag size={48} className={`mx-auto mb-4 transition-colors ${isDarkMode ? 'text-gray-700' : 'text-gray-300'}`} />
+                                        <p className={`font-bold transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>No orders yet</p>
+                                        <p className={`text-xs mt-1 transition-colors ${isDarkMode ? 'text-gray-600' : 'text-gray-500'}`}>Your delicious meals will appear here!</p>
                                     </div>
                                 )}
                             </div>
