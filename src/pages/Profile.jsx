@@ -14,6 +14,7 @@ import AddMemberModal from '../components/dashboard/AddMemberModal'
 import PromotionCard from '../components/dashboard/PromotionCard'
 import CreatePromoModal from '../components/dashboard/CreatePromoModal'
 import TemplateEditorModal from '../components/dashboard/TemplateEditorModal'
+import LiveOrders from '../components/dashboard/LiveOrders'
 import { fetchMenus, createMenu, updateMenu, deleteMenu } from '../utils/menus'
 
 // Assets

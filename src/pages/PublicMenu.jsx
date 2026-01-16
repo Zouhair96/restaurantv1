@@ -16,6 +16,15 @@ const PublicMenu = () => {
         drink: null,
         extras: []
     })
+    const [showOrderModal, setShowOrderModal] = useState(false)
+    const [orderDetails, setOrderDetails] = useState({
+        orderType: 'dine_in',
+        tableNumber: '',
+        deliveryAddress: '',
+        paymentMethod: 'cash'
+    })
+    const [submitting, setSubmitting] = useState(false)
+    const [orderSuccess, setOrderSuccess] = useState(false)
 
     useEffect(() => {
         const fetchMenu = async () => {
@@ -99,6 +108,77 @@ const PublicMenu = () => {
         const prevIdx = currentStepIndex - 1
         if (prevIdx >= 0) {
             setCurrentStep(steps[prevIdx].id)
+        }
+    }
+
+    const calculateTotal = () => {
+        let total = selections.size ? parseFloat(selections.size.price) : 0
+        // Add logic for extras pricing if needed
+        return total.toFixed(2)
+    }
+
+    const handleSubmitOrder = async () => {
+        // Validation
+        if (orderDetails.orderType === 'dine_in' && !orderDetails.tableNumber.trim()) {
+            alert('Please enter a table number')
+            return
+        }
+        if (orderDetails.orderType === 'take_out' && !orderDetails.deliveryAddress.trim()) {
+            alert('Please enter a delivery address')
+            return
+        }
+
+        setSubmitting(true)
+
+        try {
+            const response = await fetch('/.netlify/functions/submit-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    restaurantName: decodeURIComponent(restaurantName),
+                    orderType: orderDetails.orderType,
+                    tableNumber: orderDetails.tableNumber,
+                    deliveryAddress: orderDetails.deliveryAddress,
+                    paymentMethod: orderDetails.paymentMethod,
+                    items: selections,
+                    totalPrice: calculateTotal()
+                })
+            })
+
+            const result = await response.json()
+
+            if (!response.ok) {
+                throw new Error(result.error || 'Failed to submit order')
+            }
+
+            setOrderSuccess(true)
+            setTimeout(() => {
+                setShowOrderModal(false)
+                setOrderSuccess(false)
+                // Reset to step 1
+                setCurrentStep(1)
+                setSelections({
+                    size: null,
+                    friesType: null,
+                    friesPlacement: null,
+                    chicken: [],
+                    sauce: [],
+                    drink: null,
+                    extras: []
+                })
+                setOrderDetails({
+                    orderType: 'dine_in',
+                    tableNumber: '',
+                    deliveryAddress: '',
+                    paymentMethod: 'cash'
+                })
+            }, 2000)
+
+        } catch (err) {
+            console.error('Order submission error:', err)
+            alert(err.message || 'Failed to submit order. Please try again.')
+        } finally {
+            setSubmitting(false)
         }
     }
 
@@ -565,7 +645,7 @@ const PublicMenu = () => {
 
                         <div className="flex flex-col gap-4">
                             <button
-                                onClick={() => window.location.reload()}
+                                onClick={() => setShowOrderModal(true)}
                                 className="w-full py-5 bg-yum-primary text-white font-black text-xl rounded-2xl hover:bg-red-500 transition-all shadow-2xl shadow-yum-primary/30"
                             >
                                 Place Order
@@ -640,6 +720,133 @@ const PublicMenu = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Order Placement Modal */}
+            {showOrderModal && (
+                <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+                    <div className="bg-[#1a1a1a] border border-gray-700 p-8 rounded-3xl max-w-md w-full shadow-2xl">
+                        {orderSuccess ? (
+                            <div className="text-center">
+                                <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                                    <span className="text-4xl">✓</span>
+                                </div>
+                                <h2 className="text-3xl font-bold text-white mb-2">Order Placed!</h2>
+                                <p className="text-gray-400">Your order has been submitted successfully.</p>
+                            </div>
+                        ) : (
+                            <>
+                                <h2 className="text-2xl font-bold text-white mb-6">Complete Your Order</h2>
+
+                                {/* Order Type Selection */}
+                                <div className="mb-6">
+                                    <label className="block text-gray-400 text-sm font-bold mb-3">Order Type</label>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <button
+                                            onClick={() => setOrderDetails({ ...orderDetails, orderType: 'dine_in' })}
+                                            className={`p-4 rounded-xl border-2 transition-all ${orderDetails.orderType === 'dine_in'
+                                                ? 'bg-yum-primary/10 border-yum-primary text-white'
+                                                : 'bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-500'}`}
+                                        >
+                                            <div className="text-2xl mb-1">🍽️</div>
+                                            <div className="font-bold text-sm">Dine In</div>
+                                        </button>
+                                        <button
+                                            onClick={() => setOrderDetails({ ...orderDetails, orderType: 'take_out' })}
+                                            className={`p-4 rounded-xl border-2 transition-all ${orderDetails.orderType === 'take_out'
+                                                ? 'bg-yum-primary/10 border-yum-primary text-white'
+                                                : 'bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-500'}`}
+                                        >
+                                            <div className="text-2xl mb-1">🥡</div>
+                                            <div className="font-bold text-sm">Take Out</div>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Conditional Input */}
+                                {orderDetails.orderType === 'dine_in' ? (
+                                    <div className="mb-6">
+                                        <label className="block text-gray-400 text-sm font-bold mb-2">Table Number</label>
+                                        <input
+                                            type="text"
+                                            value={orderDetails.tableNumber}
+                                            onChange={(e) => setOrderDetails({ ...orderDetails, tableNumber: e.target.value })}
+                                            placeholder="Enter table number"
+                                            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-yum-primary"
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="mb-6">
+                                        <label className="block text-gray-400 text-sm font-bold mb-2">Delivery Address</label>
+                                        <textarea
+                                            value={orderDetails.deliveryAddress}
+                                            onChange={(e) => setOrderDetails({ ...orderDetails, deliveryAddress: e.target.value })}
+                                            placeholder="Enter delivery address"
+                                            rows="3"
+                                            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-yum-primary resize-none"
+                                        />
+                                    </div>
+                                )}
+
+                                {/* Payment Method */}
+                                <div className="mb-6">
+                                    <label className="block text-gray-400 text-sm font-bold mb-3">Payment Method</label>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <button
+                                            onClick={() => setOrderDetails({ ...orderDetails, paymentMethod: 'cash' })}
+                                            className={`p-4 rounded-xl border-2 transition-all ${orderDetails.paymentMethod === 'cash'
+                                                ? 'bg-green-500/10 border-green-500 text-white'
+                                                : 'bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-500'}`}
+                                        >
+                                            <div className="text-2xl mb-1">💵</div>
+                                            <div className="font-bold text-sm">Cash</div>
+                                        </button>
+                                        <button
+                                            onClick={() => setOrderDetails({ ...orderDetails, paymentMethod: 'credit_card' })}
+                                            className={`p-4 rounded-xl border-2 transition-all ${orderDetails.paymentMethod === 'credit_card'
+                                                ? 'bg-green-500/10 border-green-500 text-white'
+                                                : 'bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-500'}`}
+                                        >
+                                            <div className="text-2xl mb-1">💳</div>
+                                            <div className="font-bold text-sm">Credit Card</div>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Total */}
+                                <div className="mb-6 p-4 bg-gray-800/50 rounded-xl border border-gray-700">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-gray-400 font-bold">Total</span>
+                                        <span className="text-2xl font-black text-yum-primary">${calculateTotal()}</span>
+                                    </div>
+                                </div>
+
+                                {/* Action Buttons */}
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={() => setShowOrderModal(false)}
+                                        disabled={submitting}
+                                        className="flex-1 py-3 px-4 bg-gray-700 hover:bg-gray-600 rounded-xl font-bold text-white transition-colors disabled:opacity-50"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={handleSubmitOrder}
+                                        disabled={submitting}
+                                        className="flex-1 py-3 px-4 bg-yum-primary hover:bg-red-500 rounded-xl font-bold text-white transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                                    >
+                                        {submitting ? (
+                                            <>
+                                                <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+                                                Submitting...
+                                            </>
+                                        ) : 'Submit Order'}
+                                    </button>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
