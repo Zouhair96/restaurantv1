@@ -799,7 +799,7 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
                     <div className="flex justify-center items-center gap-2">
                         {[1, 2, 3, 4, 5, 6, 7, 8].map(step => (
                             <div key={step} className="flex items-center gap-2">
-                                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${currentStep >= step ? 'bg-yum-primary text-white shadow-lg shadow-yum-primary/30' : 'bg-gray-200 dark:bg-gray-800 text-gray-500'
+                                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${currentStep >= step ? 'bg-[#6c5ce7] text-white shadow-lg shadow-purple-500/30' : 'bg-gray-200 dark:bg-gray-800 text-gray-500'
                                     }`}>
                                     {step}
                                 </div>
@@ -832,7 +832,7 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
                         onClick={currentStep === 8 ? handlePublish : handleNext}
                         disabled={currentStep === 1 && sizes.length === 0}
                         className={`px-8 py-3 rounded-xl font-bold text-lg transition-all transform hover:scale-105 flex items-center gap-2 ${(currentStep === 1 && sizes.length > 0) || currentStep > 1
-                            ? 'bg-gradient-to-r from-yum-primary to-orange-600 text-white shadow-lg hover:shadow-orange-500/30'
+                            ? 'bg-gradient-to-r from-[#6c5ce7] to-[#8e44ad] text-white shadow-lg hover:shadow-purple-500/30'
                             : 'bg-gray-200 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed'
                             }`}
                     >
