@@ -55,6 +55,31 @@ const PublicMenu = () => {
         }
     }, [restaurantName])
 
+    // Auto-advance Step 1: Size selected
+    useEffect(() => {
+        if (currentStep === 1 && selections.size) {
+            const timer = setTimeout(() => nextStep(), 400);
+            return () => clearTimeout(timer);
+        }
+    }, [selections.size, currentStep]);
+
+    // Auto-advance Step 2: Fries options complete
+    useEffect(() => {
+        if (currentStep === 2) {
+            const hasPlacementOptions = friesOption.some(opt => ['inside', 'outside'].includes(opt));
+            const hasTypeSelected = selections.friesType !== null;
+            const hasPlacementSelected = selections.friesPlacement !== null;
+
+            if (hasTypeSelected) {
+                // Advance if 'sans' (no placement needed) OR no placement options available OR placement already selected
+                if (selections.friesType === 'sans' || !hasPlacementOptions || hasPlacementSelected) {
+                    const timer = setTimeout(() => nextStep(), 400);
+                    return () => clearTimeout(timer);
+                }
+            }
+        }
+    }, [selections.friesType, selections.friesPlacement, currentStep, friesOption]);
+
     if (loading) {
         return (
             <div className="min-h-screen bg-[#0f1115] flex items-center justify-center">
