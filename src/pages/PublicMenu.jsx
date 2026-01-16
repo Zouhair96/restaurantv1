@@ -780,9 +780,9 @@ const PublicMenu = () => {
             />
 
             <div className={`max-w-4xl mx-auto transition-all duration-300 ${showSidebar ? 'sm:ml-96 blur-sm sm:blur-0' : ''}`}>
-                {/* Navigation Steps - Scrollable on mobile */}
-                <div className="mb-12">
-                    <div className="flex overflow-x-auto pb-4 gap-4 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 sm:justify-center">
+                {/* Navigation Steps - Sticky on top */}
+                <div className="sticky top-0 z-40 bg-[#0f1115]/80 backdrop-blur-md -mx-4 px-4 sm:mx-0 sm:px-0 py-4 mb-4">
+                    <div className="max-w-4xl mx-auto flex overflow-x-auto pb-4 gap-4 no-scrollbar sm:justify-center">
                         <div className="flex flex-nowrap sm:flex-wrap gap-3">
                             {steps.map((step, index) => {
                                 const isReached = (typeof step.id === 'number' ? step.id : totalSteps) <= maxStepReached;
