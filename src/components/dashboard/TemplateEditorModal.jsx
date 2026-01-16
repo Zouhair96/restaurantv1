@@ -501,11 +501,11 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
                     </div>
                 </div>
 
-                <div className="bg-blue-500/10 p-5 rounded-2xl border border-blue-500/20">
-                    <h4 className="flex items-center gap-2 text-blue-400 font-bold mb-2">
+                <div className="bg-blue-50 dark:bg-blue-500/10 p-5 rounded-2xl border border-blue-200 dark:border-blue-500/20">
+                    <h4 className="flex items-center gap-2 text-blue-700 dark:text-blue-400 font-bold mb-2">
                         <span>ℹ️</span> Ready to Publish?
                     </h4>
-                    <p className="text-blue-200/70 text-sm">
+                    <p className="text-blue-600 dark:text-blue-200/70 text-sm">
                         Review your menu card preview on the right. If everything looks good, click the "Publish Menu" button to make it live!
                     </p>
                 </div>
