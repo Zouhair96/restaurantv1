@@ -9,41 +9,68 @@ const DashboardWidgets = () => {
     })
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
+    const [healthData, setHealthData] = useState(null)
+    const [loadingHealth, setLoadingHealth] = useState(true)
+
+    const fetchHealthStats = async () => {
+        try {
+            const token = localStorage.getItem('token')
+            if (!token) return
+
+            const response = await fetch('/.netlify/functions/get-restaurant-health', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+
+            if (response.ok) {
+                const data = await response.json()
+                setHealthData(data)
+            }
+        } catch (err) {
+            console.error('Error fetching health stats:', err)
+        } finally {
+            setLoadingHealth(false)
+        }
+    }
+
+    const fetchSalesStats = async () => {
+        try {
+            const token = localStorage.getItem('token')
+            if (!token) return
+
+            const response = await fetch('/.netlify/functions/get-sales-stats', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch sales stats')
+            }
+
+            const data = await response.json()
+            setSalesData(data)
+        } catch (err) {
+            console.error('Error fetching sales stats:', err)
+            setError(err.message)
+        } finally {
+            setLoading(false)
+        }
+    }
 
     useEffect(() => {
-        const fetchSalesStats = async () => {
-            try {
-                const token = localStorage.getItem('token')
-                if (!token) return
-
-                const response = await fetch('/.netlify/functions/get-sales-stats', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                })
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch sales stats')
-                }
-
-                const data = await response.json()
-                setSalesData(data)
-            } catch (err) {
-                console.error('Error fetching sales stats:', err)
-                setError(err.message)
-            } finally {
-                setLoading(false)
-            }
-        }
-
         fetchSalesStats()
+        fetchHealthStats()
         // Refresh every 5 minutes
-        const interval = setInterval(fetchSalesStats, 300000)
+        const interval = setInterval(() => {
+            fetchSalesStats()
+            fetchHealthStats()
+        }, 300000)
         return () => clearInterval(interval)
     }, [])
 
     // Prepare graph data (last 7 days)
-    // Map existing stats or fill with zeros if we have fewer than 7 days
     const graphData = Array(7).fill(0).map((_, i) => {
         const d = new Date()
         d.setDate(d.getDate() - (6 - i))
@@ -52,7 +79,7 @@ const DashboardWidgets = () => {
         return stat ? parseFloat(stat.daily_total) : 0
     })
 
-    const maxSales = Math.max(...graphData, 10) // Avoid division by zero
+    const maxSales = Math.max(...graphData, 10)
 
     return (
         <div className="space-y-8">
@@ -81,7 +108,6 @@ const DashboardWidgets = () => {
                                     {salesData.growth >= 0 ? '+' : ''}{salesData.growth}%
                                 </span>
                             </div>
-                            {/* CSS Bar Chart Simulation */}
                             <div className="flex items-end space-x-3 h-20 pt-2">
                                 {graphData.map((val, i) => (
                                     <div key={i} className="flex-1 bg-indigo-50 dark:bg-indigo-500/10 rounded-t-xl overflow-hidden relative group">
@@ -89,7 +115,6 @@ const DashboardWidgets = () => {
                                             className="absolute bottom-0 left-0 w-full bg-indigo-400 dark:bg-indigo-500 transition-all duration-500 group-hover:bg-indigo-500 dark:group-hover:bg-indigo-400"
                                             style={{ height: `${(val / maxSales) * 100}%` }}
                                         ></div>
-                                        {/* Tooltip */}
                                         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 text-white text-[10px] px-2 py-1 rounded-lg pointer-events-none whitespace-nowrap z-10">
                                             ${val.toLocaleString()}
                                         </div>
@@ -124,6 +149,80 @@ const DashboardWidgets = () => {
                             <button className="mt-3 px-4 py-2 bg-white dark:bg-orange-500/10 text-orange-500 dark:text-orange-400 text-xs font-bold rounded-xl hover:shadow-md transition-all dark:border dark:border-orange-500/20">Auto-Reorder &rarr;</button>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            {/* Restaurant Health Widget */}
+            <div className="space-y-4">
+                <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest transition-colors mb-4">Restaurant Health</h3>
+                <div className="bg-white dark:bg-gray-800/40 dark:backdrop-blur-md p-6 rounded-[2rem] shadow-sm dark:shadow-none border border-transparent dark:border-white/5 transition-all duration-300">
+                    {loadingHealth ? (
+                        <div className="h-40 flex items-center justify-center">
+                            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-500"></div>
+                        </div>
+                    ) : healthData ? (
+                        <div className="space-y-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-xs text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider">Overall Status</p>
+                                    <h4 className={`text-2xl font-black ${healthData.overallScore > 80 ? 'text-green-500' : healthData.overallScore > 60 ? 'text-yellow-500' : 'text-red-500'}`}>
+                                        {healthData.status}
+                                    </h4>
+                                </div>
+                                <div className="relative w-16 h-16 flex items-center justify-center">
+                                    <svg className="w-full h-full transform -rotate-90">
+                                        <circle
+                                            cx="32"
+                                            cy="32"
+                                            r="28"
+                                            stroke="currentColor"
+                                            strokeWidth="6"
+                                            fill="transparent"
+                                            className="text-gray-100 dark:text-gray-700/50"
+                                        />
+                                        <circle
+                                            cx="32"
+                                            cy="32"
+                                            r="28"
+                                            stroke="currentColor"
+                                            strokeWidth="6"
+                                            fill="transparent"
+                                            strokeDasharray={2 * Math.PI * 28}
+                                            strokeDashoffset={2 * Math.PI * 28 * (1 - healthData.overallScore / 100)}
+                                            className={`${healthData.overallScore > 80 ? 'text-green-500' : healthData.overallScore > 60 ? 'text-yellow-500' : 'text-red-500'} transition-all duration-1000 ease-out`}
+                                            strokeLinecap="round"
+                                        />
+                                    </svg>
+                                    <span className="absolute text-sm font-black text-gray-800 dark:text-gray-100">{healthData.overallScore}%</span>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                {healthData.metrics.map((metric, i) => (
+                                    <div key={i} className="space-y-2">
+                                        <div className="flex justify-between items-center text-xs">
+                                            <span className="text-gray-500 dark:text-gray-400 font-bold">{metric.label}</span>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-gray-800 dark:text-gray-200 font-black">{metric.value}%</span>
+                                                {metric.trend === 'up' && <span className="text-green-500">↑</span>}
+                                                {metric.trend === 'down' && <span className="text-red-500">↓</span>}
+                                            </div>
+                                        </div>
+                                        <div className="h-1.5 w-full bg-gray-100 dark:bg-gray-700/50 rounded-full overflow-hidden">
+                                            <div
+                                                className={`h-full rounded-full transition-all duration-1000 ${metric.value > 80 ? 'bg-green-500' : metric.value > 60 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                                                style={{ width: `${metric.value}%` }}
+                                            ></div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="h-40 flex items-center justify-center text-xs text-gray-400">
+                            No health data available
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -175,4 +274,3 @@ const DashboardWidgets = () => {
 }
 
 export default DashboardWidgets
-
