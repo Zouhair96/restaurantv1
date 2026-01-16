@@ -658,6 +658,8 @@ const Profile = () => {
                 return renderDynamicMenu()
             case 'analytics':
                 return renderAnalytics()
+            case 'orders':
+                return <LiveOrders />
             case 'team':
                 return renderTeam()
             case 'promos':
