@@ -760,23 +760,54 @@ const PublicMenu = () => {
 
     return (
         <div className="min-h-screen bg-[#0f1115]">
-            {/* Sticky Header Bar */}
-            <header className="sticky top-0 z-50 bg-[#0f1115]/90 backdrop-blur-xl border-b border-white/5 py-4 px-6 mb-8">
-                <div className="max-w-4xl mx-auto flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <button
-                            onClick={() => setShowSidebar(true)}
-                            className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-all border border-white/5"
-                            title="Open Menu"
-                        >
-                            <HiOutlineMenuAlt2 size={24} />
-                        </button>
-                        <h2 className="text-xl font-black text-white tracking-tight uppercase">
-                            {data.restaurant}
-                        </h2>
+            {/* Unified Sticky Navigation Bar */}
+            <div className="sticky top-0 z-50 bg-[#0f1115]/90 backdrop-blur-xl border-b border-white/5 space-y-1">
+                <header className="py-4 px-6">
+                    <div className="max-w-4xl mx-auto flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <button
+                                onClick={() => setShowSidebar(true)}
+                                className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-all border border-white/5"
+                                title="Open Menu"
+                            >
+                                <HiOutlineMenuAlt2 size={24} />
+                            </button>
+                            <h2 className="text-xl font-black text-white tracking-tight uppercase">
+                                {data.restaurant}
+                            </h2>
+                        </div>
+                    </div>
+                </header>
+
+                {/* Navigation Steps Indicator */}
+                <div className="max-w-4xl mx-auto px-4 sm:px-0">
+                    <div className="flex overflow-x-auto pb-4 gap-4 no-scrollbar sm:justify-center">
+                        <div className="flex flex-nowrap sm:flex-wrap gap-3">
+                            {steps.map((step, index) => {
+                                const isReached = (typeof step.id === 'number' ? step.id : totalSteps) <= maxStepReached;
+                                const isActive = currentStep === step.id;
+
+                                return (
+                                    <button
+                                        key={step.id}
+                                        onClick={() => isReached && goToStep(step.id)}
+                                        disabled={!isReached}
+                                        className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all ${isActive
+                                            ? 'bg-yum-primary text-white shadow-lg shadow-red-500/20 scale-105'
+                                            : isReached
+                                                ? 'bg-white/10 text-gray-300 hover:bg-white/20'
+                                                : 'bg-white/5 text-gray-600 cursor-not-allowed'
+                                            }`}
+                                    >
+                                        <span className="text-lg">{step.icon}</span>
+                                        <span className={`font-bold ${isActive ? 'block' : 'hidden md:block'} text-xs`}>{step.name}</span>
+                                    </button>
+                                );
+                            })}
+                        </div>
                     </div>
                 </div>
-            </header>
+            </div>
 
             <PublicMenuSidebar
                 isOpen={showSidebar}
@@ -785,38 +816,8 @@ const PublicMenu = () => {
                 designConfig={designConfig}
             />
 
-            <div className={`transition-all duration-300 ${showSidebar ? 'sm:ml-96 blur-sm sm:blur-0' : ''} px-4 sm:px-6 lg:px-8 pb-12`}>
+            <div className={`transition-all duration-300 ${showSidebar ? 'sm:ml-96 blur-sm sm:blur-0' : ''} px-4 sm:px-6 lg:px-8 py-8`}>
                 <div className="max-w-4xl mx-auto">
-                    <div className="sticky top-[72px] z-40 bg-[#0f1115]/95 backdrop-blur-md -mx-4 px-4 sm:mx-0 sm:px-0 py-4 mb-4 border-b border-white/5">
-                        <div className="max-w-4xl mx-auto flex overflow-x-auto pb-4 gap-4 no-scrollbar sm:justify-center">
-                            <div className="flex flex-nowrap sm:flex-wrap gap-3">
-                                {steps.map((step, index) => {
-                                    const isReached = (typeof step.id === 'number' ? step.id : totalSteps) <= maxStepReached;
-                                    const isActive = currentStep === step.id;
-
-                                    return (
-                                        <button
-                                            key={step.id}
-                                            onClick={() => isReached && goToStep(step.id)}
-                                            disabled={!isReached}
-                                            className={`flex-shrink-0 flex items-center gap-2 px-5 py-3 rounded-2xl transition-all ${isActive
-                                                ? 'bg-yum-primary text-white shadow-lg shadow-red-500/20 scale-105'
-                                                : isReached
-                                                    ? 'bg-white/10 text-gray-300 hover:bg-white/20'
-                                                    : 'bg-white/5 text-gray-600 cursor-not-allowed'
-                                                }`}
-                                        >
-                                            <span className="text-xl">{step.icon}</span>
-                                            <span className={`font-bold ${isActive ? 'block' : 'hidden md:block'} text-sm`}>{step.name}</span>
-                                            {isReached && !isActive && (
-                                                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                                            )}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    </div>
 
                     <div
                         className="relative overflow-hidden rounded-3xl shadow-2xl animate-fade-in mb-8"
