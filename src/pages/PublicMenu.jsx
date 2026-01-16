@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar'
-import { HiOutlineUserCircle } from 'react-icons/hi'
+import { HiOutlineUserCircle, HiOutlineMenuAlt2 } from 'react-icons/hi'
 
 const PublicMenu = () => {
     const { restaurantName } = useParams()
@@ -759,18 +759,32 @@ const PublicMenu = () => {
     }
 
     return (
-        <div className="min-h-screen bg-[#0f1115] py-12 px-4 sm:px-6 lg:px-8">
-            {/* Sidebar Toggle Button - Mobile FAB / Desktop Top-Left */}
-            <button
-                onClick={() => setShowSidebar(true)}
-                className="fixed bottom-6 right-6 sm:top-6 sm:left-6 sm:bottom-auto sm:right-auto z-50 p-4 bg-yum-primary text-white rounded-2xl shadow-2xl hover:bg-red-500 transition-all group overflow-hidden"
-            >
-                <div className="relative z-10 flex items-center gap-2">
-                    <HiOutlineUserCircle size={28} className="sm:w-[24px]" />
-                    <span className="font-bold hidden sm:inline">My Profile</span>
+        <div className="min-h-screen bg-[#0f1115]">
+            {/* Sticky Header Bar */}
+            <header className="sticky top-0 z-50 bg-[#0f1115]/90 backdrop-blur-xl border-b border-white/5 py-4 px-6 mb-8">
+                <div className="max-w-4xl mx-auto flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={() => setShowSidebar(true)}
+                            className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-all border border-white/5"
+                            title="Open Menu"
+                        >
+                            <HiOutlineMenuAlt2 size={24} />
+                        </button>
+                        <h2 className="text-xl font-black text-white tracking-tight uppercase">
+                            {data.restaurant}
+                        </h2>
+                    </div>
+
+                    <button
+                        onClick={() => setShowSidebar(true)}
+                        className="flex items-center gap-2 px-4 py-2 bg-yum-primary/10 hover:bg-yum-primary/20 text-yum-primary rounded-xl transition-all border border-yum-primary/20 group"
+                    >
+                        <HiOutlineUserCircle size={20} className="group-hover:scale-110 transition-transform" />
+                        <span className="text-sm font-bold hidden sm:inline">My Orders</span>
+                    </button>
                 </div>
-                <div className="absolute inset-0 bg-white/20 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
-            </button>
+            </header>
 
             <PublicMenuSidebar
                 isOpen={showSidebar}
@@ -779,89 +793,90 @@ const PublicMenu = () => {
                 designConfig={designConfig}
             />
 
-            <div className={`max-w-4xl mx-auto transition-all duration-300 ${showSidebar ? 'sm:ml-96 blur-sm sm:blur-0' : ''}`}>
-                {/* Navigation Steps - Sticky on top */}
-                <div className="sticky top-0 z-40 bg-[#0f1115]/80 backdrop-blur-md -mx-4 px-4 sm:mx-0 sm:px-0 py-4 mb-4">
-                    <div className="max-w-4xl mx-auto flex overflow-x-auto pb-4 gap-4 no-scrollbar sm:justify-center">
-                        <div className="flex flex-nowrap sm:flex-wrap gap-3">
-                            {steps.map((step, index) => {
-                                const isReached = (typeof step.id === 'number' ? step.id : totalSteps) <= maxStepReached;
-                                const isActive = currentStep === step.id;
+            <div className={`transition-all duration-300 ${showSidebar ? 'sm:ml-96 blur-sm sm:blur-0' : ''} px-4 sm:px-6 lg:px-8 pb-12`}>
+                <div className="max-w-4xl mx-auto">
+                    <div className="sticky top-[72px] z-40 bg-[#0f1115]/95 backdrop-blur-md -mx-4 px-4 sm:mx-0 sm:px-0 py-4 mb-4 border-b border-white/5">
+                        <div className="max-w-4xl mx-auto flex overflow-x-auto pb-4 gap-4 no-scrollbar sm:justify-center">
+                            <div className="flex flex-nowrap sm:flex-wrap gap-3">
+                                {steps.map((step, index) => {
+                                    const isReached = (typeof step.id === 'number' ? step.id : totalSteps) <= maxStepReached;
+                                    const isActive = currentStep === step.id;
 
-                                return (
-                                    <button
-                                        key={step.id}
-                                        onClick={() => isReached && goToStep(step.id)}
-                                        disabled={!isReached}
-                                        className={`flex-shrink-0 flex items-center gap-2 px-5 py-3 rounded-2xl transition-all ${isActive
-                                            ? 'bg-yum-primary text-white shadow-lg shadow-red-500/20 scale-105'
-                                            : isReached
-                                                ? 'bg-white/10 text-gray-300 hover:bg-white/20'
-                                                : 'bg-white/5 text-gray-600 cursor-not-allowed'
-                                            }`}
-                                    >
-                                        <span className="text-xl">{step.icon}</span>
-                                        <span className={`font-bold ${isActive ? 'block' : 'hidden md:block'} text-sm`}>{step.name}</span>
-                                        {isReached && !isActive && (
-                                            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                                        )}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </div>
-                </div>
-
-                <div
-                    className="relative overflow-hidden rounded-3xl shadow-2xl animate-fade-in mb-8"
-                    style={{
-                        backgroundColor: '#1a1a1a',
-                        borderLeft: `8px solid ${designConfig.accentColor}`
-                    }}
-                >
-                    {/* Progress Header */}
-                    <div className="px-6 pt-6 md:px-12 md:pt-12 flex justify-between items-center mb-6">
-                        <div className="flex gap-1 sm:gap-2">
-                            {steps.map((s, idx) => (
-                                <div
-                                    key={s.id}
-                                    className={`h-1.5 w-8 sm:w-12 rounded-full transition-all duration-500 ${idx <= currentStepIndex ? 'bg-yum-primary' : 'bg-gray-800'
-                                        }`}
-                                />
-                            ))}
-                        </div>
-                        <span className="text-gray-500 font-bold text-[10px] sm:text-sm tracking-widest uppercase">
-                            {currentStepIndex + 1} / {totalSteps}
-                        </span>
-                    </div>
-
-                    <div className="px-6 pb-12 md:px-12 md:pb-12">
-                        {/* Menu Header */}
-                        <div className="mb-12 text-center border-b border-white/5 pb-12">
-                            <h1
-                                className="text-3xl sm:text-5xl md:text-7xl font-black text-white mb-4 tracking-tighter"
-                                style={{
-                                    fontFamily: designConfig.fontTheme === 'handwritten' ? 'cursive' :
-                                        designConfig.fontTheme === 'modern' ? 'Outfit, sans-serif' : 'inherit'
-                                }}
-                            >
-                                {designConfig.mainTitle}
-                            </h1>
-                            <div className="flex justify-center items-center gap-2 sm:gap-4">
-                                <div className="h-1 w-8 sm:w-12 rounded-full" style={{ backgroundColor: designConfig.accentColor }}></div>
-                                <p className="text-sm sm:text-xl text-gray-400 font-medium">{designConfig.subtitle}</p>
-                                <div className="h-1 w-8 sm:w-12 rounded-full" style={{ backgroundColor: designConfig.accentColor }}></div>
+                                    return (
+                                        <button
+                                            key={step.id}
+                                            onClick={() => isReached && goToStep(step.id)}
+                                            disabled={!isReached}
+                                            className={`flex-shrink-0 flex items-center gap-2 px-5 py-3 rounded-2xl transition-all ${isActive
+                                                ? 'bg-yum-primary text-white shadow-lg shadow-red-500/20 scale-105'
+                                                : isReached
+                                                    ? 'bg-white/10 text-gray-300 hover:bg-white/20'
+                                                    : 'bg-white/5 text-gray-600 cursor-not-allowed'
+                                                }`}
+                                        >
+                                            <span className="text-xl">{step.icon}</span>
+                                            <span className={`font-bold ${isActive ? 'block' : 'hidden md:block'} text-sm`}>{step.name}</span>
+                                            {isReached && !isActive && (
+                                                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                                            )}
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
-
-                        {renderStepContent()}
                     </div>
 
-                    {/* Footer */}
-                    <div className="bg-black/20 p-6 text-center border-t border-gray-800/50">
-                        <p className="text-gray-600 text-[10px] sm:text-xs uppercase tracking-widest font-bold">
-                            Powered by {data.restaurant} • {new Date().getFullYear()} • Secure Ordering
-                        </p>
+                    <div
+                        className="relative overflow-hidden rounded-3xl shadow-2xl animate-fade-in mb-8"
+                        style={{
+                            backgroundColor: '#1a1a1a',
+                            borderLeft: `8px solid ${designConfig.accentColor}`
+                        }}
+                    >
+                        {/* Progress Header */}
+                        <div className="px-6 pt-6 md:px-12 md:pt-12 flex justify-between items-center mb-6">
+                            <div className="flex gap-1 sm:gap-2">
+                                {steps.map((s, idx) => (
+                                    <div
+                                        key={s.id}
+                                        className={`h-1.5 w-8 sm:w-12 rounded-full transition-all duration-500 ${idx <= currentStepIndex ? 'bg-yum-primary' : 'bg-gray-800'
+                                            }`}
+                                    />
+                                ))}
+                            </div>
+                            <span className="text-gray-500 font-bold text-[10px] sm:text-sm tracking-widest uppercase">
+                                {currentStepIndex + 1} / {totalSteps}
+                            </span>
+                        </div>
+
+                        <div className="px-6 pb-12 md:px-12 md:pb-12">
+                            {/* Menu Header */}
+                            <div className="mb-12 text-center border-b border-white/5 pb-12">
+                                <h1
+                                    className="text-3xl sm:text-5xl md:text-7xl font-black text-white mb-4 tracking-tighter"
+                                    style={{
+                                        fontFamily: designConfig.fontTheme === 'handwritten' ? 'cursive' :
+                                            designConfig.fontTheme === 'modern' ? 'Outfit, sans-serif' : 'inherit'
+                                    }}
+                                >
+                                    {designConfig.mainTitle}
+                                </h1>
+                                <div className="flex justify-center items-center gap-2 sm:gap-4">
+                                    <div className="h-1 w-8 sm:w-12 rounded-full" style={{ backgroundColor: designConfig.accentColor }}></div>
+                                    <p className="text-sm sm:text-xl text-gray-400 font-medium">{designConfig.subtitle}</p>
+                                    <div className="h-1 w-8 sm:w-12 rounded-full" style={{ backgroundColor: designConfig.accentColor }}></div>
+                                </div>
+                            </div>
+
+                            {renderStepContent()}
+                        </div>
+
+                        {/* Footer */}
+                        <div className="bg-black/20 p-6 text-center border-t border-gray-800/50">
+                            <p className="text-gray-600 text-[10px] sm:text-xs uppercase tracking-widest font-bold">
+                                Powered by {data.restaurant} • {new Date().getFullYear()} • Secure Ordering
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
