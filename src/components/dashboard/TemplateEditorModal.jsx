@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { QRCodeSVG } from 'qrcode.react'
 
 const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSave, restaurantName }) => {
     if (!isOpen) return null
@@ -750,7 +751,7 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
                             </a>
                         </div>
                         <div className="bg-white p-2 rounded-lg shadow-sm">
-                            <QRCode value={publicUrl} size={128} />
+                            <QRCodeSVG value={publicUrl} size={128} />
                         </div>
                     </div>
 
