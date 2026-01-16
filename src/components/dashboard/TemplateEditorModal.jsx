@@ -58,6 +58,13 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
         e.preventDefault()
         if (!formData.size || !formData.price) return
 
+        // Constraint: Check if size already exists
+        const duplicate = sizes.find(s => s.size.toLowerCase() === formData.size.toLowerCase() && s.id !== editingId)
+        if (duplicate) {
+            alert('This size variant already exists. Please choose a different size name.')
+            return
+        }
+
         if (editingId) {
             setSizes(sizes.map(item => item.id === editingId ? { ...formData, id: editingId } : item))
             setEditingId(null)
@@ -327,8 +334,8 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
                                 })
                             }}
                             className={`cursor-pointer rounded-2xl p-6 border-2 transition-all duration-300 flex flex-col items-center justify-center gap-4 group ${isSelected
-                                ? 'bg-green-500/10 border-green-500 shadow-lg shadow-green-500/20 scale-105'
-                                : 'bg-gray-800 border-gray-700 hover:border-gray-500 hover:bg-gray-750'
+                                ? 'bg-green-100/50 dark:bg-green-500/10 border-green-500 shadow-lg shadow-green-500/20 scale-105'
+                                : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-750'
                                 }`}
                         >
                             <div className="text-4xl group-hover:scale-110 transition-transform duration-300">{option.icon}</div>

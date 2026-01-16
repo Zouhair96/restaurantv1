@@ -355,8 +355,8 @@ const Profile = () => {
             {/* Active Menu Widget */}
             {hasMenu && savedMenus.length > 0 && (
                 <div className="mb-8 animate-fade-in">
-                    <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl p-1 border border-gray-700 shadow-xl">
-                        <div className="bg-gray-900/50 rounded-xl p-6 backdrop-blur-sm">
+                    <div className="bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 rounded-2xl p-1 border border-gray-200 dark:border-gray-700 shadow-xl">
+                        <div className="bg-white/50 dark:bg-gray-900/50 rounded-xl p-6 backdrop-blur-sm">
                             <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                                 {/* Left: Menu Info */}
                                 <div className="flex items-center gap-6 w-full md:w-auto">
@@ -367,9 +367,9 @@ const Profile = () => {
                                         </span>
                                     </div>
                                     <div>
-                                        <h3 className="text-2xl font-black text-white mb-1">{savedMenus[0].name}</h3>
+                                        <h3 className="text-2xl font-black text-gray-800 dark:text-white mb-1">{savedMenus[0].name}</h3>
                                         <div className="flex items-center gap-3 text-sm">
-                                            <span className="bg-gray-800 text-gray-300 px-3 py-1 rounded-full border border-gray-700 capitalize font-medium">
+                                            <span className="bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 px-3 py-1 rounded-full border border-gray-200 dark:border-gray-700 capitalize font-medium">
                                                 {savedMenus[0].template_type} Template
                                             </span>
                                             <span className="text-gray-500 font-medium">
@@ -389,7 +389,7 @@ const Profile = () => {
                                 <div className="flex items-center gap-3 w-full md:w-auto">
                                     <button
                                         onClick={() => handleEditMenu(savedMenus[0])}
-                                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-bold transition-all border border-gray-700 group"
+                                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-white rounded-xl font-bold transition-all border border-gray-200 dark:border-gray-700 group shadow-sm dark:shadow-none"
                                     >
                                         <span className="group-hover:scale-110 transition-transform">✏️</span> Edit
                                     </button>
@@ -398,14 +398,14 @@ const Profile = () => {
                                         href={`${window.location.origin}/${user.restaurant_name}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition-all shadow-lg shadow-blue-900/20 group"
+                                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition-all shadow-lg shadow-blue-500/20 group"
                                     >
                                         <span className="group-hover:scale-110 transition-transform">👁️</span> Show
                                     </a>
 
                                     <button
                                         onClick={(e) => handleDeleteMenu(savedMenus[0].id, e)}
-                                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-red-900/20 hover:bg-red-900/40 text-red-500 rounded-xl font-bold transition-all border border-red-900/30 group"
+                                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 dark:text-red-500 rounded-xl font-bold transition-all border border-red-200 dark:border-red-900/30 group"
                                     >
                                         <span className="group-hover:scale-110 transition-transform">🗑️</span> Delete
                                     </button>
