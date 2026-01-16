@@ -760,13 +760,13 @@ const PublicMenu = () => {
 
     return (
         <div className="min-h-screen bg-[#0f1115] py-12 px-4 sm:px-6 lg:px-8">
-            {/* Sidebar Toggle Button */}
+            {/* Sidebar Toggle Button - Mobile FAB / Desktop Top-Left */}
             <button
                 onClick={() => setShowSidebar(true)}
-                className="fixed top-6 left-6 z-50 p-4 bg-yum-primary text-white rounded-2xl shadow-2xl hover:bg-red-500 transition-all group overflow-hidden"
+                className="fixed bottom-6 right-6 sm:top-6 sm:left-6 sm:bottom-auto sm:right-auto z-50 p-4 bg-yum-primary text-white rounded-2xl shadow-2xl hover:bg-red-500 transition-all group overflow-hidden"
             >
                 <div className="relative z-10 flex items-center gap-2">
-                    <HiOutlineUserCircle size={24} />
+                    <HiOutlineUserCircle size={28} className="sm:w-[24px]" />
                     <span className="font-bold hidden sm:inline">My Profile</span>
                 </div>
                 <div className="absolute inset-0 bg-white/20 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
