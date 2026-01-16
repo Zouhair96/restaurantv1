@@ -158,6 +158,10 @@ const PublicMenu = () => {
             }
 
             setOrderSuccess(true)
+
+            // Dispatch event for real-time history update in sidebar
+            window.dispatchEvent(new CustomEvent('clientOrderPlaced'));
+
             setTimeout(() => {
                 setShowOrderModal(false)
                 setOrderSuccess(false)

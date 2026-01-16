@@ -21,7 +21,26 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig }) =>
             setView('profile');
             fetchOrders(token);
         }
-    }, []);
+
+        // Real-time synchronization
+        const handleRefresh = () => {
+            const token = localStorage.getItem('client_token');
+            if (token) fetchOrders(token);
+        };
+
+        window.addEventListener('clientOrderPlaced', handleRefresh);
+
+        // Polling for status updates from restaurant
+        const interval = setInterval(() => {
+            const token = localStorage.getItem('client_token');
+            if (token && view === 'profile') fetchOrders(token);
+        }, 30000); // Poll every 30 seconds
+
+        return () => {
+            window.removeEventListener('clientOrderPlaced', handleRefresh);
+            clearInterval(interval);
+        };
+    }, [view]);
 
     const fetchOrders = async (token) => {
         try {
@@ -251,8 +270,8 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig }) =>
                                                 <span className="text-gray-500 text-xs">{new Date(order.created_at).toLocaleDateString()}</span>
                                             </div>
                                             <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${order.status === 'completed' ? 'bg-green-500/20 text-green-500' :
-                                                    order.status === 'cancelled' ? 'bg-red-500/20 text-red-500' :
-                                                        'bg-yum-primary/20 text-yum-primary'
+                                                order.status === 'cancelled' ? 'bg-red-500/20 text-red-500' :
+                                                    'bg-yum-primary/20 text-yum-primary'
                                                 }`}>
                                                 {order.status}
                                             </span>
