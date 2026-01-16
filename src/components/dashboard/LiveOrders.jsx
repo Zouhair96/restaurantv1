@@ -27,6 +27,9 @@ const LiveOrders = ({ onSelectOrder }) => {
                 throw new Error(result.error || 'Failed to fetch orders')
             }
 
+            if (result.orders.length !== orders.length) {
+                window.dispatchEvent(new CustomEvent('dashboardRefresh'))
+            }
             setOrders(result.orders)
         } catch (err) {
             console.error('Fetch orders error:', err)
@@ -65,6 +68,9 @@ const LiveOrders = ({ onSelectOrder }) => {
             setOrders(orders.map(order =>
                 order.id === orderId ? { ...order, status: newStatus, updated_at: result.order.updated_at } : order
             ))
+
+            // Trigger dashboard-wide refresh
+            window.dispatchEvent(new CustomEvent('dashboardRefresh'))
 
             return result.order
         } catch (err) {

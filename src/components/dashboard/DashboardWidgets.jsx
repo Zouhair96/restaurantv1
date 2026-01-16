@@ -60,14 +60,22 @@ const DashboardWidgets = () => {
     }
 
     useEffect(() => {
+        const handleRefresh = () => {
+            fetchSalesStats()
+            fetchHealthStats()
+        }
+
+        window.addEventListener('dashboardRefresh', handleRefresh)
+
         fetchSalesStats()
         fetchHealthStats()
         // Refresh every 5 minutes
-        const interval = setInterval(() => {
-            fetchSalesStats()
-            fetchHealthStats()
-        }, 300000)
-        return () => clearInterval(interval)
+        const interval = setInterval(handleRefresh, 300000)
+
+        return () => {
+            clearInterval(interval)
+            window.removeEventListener('dashboardRefresh', handleRefresh)
+        }
     }, [])
 
     // Prepare graph data (last 7 days)

@@ -49,9 +49,20 @@ const DashboardHeader = ({ onMenuClick, onModuleChange }) => {
     }
 
     useEffect(() => {
+        const handleRefresh = () => {
+            fetchRecentOrders()
+        }
+
+        window.addEventListener('dashboardRefresh', handleRefresh)
+
         fetchRecentOrders()
-        const interval = setInterval(fetchRecentOrders, 60000) // Refresh every minute
-        return () => clearInterval(interval)
+        // Check for new orders every 2 minutes
+        const interval = setInterval(handleRefresh, 120000)
+
+        return () => {
+            clearInterval(interval)
+            window.removeEventListener('dashboardRefresh', handleRefresh)
+        }
     }, [])
 
     useEffect(() => {
