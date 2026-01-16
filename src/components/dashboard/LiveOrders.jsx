@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 const LiveOrders = () => {
     const [orders, setOrders] = useState([])
     const [loading, setLoading] = useState(true)
-    const [filter, setFilter] = useState('all')
+    const [filter, setFilter] = useState('pending')
     const [orderTypeFilter, setOrderTypeFilter] = useState('all')
     const [error, setError] = useState(null)
 
@@ -123,7 +123,7 @@ const LiveOrders = () => {
                 <div className="flex flex-col gap-3">
                     {/* Status Filters */}
                     <div className="flex flex-wrap gap-2">
-                        {['all', 'pending', 'preparing', 'ready', 'completed'].map(status => (
+                        {['pending', 'preparing', 'ready', 'completed'].map(status => (
                             <button
                                 key={status}
                                 onClick={() => setFilter(status)}
