@@ -15,6 +15,7 @@ import PromotionCard from '../components/dashboard/PromotionCard'
 import CreatePromoModal from '../components/dashboard/CreatePromoModal'
 import TemplateEditorModal from '../components/dashboard/TemplateEditorModal'
 import LiveOrders from '../components/dashboard/LiveOrders'
+import OrderDetailsModal from '../components/dashboard/OrderDetailsModal'
 import { fetchMenus, createMenu, updateMenu, deleteMenu } from '../utils/menus'
 
 // Assets
@@ -36,6 +37,13 @@ const Profile = () => {
     const [editingMenu, setEditingMenu] = useState(null)
     const [selectedTemplate, setSelectedTemplate] = useState(null)
     const [isEditorOpen, setIsEditorOpen] = useState(false)
+
+    // Order Modal state
+    const [selectedOrder, setSelectedOrder] = useState(null)
+    const [modalHandlers, setModalHandlers] = useState({
+        onStatusUpdate: null,
+        getStatusColor: null
+    })
 
     useEffect(() => {
         loadMenus()
@@ -624,7 +632,10 @@ const Profile = () => {
             )}
 
             {/* Live Orders Section */}
-            <LiveOrders />
+            <LiveOrders onSelectOrder={(order, handler, getter) => {
+                setSelectedOrder(order)
+                setModalHandlers({ onStatusUpdate: handler, getStatusColor: getter })
+            }} />
         </div>
     )
 
@@ -731,7 +742,7 @@ const Profile = () => {
         }
     }
 
-    const isAnyModalOpen = showOnboarding || showAddMemberModal || showPromoModal || isEditorOpen
+    const isAnyModalOpen = showOnboarding || showAddMemberModal || showPromoModal || isEditorOpen || !!selectedOrder
 
     return (
         <>
@@ -751,6 +762,22 @@ const Profile = () => {
                 initialData={editingMenu}
                 onSave={handleSaveMenu}
                 restaurantName={user.restaurant_name}
+            />
+
+            <OrderDetailsModal
+                order={selectedOrder}
+                isOpen={!!selectedOrder}
+                onClose={() => setSelectedOrder(null)}
+                onStatusUpdate={(id, status) => {
+                    if (modalHandlers.onStatusUpdate) {
+                        modalHandlers.onStatusUpdate(id, status).then(updatedOrder => {
+                            if (updatedOrder) {
+                                setSelectedOrder(updatedOrder)
+                            }
+                        })
+                    }
+                }}
+                getStatusColor={modalHandlers.getStatusColor}
             />
 
             <DashboardLayout
