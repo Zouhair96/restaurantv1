@@ -345,10 +345,10 @@ const Profile = () => {
 
     const renderDynamicMenu = () => (
         <div className="space-y-6">
-            <div className="flex justify-between items-center text-white mb-6">
+            <div className="flex justify-between items-center text-gray-900 mb-6">
                 <div>
                     <h2 className="text-2xl font-bold">Digital Menu Templates</h2>
-                    <p className="text-gray-400 text-sm">Select a template to create your restaurant's menu.</p>
+                    <p className="text-gray-500 text-sm">Select a template to create your restaurant's menu.</p>
                 </div>
             </div>
 
@@ -562,8 +562,8 @@ const Profile = () => {
         <div>
             <div className="flex justify-between items-center mb-6">
                 <div>
-                    <h2 className="text-2xl font-bold text-white">Team Management</h2>
-                    <p className="text-gray-400 text-sm">Manage your restaurant staff, roles, and shifts.</p>
+                    <h2 className="text-2xl font-bold text-gray-900">Team Management</h2>
+                    <p className="text-gray-500 text-sm">Manage your restaurant staff, roles, and shifts.</p>
                 </div>
                 <button
                     onClick={() => setShowAddMemberModal(true)}
@@ -588,8 +588,8 @@ const Profile = () => {
         <div>
             <div className="flex justify-between items-center mb-6">
                 <div>
-                    <h2 className="text-2xl font-bold text-white">Automated Promotions</h2>
-                    <p className="text-gray-400 text-sm">Create marketing campaigns to boost traffic.</p>
+                    <h2 className="text-2xl font-bold text-gray-900">Automated Promotions</h2>
+                    <p className="text-gray-500 text-sm">Create marketing campaigns to boost traffic.</p>
                 </div>
                 <button
                     onClick={() => setShowPromoModal(true)}
