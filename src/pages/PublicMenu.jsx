@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar'
 import { HiOutlineUserCircle, HiOutlineMenuAlt2 } from 'react-icons/hi'
@@ -29,6 +29,7 @@ const PublicMenu = () => {
     const [orderSuccess, setOrderSuccess] = useState(false)
     const [showSidebar, setShowSidebar] = useState(false)
     const [maxStepReached, setMaxStepReached] = useState(1)
+    const activeStepRef = useRef(null)
 
     useEffect(() => {
         const fetchMenu = async () => {
@@ -135,6 +136,17 @@ const PublicMenu = () => {
             }
         }
     }, [selections.friesType, selections.friesPlacement, currentStep, friesOption, maxStepReached]);
+
+    // Scroll active step into view centered
+    useEffect(() => {
+        if (activeStepRef.current) {
+            activeStepRef.current.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest',
+                inline: 'center'
+            });
+        }
+    }, [currentStep]);
 
     if (loading) {
         return (
@@ -790,17 +802,18 @@ const PublicMenu = () => {
                                 return (
                                     <button
                                         key={step.id}
+                                        ref={isActive ? activeStepRef : null}
                                         onClick={() => isReached && goToStep(step.id)}
                                         disabled={!isReached}
-                                        className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all ${isActive
-                                            ? 'bg-yum-primary text-white shadow-lg shadow-red-500/20 scale-105'
+                                        className={`flex-shrink-0 flex items-center gap-3 px-6 py-3.5 rounded-2xl transition-all duration-500 ${isActive
+                                            ? 'bg-yum-primary text-white shadow-xl shadow-red-500/40 scale-110 mx-6 z-10'
                                             : isReached
                                                 ? 'bg-white/10 text-gray-300 hover:bg-white/20'
                                                 : 'bg-white/5 text-gray-600 cursor-not-allowed'
                                             }`}
                                     >
-                                        <span className="text-lg">{step.icon}</span>
-                                        <span className={`font-bold ${isActive ? 'block' : 'hidden md:block'} text-xs`}>{step.name}</span>
+                                        <span className={`${isActive ? 'text-2xl' : 'text-xl'} transition-all`}>{step.icon}</span>
+                                        <span className={`font-black ${isActive ? 'block' : 'hidden md:block'} text-sm tracking-tight`}>{step.name}</span>
                                     </button>
                                 );
                             })}
