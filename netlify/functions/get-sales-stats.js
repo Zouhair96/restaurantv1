@@ -1,0 +1,112 @@
+import { query } from './db.js';
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+export const handler = async (event, context) => {
+    const headers = {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS'
+    };
+
+    if (event.httpMethod === 'OPTIONS') {
+        return { statusCode: 200, headers, body: '' };
+    }
+
+    if (event.httpMethod !== 'GET') {
+        return {
+            statusCode: 405,
+            headers,
+            body: JSON.stringify({ error: 'Method Not Allowed' })
+        };
+    }
+
+    try {
+        const authHeader = event.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return {
+                statusCode: 401,
+                headers,
+                body: JSON.stringify({ error: 'Unauthorized: Missing token' })
+            };
+        }
+
+        const token = authHeader.split(' ')[1];
+        const secret = process.env.JWT_SECRET;
+        if (!secret) throw new Error("JWT_SECRET missing");
+
+        const decoded = jwt.verify(token, secret);
+        const restaurantId = decoded.id;
+
+        // Get sales for today
+        const todayResult = await query(
+            `SELECT COALESCE(SUM(total_price), 0) as total
+             FROM orders
+             WHERE restaurant_id = $1 
+             AND status != 'cancelled'
+             AND created_at >= CURRENT_DATE`,
+            [restaurantId]
+        );
+
+        // Get sales for yesterday
+        const yesterdayResult = await query(
+            `SELECT COALESCE(SUM(total_price), 0) as total
+             FROM orders
+             WHERE restaurant_id = $1 
+             AND status != 'cancelled'
+             AND created_at >= CURRENT_DATE - INTERVAL '1 day'
+             AND created_at < CURRENT_DATE`,
+            [restaurantId]
+        );
+
+        // Get sales for the last 7 days (including today)
+        const weeklyResult = await query(
+            `SELECT 
+                DATE(created_at) as date,
+                COALESCE(SUM(total_price), 0) as daily_total
+             FROM orders
+             WHERE restaurant_id = $1 
+             AND status != 'cancelled'
+             AND created_at >= CURRENT_DATE - INTERVAL '6 days'
+             GROUP BY DATE(created_at)
+             ORDER BY DATE(created_at) ASC`,
+            [restaurantId]
+        );
+
+        const todaySales = parseFloat(todayResult.rows[0].total);
+        const yesterdaySales = parseFloat(yesterdayResult.rows[0].total);
+
+        // Calculate growth percentage
+        let growth = 0;
+        if (yesterdaySales > 0) {
+            growth = ((todaySales - yesterdaySales) / yesterdaySales) * 100;
+        } else if (todaySales > 0) {
+            growth = 100; // 100% growth if yesterday was 0
+        }
+
+        return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify({
+                todaySales,
+                yesterdaySales,
+                growth: parseFloat(growth.toFixed(1)),
+                weeklyStats: weeklyResult.rows
+            })
+        };
+
+    } catch (error) {
+        console.error('Sales Stats Error:', error);
+        return {
+            statusCode: 500,
+            headers,
+            body: JSON.stringify({
+                error: 'Internal Server Error',
+                details: error.message
+            })
+        };
+    }
+};
