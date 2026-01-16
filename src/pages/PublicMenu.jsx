@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar'
+import { HiOutlineUserCircle } from 'react-icons/hi'
 
 const PublicMenu = () => {
     const { restaurantName } = useParams()
@@ -25,6 +27,7 @@ const PublicMenu = () => {
     })
     const [submitting, setSubmitting] = useState(false)
     const [orderSuccess, setOrderSuccess] = useState(false)
+    const [showSidebar, setShowSidebar] = useState(false)
 
     useEffect(() => {
         const fetchMenu = async () => {
@@ -133,7 +136,10 @@ const PublicMenu = () => {
         try {
             const response = await fetch('/.netlify/functions/submit-order', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': localStorage.getItem('client_token') ? `Bearer ${localStorage.getItem('client_token')}` : ''
+                },
                 body: JSON.stringify({
                     restaurantName: decodeURIComponent(restaurantName),
                     orderType: orderDetails.orderType,
@@ -666,7 +672,26 @@ const PublicMenu = () => {
 
     return (
         <div className="min-h-screen bg-[#0f1115] py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-4xl mx-auto">
+            {/* Sidebar Toggle Button */}
+            <button
+                onClick={() => setShowSidebar(true)}
+                className="fixed top-6 left-6 z-50 p-4 bg-yum-primary text-white rounded-2xl shadow-2xl hover:bg-red-500 transition-all group overflow-hidden"
+            >
+                <div className="relative z-10 flex items-center gap-2">
+                    <HiOutlineUserCircle size={24} />
+                    <span className="font-bold hidden sm:inline">My Profile</span>
+                </div>
+                <div className="absolute inset-0 bg-white/20 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
+            </button>
+
+            <PublicMenuSidebar
+                isOpen={showSidebar}
+                onClose={() => setShowSidebar(false)}
+                restaurantName={data.restaurant}
+                designConfig={designConfig}
+            />
+
+            <div className={`max-w-4xl mx-auto transition-all duration-300 ${showSidebar ? 'sm:ml-96 blur-sm sm:blur-0' : ''}`}>
                 <div
                     className="relative overflow-hidden rounded-3xl shadow-2xl animate-fade-in mb-8"
                     style={{

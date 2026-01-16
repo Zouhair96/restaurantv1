@@ -1,4 +1,5 @@
 import { query } from './db.js';
+import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -8,7 +9,7 @@ export const handler = async (event, context) => {
     const headers = {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         'Access-Control-Allow-Methods': 'POST, OPTIONS'
     };
 
@@ -26,6 +27,21 @@ export const handler = async (event, context) => {
 
     try {
         const { restaurantName, orderType, tableNumber, deliveryAddress, paymentMethod, items, totalPrice } = JSON.parse(event.body);
+
+        // Optional: Get customer ID from token if present
+        let customerId = null;
+        const authHeader = event.headers.authorization || event.headers.Authorization;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            const token = authHeader.split(' ')[1];
+            try {
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                if (decoded.role === 'client') {
+                    customerId = decoded.id;
+                }
+            } catch (err) {
+                console.warn('Invalid token provided for order placement');
+            }
+        }
 
         // Validation
         if (!restaurantName || !orderType || !paymentMethod || !items || totalPrice === undefined) {
@@ -86,10 +102,10 @@ export const handler = async (event, context) => {
 
         // Insert order
         const orderResult = await query(
-            `INSERT INTO orders (restaurant_id, order_type, table_number, delivery_address, payment_method, items, total_price, status)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending')
+            `INSERT INTO orders (restaurant_id, order_type, table_number, delivery_address, payment_method, items, total_price, status, customer_id)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending', $8)
              RETURNING id, created_at`,
-            [restaurantId, orderType, tableNumber, deliveryAddress, paymentMethod, JSON.stringify(items), totalPrice]
+            [restaurantId, orderType, tableNumber, deliveryAddress, paymentMethod, JSON.stringify(items), totalPrice, customerId]
         );
 
         return {
