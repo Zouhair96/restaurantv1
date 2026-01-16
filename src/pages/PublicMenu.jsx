@@ -9,7 +9,6 @@ const PublicMenu = () => {
     const [currentStep, setCurrentStep] = useState(1)
     const [selections, setSelections] = useState({
         size: null,
-        size: null,
         friesType: null,
         friesPlacement: null,
         chicken: [],
