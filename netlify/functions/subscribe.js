@@ -1,5 +1,8 @@
 import { query } from './db.js';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export const handler = async (event, context) => {
     if (event.httpMethod !== 'POST') {
