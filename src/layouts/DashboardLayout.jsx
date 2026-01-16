@@ -25,7 +25,10 @@ const DashboardLayout = ({ children, rightPanel, activeModule, onModuleChange, i
                         <div className="absolute top-[20%] -right-[10%] w-[60%] h-[60%] bg-pink-200/30 dark:bg-pink-900/20 rounded-full blur-[100px] transition-colors duration-500"></div>
                     </div>
 
-                    <DashboardHeader onMenuClick={() => setIsMobileMenuOpen(true)} />
+                    <DashboardHeader
+                        onMenuClick={() => setIsMobileMenuOpen(true)}
+                        onModuleChange={onModuleChange}
+                    />
 
                     <main className="flex-1 overflow-y-auto p-4 md:p-8 relative z-0">
                         {children}

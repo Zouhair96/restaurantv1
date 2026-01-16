@@ -116,3 +116,28 @@ export const unsubscribeUser = async () => {
     }
     return data;
 };
+
+export const updateUserProfile = async (userData) => {
+    const token = localStorage.getItem('token');
+    if (!token) throw new Error('Not authenticated');
+
+    const response = await fetch(`${API_URL}/update-profile`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(userData),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error(data.error || 'Failed to update profile');
+    }
+
+    // Update local user data
+    if (data.user) {
+        localStorage.setItem('user', JSON.stringify(data.user));
+    }
+    return data;
+};

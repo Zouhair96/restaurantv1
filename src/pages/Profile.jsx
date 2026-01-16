@@ -24,7 +24,7 @@ import pizzaTemplate from '../assets/pizza_template.png'
 import saladTemplate from '../assets/salad_template.png'
 
 const Profile = () => {
-    const { user, loading, unsubscribe } = useAuth()
+    const { user, loading, unsubscribe, updateUser } = useAuth()
     const navigate = useNavigate()
     const location = useLocation()
     const [activeModule, setActiveModule] = useState('dashboard')
@@ -45,6 +45,27 @@ const Profile = () => {
         getStatusColor: null
     })
 
+    // Activity & Settings State
+    const [recentActivity, setRecentActivity] = useState([])
+    const [isSavingProfile, setIsSavingProfile] = useState(false)
+    const [profileForm, setProfileForm] = useState({
+        name: user?.name || '',
+        restaurantName: user?.restaurant_name || '',
+        address: user?.address || '',
+        phoneNumber: user?.phone_number || ''
+    })
+
+    useEffect(() => {
+        if (user) {
+            setProfileForm({
+                name: user.name || '',
+                restaurantName: user.restaurant_name || '',
+                address: user.address || '',
+                phoneNumber: user.phone_number || ''
+            })
+        }
+    }, [user])
+
     useEffect(() => {
         loadMenus()
     }, [user])
@@ -58,6 +79,29 @@ const Profile = () => {
             console.error('Error loading menus:', error)
         }
     }
+
+    const fetchRecentActivity = async () => {
+        try {
+            const token = localStorage.getItem('token')
+            if (!token) return
+
+            const response = await fetch('/.netlify/functions/get-orders', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            const result = await response.json()
+            if (response.ok) {
+                setRecentActivity(result.orders || [])
+            }
+        } catch (err) {
+            console.error('Error fetching activity:', err)
+        }
+    }
+
+    useEffect(() => {
+        if (activeModule === 'activity') {
+            fetchRecentActivity()
+        }
+    }, [activeModule])
 
     const handleSaveMenu = async (name, config) => {
         try {
@@ -691,32 +735,201 @@ const Profile = () => {
         </div>
     )
 
-    const renderSettings = () => (
+    const renderActivity = () => (
         <div className="space-y-6">
-            {/* Account Settings Placeholder */}
-            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
-                <h2 className="text-lg font-bold text-gray-900 mb-4">Account Settings</h2>
-                <p className="text-gray-500 text-sm">Update your personal details and password.</p>
-                {/* Inputs would go here */}
+            <div>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Recent Activity</h2>
+                <p className="text-gray-500 dark:text-gray-400 text-sm">Stay updated with everything happening in your restaurant.</p>
             </div>
 
-            {/* Subscription Management */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Subscription Management</h2>
-                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-white/5 overflow-hidden">
+                <div className="p-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center">
+                    <h3 className="font-bold text-gray-800 dark:text-white">Real-Time Feed</h3>
+                    <button
+                        onClick={fetchRecentActivity}
+                        className="text-xs font-bold text-yum-primary hover:underline uppercase tracking-widest"
+                    >
+                        Refresh Feed
+                    </button>
+                </div>
+                <div className="divide-y divide-gray-50 dark:divide-white/5">
+                    {recentActivity.length > 0 ? (
+                        recentActivity.map((activity, idx) => (
+                            <div key={idx} className="p-6 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                                <div className="flex gap-4 items-start">
+                                    <div className="w-12 h-12 rounded-2xl bg-red-50 dark:bg-red-500/10 flex items-center justify-center shrink-0">
+                                        <svg className="w-6 h-6 text-yum-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                        </svg>
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="flex justify-between items-start">
+                                            <div>
+                                                <p className="text-sm font-bold text-gray-900 dark:text-white">
+                                                    New {activity.order_type} Order Received
+                                                </p>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                                    Order <span className="font-mono bg-gray-100 dark:bg-gray-700 px-1 rounded">#{activity.id.slice(0, 8)}</span> for {activity.total_amount}€
+                                                </p>
+                                            </div>
+                                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                                {new Date(activity.created_at).toLocaleString()}
+                                            </span>
+                                        </div>
+                                        <div className="mt-3 flex items-center gap-2">
+                                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400">
+                                                {activity.status}
+                                            </span>
+                                            {activity.payment_method && (
+                                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400">
+                                                    {activity.payment_method}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="p-20 text-center">
+                            <p className="text-gray-400 italic">No activity recorded yet.</p>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    )
+
+    const handleUpdateProfile = async (e) => {
+        e.preventDefault()
+        setIsSavingProfile(true)
+        try {
+            await updateUser(profileForm)
+            alert('Profile updated successfully!')
+        } catch (err) {
+            console.error(err)
+            alert('Failed to update profile: ' + err.message)
+        } finally {
+            setIsSavingProfile(false)
+        }
+    }
+
+    const renderSettings = () => (
+        <div className="space-y-8 max-w-4xl">
+            <div>
+                <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Account Settings</h2>
+                <p className="text-gray-500 dark:text-gray-400 text-sm mt-1 font-medium">Manage your personal information and restaurant details.</p>
+            </div>
+
+            <form onSubmit={handleUpdateProfile} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Personal Info */}
+                    <div className="bg-white dark:bg-gray-800 p-8 rounded-[2.5rem] shadow-xl border border-gray-100 dark:border-white/5 space-y-4">
+                        <h3 className="font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                            <span className="w-1.5 h-6 bg-yum-primary rounded-full"></span>
+                            Personal Information
+                        </h3>
+                        <div className="space-y-4 pt-2">
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Full Name</label>
+                                <input
+                                    type="text"
+                                    className="w-full bg-gray-50 dark:bg-gray-900 border-none rounded-2xl px-5 py-3.5 text-sm font-bold focus:ring-2 focus:ring-yum-primary/20 transition-all"
+                                    value={profileForm.name}
+                                    onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Email Address</label>
+                                <input
+                                    type="email"
+                                    className="w-full bg-gray-100 dark:bg-gray-700/50 border-none rounded-2xl px-5 py-3.5 text-sm font-bold text-gray-500 cursor-not-allowed"
+                                    value={user?.email}
+                                    disabled
+                                />
+                                <p className="text-[10px] text-gray-400 mt-1.5 ml-1 italic">* Email cannot be changed for security reasons</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Restaurant Info */}
+                    <div className="bg-white dark:bg-gray-800 p-8 rounded-[2.5rem] shadow-xl border border-gray-100 dark:border-white/5 space-y-4">
+                        <h3 className="font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                            <span className="w-1.5 h-6 bg-orange-400 rounded-full"></span>
+                            Restaurant Details
+                        </h3>
+                        <div className="space-y-4 pt-2">
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Restaurant Name</label>
+                                <input
+                                    type="text"
+                                    className="w-full bg-gray-50 dark:bg-gray-900 border-none rounded-2xl px-5 py-3.5 text-sm font-bold focus:ring-2 focus:ring-yum-primary/20 transition-all"
+                                    value={profileForm.restaurantName}
+                                    onChange={(e) => setProfileForm({ ...profileForm, restaurantName: e.target.value })}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Phone Number</label>
+                                <input
+                                    type="text"
+                                    className="w-full bg-gray-50 dark:bg-gray-900 border-none rounded-2xl px-5 py-3.5 text-sm font-bold focus:ring-2 focus:ring-yum-primary/20 transition-all"
+                                    value={profileForm.phoneNumber}
+                                    onChange={(e) => setProfileForm({ ...profileForm, phoneNumber: e.target.value })}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Address (Full Width) */}
+                <div className="bg-white dark:bg-gray-800 p-8 rounded-[2.5rem] shadow-xl border border-gray-100 dark:border-white/5">
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Physical Address</label>
+                    <textarea
+                        className="w-full bg-gray-50 dark:bg-gray-900 border-none rounded-2xl px-5 py-3.5 text-sm font-bold focus:ring-2 focus:ring-yum-primary/20 transition-all min-h-[100px]"
+                        value={profileForm.address}
+                        onChange={(e) => setProfileForm({ ...profileForm, address: e.target.value })}
+                    />
+                </div>
+
+                <div className="flex justify-end pt-4">
+                    <button
+                        type="submit"
+                        disabled={isSavingProfile}
+                        className={`flex items-center gap-3 bg-yum-primary text-white px-10 py-4 rounded-[2rem] font-black shadow-lg shadow-red-200 dark:shadow-none hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:scale-100`}
+                    >
+                        {isSavingProfile ? (
+                            <>
+                                <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Saving Changes...
+                            </>
+                        ) : (
+                            'Save Profile Settings'
+                        )}
+                    </button>
+                </div>
+            </form>
+
+            {/* Subscription Section (Simplified) */}
+            <div className="bg-gray-900 dark:bg-black/40 p-10 rounded-[3rem] text-white">
+                <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                     <div>
-                        <p className="font-bold text-gray-800 dark:text-gray-200">Current Plan: <span className="text-yum-primary">{user.subscription_plan || 'Pro'}</span></p>
-                        <p className="text-xs text-green-600 dark:text-green-400 font-bold uppercase mt-1">Active</p>
+                        <p className="text-[10px] font-black text-yum-primary uppercase tracking-[0.2em] mb-2">Current Subscription</p>
+                        <h3 className="text-3xl font-black">{user?.subscription_plan || 'Pro'} Member</h3>
+                        <p className="text-gray-400 text-sm mt-2">Next billing: {new Date().toLocaleDateString()}</p>
                     </div>
                     <button
                         onClick={() => {
-                            if (window.confirm("Are you sure you want to cancel your subscription? You will lose access to the dashboard immediately.")) {
+                            if (window.confirm("Are you sure you want to cancel?")) {
                                 handleUnsubscribe();
                             }
                         }}
-                        className="px-4 py-2 bg-white dark:bg-gray-700 border border-red-200 dark:border-red-900/30 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-bold transition-all"
+                        className="px-8 py-3 bg-white/10 hover:bg-white/20 border border-white/10 rounded-2xl text-xs font-black uppercase tracking-widest transition-all"
                     >
-                        Cancel Subscription
+                        Manage Subscription
                     </button>
                 </div>
             </div>
@@ -735,6 +948,8 @@ const Profile = () => {
                 return renderTeam()
             case 'promos':
                 return renderPromos()
+            case 'activity':
+                return renderActivity()
             case 'settings':
                 return renderSettings()
             default:

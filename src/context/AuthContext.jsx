@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { loginUser as apiLogin, signupUser as apiSignup, logoutUser as apiLogout, getCurrentUser, subscribeUser as apiSubscribe, unsubscribeUser as apiUnsubscribe } from '../utils/auth';
+import { loginUser as apiLogin, signupUser as apiSignup, logoutUser as apiLogout, getCurrentUser, subscribeUser as apiSubscribe, unsubscribeUser as apiUnsubscribe, updateUserProfile as apiUpdateProfile } from '../utils/auth';
 
 const AuthContext = createContext();
 
@@ -47,6 +47,12 @@ export const AuthProvider = ({ children }) => {
         return data;
     }
 
+    const updateUser = async (userData) => {
+        const data = await apiUpdateProfile(userData);
+        setUser(data.user);
+        return data;
+    }
+
     const value = {
         user,
         login,
@@ -54,6 +60,7 @@ export const AuthProvider = ({ children }) => {
         logout,
         subscribe,
         unsubscribe,
+        updateUser,
         loading
     };
 

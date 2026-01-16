@@ -13,23 +13,46 @@ import {
     HiOutlineSun
 } from 'react-icons/hi'
 
-const DashboardHeader = ({ onMenuClick }) => {
+const DashboardHeader = ({ onMenuClick, onModuleChange }) => {
     const { user, logout } = useAuth()
     const { isDarkMode, toggleTheme } = useTheme()
     const navigate = useNavigate()
     const [searchTerm, setSearchTerm] = useState('')
     const [isProfileOpen, setIsProfileOpen] = useState(false)
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
+    const [orders, setOrders] = useState([])
 
     const profileRef = useRef(null)
     const notificationRef = useRef(null)
 
-    // Mock notifications
-    const notifications = [
-        { id: 1, title: 'New Order', message: 'Order #1234 just arrived!', time: '2 min ago', type: 'order' },
-        { id: 2, title: 'Stock Alert', message: 'Chicken is running low', time: '15 min ago', type: 'alert' },
-        { id: 3, title: 'System', message: 'Daily report is ready', time: '1 hour ago', type: 'info' }
-    ]
+    // Fetch recent orders for notifications
+    const fetchRecentOrders = async () => {
+        try {
+            const token = localStorage.getItem('token')
+            if (!token) return
+
+            const response = await fetch('/.netlify/functions/get-orders', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            const result = await response.json()
+            if (response.ok) {
+                // Filter for recent pending orders
+                const pending = (result.orders || [])
+                    .filter(o => o.status === 'pending')
+                    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                    .slice(0, 5)
+                setOrders(pending)
+            }
+        } catch (err) {
+            console.error('Header fetch orders error:', err)
+        }
+    }
+
+    useEffect(() => {
+        fetchRecentOrders()
+        const interval = setInterval(fetchRecentOrders, 60000) // Refresh every minute
+        return () => clearInterval(interval)
+    }, [])
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -47,6 +70,15 @@ const DashboardHeader = ({ onMenuClick }) => {
     const handleLogout = () => {
         logout()
         navigate('/login')
+    }
+
+    const formatTime = (dateStr) => {
+        const date = new Date(dateStr)
+        const now = new Date()
+        const diffInMinutes = Math.floor((now - date) / 60000)
+        if (diffInMinutes < 1) return 'Just now'
+        if (diffInMinutes < 60) return `${diffInMinutes}m ago`
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
 
     return (
@@ -98,7 +130,9 @@ const DashboardHeader = ({ onMenuClick }) => {
                         className={`relative p-2.5 rounded-xl bg-white dark:bg-gray-800/50 backdrop-blur-md border border-gray-100 dark:border-white/5 hover:shadow-md transition-all ${isNotificationsOpen ? 'text-yum-primary' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'}`}
                     >
                         <HiOutlineBell className="h-6 w-6" />
-                        <span className="absolute top-2.5 right-2.5 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white dark:ring-gray-800 animate-pulse"></span>
+                        {orders.length > 0 && (
+                            <span className="absolute top-2.5 right-2.5 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white dark:ring-gray-800 animate-pulse"></span>
+                        )}
                     </button>
 
                     {/* Notifications Dropdown */}
@@ -109,21 +143,38 @@ const DashboardHeader = ({ onMenuClick }) => {
                                 <button className="text-[10px] font-bold text-yum-primary uppercase hover:underline">Mark all as read</button>
                             </div>
                             <div className="max-h-96 overflow-y-auto custom-scrollbar">
-                                {notifications.map(n => (
-                                    <div key={n.id} className="p-4 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer border-b border-gray-50 dark:border-white/5 last:border-0">
-                                        <div className="flex gap-3">
-                                            <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${n.type === 'order' ? 'bg-green-500' : n.type === 'alert' ? 'bg-red-500' : 'bg-blue-500'}`}></div>
-                                            <div>
-                                                <p className="text-sm font-bold text-gray-800 dark:text-gray-200">{n.title}</p>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{n.message}</p>
-                                                <p className="text-[10px] text-gray-400 mt-1 font-medium">{n.time}</p>
+                                {orders.length > 0 ? (
+                                    orders.map(o => (
+                                        <div
+                                            key={o.id}
+                                            className="p-4 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer border-b border-gray-50 dark:border-white/5 last:border-0"
+                                            onClick={() => { setIsNotificationsOpen(false); onModuleChange('dashboard'); }}
+                                        >
+                                            <div className="flex gap-3">
+                                                <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-500/10 flex items-center justify-center shrink-0">
+                                                    <HiOutlineBell className="w-5 h-5 text-yum-primary" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-bold text-gray-800 dark:text-gray-200">New {o.order_type} Order</p>
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Order #{o.id.slice(0, 8)} - {o.total_amount}€</p>
+                                                    <p className="text-[10px] text-gray-400 mt-1 font-medium">{formatTime(o.created_at)}</p>
+                                                </div>
                                             </div>
                                         </div>
+                                    ))
+                                ) : (
+                                    <div className="p-10 text-center">
+                                        <p className="text-sm text-gray-400 font-medium italic">No new notifications</p>
                                     </div>
-                                ))}
+                                )}
                             </div>
                             <div className="p-4 text-center border-t border-gray-50 dark:border-white/5">
-                                <button className="text-xs font-bold text-gray-500 hover:text-gray-800 dark:hover:text-white transition-colors">View all activity &rarr;</button>
+                                <button
+                                    onClick={() => { setIsNotificationsOpen(false); onModuleChange('activity'); }}
+                                    className="text-xs font-bold text-gray-500 hover:text-gray-800 dark:hover:text-white transition-colors"
+                                >
+                                    View all activity &rarr;
+                                </button>
                             </div>
                         </div>
                     )}
@@ -155,14 +206,14 @@ const DashboardHeader = ({ onMenuClick }) => {
                             </div>
                             <div className="p-2">
                                 <button
-                                    onClick={() => { setIsProfileOpen(false); navigate('/profile?tab=settings'); }}
+                                    onClick={() => { setIsProfileOpen(false); onModuleChange('settings'); }}
                                     className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 rounded-2xl transition-all"
                                 >
                                     <HiOutlineUserCircle className="w-5 h-5" />
                                     My Profile
                                 </button>
                                 <button
-                                    onClick={() => { setIsProfileOpen(false); navigate('/profile?tab=settings'); }}
+                                    onClick={() => { setIsProfileOpen(false); onModuleChange('settings'); }}
                                     className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 rounded-2xl transition-all"
                                 >
                                     <HiOutlineCog className="w-5 h-5" />
