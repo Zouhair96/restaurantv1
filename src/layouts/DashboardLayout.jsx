@@ -29,6 +29,14 @@ const DashboardLayout = ({ children, rightPanel, activeModule, onModuleChange, i
 
                     <main className="flex-1 overflow-y-auto p-4 md:p-8 relative z-0">
                         {children}
+
+                        {/* Mobile Widgets Stack (Visible only on < xl screens) */}
+                        {rightPanel && (
+                            <div className="xl:hidden mt-8 space-y-6 pb-6 border-t border-gray-200 dark:border-white/10 pt-8">
+                                <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4 px-2">Widgets & Insights</h3>
+                                {rightPanel}
+                            </div>
+                        )}
                     </main>
                 </div>
 
