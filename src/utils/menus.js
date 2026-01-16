@@ -9,11 +9,24 @@ const getHeaders = () => {
 };
 
 export const fetchMenus = async () => {
-    const response = await fetch(API_URL, {
-        headers: getHeaders()
-    });
-    if (!response.ok) throw new Error('Failed to fetch menus');
-    return response.json();
+    try {
+        const response = await fetch(API_URL, {
+            headers: getHeaders()
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Fetch menus failed:', response.status, errorText);
+            throw new Error(`Failed to fetch menus: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Menus loaded:', data);
+        return data;
+    } catch (error) {
+        console.error('Error in fetchMenus:', error);
+        throw error;
+    }
 };
 
 export const createMenu = async (name, templateType, config) => {
