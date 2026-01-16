@@ -742,11 +742,16 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
                     <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">Menu Published!</h2>
                     <p className="text-gray-500 dark:text-gray-400 mb-6">Your menu is now live and accessible to the world.</p>
 
-                    <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-xl mb-6 break-all">
-                        <p className="text-xs text-gray-500 uppercase font-bold mb-1">Public Link</p>
-                        <a href={publicUrl} target="_blank" rel="noopener noreferrer" className="text-yum-primary hover:underline text-sm font-mono">
-                            {publicUrl}
-                        </a>
+                    <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-xl mb-6 break-all flex flex-col items-center gap-4">
+                        <div className="text-center w-full">
+                            <p className="text-xs text-gray-500 uppercase font-bold mb-1">Public Link</p>
+                            <a href={publicUrl} target="_blank" rel="noopener noreferrer" className="text-yum-primary hover:underline text-sm font-mono block">
+                                {publicUrl}
+                            </a>
+                        </div>
+                        <div className="bg-white p-2 rounded-lg shadow-sm">
+                            <QRCode value={publicUrl} size={128} />
+                        </div>
                     </div>
 
                     <div className="flex gap-3">

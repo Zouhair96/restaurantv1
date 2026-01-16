@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import QRCode from 'qrcode.react'
 import { useAuth } from '../context/AuthContext'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import DashboardLayout from '../layouts/DashboardLayout'
@@ -383,6 +384,12 @@ const Profile = () => {
                                             </span>
                                         </div>
                                     </div>
+                                </div>
+
+                                {/* Center: QR Code */}
+                                <div className="hidden lg:flex flex-col items-center justify-center p-3 bg-white rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+                                    <QRCode value={`${window.location.origin}/${user.restaurant_name}`} size={80} />
+                                    <span className="text-[10px] text-gray-400 mt-1 font-bold tracking-wider uppercase">Scan Me</span>
                                 </div>
 
                                 {/* Right: Actions */}
