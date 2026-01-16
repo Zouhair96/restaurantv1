@@ -99,8 +99,9 @@ const Profile = () => {
         { id: 3, name: 'Halloween Special', type: 'Push', status: 'Ended', sent: 5000, openRate: 45, roi: 3.2, date: 'Oct 31' },
     ])
 
-    // Check if user has an active subscription
+    // Check if user has an active subscription and menus
     const hasSubscription = user?.subscription_status === 'active'
+    const hasMenu = savedMenus.length > 0
 
     useEffect(() => {
         const params = new URLSearchParams(location.search)
@@ -343,7 +344,7 @@ const Profile = () => {
         </div>
     )
 
-    const hasMenu = savedMenus.length > 0
+
 
     const renderDynamicMenu = () => (
         <div className="space-y-6">
