@@ -27,7 +27,7 @@ const DashboardLayout = ({ children, rightPanel, activeModule, onModuleChange, i
 
                     <DashboardHeader onMenuClick={() => setIsMobileMenuOpen(true)} />
 
-                    <main className="flex-1 overflow-y-auto p-4 md:p-8 relative z-0 scrollbar-hide">
+                    <main className="flex-1 overflow-y-auto p-4 md:p-8 relative z-0">
                         {children}
                     </main>
                 </div>

@@ -12,6 +12,42 @@
   }
 }
 
+/* Custom Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  /* Gray-400 with opacity */
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(107, 114, 128, 0.8);
+  /* Gray-500 hover */
+}
+
+/* Dark mode overrides applied via JS adding .dark class to HTML, 
+   but standard CSS needs 'html.dark' or similar if relying on class strategy.
+   Since we use 'darkMode: class', we target .dark ::-webkit-scrollbar-thumb */
+.dark ::-webkit-scrollbar-thumb {
+  background-color: rgba(75, 85, 99, 0.6);
+  /* Gray-600 */
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.8);
+  /* Gray-400 */
+}
+
 @layer components {
   .neon-glow {
     box-shadow: 0 0 5px theme('colors.yum.primary'), 0 0 10px theme('colors.yum.primary');
