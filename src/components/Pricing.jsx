@@ -26,18 +26,12 @@ const Pricing = () => {
                             <span className="text-gray-500">/{t('pricing.starter.period') || 'month'}</span>
                         </div>
                         <ul className="space-y-4 mb-8 flex-grow">
-                            <li className="flex items-center gap-3 text-sm">
-                                <svg className="w-5 h-5 text-yum-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                                {t('pricing.starter.f1')}
-                            </li>
-                            <li className="flex items-center gap-3 text-sm">
-                                <svg className="w-5 h-5 text-yum-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                                {t('pricing.starter.f2')}
-                            </li>
-                            <li className="flex items-center gap-3 text-sm">
-                                <svg className="w-5 h-5 text-yum-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                                {t('pricing.starter.f3')}
-                            </li>
+                            {['f1', 'f2', 'f3', 'f4'].map((featureKey) => (
+                                <li key={featureKey} className="flex items-center gap-3 text-sm">
+                                    <svg className="w-5 h-5 text-yum-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                                    {t(`pricing.starter.${featureKey}`)}
+                                </li>
+                            ))}
                         </ul>
                         <button className="w-full bg-transparent border border-white hover:bg-white hover:text-yum-dark text-white font-bold py-3 rounded-xl transition-all">
                             {t('pricing.starter.cta')}
@@ -56,22 +50,12 @@ const Pricing = () => {
                             <span className="text-gray-500">/{t('pricing.pro.period') || 'month'}</span>
                         </div>
                         <ul className="space-y-4 mb-8 flex-grow">
-                            <li className="flex items-center gap-3 text-sm font-medium">
-                                <svg className="w-5 h-5 text-yum-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                                {t('pricing.pro.f1')}
-                            </li>
-                            <li className="flex items-center gap-3 text-sm font-medium">
-                                <svg className="w-5 h-5 text-yum-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                                {t('pricing.pro.f2')}
-                            </li>
-                            <li className="flex items-center gap-3 text-sm font-medium">
-                                <svg className="w-5 h-5 text-yum-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                                {t('pricing.pro.f3')}
-                            </li>
-                            <li className="flex items-center gap-3 text-sm font-medium">
-                                <svg className="w-5 h-5 text-yum-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                                {t('pricing.pro.f4')}
-                            </li>
+                            {['f1', 'f2', 'f3', 'f4', 'f5'].map((featureKey) => (
+                                <li key={featureKey} className="flex items-center gap-3 text-sm font-medium">
+                                    <svg className="w-5 h-5 text-yum-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                                    {t(`pricing.pro.${featureKey}`)}
+                                </li>
+                            ))}
                         </ul>
                         <button className="w-full bg-yum-primary text-white font-bold py-3 rounded-xl hover:bg-red-500 transition-all shadow-lg">
                             {t('pricing.pro.cta')}
@@ -86,18 +70,12 @@ const Pricing = () => {
                             <span className="text-4xl font-black">{t('pricing.enterprise.price')}</span>
                         </div>
                         <ul className="space-y-4 mb-10 flex-grow">
-                            <li className="flex items-center gap-3 text-sm font-medium">
-                                <svg className="w-6 h-6 text-yum-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                                {t('pricing.enterprise.f1')}
-                            </li>
-                            <li className="flex items-center gap-3 text-sm font-medium">
-                                <svg className="w-6 h-6 text-yum-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                                {t('pricing.enterprise.f2')}
-                            </li>
-                            <li className="flex items-center gap-3 text-sm font-medium">
-                                <svg className="w-6 h-6 text-yum-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                                {t('pricing.enterprise.f3')}
-                            </li>
+                            {['f1', 'f2', 'f3', 'f4'].map((featureKey) => (
+                                <li key={featureKey} className="flex items-center gap-3 text-sm font-medium">
+                                    <svg className="w-6 h-6 text-yum-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                                    {t(`pricing.enterprise.${featureKey}`)}
+                                </li>
+                            ))}
                         </ul>
                         <button className="w-full bg-white text-gray-900 font-black py-4 rounded-2xl hover:bg-yum-primary hover:text-white transition-all shadow-xl">
                             {t('pricing.enterprise.cta')}

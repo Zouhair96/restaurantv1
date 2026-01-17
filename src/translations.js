@@ -63,8 +63,9 @@ export const translations = {
                 period: "mois",
                 desc: "Pour petits cafés et bars",
                 f1: "Menu digital (QR code illimité)",
-                f2: "Hébergement photos",
-                f3: "Support par email",
+                f2: "2 Templates inclus (S1, S2)",
+                f3: "Hébergement photos",
+                f4: "Support par email",
                 cta: "Choisir Starter"
             },
             pro: {
@@ -73,18 +74,20 @@ export const translations = {
                 period: "mois",
                 desc: "Pour restaurants moyens & brasseries",
                 f1: "Tout du plan Starter",
-                f2: "Prise de commande & Paiement",
-                f3: "Statistiques avancées",
-                f4: "Multi-langues auto",
+                f2: "3 Templates Premium (P1, P2, P3)",
+                f3: "Prise de commande & Paiement",
+                f4: "Statistiques avancées",
+                f5: "Multi-langues auto",
                 cta: "Choisir Pro"
             },
             enterprise: {
-                title: "Enterprise",
+                title: "Entreprise",
                 price: "Sur devis",
                 desc: "Pour les groupes et chaînes",
                 f1: "Tout du plan Pro",
-                f2: "Support multi-établissements",
-                f3: "Support prioritaire 24/7",
+                f2: "Tous les Templates (Tacos, Pizza...)",
+                f3: "Support multi-établissements",
+                f4: "Support prioritaire 24/7",
                 cta: "Contactez-nous"
             }
         },
@@ -231,8 +234,9 @@ export const translations = {
                 period: "month",
                 desc: "For small cafes and bars",
                 f1: "Digital Menu (Unlimited QR)",
-                f2: "Photo Hosting",
-                f3: "Email Support",
+                f2: "2 Templates included (S1, S2)",
+                f3: "Photo Hosting",
+                f4: "Email Support",
                 cta: "Choose Starter"
             },
             pro: {
@@ -241,9 +245,10 @@ export const translations = {
                 period: "month",
                 desc: "For mid-size restaurants & brasseries",
                 f1: "Everything in Starter",
-                f2: "Ordering & Payment",
-                f3: "Advanced Analytics",
-                f4: "Automatic Multi-language",
+                f2: "3 Premium Templates (P1, P2, P3)",
+                f3: "Ordering & Payment",
+                f4: "Advanced Analytics",
+                f5: "Automatic Multi-language",
                 cta: "Choose Pro"
             },
             enterprise: {
@@ -251,8 +256,9 @@ export const translations = {
                 price: "Quote",
                 desc: "For Groups & Chains",
                 f1: "Everything in Pro",
-                f2: "Multi-location Support",
-                f3: "Priority 24/7 Support",
+                f2: "All Templates (Tacos, Pizza...)",
+                f3: "Multi-location Support",
+                f4: "Priority 24/7 Support",
                 cta: "Contact Us"
             }
         },
