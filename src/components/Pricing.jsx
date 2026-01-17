@@ -1,8 +1,10 @@
 import React from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
 
 const Pricing = () => {
     const { t } = useLanguage()
+    const navigate = useNavigate()
 
     return (
         <section id="pricing" className="py-20 relative overflow-hidden">
@@ -18,7 +20,7 @@ const Pricing = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
                     {/* Starter */}
-                    <div className="bg-gray-800 rounded-2xl p-8 border border-gray-700 hover:border-yum-primary transition-colors flex flex-col text-white">
+                    <Link to="/pricing/starter" className="bg-gray-800 rounded-2xl p-8 border border-gray-700 hover:border-yum-primary transition-all flex flex-col text-white group cursor-pointer">
                         <h3 className="text-xl font-bold mb-2">{t('pricing.starter.title')}</h3>
                         <p className="text-gray-400 text-sm mb-6">{t('pricing.starter.desc')}</p>
                         <div className="mb-6">
@@ -33,13 +35,13 @@ const Pricing = () => {
                                 </li>
                             ))}
                         </ul>
-                        <button className="w-full bg-transparent border border-white hover:bg-white hover:text-yum-dark text-white font-bold py-3 rounded-xl transition-all">
+                        <button className="w-full bg-transparent border border-white group-hover:bg-white group-hover:text-yum-dark text-white font-bold py-3 rounded-xl transition-all">
                             {t('pricing.starter.cta')}
                         </button>
-                    </div>
+                    </Link>
 
                     {/* Pro */}
-                    <div className="bg-white text-yum-dark rounded-2xl p-8 border-2 border-yum-primary relative transform scale-105 shadow-2xl flex flex-col z-10">
+                    <Link to="/pricing/pro" className="bg-white text-yum-dark rounded-2xl p-8 border-2 border-yum-primary relative transform scale-105 shadow-2xl flex flex-col z-10 hover:-translate-y-2 transition-all cursor-pointer group">
                         <div className="absolute top-0 right-0 bg-yum-primary text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg">
                             {t('pricing.mostPopular') || "LE PLUS POPULAIRE"}
                         </div>
@@ -57,13 +59,13 @@ const Pricing = () => {
                                 </li>
                             ))}
                         </ul>
-                        <button className="w-full bg-yum-primary text-white font-bold py-3 rounded-xl hover:bg-red-500 transition-all shadow-lg">
+                        <button className="w-full bg-yum-primary text-white font-bold py-3 rounded-xl group-hover:bg-red-500 transition-all shadow-lg">
                             {t('pricing.pro.cta')}
                         </button>
-                    </div>
+                    </Link>
 
                     {/* Enterprise */}
-                    <div className="bg-gray-900 border-2 border-transparent hover:border-yum-primary rounded-3xl p-10 transition-all flex flex-col text-white shadow-2xl">
+                    <Link to="/pricing/enterprise" className="bg-gray-900 border-2 border-transparent hover:border-yum-primary rounded-3xl p-10 transition-all flex flex-col text-white shadow-2xl group cursor-pointer">
                         <h3 className="text-2xl font-black mb-2">{t('pricing.enterprise.title')}</h3>
                         <p className="text-gray-400 text-sm mb-6 uppercase tracking-widest font-bold">{t('pricing.enterprise.desc')}</p>
                         <div className="mb-8">
@@ -77,10 +79,10 @@ const Pricing = () => {
                                 </li>
                             ))}
                         </ul>
-                        <button className="w-full bg-white text-gray-900 font-black py-4 rounded-2xl hover:bg-yum-primary hover:text-white transition-all shadow-xl">
+                        <button className="w-full bg-white text-gray-900 font-black py-4 rounded-2xl group-hover:bg-yum-primary group-hover:text-white transition-all shadow-xl">
                             {t('pricing.enterprise.cta')}
                         </button>
-                    </div>
+                    </Link>
                 </div>
             </div>
         </section>

@@ -66,6 +66,12 @@ export const translations = {
                 f2: "2 Templates inclus (S1, S2)",
                 f3: "Hébergement photos",
                 f4: "Support par email",
+                detailedFeatures: [
+                    { category: "Menu & Design", features: ["Menu digital illimité", "2 Templates de base", "Hébergement standard", "QR codes haute qualité"] },
+                    { category: "Commandes", features: ["Consultation menu uniquement", "Appel serveur (optionnel)", "Vue simplifiée"] },
+                    { category: "Marketing", features: ["Statistiques de base", "Lien réseaux sociaux"] },
+                    { category: "Support", features: ["Support par email", "Documentation en ligne"] }
+                ],
                 cta: "Choisir Starter"
             },
             pro: {
@@ -78,6 +84,12 @@ export const translations = {
                 f3: "Prise de commande & Paiement",
                 f4: "Statistiques avancées",
                 f5: "Multi-langues auto",
+                detailedFeatures: [
+                    { category: "Menu & Design", features: ["3 Templates Premium", "Personnalisation avancée", "Hébergement HD", "Multilingue auto"] },
+                    { category: "Commandes", features: ["Prise de commande", "Paiement en ligne", "Apple/Google Pay", "Gestion des pourboires"] },
+                    { category: "Marketing", features: ["Statistiques de vente", "Fidélité client", "Promotions basiques"] },
+                    { category: "Support", features: ["Support prioritaire", "Aide à l'installation"] }
+                ],
                 cta: "Choisir Pro"
             },
             enterprise: {
@@ -88,6 +100,12 @@ export const translations = {
                 f2: "Tous les Templates (Tacos, Pizza...)",
                 f3: "Support multi-établissements",
                 f4: "Support prioritaire 24/7",
+                detailedFeatures: [
+                    { category: "Menu & Design", features: ["Templates illimités", "Design personnalisé", "Hébergement HD illimité", "Traduction 15+ langues"] },
+                    { category: "Opérations", features: ["Multi-établissements", "Gestion centralisée", "API Access", "Intégration POS avancée"] },
+                    { category: "Marketing", features: ["Fidélité personnalisée", "Analyses prédictives IA", "Campagnes SMS/Email"] },
+                    { category: "Support", features: ["Compte dédié", "Support 24/7", "Formation sur site"] }
+                ],
                 cta: "Contactez-nous"
             }
         },
@@ -237,6 +255,12 @@ export const translations = {
                 f2: "2 Templates included (S1, S2)",
                 f3: "Photo Hosting",
                 f4: "Email Support",
+                detailedFeatures: [
+                    { category: "Menu & Design", features: ["Unlimited Digital Menu", "2 Base Templates", "Standard Image Hosting", "High-quality QR Codes"] },
+                    { category: "Ordering", features: ["Menu Consultation Only", "Waiter Call (Optional)", "Clean Layout"] },
+                    { category: "Marketing", features: ["Basic Analytics", "Social Media Links"] },
+                    { category: "Support", features: ["Email Support", "Online Documentation"] }
+                ],
                 cta: "Choose Starter"
             },
             pro: {
@@ -249,6 +273,12 @@ export const translations = {
                 f3: "Ordering & Payment",
                 f4: "Advanced Analytics",
                 f5: "Automatic Multi-language",
+                detailedFeatures: [
+                    { category: "Menu & Design", features: ["3 Premium Templates", "Advanced Customization", "HD Image Hosting", "Auto Multi-language"] },
+                    { category: "Ordering", features: ["Digital Ordering", "Online Payment", "Apple/Google Pay Integration", "Tips Management"] },
+                    { category: "Marketing", features: ["Sales Analytics", "Customer Loyalty", "Basic Promotions"] },
+                    { category: "Support", features: ["Priority Support", "Setup Assistance"] }
+                ],
                 cta: "Choose Pro"
             },
             enterprise: {
@@ -259,6 +289,12 @@ export const translations = {
                 f2: "All Templates (Tacos, Pizza...)",
                 f3: "Multi-location Support",
                 f4: "Priority 24/7 Support",
+                detailedFeatures: [
+                    { category: "Menu & Design", features: ["Unlimited Templates", "Custom Brand Design", "Unlimited HD Hosting", "15+ Languages"] },
+                    { category: "Operations", features: ["Multi-location Management", "Centralized Dashboard", "API Access", "Advanced POS Integration"] },
+                    { category: "Marketing", features: ["Custom Loyalty Program", "AI Predictive Analytics", "SMS/Email Campaigns"] },
+                    { category: "Support", features: ["Dedicated Account Manager", "24/7 Priority Support", "On-site Training"] }
+                ],
                 cta: "Contact Us"
             }
         },
