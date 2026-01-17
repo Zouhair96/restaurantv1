@@ -29,7 +29,7 @@ import p2Template from '../assets/p2_template.png'
 import p3Template from '../assets/p3_template.png'
 
 const Profile = () => {
-    const { user, loading, unsubscribe, updateUser } = useAuth()
+    const { user, loading, subscribe, unsubscribe, updateUser } = useAuth()
     const navigate = useNavigate()
     const location = useLocation()
     const [activeModule, setActiveModule] = useState('dashboard')
