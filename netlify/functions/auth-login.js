@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 
+dotenv.config({ path: '../../.env' });
 dotenv.config();
 
 export const handler = async (event, context) => {

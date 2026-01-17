@@ -1,16 +1,16 @@
 import pg from 'pg';
 import dotenv from 'dotenv';
 
-dotenv.config();
+dotenv.config({ path: '../../.env' }); // Try to find it in the root from functions/
+dotenv.config(); // Also try standard
 
 const { Pool } = pg;
 
-// Enforce Environment Variable - SOFTENED for stability
-// Default to the new working URL if env var is missing
-const FALLBACK_DB_URL = "postgresql://neondb_owner:npg_1nr6sQcfLWDN@ep-flat-wave-aerpssmv-pooler.c-2.us-east-2.aws.neon.tech/neondb?channel_binding=require&sslmode=require";
+// Enforce Environment Variable
+const FALLBACK_DB_URL = "postgresql://neondb_owner:npg_1EGnafFUlrQ9@ep-dawn-credit-aeltw5g7-pooler.c-2.us-east-2.aws.neon.tech/neondb?channel_binding=require&sslmode=require";
 
 if (!process.env.DATABASE_URL) {
-    console.warn("WARNING: DATABASE_URL is missing. Using Fallback URL.");
+    console.warn("WARNING: DATABASE_URL is missing. Using New Fallback URL.");
 }
 
 const isLocal = (process.env.DATABASE_URL || '').includes('localhost') || (process.env.DATABASE_URL || '').includes('127.0.0.1');
