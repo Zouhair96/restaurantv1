@@ -810,47 +810,6 @@ const Profile = () => {
         }
     }
 
-    const renderSubscription = () => (
-        <div className="space-y-8">
-            <div>
-                <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Manage Subscription</h2>
-                <p className="text-gray-500 dark:text-gray-400 text-sm mt-1 font-medium">Switch your plan or manage your current subscription details.</p>
-            </div>
-
-            <SubscriptionPlans onSubscribe={handleSubscribe} currentPlan={user?.subscription_plan} />
-
-            <div className="bg-gray-900 dark:bg-black/40 p-10 rounded-[3rem] text-white">
-                <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-                    <div>
-                        <p className="text-[10px] font-black text-yum-primary uppercase tracking-[0.2em] mb-2">Current Status</p>
-                        <h3 className="text-3xl font-black">{user?.subscription_plan || 'Pro'} Member</h3>
-                        <div className="flex flex-col gap-1 mt-2">
-                            <p className="text-gray-400 text-sm">Next billing: {new Date().toLocaleDateString()}</p>
-                            {user?.subscription_end_date && new Date(user.subscription_end_date) > new Date() && (
-                                <div className="mt-2 flex items-center gap-2 px-3 py-1.5 bg-yum-primary/10 border border-yum-primary/20 rounded-xl w-fit">
-                                    <span className="text-lg">🔒</span>
-                                    <p className="text-yum-primary text-[10px] font-black uppercase tracking-widest leading-none">
-                                        Engagement until: {new Date(user.subscription_end_date).toLocaleDateString()}
-                                    </p>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                    <button
-                        onClick={() => {
-                            if (window.confirm("Are you sure you want to cancel? This action cannot be undone if you are under engagement.")) {
-                                handleUnsubscribe();
-                            }
-                        }}
-                        className="px-8 py-3 bg-white/10 hover:bg-white/20 border border-white/10 rounded-2xl text-xs font-black uppercase tracking-widest transition-all"
-                    >
-                        Cancel Subscription
-                    </button>
-                </div>
-            </div>
-        </div>
-    )
-
     const renderSettings = () => (
         <div className="space-y-8 max-w-4xl">
             <div>
@@ -968,8 +927,6 @@ const Profile = () => {
                 return renderActivity()
             case 'settings':
                 return renderSettings()
-            case 'subscription':
-                return renderSubscription()
             default:
                 return renderDashboardOverview()
         }
