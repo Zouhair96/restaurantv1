@@ -180,7 +180,11 @@ const Profile = () => {
             // State update will trigger re-render and show Plans view
         } catch (error) {
             console.error(error)
-            alert('Failed to unsubscribe: ' + error.message)
+            // Enhanced error message for engagement restriction
+            const message = error.message.includes('engagement')
+                ? error.message
+                : 'Failed to unsubscribe: ' + error.message;
+            alert(message)
         }
     }
 
@@ -904,10 +908,13 @@ const Profile = () => {
                         <h3 className="text-3xl font-black">{user?.subscription_plan || 'Pro'} Member</h3>
                         <div className="flex flex-col gap-1 mt-2">
                             <p className="text-gray-400 text-sm">Next billing: {new Date().toLocaleDateString()}</p>
-                            {user?.subscription_end_date && (
-                                <p className="text-yum-primary text-xs font-bold uppercase tracking-widest">
-                                    Engagement until: {new Date(user.subscription_end_date).toLocaleDateString()}
-                                </p>
+                            {user?.subscription_end_date && new Date(user.subscription_end_date) > new Date() && (
+                                <div className="mt-2 flex items-center gap-2 px-3 py-1.5 bg-yum-primary/10 border border-yum-primary/20 rounded-xl w-fit">
+                                    <span className="text-lg">🔒</span>
+                                    <p className="text-yum-primary text-[10px] font-black uppercase tracking-widest leading-none">
+                                        Engagement until: {new Date(user.subscription_end_date).toLocaleDateString()}
+                                    </p>
+                                </div>
                             )}
                         </div>
                     </div>

@@ -27,13 +27,35 @@ export const handler = async (event, context) => {
         const decoded = jwt.verify(token, secret);
         const userId = decoded.id;
 
-        // 2. Update Database
+        // 2. Check Engagement Period
+        const userQuery = 'SELECT subscription_end_date FROM users WHERE id = $1';
+        const userResult = await query(userQuery, [userId]);
+        const dbUser = userResult.rows[0];
+
+        if (dbUser?.subscription_end_date) {
+            const endDate = new Date(dbUser.subscription_end_date);
+            const now = new Date();
+
+            if (now < endDate) {
+                return {
+                    statusCode: 403,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        error: "Vous ne pouvez pas résilier votre abonnement avant la fin de votre période d'engagement.",
+                        engagementEndDate: dbUser.subscription_end_date
+                    })
+                };
+            }
+        }
+
+        // 3. Update Database
         // We set subscription fields to null/inactive
         const updateQuery = `
             UPDATE users 
             SET subscription_plan = NULL, 
             subscription_status = 'inactive', 
-            subscription_start_date = NULL
+            subscription_start_date = NULL,
+            subscription_end_date = NULL
             WHERE id = $1
             RETURNING id, name, email, restaurant_name, subscription_plan, subscription_status
         `;
