@@ -263,7 +263,11 @@ const Profile = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                     <UserProfileInfo user={user} />
                     <div className="mt-8">
-                        <h2 className="text-3xl font-black text-gray-900 mb-8 text-center uppercase tracking-tight">Choose Your Plan</h2>
+                        <h2 className="text-3xl font-black text-gray-900 mb-2 text-center uppercase tracking-tight">Choose Your Plan</h2>
+                        <p className="text-gray-500 text-center mb-10 max-w-2xl mx-auto font-medium">
+                            Join YumYum and boost your restaurant revenue.
+                            <span className="block mt-2 text-xs italic">* All plans come with a 12-month engagement period. Upgrading preserves your engagement end date, while downgrading resets it to 12 months from the switch date.</span>
+                        </p>
                         <SubscriptionPlans onSubscribe={(planId) => navigate('/checkout', { state: { plan: { name: planId } } })} />
                     </div>
                 </div>
@@ -908,6 +912,51 @@ const Profile = () => {
                     </button>
                 </div>
             </form>
+
+            {/* Subscription Management Section */}
+            <div className="pt-12 border-t border-gray-100 dark:border-white/5 space-y-8">
+                <div>
+                    <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Active Plan & Subscription</h2>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm mt-1 font-medium italic">
+                        * Highlighting our engagement rules: Upgrading preserves your current engagement date. Downgrading resets it to 12 months from today.
+                    </p>
+                </div>
+
+                <SubscriptionPlans onSubscribe={handleSubscribe} currentPlan={user?.subscription_plan} />
+
+                <div className="bg-gray-900 dark:bg-black/40 p-10 rounded-[3rem] text-white">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+                        <div>
+                            <p className="text-[10px] font-black text-yum-primary uppercase tracking-[0.2em] mb-2">Membership Status</p>
+                            <h3 className="text-3xl font-black">{user?.subscription_plan || 'Pro'} Member</h3>
+                            <div className="flex flex-col gap-1 mt-2">
+                                <p className="text-gray-400 text-sm">Next billing date: {new Date().toLocaleDateString()}</p>
+                                {user?.subscription_end_date && new Date(user.subscription_end_date) > new Date() && (
+                                    <div className="mt-4 flex items-center gap-2 px-4 py-2 bg-yum-primary/20 border border-yum-primary/30 rounded-2xl w-fit">
+                                        <span className="text-xl">🔒</span>
+                                        <div>
+                                            <p className="text-yum-primary text-[10px] font-black uppercase tracking-widest leading-none mb-1">Active Engagement Period</p>
+                                            <p className="text-white text-sm font-bold leading-none">
+                                                Locked until: {new Date(user.subscription_end_date).toLocaleDateString()}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => {
+                                if (window.confirm("Are you sure you want to cancel? This action cannot be undone if you are under engagement.")) {
+                                    handleUnsubscribe();
+                                }
+                            }}
+                            className="px-10 py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-[2rem] text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95"
+                        >
+                            Cancel Subscription
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     )
 
