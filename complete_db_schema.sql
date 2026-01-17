@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS users (
     subscription_plan TEXT,
     subscription_status TEXT DEFAULT 'inactive',
     subscription_start_date TIMESTAMP,
+    subscription_end_date TIMESTAMP WITH TIME ZONE,
     
     -- Metadata
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
