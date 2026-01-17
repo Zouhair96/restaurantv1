@@ -902,7 +902,14 @@ const Profile = () => {
                     <div>
                         <p className="text-[10px] font-black text-yum-primary uppercase tracking-[0.2em] mb-2">Current Subscription</p>
                         <h3 className="text-3xl font-black">{user?.subscription_plan || 'Pro'} Member</h3>
-                        <p className="text-gray-400 text-sm mt-2">Next billing: {new Date().toLocaleDateString()}</p>
+                        <div className="flex flex-col gap-1 mt-2">
+                            <p className="text-gray-400 text-sm">Next billing: {new Date().toLocaleDateString()}</p>
+                            {user?.subscription_end_date && (
+                                <p className="text-yum-primary text-xs font-bold uppercase tracking-widest">
+                                    Engagement until: {new Date(user.subscription_end_date).toLocaleDateString()}
+                                </p>
+                            )}
+                        </div>
                     </div>
                     <button
                         onClick={() => {

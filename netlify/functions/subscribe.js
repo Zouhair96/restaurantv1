@@ -44,18 +44,52 @@ export const handler = async (event, context) => {
             };
         }
 
-        // 3. Update Database
-        // We update the subscription fields for the user
+        // 3. Define Plan Ranks
+        const PLAN_RANKS = {
+            'Starter': 1,
+            'Pro': 2,
+            'Enterprise': 3
+        };
+
+        // 4. Fetch Current User Data
+        const userQuery = 'SELECT subscription_plan, subscription_end_date FROM users WHERE id = $1';
+        const userResult = await query(userQuery, [userId]);
+        const currentUser = userResult.rows[0];
+
+        const oldPlanRank = PLAN_RANKS[currentUser?.subscription_plan] || 0;
+        const newPlanRank = PLAN_RANKS[planName] || 0;
+
+        let newEndDate;
+
+        // 5. Calculate New Engagement End Date
+        if (newPlanRank < oldPlanRank) {
+            // Downgrade: Reset engagement to 12 months from now
+            newEndDate = new Date();
+            newEndDate.setFullYear(newEndDate.getFullYear() + 1);
+        } else {
+            // Upgrade or Same Rank (or first time): Preserve existing end date 
+            // If no end date exists, set to 12 months from now
+            newEndDate = currentUser?.subscription_end_date
+                ? new Date(currentUser.subscription_end_date)
+                : new Date();
+
+            if (!currentUser?.subscription_end_date) {
+                newEndDate.setFullYear(newEndDate.getFullYear() + 1);
+            }
+        }
+
+        // 6. Update Database
         const updateQuery = `
             UPDATE users 
             SET subscription_plan = $1, 
             subscription_status = 'active', 
-            subscription_start_date = NOW() 
+            subscription_start_date = CASE WHEN $3 < $4 THEN NOW() ELSE subscription_start_date END,
+            subscription_end_date = $5
             WHERE id = $2
-            RETURNING id, name, email, restaurant_name, subscription_plan, subscription_status
+            RETURNING id, name, email, restaurant_name, subscription_plan, subscription_status, subscription_end_date
         `;
 
-        const result = await query(updateQuery, [planName, userId]);
+        const result = await query(updateQuery, [planName, userId, newPlanRank, oldPlanRank, newEndDate]);
 
         if (result.rows.length === 0) {
             return {
