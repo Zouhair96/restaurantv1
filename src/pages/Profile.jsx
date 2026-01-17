@@ -170,6 +170,21 @@ const Profile = () => {
     }, [location, navigate])
 
     const handleSubscribe = async (planName) => {
+        const PLAN_RANKS = { 'Starter': 1, 'Pro': 2, 'Enterprise': 3 };
+        const currentPlanRank = PLAN_RANKS[user?.subscription_plan] || 0;
+        const newPlanRank = PLAN_RANKS[planName] || 0;
+
+        let confirmationMessage = '';
+        if (newPlanRank > currentPlanRank) {
+            confirmationMessage = `You are upgrading to ${planName}. This will PRESERVE your current engagement end date. Do you want to proceed?`;
+        } else if (newPlanRank < currentPlanRank) {
+            confirmationMessage = `You are downgrading to ${planName}. This will RESET your engagement period to 12 months starting from today. Do you want to proceed?`;
+        } else {
+            confirmationMessage = `Do you want to switch to the ${planName} plan?`;
+        }
+
+        if (!window.confirm(confirmationMessage)) return;
+
         try {
             await subscribe(planName)
             alert('Subscription updated successfully!')
