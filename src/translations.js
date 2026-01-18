@@ -117,6 +117,13 @@ export const translations = {
             f4: "Gestion des stocks et '86' (ruptures)",
             f5: "Intégration caisse (POS)",
             f6: "Programme de fidélité digital",
+            f7: "Upselling Intelligent par IA",
+            f8: "Commande Groupée & Partage d'Addition",
+            f9: "Tarification Dynamique 'Flash-Sales'",
+            f10: "Filtres Alimentaires Intelligents",
+            f11: "Feedback Instantané Client",
+            f12: "Gamification de la File d'Attente",
+            comingSoon: "Bientôt disponible"
         },
         testimonials: {
             title: "Ils nous font confiance",
@@ -308,6 +315,13 @@ export const translations = {
             f4: "Stock management and '86' (out of stock)",
             f5: "POS Integration",
             f6: "Digital Loyalty Program",
+            f7: "AI Smart Up-selling",
+            f8: "Group Ordering & Multi-payment",
+            f9: "Dynamic 'Flash-Sales' Pricing",
+            f10: "Smart Dietary Filters",
+            f11: "Instant Customer Feedback",
+            f12: "Waitlist Gamification",
+            comingSoon: "Coming Soon"
         },
         testimonials: {
             title: "They trust us",
