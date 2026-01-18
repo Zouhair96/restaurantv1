@@ -75,21 +75,6 @@ const Header = () => {
 
                 {/* Header Actions */}
                 <div className="flex items-center gap-2 lg:gap-4">
-                    {/* Social Buttons (Desktop Only) */}
-                    <div className="hidden lg:flex items-center gap-3 mr-4 border-r border-gray-100 pr-4">
-                        {socialLinks.map((social, index) => (
-                            <a
-                                key={index}
-                                href={social.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className={`w-8 h-8 flex items-center justify-center rounded-full text-white shadow-sm transition-all hover:scale-110 ${social.color}`}
-                            >
-                                <span className="text-[12px]">{social.icon}</span>
-                            </a>
-                        ))}
-                    </div>
-
                     <button
                         onClick={toggleLanguage}
                         className="flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 rounded-full border border-gray-200 text-yum-dark font-bold text-[10px] lg:text-sm hover:border-yum-primary hover:text-yum-primary transition-all uppercase"
