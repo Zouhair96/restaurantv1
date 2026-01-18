@@ -43,15 +43,18 @@ const AdminSidebar = ({ activeSection, onSectionChange }) => {
 
     return (
         <aside className="fixed left-0 top-0 h-full w-24 flex flex-col items-center justify-center z-50 pointer-events-none">
-            {/* Sidebar Body with smooth concave corners */}
-            <div className="relative w-[76px] py-12 bg-[#6359E9] rounded-r-[2.5rem] shadow-[15px_0_35px_rgba(99,89,233,0.2)] flex flex-col items-center gap-6 pointer-events-auto transition-all duration-500 hover:shadow-[20px_0_45px_rgba(99,89,233,0.3)]">
+            {/* High-Precision SVG Background - Integrated into the wall as requested */}
+            <div className="absolute inset-x-0 h-[850px] flex items-center justify-start z-[-1] pointer-events-none">
+                <svg width="100" height="100%" viewBox="0 0 100 850" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-[20px_0_40px_rgba(99,89,233,0.15)] transition-all duration-500">
+                    <path
+                        d="M0 0C0 0 0 60 60 60H76C88 60 92 72 92 84V766C92 778 88 790 76 790H60C0 790 0 850 0 850V0Z"
+                        fill="#6359E9"
+                    />
+                </svg>
+            </div>
 
-                {/* Concave Corner Top - Smoother Transition */}
-                <div className="absolute -top-[50px] left-0 w-[50px] h-[50px] bg-transparent rounded-bl-[50px] shadow-[0_25px_0_0_#6359E9]"></div>
-
-                {/* Concave Corner Bottom - Smoother Transition */}
-                <div className="absolute -bottom-[50px] left-0 w-[50px] h-[50px] bg-transparent rounded-tl-[50px] shadow-[0_-25px_0_0_#6359E9]"></div>
-
+            {/* Sidebar Content Area */}
+            <div className="relative w-24 h-[850px] flex flex-col items-center justify-center gap-6 pointer-events-auto py-12 z-10">
                 {navItems.map((item) => {
                     const isActive = activeSection === item.id;
                     const Icon = isActive ? item.solid : item.outline;
@@ -79,7 +82,7 @@ const AdminSidebar = ({ activeSection, onSectionChange }) => {
 
                                 {/* PRO Badge */}
                                 {item.badge && (
-                                    <span className={`absolute left-[85%] top-1/2 -translate-y-1/2 ml-2 px-1.5 py-0.5 bg-[#4ADE80] text-[6.5px] font-black text-white rounded-full tracking-tighter shadow-sm whitespace-nowrap uppercase transition-all duration-300
+                                    <span className={`absolute left-[85%] top-1/2 -translate-y-1/2 ml-2.5 px-1.5 py-0.5 bg-[#4ADE10] text-[6.5px] font-black text-white rounded-full tracking-tighter shadow-sm whitespace-nowrap uppercase transition-all duration-300
                                         ${isActive ? 'opacity-0 -translate-x-2' : 'opacity-100'}`}>
                                         {item.badge}
                                     </span>
