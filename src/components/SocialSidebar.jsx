@@ -28,7 +28,7 @@ const SocialSidebar = () => {
     ]
 
     return (
-        <div className={`fixed right-4 lg:right-auto lg:left-6 top-1/2 -translate-y-1/2 z-[999] flex flex-col gap-3 lg:gap-4`}>
+        <div className={`fixed left-4 lg:left-6 top-1/2 -translate-y-1/2 z-[999] hidden lg:flex flex-col gap-3 lg:gap-4`}>
             {socialLinks.map((social, index) => (
                 <a
                     key={index}

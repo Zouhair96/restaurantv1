@@ -73,8 +73,8 @@ const Header = () => {
                     </nav>
                 )}
 
-                {/* Header Actions (Socials + User) */}
-                <div className="flex items-center gap-4">
+                {/* Header Actions */}
+                <div className="flex items-center gap-2 lg:gap-4">
                     {/* Social Buttons (Desktop Only) */}
                     <div className="hidden lg:flex items-center gap-3 mr-4 border-r border-gray-100 pr-4">
                         {socialLinks.map((social, index) => (
@@ -90,74 +90,72 @@ const Header = () => {
                         ))}
                     </div>
 
-                    <div className="flex flex-col items-end gap-1.5">
-                        {/* Language + Login/User */}
-                        <div className="flex items-center gap-2 lg:gap-3">
-                            <button
-                                onClick={toggleLanguage}
-                                className="flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 rounded-full border border-gray-200 text-yum-dark font-bold text-[10px] lg:text-sm hover:border-yum-primary hover:text-yum-primary transition-all uppercase"
-                                aria-label="Switch Language"
-                            >
-                                {language}
-                            </button>
+                    <button
+                        onClick={toggleLanguage}
+                        className="flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 rounded-full border border-gray-200 text-yum-dark font-bold text-[10px] lg:text-sm hover:border-yum-primary hover:text-yum-primary transition-all uppercase"
+                        aria-label="Switch Language"
+                    >
+                        {language}
+                    </button>
 
-                            {user ? (
-                                <div className="relative group">
-                                    <button className="flex items-center gap-2 bg-yum-light text-yum-primary px-3 py-1.5 lg:px-4 lg:py-2 rounded-full font-bold hover:bg-red-100 transition-colors text-xs lg:text-sm">
-                                        <span className="max-w-[70px] lg:max-w-none truncate">{user.name}</span>
-                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                        </svg>
-                                    </button>
+                    {/* Desktop Login/User */}
+                    <div className="hidden md:flex items-center">
+                        {user ? (
+                            <div className="relative group">
+                                <button className="flex items-center gap-2 bg-yum-light text-yum-primary px-4 py-2 rounded-full font-bold hover:bg-red-100 transition-colors">
+                                    <span>{user.name}</span>
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
 
-                                    <div className="absolute right-0 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 w-48">
-                                        <div className="bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden">
-                                            {user.role === 'admin' ? (
-                                                <Link to="/admin" className="block px-4 py-3 text-gray-700 hover:bg-yum-light hover:text-yum-primary font-medium transition-colors">
-                                                    {t('header.adminDashboard') || 'Admin Dashboard'}
-                                                </Link>
-                                            ) : user.subscription_status === 'active' ? (
-                                                <Link to="/profile" className="block px-4 py-3 text-gray-700 hover:bg-yum-light hover:text-yum-primary font-medium transition-colors">
-                                                    {t('header.dashboard') || 'Dashboard'}
-                                                </Link>
-                                            ) : (
-                                                <Link to="/profile" className="block px-4 py-3 text-gray-700 hover:bg-yum-light hover:text-yum-primary font-medium transition-colors">
-                                                    {t('header.profile') || 'Profile'}
-                                                </Link>
-                                            )}
-                                            <button
-                                                onClick={() => {
-                                                    logout()
-                                                    navigate('/')
-                                                }}
-                                                className="w-full text-left px-4 py-3 text-gray-700 hover:bg-yum-light hover:text-yum-primary font-medium transition-colors border-t border-gray-50"
-                                            >
-                                                {t('header.logout') || 'Logout'}
-                                            </button>
-                                        </div>
+                                <div className="absolute right-0 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 w-48">
+                                    <div className="bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden">
+                                        {user.role === 'admin' ? (
+                                            <Link to="/admin" className="block px-4 py-3 text-gray-700 hover:bg-yum-light hover:text-yum-primary font-medium transition-colors">
+                                                {t('header.adminDashboard') || 'Admin Dashboard'}
+                                            </Link>
+                                        ) : user.subscription_status === 'active' ? (
+                                            <Link to="/profile" className="block px-4 py-3 text-gray-700 hover:bg-yum-light hover:text-yum-primary font-medium transition-colors">
+                                                {t('header.dashboard') || 'Dashboard'}
+                                            </Link>
+                                        ) : (
+                                            <Link to="/profile" className="block px-4 py-3 text-gray-700 hover:bg-yum-light hover:text-yum-primary font-medium transition-colors">
+                                                {t('header.profile') || 'Profile'}
+                                            </Link>
+                                        )}
+                                        <button
+                                            onClick={() => {
+                                                logout()
+                                                navigate('/')
+                                            }}
+                                            className="w-full text-left px-4 py-3 text-gray-700 hover:bg-yum-light hover:text-yum-primary font-medium transition-colors border-t border-gray-50"
+                                        >
+                                            {t('header.logout') || 'Logout'}
+                                        </button>
                                     </div>
                                 </div>
-                            ) : (
-                                <Link
-                                    to="/login"
-                                    className="text-yum-dark font-bold hover:text-yum-primary transition-colors hover:bg-yum-light px-3 py-1.5 lg:px-4 lg:py-2 rounded-full relative z-50 text-xs lg:text-sm"
-                                >
-                                    {t('header.login')}
-                                </Link>
-                            )}
-
-                            {/* Mobile Menu Button */}
-                            <button className="md:hidden text-yum-dark ml-1" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                                <svg className="w-7 h-7 lg:w-8 lg:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    {isMenuOpen ? (
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                    ) : (
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                                    )}
-                                </svg>
-                            </button>
-                        </div>
+                            </div>
+                        ) : (
+                            <Link
+                                to="/login"
+                                className="text-yum-dark font-bold hover:text-yum-primary transition-colors hover:bg-yum-light px-4 py-2 rounded-full relative z-50 text-sm"
+                            >
+                                {t('header.login')}
+                            </Link>
+                        )}
                     </div>
+
+                    {/* Mobile Menu Button */}
+                    <button className="md:hidden text-yum-dark" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            {isMenuOpen ? (
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            ) : (
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                            )}
+                        </svg>
+                    </button>
                 </div>
             </div>
 
