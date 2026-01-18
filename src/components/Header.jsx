@@ -157,21 +157,6 @@ const Header = () => {
                                 </svg>
                             </button>
                         </div>
-
-                        {/* Mobile Social Row (Fixed Under Actions) */}
-                        <div className="flex md:hidden items-center gap-2 pr-1">
-                            {socialLinks.map((social, index) => (
-                                <a
-                                    key={index}
-                                    href={social.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className={`w-5 h-5 flex items-center justify-center rounded-full text-white shadow-sm transition-all hover:scale-110 ${social.color}`}
-                                >
-                                    <span className="text-[8px]">{social.icon}</span>
-                                </a>
-                            ))}
-                        </div>
                     </div>
                 </div>
             </div>
@@ -215,9 +200,10 @@ const Header = () => {
                     )}
 
                 </div>
-            )}
+            )
+            }
 
-        </header>
+        </header >
     )
 }
 
