@@ -35,8 +35,9 @@ export const handler = async (event) => {
 
         const body = JSON.parse(event.body);
         const { userId, menuName, photos, extractedData } = body;
+        const theme = extractedData?.suggestedTheme || 'orange';
 
-        console.log('Action: Create Menu', { userId, menuName, photoCount: photos?.length });
+        console.log('Action: Create Menu', { userId, menuName, theme, photoCount: photos?.length });
 
         if (!userId || !menuName || !photos || photos.length === 0) {
             return {
@@ -87,8 +88,8 @@ export const handler = async (event) => {
         let menu;
         try {
             const results = await sql`
-                INSERT INTO generated_menus (user_id, menu_name, slug, original_photos, thumbnail_url)
-                VALUES (${userIdInt}, ${menuName}, ${slug}, ${photos}, ${photos[0]})
+                INSERT INTO generated_menus (user_id, menu_name, slug, original_photos, thumbnail_url, theme)
+                VALUES (${userIdInt}, ${menuName}, ${slug}, ${photos}, ${photos[0]}, ${theme})
                 RETURNING *
             `;
             menu = results[0];

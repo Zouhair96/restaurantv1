@@ -54,17 +54,54 @@ const GeneratedMenu = () => {
         setIsCheckoutOpen(true);
     };
 
+    const THEMES = {
+        orange: {
+            bg: 'from-orange-50 via-white to-red-50',
+            darkBg: 'dark:from-gray-900 dark:via-gray-900 dark:to-gray-800',
+            primary: 'from-orange-500 to-red-500',
+            hover: 'hover:from-orange-600 hover:to-red-600',
+            text: 'text-orange-500',
+            icon: '🍕',
+        },
+        red: {
+            bg: 'from-red-50 via-white to-pink-50',
+            darkBg: 'dark:from-gray-900 dark:via-gray-900 dark:to-red-950/20',
+            primary: 'from-red-600 to-pink-600',
+            hover: 'hover:from-red-700 hover:to-pink-700',
+            text: 'text-red-600',
+            icon: '🍔',
+        },
+        blue: {
+            bg: 'from-blue-50 via-white to-cyan-50',
+            darkBg: 'dark:from-gray-900 dark:via-gray-900 dark:to-blue-950/20',
+            primary: 'from-blue-600 to-cyan-600',
+            hover: 'hover:from-blue-700 hover:to-cyan-700',
+            text: 'text-blue-600',
+            icon: '🍣',
+        },
+        green: {
+            bg: 'from-green-50 via-white to-emerald-50',
+            darkBg: 'dark:from-gray-900 dark:via-gray-900 dark:to-green-950/20',
+            primary: 'from-green-600 to-emerald-600',
+            hover: 'hover:from-green-700 hover:to-emerald-700',
+            text: 'text-green-600',
+            icon: '☕',
+        },
+    };
+
+    const activeTheme = THEMES[menu?.theme] || THEMES.orange;
+
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-orange-500"></div>
+            <div className={`min-h-screen bg-gradient-to-br ${activeTheme.bg} ${activeTheme.darkBg} flex items-center justify-center`}>
+                <div className={`animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 ${activeTheme.text.replace('text-', 'border-')}`}></div>
             </div>
         );
     }
 
     if (error) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 flex items-center justify-center">
+            <div className={`min-h-screen bg-gradient-to-br ${activeTheme.bg} ${activeTheme.darkBg} flex items-center justify-center`}>
                 <div className="text-center">
                     <div className="text-6xl mb-4">😕</div>
                     <h1 className="text-3xl font-black text-gray-900 dark:text-white mb-4">Menu Not Found</h1>
@@ -75,14 +112,14 @@ const GeneratedMenu = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
+        <div className={`min-h-screen bg-gradient-to-br ${activeTheme.bg} ${activeTheme.darkBg}`}>
             {/* Header */}
             <header className="sticky top-0 z-30 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200 dark:border-gray-700">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex items-center justify-between gap-4">
                         {/* Logo */}
                         <div className="flex items-center gap-3">
-                            <div className="text-4xl">🍕</div>
+                            <div className="text-4xl">{activeTheme.icon}</div>
                             <div>
                                 <h1 className="text-2xl font-black text-gray-900 dark:text-white">
                                     {menu?.menu_name || 'Menu'}
@@ -96,7 +133,7 @@ const GeneratedMenu = () => {
                         {/* Cart Button */}
                         <button
                             onClick={toggleCart}
-                            className="relative bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 flex items-center gap-2"
+                            className={`relative bg-gradient-to-r ${activeTheme.primary} ${activeTheme.hover} text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 flex items-center gap-2`}
                         >
                             <HiShoppingCart size={24} />
                             <span className="hidden sm:inline">Cart</span>
@@ -143,11 +180,11 @@ const GeneratedMenu = () => {
                             key={category.id}
                             onClick={() => setSelectedCategory(category.id)}
                             className={`px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 ${selectedCategory === category.id
-                                    ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg scale-105'
-                                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:shadow-md hover:scale-105'
+                                ? `bg-gradient-to-r ${activeTheme.primary} text-white shadow-lg scale-105`
+                                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:shadow-md hover:scale-105'
                                 }`}
                         >
-                            <span>{category.icon}</span>
+                            <span>{category.id === 'all' ? activeTheme.icon : category.icon}</span>
                             {category.label}
                         </button>
                     ))}
@@ -174,7 +211,7 @@ const GeneratedMenu = () => {
                                     medium: item.price_medium,
                                     large: item.price_large,
                                 }
-                            }} />
+                            }} themeIcon={activeTheme.icon} />
                         ))}
                     </div>
                 )}

@@ -53,7 +53,7 @@ const CreateMenuModal = ({ isOpen, onClose, userId, onMenuCreated }) => {
             const extractResponse = await fetch('/.netlify/functions/extract-menu-from-photos', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ photos }),
+                body: JSON.stringify({ photos, menuName: menuName.trim() }),
             });
 
             const extractData = await extractResponse.json();

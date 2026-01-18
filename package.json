@@ -12,6 +12,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@neondatabase/serverless": "^1.0.2",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { HiPlus, HiMinus } from 'react-icons/hi2';
 import { useCart } from '../../context/CartContext';
 
-const MenuItem = ({ item }) => {
+const MenuItem = ({ item, themeIcon = '🍕' }) => {
     const [selectedSize, setSelectedSize] = useState('11"');
     const [quantity, setQuantity] = useState(1);
     const [isAdding, setIsAdding] = useState(false);
@@ -48,7 +48,7 @@ const MenuItem = ({ item }) => {
                 )}
                 <div className="absolute inset-0 flex items-center justify-center">
                     <span className="text-6xl group-hover:scale-110 transition-transform duration-300">
-                        🍕
+                        {themeIcon}
                     </span>
                 </div>
             </div>
