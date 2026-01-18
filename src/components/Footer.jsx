@@ -18,7 +18,7 @@ const Footer = () => {
                     <div className="flex gap-6">
                         <a href="#" className="text-gray-400 hover:text-white transition-colors">{t('footer.privacy')}</a>
                         <a href="#" className="text-gray-400 hover:text-white transition-colors">{t('footer.terms')}</a>
-                        <a href="#" className="text-gray-400 hover:text-white transition-colors">{t('footer.contact')}</a>
+                        <a href="#contact" className="text-gray-400 hover:text-white transition-colors">{t('footer.contact')}</a>
                     </div>
                 </div>
             </div>

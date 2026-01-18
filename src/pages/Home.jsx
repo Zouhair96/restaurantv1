@@ -28,9 +28,9 @@ const Home = () => {
                     <Testimonials />
                     <FAQ />
                     <Contact />
+                    <Footer />
                 </ParallaxBackground>
             </main>
-            <Footer />
         </div>
     )
 }

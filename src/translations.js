@@ -152,6 +152,7 @@ export const translations = {
             placeholderResto: "Chez Jean",
             placeholderEmail: "jean@exemple.fr",
             placeholderMsg: "Je souhaite une démo...",
+            error: "Une erreur est survenue, veuillez réessayer.",
         },
         footer: {
             about: "À propos",
@@ -341,6 +342,7 @@ export const translations = {
             placeholderResto: "John's Place",
             placeholderEmail: "john@example.com",
             placeholderMsg: "I'd like a demo...",
+            error: "An error occurred, please try again.",
         },
         footer: {
             about: "About",

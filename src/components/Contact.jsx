@@ -69,10 +69,10 @@ const Contact = () => {
                                 <div className="w-16 h-16 bg-green-100 text-green-500 rounded-full flex items-center justify-center mb-4 text-2xl">
                                     ✓
                                 </div>
-                                <h3 className="text-2xl font-bold text-gray-800 mb-2">Message envoyé !</h3>
-                                <p className="text-gray-600">Notre équipe vous recontactera très rapidement.</p>
+                                <h3 className="text-2xl font-bold text-gray-800 mb-2">{t('contact.successTitle')}</h3>
+                                <p className="text-gray-600">{t('contact.successDesc')}</p>
                                 <button onClick={() => setSuccess(false)} className="mt-6 text-yum-primary font-bold hover:underline">
-                                    Envoyer un autre message
+                                    {t('contact.successReset')}
                                 </button>
                             </div>
                         ) : (
@@ -82,20 +82,20 @@ const Contact = () => {
                                 <input type="hidden" name="_subject" value="Nouveau prospect YumYum !" />
 
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">{t('contact.form.name')}</label>
-                                    <input type="text" name="name" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yum-primary focus:ring-2 focus:ring-yum-primary/20 outline-none transition-all placeholder-gray-400" placeholder="Ex: Jean Dupont" required />
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">{t('contact.formTitle')}</label>
+                                    <input type="text" name="name" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yum-primary focus:ring-2 focus:ring-yum-primary/20 outline-none transition-all placeholder-gray-400" placeholder={t('contact.placeholderName')} required />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">{t('contact.form.restaurant')}</label>
-                                    <input type="text" name="restaurant" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yum-primary focus:ring-2 focus:ring-yum-primary/20 outline-none transition-all placeholder-gray-400" placeholder="Ex: Le Petit Bistro" required />
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">{t('contact.formRestaurant')}</label>
+                                    <input type="text" name="restaurant" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yum-primary focus:ring-2 focus:ring-yum-primary/20 outline-none transition-all placeholder-gray-400" placeholder={t('contact.placeholderResto')} required />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">{t('contact.form.email')}</label>
-                                    <input type="email" name="email" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yum-primary focus:ring-2 focus:ring-yum-primary/20 outline-none transition-all placeholder-gray-400" placeholder="Ex: jean@bistro.com" required />
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">{t('contact.formEmail')}</label>
+                                    <input type="email" name="email" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yum-primary focus:ring-2 focus:ring-yum-primary/20 outline-none transition-all placeholder-gray-400" placeholder={t('contact.placeholderEmail')} required />
                                 </div>
                                 <div className="hidden">
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">Message</label>
-                                    <textarea name="message" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yum-primary focus:ring-2 focus:ring-yum-primary/20 outline-none transition-all placeholder-gray-400 h-32 resize-none" placeholder="Bonjour, je souhaite moderniser mon restaurant..." defaultValue="Nouveau lead depuis le site YumYum"></textarea>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">{t('contact.formMessage')}</label>
+                                    <textarea name="message" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yum-primary focus:ring-2 focus:ring-yum-primary/20 outline-none transition-all placeholder-gray-400 h-32 resize-none" placeholder={t('contact.placeholderMsg')} defaultValue="Nouveau lead depuis le site YumYum"></textarea>
                                 </div>
                                 <button type="submit" disabled={loading} className="w-full bg-yum-dark text-white font-bold py-4 rounded-xl hover:bg-black transition-all transform hover:-translate-y-1 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center">
                                     {loading ? (
@@ -103,10 +103,10 @@ const Contact = () => {
                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                         </svg>
-                                    ) : t('contact.form.submit')}
+                                    ) : t('contact.cta')}
                                 </button>
                                 {error && (
-                                    <p className="text-red-500 text-center text-sm mt-2">Une erreur est survenue, veuillez réessayer.</p>
+                                    <p className="text-red-500 text-center text-sm mt-2">{t('contact.error')}</p>
                                 )}
                             </form>
                         )}
