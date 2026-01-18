@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { motion } from 'framer-motion';
 import {
     HiOutlineSquares2X2,
     HiSquares2X2,
@@ -42,71 +43,101 @@ const AdminSidebar = ({ activeSection, onSectionChange }) => {
     ];
 
     return (
-        <aside className="fixed left-0 top-0 h-full w-24 flex flex-col items-center justify-center z-50 pointer-events-none">
-            {/* High-Precision SVG Background - Integrated into the wall as requested */}
-            <div className="absolute inset-x-0 h-[850px] flex items-center justify-start z-[-1] pointer-events-none">
-                <svg width="100" height="100%" viewBox="0 0 100 850" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-[20px_0_40px_rgba(99,89,233,0.15)] transition-all duration-500">
+        <aside className="fixed left-0 top-0 h-full w-24 flex flex-col items-center z-50 transition-all duration-300">
+            {/* Background Shape */}
+            <div className="absolute inset-0 -z-10 group-hover:drop-shadow-2xl transition-all duration-500">
+                <svg
+                    className="w-full h-full"
+                    preserveAspectRatio="none"
+                    viewBox="0 0 80 800"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                >
                     <path
-                        d="M0 0C0 0 0 60 60 60H76C88 60 92 72 92 84V766C92 778 88 790 76 790H60C0 790 0 850 0 850V0Z"
+                        d="M 0,24 
+                           C 0,10 10,0 24,0 
+                           H 56 
+                           C 70,0 80,10 80,24 
+                           V 260 
+                           C 80,285 74,300 64,300 
+                           V 660 
+                           C 74,660 80,675 80,700 
+                           V 776 
+                           C 80,790 70,800 56,800 
+                           H 24 
+                           C 10,800 0,790 0,776 
+                           L 0,24 
+                           Z"
                         fill="#6359E9"
+                        className="transition-colors duration-500"
                     />
                 </svg>
             </div>
 
-            {/* Sidebar Content Area */}
-            <div className="relative w-24 h-[850px] flex flex-col items-center justify-center gap-6 pointer-events-auto py-12 z-10">
-                {navItems.map((item) => {
-                    const isActive = activeSection === item.id;
-                    const Icon = isActive ? item.solid : item.outline;
+            {/* Sidebar Content */}
+            <div className="flex flex-col h-full py-10 w-full items-center">
+                {/* Nav Items */}
+                <div className="flex-1 w-full flex flex-col items-center gap-4">
+                    {navItems.map((item) => {
+                        const isActive = activeSection === item.id;
+                        const Icon = isActive ? item.solid : item.outline;
 
-                    return (
-                        <div key={item.id} className="relative group">
-                            <button
-                                onClick={() => onSectionChange(item.id)}
-                                className={`relative flex items-center justify-center transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]
-                                    ${isActive
-                                        ? 'w-12 h-12 bg-white rounded-[1.25rem] shadow-[0_8px_20px_rgba(0,0,0,0.12)] text-[#6359E9] scale-110'
-                                        : 'w-10 h-10 text-white/70 hover:text-white hover:scale-110 active:scale-95'
-                                    }`}
-                            >
-                                <Icon size={isActive ? 22 : 24} className="transition-transform duration-300" />
+                        return (
+                            <div key={item.id} className="relative group">
+                                <button
+                                    onClick={() => onSectionChange(item.id)}
+                                    className={`relative w-14 h-14 flex items-center justify-center rounded-2xl transition-all duration-300
+                                        ${isActive ? 'text-[#6359E9] scale-105' : 'text-white/70 hover:text-white hover:bg-white/10'}`}
+                                >
+                                    {isActive && (
+                                        <motion.div
+                                            layoutId="active-pill"
+                                            className="absolute inset-0 bg-white rounded-2xl shadow-[0_8px_20px_rgba(0,0,0,0.15)] -z-10"
+                                            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                                        />
+                                    )}
 
-                                {/* Notification Dot */}
-                                {item.dot && (
-                                    <span
-                                        className={`absolute top-0.5 right-0.5 w-2.5 h-2.5 rounded-full border-2 border-[#6359E9] transition-all duration-300
-                                            ${isActive ? 'opacity-0 scale-0' : 'opacity-100 scale-100'}`}
-                                        style={{ backgroundColor: item.dot }}
-                                    ></span>
-                                )}
+                                    <div className="relative">
+                                        <Icon size={isActive ? 24 : 26} className="transition-transform duration-300" />
 
-                                {/* PRO Badge */}
-                                {item.badge && (
-                                    <span className={`absolute left-[85%] top-1/2 -translate-y-1/2 ml-2.5 px-1.5 py-0.5 bg-[#4ADE10] text-[6.5px] font-black text-white rounded-full tracking-tighter shadow-sm whitespace-nowrap uppercase transition-all duration-300
-                                        ${isActive ? 'opacity-0 -translate-x-2' : 'opacity-100'}`}>
-                                        {item.badge}
-                                    </span>
-                                )}
+                                        {/* Notification Dot */}
+                                        {item.dot && !isActive && (
+                                            <span
+                                                className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-[#6359E9]"
+                                                style={{ backgroundColor: item.dot }}
+                                            />
+                                        )}
 
-                                {/* Hover Tooltip */}
-                                {!isActive && (
-                                    <span className="absolute left-full ml-5 px-3 py-2 bg-gray-900/90 backdrop-blur-md text-white text-[10px] font-black rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap shadow-2xl border border-white/10 uppercase tracking-[0.1em] -translate-x-2 group-hover:translate-x-0 z-50">
-                                        {item.label}
-                                    </span>
-                                )}
-                            </button>
-                        </div>
-                    );
-                })}
+                                        {/* PRO Badge */}
+                                        {item.badge && !isActive && (
+                                            <span className="absolute -top-3 -right-6 px-1.5 py-0.5 bg-[#4ADE10] text-[7px] font-black text-white rounded-full leading-none shadow-sm flex items-center justify-center min-w-[24px] uppercase whitespace-nowrap">
+                                                {item.badge}
+                                            </span>
+                                        )}
+                                    </div>
 
-                {/* Logout Tool - Polished */}
-                <button
-                    onClick={handleLogout}
-                    className="mt-6 w-10 h-10 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 rounded-xl transition-all duration-300 border-t border-white/5 pt-6 w-full max-w-[40px]"
-                    title="Logout"
-                >
-                    <HiOutlineArrowRightOnRectangle size={22} />
-                </button>
+                                    {/* Tooltip */}
+                                    {!isActive && (
+                                        <span className="absolute left-full ml-4 px-2.5 py-1.5 bg-gray-900/90 backdrop-blur-md text-white text-[9px] font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap shadow-xl border border-white/10 uppercase tracking-widest -translate-x-2 group-hover:translate-x-0">
+                                            {item.label}
+                                        </span>
+                                    )}
+                                </button>
+                            </div>
+                        );
+                    })}
+                </div>
+
+                {/* Logout */}
+                <div className="mt-auto pt-6 border-t border-white/10 w-12 flex justify-center">
+                    <button
+                        onClick={handleLogout}
+                        className="w-10 h-10 flex items-center justify-center text-white/40 hover:text-white transition-all duration-300"
+                        title="Logout"
+                    >
+                        <HiOutlineArrowRightOnRectangle size={24} />
+                    </button>
+                </div>
             </div>
         </aside>
     );
