@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
 import { useAuth } from '../context/AuthContext'
+import { FaFacebookF, FaInstagram, FaTiktok, FaYoutube } from 'react-icons/fa'
 
 const Header = () => {
     const [isScrolled, setIsScrolled] = useState(false)
+    const [isSocialVisible, setIsSocialVisible] = useState(true)
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const { t, language, toggleLanguage } = useLanguage()
     const { user, logout } = useAuth()
@@ -14,11 +16,20 @@ const Header = () => {
 
     useEffect(() => {
         const handleScroll = () => {
+            const scrollThreshold = window.innerHeight * 0.1
+            setIsSocialVisible(window.scrollY < scrollThreshold)
             setIsScrolled(window.scrollY > 20)
         }
         window.addEventListener('scroll', handleScroll)
         return () => window.removeEventListener('scroll', handleScroll)
     }, [])
+
+    const socialLinks = [
+        { icon: <FaFacebookF />, url: '#', color: 'bg-[#1877F2]' },
+        { icon: <FaInstagram />, url: '#', color: 'bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF]' },
+        { icon: <FaTiktok />, url: '#', color: 'bg-black' },
+        { icon: <FaYoutube />, url: '#', color: 'bg-[#FF0000]' }
+    ]
 
     const scrollToSection = (id) => {
         setIsMenuOpen(false)
@@ -54,6 +65,35 @@ const Header = () => {
                         </span>
                     </div>
                 </Link>
+
+                {/* Mobile Social Buttons (After Login) */}
+                {user && (
+                    <div className="flex md:hidden items-center gap-1.5 ml-auto mr-3">
+                        {socialLinks.map((social, index) => (
+                            <a
+                                key={index}
+                                href={social.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{
+                                    transitionDelay: `${isSocialVisible ? index * 100 : (socialLinks.length - 1 - index) * 80}ms`
+                                }}
+                                className={`
+                                    w-7 h-7 flex items-center justify-center rounded-full 
+                                    text-white shadow-md transition-all duration-500 
+                                    ease-[cubic-bezier(0.34,1.56,0.64,1)] transform
+                                    ${isSocialVisible
+                                        ? 'opacity-100 translate-y-0 scale-100'
+                                        : 'opacity-0 -translate-y-8 scale-0 pointer-events-none'
+                                    } 
+                                    ${social.color}
+                                `}
+                            >
+                                <span className="text-[10px]">{social.icon}</span>
+                            </a>
+                        ))}
+                    </div>
+                )}
 
                 {/* Desktop Navigation */}
                 {!isLoginPage && (

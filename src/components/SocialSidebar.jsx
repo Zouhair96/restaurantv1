@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { FaFacebookF, FaInstagram, FaTiktok, FaYoutube } from 'react-icons/fa'
+import { useAuth } from '../context/AuthContext'
 
 const SocialSidebar = () => {
     const [isVisible, setIsVisible] = useState(true)
+    const { user } = useAuth()
 
     useEffect(() => {
         const handleScroll = () => {
@@ -26,7 +28,7 @@ const SocialSidebar = () => {
     ]
 
     return (
-        <div className="fixed left-4 lg:left-6 top-1/2 -translate-y-1/2 z-[999] flex flex-col gap-3 lg:gap-4">
+        <div className={`fixed left-4 lg:left-6 top-1/2 -translate-y-1/2 z-[999] flex-col gap-3 lg:gap-4 ${user ? 'hidden md:flex' : 'flex'}`}>
             {socialLinks.map((social, index) => (
                 <a
                     key={index}
