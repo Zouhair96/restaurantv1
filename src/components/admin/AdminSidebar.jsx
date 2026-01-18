@@ -1,7 +1,19 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 
-const AdminSidebar = () => {
+import React from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+
+const AdminSidebar = ({ activeSection, onSectionChange }) => {
+    const { logout } = useAuth();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
+
     const navItems = [
         { id: 'dashboard', icon: 'M4 6h16M4 12h16m-7 6h7', label: 'Dashboard' },
         { id: 'users', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z', label: 'Users' },
@@ -21,11 +33,12 @@ const AdminSidebar = () => {
             </div>
 
             <nav className="flex-1 flex flex-col gap-8">
-                {navItems.map((item, index) => (
+                {navItems.map((item) => (
                     <div key={item.id} className="relative group px-4">
                         <button
+                            onClick={() => onSectionChange(item.id)}
                             className={`w-12 h-12 flex items-center justify-center rounded-2xl transition-all duration-300 transform
-                ${index === 0
+                ${activeSection === item.id
                                     ? 'bg-white text-[#6359E9] shadow-xl shadow-indigo-200 scale-110'
                                     : 'text-white/70 hover:text-white hover:bg-white/10'
                                 }`}
@@ -39,8 +52,8 @@ const AdminSidebar = () => {
                                 {item.label}
                             </span>
 
-                            {/* Status Badge mockup for 3rd item (Analytics/Stats) */}
-                            {index === 2 && (
+                            {/* Status Badge Mockup */}
+                            {item.id === 'analytics' && (
                                 <div className="absolute -top-1 -right-1 flex h-4 w-4">
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                                     <span className="relative inline-flex rounded-full h-4 w-4 bg-green-500 border-2 border-[#6359E9] text-[8px] flex items-center justify-center text-white font-bold">5</span>
@@ -52,7 +65,11 @@ const AdminSidebar = () => {
             </nav>
 
             {/* Logout / Bottom Action */}
-            <button className="mt-auto mb-12 w-12 h-12 flex items-center justify-center rounded-2xl text-white/50 hover:text-white hover:bg-white/10 transition-all">
+            <button
+                onClick={handleLogout}
+                className="mt-auto mb-12 w-12 h-12 flex items-center justify-center rounded-2xl text-white/50 hover:text-white hover:bg-white/10 transition-all"
+                title="Logout"
+            >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
