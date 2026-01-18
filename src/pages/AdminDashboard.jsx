@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import AdminLayout from '../layouts/AdminLayout'
+import CreateMenuModal from '../components/admin/CreateMenuModal'
+import MenuWidget from '../components/admin/MenuWidget'
 
 const AdminDashboard = () => {
     const { user, loading } = useAuth()
@@ -10,6 +12,9 @@ const AdminDashboard = () => {
     const [isLoadingData, setIsLoadingData] = useState(true)
     const [error, setError] = useState(null)
     const [activeSection, setActiveSection] = useState('dashboard')
+    const [menus, setMenus] = useState([])
+    const [isMenuModalOpen, setIsMenuModalOpen] = useState(false)
+    const [isLoadingMenus, setIsLoadingMenus] = useState(true)
 
     useEffect(() => {
         // Redirection for non-admins
@@ -18,6 +23,7 @@ const AdminDashboard = () => {
                 navigate('/profile')
             } else {
                 fetchUsers()
+                fetchMenus()
             }
         }
     }, [user, loading, navigate])
@@ -47,6 +53,38 @@ const AdminDashboard = () => {
         }
     }
 
+    const fetchMenus = async () => {
+        try {
+            const response = await fetch(`/.netlify/functions/get-user-menus?userId=${user.id}`)
+            if (!response.ok) throw new Error('Failed to fetch menus')
+            const data = await response.json()
+            setMenus(data.menus || [])
+        } catch (err) {
+            console.error('Error fetching menus:', err)
+        } finally {
+            setIsLoadingMenus(false)
+        }
+    }
+
+    const handleMenuCreated = (newMenu) => {
+        setMenus([newMenu, ...menus])
+        setIsMenuModalOpen(false)
+    }
+
+    const handleDeleteMenu = async (menuId) => {
+        try {
+            const response = await fetch('/.netlify/functions/delete-generated-menu', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ menuId, userId: user.id }),
+            })
+            if (!response.ok) throw new Error('Failed to delete menu')
+            setMenus(menus.filter(m => m.id !== menuId))
+        } catch (err) {
+            console.error('Error deleting menu:', err)
+        }
+    }
+
     if (loading || (isLoadingData && user?.role === 'admin')) {
         return (
             <div className="min-h-screen bg-white dark:bg-[#0f1115] flex items-center justify-center">
@@ -60,7 +98,11 @@ const AdminDashboard = () => {
     }
 
     return (
-        <AdminLayout activeSection={activeSection} onSectionChange={setActiveSection}>
+        <AdminLayout
+            activeSection={activeSection}
+            onSectionChange={setActiveSection}
+            onAddMenuClick={() => setIsMenuModalOpen(true)}
+        >
             <div className="space-y-8 animate-fade-in">
                 {activeSection === 'dashboard' && (
                     <>
@@ -83,6 +125,47 @@ const AdminDashboard = () => {
                                     <div className="text-3xl font-black text-gray-800 dark:text-white uppercase tracking-tighter">{stat.value}</div>
                                 </div>
                             ))}
+                        </div>
+
+                        {/* Generated Menus Section */}
+                        <div className="mt-12">
+                            <div className="flex items-center justify-between mb-6">
+                                <div>
+                                    <h2 className="text-2xl font-black text-gray-800 dark:text-white tracking-tight uppercase">Generated Menus</h2>
+                                    <p className="text-gray-400 text-[13px] font-medium">AI-powered digital menus from uploaded photos</p>
+                                </div>
+                                <div className="px-4 py-2 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/10 text-[11px] font-bold text-gray-500 dark:text-gray-400">
+                                    {menus.length} {menus.length === 1 ? 'Menu' : 'Menus'}
+                                </div>
+                            </div>
+
+                            {isLoadingMenus ? (
+                                <div className="flex items-center justify-center py-20">
+                                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#6359E9]"></div>
+                                </div>
+                            ) : menus.length === 0 ? (
+                                <div className="bg-white/50 dark:bg-white/5 backdrop-blur-xl rounded-[2rem] border border-gray-200 dark:border-white/10 p-12 text-center">
+                                    <div className="text-6xl mb-4">🍕</div>
+                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No menus yet</h3>
+                                    <p className="text-gray-600 dark:text-gray-400 mb-6">Upload menu photos to generate your first digital menu</p>
+                                    <button
+                                        onClick={() => setIsMenuModalOpen(true)}
+                                        className="px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                                    >
+                                        Create Your First Menu
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {menus.map((menu) => (
+                                        <MenuWidget
+                                            key={menu.id}
+                                            menu={menu}
+                                            onDelete={handleDeleteMenu}
+                                        />
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </>
                 )}
@@ -198,6 +281,14 @@ const AdminDashboard = () => {
                     </div>
                 )}
             </div>
+
+            {/* Create Menu Modal */}
+            <CreateMenuModal
+                isOpen={isMenuModalOpen}
+                onClose={() => setIsMenuModalOpen(false)}
+                userId={user?.id}
+                onMenuCreated={handleMenuCreated}
+            />
         </AdminLayout>
     )
 }
