@@ -80,7 +80,8 @@ const CreateMenuModal = ({ isOpen, onClose, userId, onMenuCreated }) => {
             const createData = await createResponse.json();
 
             if (!createResponse.ok) {
-                throw new Error(createData.error || 'Failed to create menu');
+                console.error('Server Error (create-generated-menu):', createData);
+                throw new Error(createData.message || createData.error || 'Failed to create menu');
             }
 
             setIsCreating(false);
