@@ -32,7 +32,15 @@ export const handler = async (event, context) => {
         const userId = decoded.id;
 
         // 2. Extract Data
-        const { plan, paymentMethod } = JSON.parse(event.body);
+        const body = JSON.parse(event.body || '{}');
+        const { plan, paymentMethod } = body;
+
+        console.log('Subscription Request:', {
+            userId,
+            plan,
+            paymentMethod,
+            timestamp: new Date().toISOString()
+        });
 
         // Handle if plan is an object (new way) or string (old way)
         const planName = typeof plan === 'object' ? plan.name : plan;
@@ -80,17 +88,19 @@ export const handler = async (event, context) => {
         }
 
         // 6. Update Database
+        // We set start_date to NOW() if it was previously null (first subscription)
+        // or if it's a downgrade (starting 12 months fresh).
         const updateQuery = `
             UPDATE users 
             SET subscription_plan = $1, 
             subscription_status = 'active', 
-            subscription_start_date = CASE WHEN $3 < $4 THEN NOW() ELSE subscription_start_date END,
-            subscription_end_date = $5
+            subscription_start_date = COALESCE(subscription_start_date, NOW()),
+            subscription_end_date = $3
             WHERE id = $2
             RETURNING id, name, email, restaurant_name, subscription_plan, subscription_status, subscription_end_date
         `;
 
-        const result = await query(updateQuery, [planName, userId, newPlanRank, oldPlanRank, newEndDate]);
+        const result = await query(updateQuery, [planName, userId, newEndDate]);
 
         if (result.rows.length === 0) {
             return {
