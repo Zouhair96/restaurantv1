@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import DashboardLayout from '../layouts/DashboardLayout'
 import MainLayout from '../layouts/MainLayout'
@@ -30,6 +31,7 @@ import p3Template from '../assets/p3_template.png'
 
 const Profile = () => {
     const { user, loading, subscribe, unsubscribe, updateUser } = useAuth()
+    const { t } = useLanguage()
     const navigate = useNavigate()
     const location = useLocation()
     const [activeModule, setActiveModule] = useState('dashboard')
@@ -448,8 +450,8 @@ const Profile = () => {
         ],
         enterprise: [
             { id: 'tacos', name: 'Tacos Edition', image: tacosTemplate, icon: '🌮', description: 'Dynamic • High Energy' },
-            { id: 'pizza', name: 'Pizza Party', image: pizzaTemplate, icon: '🍕', description: 'Full Display • Modern' },
-            { id: 'other', name: 'Other / Custom', image: saladTemplate, icon: '🍽️', description: 'Versatile Layout' }
+            { id: 'pizza', name: 'Pizza Party', image: pizzaTemplate, icon: '🍕', description: 'Full Display • Modern', isComingSoon: true },
+            { id: 'other', name: 'Other / Custom', image: saladTemplate, icon: '🍽️', description: 'Versatile Layout', isComingSoon: true }
         ]
     }
 
@@ -578,6 +580,13 @@ const Profile = () => {
                                         </>
                                     )}
                                 </div>
+                                {template.isComingSoon && (
+                                    <div className="absolute top-4 right-4 z-20">
+                                        <span className="bg-yum-primary text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg uppercase tracking-widest animate-pulse">
+                                            {t('features.comingSoon')}
+                                        </span>
+                                    </div>
+                                )}
                                 {/* Label */}
                                 <div className="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-black/90 to-transparent">
                                     <h3 className="text-white font-bold text-lg">{template.name}</h3>

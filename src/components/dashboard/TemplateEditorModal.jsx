@@ -1,8 +1,11 @@
-import React, { useState } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
+import { useLanguage } from '../../context/LanguageContext'
 
 const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSave, restaurantName }) => {
+    const { t } = useLanguage()
     if (!isOpen) return null
+
+    const isComingSoon = templateType === 'pizza' || templateType === 'other'
 
     const [currentStep, setCurrentStep] = useState(1)
     const [showSuccessModal, setShowSuccessModal] = useState(false)
@@ -785,66 +788,99 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
                         <h2 className="text-2xl font-black text-gray-800 dark:text-white tracking-tight">
                             Template Editor <span className="text-yum-primary">.</span>
                         </h2>
-                        <p className="text-gray-500 dark:text-gray-400 text-sm">Step {currentStep}: {
-                            currentStep === 1 ? 'Configure Sizes' :
-                                currentStep === 2 ? 'Fries Options' :
-                                    currentStep === 3 ? 'Meal Options' :
-                                        currentStep === 4 ? 'Sauce Options' :
-                                            currentStep === 5 ? 'Drink Options' :
-                                                currentStep === 6 ? 'Extra Options' :
-                                                    currentStep === 7 ? 'Customize Design' : 'Preview'
-                        }</p>
+                        <p className="text-gray-500 dark:text-gray-400 text-sm">
+                            {isComingSoon ?
+                                t('features.comingSoon') :
+                                `Step ${currentStep}: ${currentStep === 1 ? 'Configure Sizes' :
+                                    currentStep === 2 ? 'Fries Options' :
+                                        currentStep === 3 ? 'Meal Options' :
+                                            currentStep === 4 ? 'Sauce Options' :
+                                                currentStep === 5 ? 'Drink Options' :
+                                                    currentStep === 6 ? 'Extra Options' :
+                                                        currentStep === 7 ? 'Customize Design' : 'Preview'
+                                }`
+                            }
+                        </p>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors">
                         ✕
                     </button>
                 </div>
 
-                {/* Steps Progress */}
-                <div className="bg-gray-50 dark:bg-gray-900/30 py-3 border-b border-gray-100 dark:border-gray-800">
-                    <div className="flex justify-center items-center gap-2">
-                        {[1, 2, 3, 4, 5, 6, 7, 8].map(step => (
-                            <div key={step} className="flex items-center gap-2">
-                                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${currentStep >= step ? 'bg-[#6c5ce7] text-white shadow-lg shadow-purple-500/30' : 'bg-gray-200 dark:bg-gray-800 text-gray-500'
-                                    }`}>
-                                    {step}
+                {/* Steps Progress (Only if NOT coming soon) */}
+                {!isComingSoon && (
+                    <div className="bg-gray-50 dark:bg-gray-900/30 py-3 border-b border-gray-100 dark:border-gray-800">
+                        <div className="flex justify-center items-center gap-2">
+                            {[1, 2, 3, 4, 5, 6, 7, 8].map(step => (
+                                <div key={step} className="flex items-center gap-2">
+                                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${currentStep >= step ? 'bg-[#6c5ce7] text-white shadow-lg shadow-purple-500/30' : 'bg-gray-200 dark:bg-gray-800 text-gray-500'
+                                        }`}>
+                                        {step}
+                                    </div>
+                                    <span className={`text-[10px] font-medium ${currentStep >= step ? 'text-white' : 'text-gray-600'} hidden md:block`}>
+                                        {step === 1 ? 'Sizes' : step === 2 ? 'Fries' : step === 3 ? 'Meals' : step === 4 ? 'Sauces' : step === 5 ? 'Drinks' : step === 6 ? 'Extras' : step === 7 ? 'Design' : 'Preview'}
+                                    </span>
+                                    {step < 8 && <div className="w-4 lg:w-8 h-0.5 bg-gray-800"></div>}
                                 </div>
-                                <span className={`text-[10px] font-medium ${currentStep >= step ? 'text-white' : 'text-gray-600'} hidden md:block`}>
-                                    {step === 1 ? 'Sizes' : step === 2 ? 'Fries' : step === 3 ? 'Meals' : step === 4 ? 'Sauces' : step === 5 ? 'Drinks' : step === 6 ? 'Extras' : step === 7 ? 'Design' : 'Preview'}
-                                </span>
-                                {step < 8 && <div className="w-4 lg:w-8 h-0.5 bg-gray-800"></div>}
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* Main Content Area */}
                 <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
-                    {renderContent()}
+                    {isComingSoon ? (
+                        <div className="h-full flex flex-col items-center justify-center text-center space-y-6 animate-fade-in">
+                            <div className="w-24 h-24 bg-[#6c5ce7]/10 rounded-full flex items-center justify-center text-6xl shadow-xl shadow-purple-500/5">
+                                {templateType === 'pizza' ? '🍕' : '🍽️'}
+                            </div>
+                            <div>
+                                <h3 className="text-4xl font-black text-gray-800 dark:text-white mb-2 uppercase tracking-tighter">
+                                    {templateType === 'pizza' ? 'Pizza Party' : 'Custom Builder'}
+                                </h3>
+                                <p className="text-gray-500 dark:text-gray-400 text-lg max-w-md mx-auto">
+                                    {t('features.comingSoon')}... We are working hard to bring you the best {templateType} experience. Stay tuned!
+                                </p>
+                            </div>
+                            <div className="flex gap-4">
+                                <button
+                                    onClick={onClose}
+                                    className="px-8 py-3 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 font-bold rounded-xl transition-all"
+                                >
+                                    Back to Templates
+                                </button>
+                                <div className="px-8 py-3 bg-[#6c5ce7]/20 text-[#6c5ce7] font-black rounded-xl border border-purple-500/30">
+                                    Coming Q1 2026
+                                </div>
+                            </div>
+                        </div>
+                    ) : renderContent()}
                 </div>
 
-                {/* Footer Controls */}
-                <div className="p-6 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 flex justify-between items-center">
-                    <button
-                        onClick={handleBack}
-                        disabled={currentStep === 1}
-                        className={`px-6 py-2 rounded-xl font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800 hover:text-gray-800 dark:hover:text-white transition-colors ${currentStep === 1 ? 'opacity-0 cursor-default' : 'opacity-100'
-                            }`}
-                    >
-                        ← Back
-                    </button>
+                {/* Footer Controls (Only show if NOT coming soon) */}
+                {!isComingSoon && (
+                    <div className="p-6 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 flex justify-between items-center">
+                        <button
+                            onClick={handleBack}
+                            disabled={currentStep === 1}
+                            className={`px-6 py-2 rounded-xl font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800 hover:text-gray-800 dark:hover:text-white transition-colors ${currentStep === 1 ? 'opacity-0 cursor-default' : 'opacity-100'
+                                }`}
+                        >
+                            ← Back
+                        </button>
 
-                    <button
-                        onClick={currentStep === 8 ? handlePublish : handleNext}
-                        disabled={currentStep === 1 && sizes.length === 0}
-                        className={`px-8 py-3 rounded-xl font-bold text-lg transition-all transform hover:scale-105 flex items-center gap-2 ${(currentStep === 1 && sizes.length > 0) || currentStep > 1
-                            ? 'bg-gradient-to-r from-[#6c5ce7] to-[#8e44ad] text-white shadow-lg hover:shadow-purple-500/30'
-                            : 'bg-gray-200 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed'
-                            }`}
-                    >
-                        {currentStep === 8 ? 'Publish Menu 🚀' : 'Next Step →'}
-                    </button>
-                </div>
+                        <button
+                            onClick={currentStep === 8 ? handlePublish : handleNext}
+                            disabled={currentStep === 1 && sizes.length === 0}
+                            className={`px-8 py-3 rounded-xl font-bold text-lg transition-all transform hover:scale-105 flex items-center gap-2 ${(currentStep === 1 && sizes.length > 0) || currentStep > 1
+                                ? 'bg-gradient-to-r from-[#6c5ce7] to-[#8e44ad] text-white shadow-lg hover:shadow-purple-500/30'
+                                : 'bg-gray-200 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                                }`}
+                        >
+                            {currentStep === 8 ? 'Publish Menu 🚀' : 'Next Step →'}
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     )
