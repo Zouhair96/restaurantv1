@@ -28,7 +28,7 @@ const SocialSidebar = () => {
     ]
 
     return (
-        <div className={`fixed left-4 lg:left-6 top-1/2 -translate-y-1/2 z-[999] flex-col gap-3 lg:gap-4 ${user ? 'hidden md:flex' : 'flex'}`}>
+        <div className={`fixed left-4 lg:left-6 top-1/2 -translate-y-1/2 z-[999] hidden lg:flex flex-col gap-3 lg:gap-4`}>
             {socialLinks.map((social, index) => (
                 <a
                     key={index}

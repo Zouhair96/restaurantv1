@@ -6,7 +6,6 @@ import { FaFacebookF, FaInstagram, FaTiktok, FaYoutube } from 'react-icons/fa'
 
 const Header = () => {
     const [isScrolled, setIsScrolled] = useState(false)
-    const [isSocialVisible, setIsSocialVisible] = useState(true)
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const { t, language, toggleLanguage } = useLanguage()
     const { user, logout } = useAuth()
@@ -16,8 +15,6 @@ const Header = () => {
 
     useEffect(() => {
         const handleScroll = () => {
-            const scrollThreshold = window.innerHeight * 0.1
-            setIsSocialVisible(window.scrollY < scrollThreshold)
             setIsScrolled(window.scrollY > 20)
         }
         window.addEventListener('scroll', handleScroll)
@@ -49,7 +46,6 @@ const Header = () => {
         <header className={`fixed w-full z-[9999] transition-all duration-300 ${isScrolled ? 'bg-white shadow-md py-4' : 'bg-transparent py-6'}`}>
             <div className="container mx-auto px-4 flex justify-between items-center">
                 {/* Logo */}
-                {/* Logo */}
                 <Link to="/" className="flex items-center gap-2 cursor-pointer group" onClick={() => window.scrollTo(0, 0)}>
                     <div className="bg-yum-primary text-white p-2 rounded-xl group-hover:rotate-12 transition-transform duration-300 shadow-lg">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -66,35 +62,6 @@ const Header = () => {
                     </div>
                 </Link>
 
-                {/* Mobile Social Buttons (After Login) */}
-                {user && (
-                    <div className="flex md:hidden items-center gap-1.5 ml-auto mr-3">
-                        {socialLinks.map((social, index) => (
-                            <a
-                                key={index}
-                                href={social.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={{
-                                    transitionDelay: `${isSocialVisible ? index * 100 : (socialLinks.length - 1 - index) * 80}ms`
-                                }}
-                                className={`
-                                    w-7 h-7 flex items-center justify-center rounded-full 
-                                    text-white shadow-md transition-all duration-500 
-                                    ease-[cubic-bezier(0.34,1.56,0.64,1)] transform
-                                    ${isSocialVisible
-                                        ? 'opacity-100 translate-y-0 scale-100'
-                                        : 'opacity-0 -translate-y-8 scale-0 pointer-events-none'
-                                    } 
-                                    ${social.color}
-                                `}
-                            >
-                                <span className="text-[10px]">{social.icon}</span>
-                            </a>
-                        ))}
-                    </div>
-                )}
-
                 {/* Desktop Navigation */}
                 {!isLoginPage && (
                     <nav className="hidden md:flex items-center space-x-8">
@@ -106,24 +73,38 @@ const Header = () => {
                     </nav>
                 )}
 
-                {/* Desktop Actions */}
-                <div className="hidden md:flex items-center space-x-4">
-                    {/* Language Switcher - Professional Minimalist */}
-                    <button
-                        onClick={toggleLanguage}
-                        className="flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 text-yum-dark font-bold text-sm hover:border-yum-primary hover:text-yum-primary transition-all uppercase"
-                        aria-label="Switch Language"
-                    >
-                        {language}
-                    </button>
+                {/* Header Actions (Socials + User) */}
+                <div className="flex items-center gap-4">
+                    {/* Social Buttons (Desktop Only) */}
+                    <div className="hidden lg:flex items-center gap-3 mr-4 border-r border-gray-100 pr-4">
+                        {socialLinks.map((social, index) => (
+                            <a
+                                key={index}
+                                href={social.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={`w-8 h-8 flex items-center justify-center rounded-full text-white shadow-sm transition-all hover:scale-110 ${social.color}`}
+                            >
+                                <span className="text-[12px]">{social.icon}</span>
+                            </a>
+                        ))}
+                    </div>
 
-                    {!isLoginPage && (
-                        user ? (
-                            <div className="flex items-center gap-3">
+                    <div className="flex flex-col items-end gap-1.5">
+                        {/* Language + Login/User */}
+                        <div className="flex items-center gap-2 lg:gap-3">
+                            <button
+                                onClick={toggleLanguage}
+                                className="flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 rounded-full border border-gray-200 text-yum-dark font-bold text-[10px] lg:text-sm hover:border-yum-primary hover:text-yum-primary transition-all uppercase"
+                                aria-label="Switch Language"
+                            >
+                                {language}
+                            </button>
 
+                            {user ? (
                                 <div className="relative group">
-                                    <button className="flex items-center gap-2 bg-yum-light text-yum-primary px-4 py-2 rounded-full font-bold hover:bg-red-100 transition-colors">
-                                        <span>{user.name}</span>
+                                    <button className="flex items-center gap-2 bg-yum-light text-yum-primary px-3 py-1.5 lg:px-4 lg:py-2 rounded-full font-bold hover:bg-red-100 transition-colors text-xs lg:text-sm">
+                                        <span className="max-w-[70px] lg:max-w-none truncate">{user.name}</span>
                                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                         </svg>
@@ -156,29 +137,43 @@ const Header = () => {
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        ) : (
-                            <Link
-                                to="/login"
-                                className="text-yum-dark font-bold hover:text-yum-primary transition-colors hover:bg-yum-light px-4 py-2 rounded-full relative z-50"
-                            >
-                                {t('header.login')}
-                            </Link>
-                        )
-                    )}
+                            ) : (
+                                <Link
+                                    to="/login"
+                                    className="text-yum-dark font-bold hover:text-yum-primary transition-colors hover:bg-yum-light px-3 py-1.5 lg:px-4 lg:py-2 rounded-full relative z-50 text-xs lg:text-sm"
+                                >
+                                    {t('header.login')}
+                                </Link>
+                            )}
 
+                            {/* Mobile Menu Button */}
+                            <button className="md:hidden text-yum-dark ml-1" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                                <svg className="w-7 h-7 lg:w-8 lg:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    {isMenuOpen ? (
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    ) : (
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                                    )}
+                                </svg>
+                            </button>
+                        </div>
+
+                        {/* Mobile Social Row (Fixed Under Actions) */}
+                        <div className="flex md:hidden items-center gap-2 pr-1">
+                            {socialLinks.map((social, index) => (
+                                <a
+                                    key={index}
+                                    href={social.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className={`w-5 h-5 flex items-center justify-center rounded-full text-white shadow-sm transition-all hover:scale-110 ${social.color}`}
+                                >
+                                    <span className="text-[8px]">{social.icon}</span>
+                                </a>
+                            ))}
+                        </div>
+                    </div>
                 </div>
-
-                {/* Mobile Menu Button */}
-                <button className="md:hidden text-yum-dark" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        {isMenuOpen ? (
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        ) : (
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                        )}
-                    </svg>
-                </button>
             </div>
 
             {/* Mobile Menu */}
