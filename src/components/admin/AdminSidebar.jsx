@@ -18,16 +18,24 @@ import {
     HiPencilSquare,
     HiOutlineChatBubbleOvalLeft,
     HiChatBubbleOvalLeft,
-    HiOutlineArrowRightOnRectangle
+    HiOutlineArrowRightOnRectangle,
+    HiXMark
 } from 'react-icons/hi2';
 
-const AdminSidebar = ({ activeSection, onSectionChange }) => {
+const AdminSidebar = ({ activeSection, onSectionChange, isMobileMenuOpen, closeMobileMenu }) => {
     const { logout } = useAuth();
     const navigate = useNavigate();
 
     const handleLogout = () => {
         logout();
         navigate('/login');
+    };
+
+    const handleNavClick = (id) => {
+        onSectionChange(id);
+        if (closeMobileMenu) {
+            closeMobileMenu();
+        }
     };
 
     const navItems = [
@@ -42,7 +50,18 @@ const AdminSidebar = ({ activeSection, onSectionChange }) => {
     ];
 
     return (
-        <aside className="fixed left-0 top-0 h-full w-24 flex flex-col items-center justify-center z-50 pointer-events-none">
+        <aside className={`fixed left-0 top-0 h-full w-24 flex flex-col items-center justify-center z-50 transition-transform duration-300 ease-in-out
+            ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+        `}>
+            {/* Mobile Close Button */}
+            {closeMobileMenu && (
+                <button
+                    onClick={closeMobileMenu}
+                    className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-white/70 hover:text-white md:hidden z-50 bg-white/10 rounded-lg backdrop-blur-sm"
+                >
+                    <HiXMark size={20} />
+                </button>
+            )}
             {/* High-Precision SVG Background */}
             <div className="absolute inset-x-0 h-[850px] flex items-center justify-start z-[-1] pointer-events-none">
                 <svg width="100" height="100%" viewBox="0 0 100 850" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-[15px_0_30px_rgba(99,89,233,0.15)] transition-all duration-500">
@@ -71,7 +90,7 @@ const AdminSidebar = ({ activeSection, onSectionChange }) => {
                     return (
                         <div key={item.id} className="relative group">
                             <button
-                                onClick={() => onSectionChange(item.id)}
+                                onClick={() => handleNavClick(item.id)}
                                 className={`relative w-14 h-14 flex items-center justify-center rounded-2xl transition-all duration-300
                                         ${isActive ? 'text-[#6359E9] scale-105' : 'text-white/70 hover:text-white hover:bg-white/10'}`}
                             >
