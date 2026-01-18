@@ -18,6 +18,9 @@ const Contact = () => {
         try {
             const response = await fetch("https://formsubmit.co/zouhair.benali96@gmail.com", {
                 method: "POST",
+                headers: {
+                    'Accept': 'application/json'
+                },
                 body: formData
             })
 
@@ -76,7 +79,7 @@ const Contact = () => {
                                 </button>
                             </div>
                         ) : (
-                            <form className="space-y-6" onSubmit={handleSubmit}>
+                            <form className="space-y-6" onSubmit={handleSubmit} encType="multipart/form-data">
                                 <input type="hidden" name="_captcha" value="false" />
                                 <input type="hidden" name="_template" value="table" />
                                 <input type="hidden" name="_subject" value="Nouveau prospect YumYum !" />
