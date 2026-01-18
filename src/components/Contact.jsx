@@ -93,9 +93,13 @@ const Contact = () => {
                                     <label className="block text-sm font-bold text-gray-700 mb-2">{t('contact.formEmail')}</label>
                                     <input type="email" name="email" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yum-primary focus:ring-2 focus:ring-yum-primary/20 outline-none transition-all placeholder-gray-400" placeholder={t('contact.placeholderEmail')} required />
                                 </div>
-                                <div className="hidden">
+                                <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-2">{t('contact.formMessage')}</label>
-                                    <textarea name="message" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yum-primary focus:ring-2 focus:ring-yum-primary/20 outline-none transition-all placeholder-gray-400 h-32 resize-none" placeholder={t('contact.placeholderMsg')} defaultValue="Nouveau lead depuis le site YumYum"></textarea>
+                                    <textarea name="message" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yum-primary focus:ring-2 focus:ring-yum-primary/20 outline-none transition-all placeholder-gray-400 h-32 resize-none" placeholder={t('contact.placeholderMsg')} required></textarea>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">{t('contact.formAttachment')}</label>
+                                    <input type="file" name="attachment" accept="image/*,video/*,.pdf" className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yum-primary focus:ring-2 focus:ring-yum-primary/20 outline-none transition-all text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-yum-light file:text-yum-primary hover:file:bg-red-100" />
                                 </div>
                                 <button type="submit" disabled={loading} className="w-full bg-yum-dark text-white font-bold py-4 rounded-xl hover:bg-black transition-all transform hover:-translate-y-1 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center">
                                     {loading ? (
