@@ -9,12 +9,12 @@ const MenuItem = ({ item }) => {
     const { addToCart } = useCart();
 
     const sizes = [
-        { label: '8"', price: item.prices.small },
-        { label: '11"', price: item.prices.medium },
-        { label: '17"', price: item.prices.large },
+        { label: '8"', price: Number(item.prices.small) || 0 },
+        { label: '11"', price: Number(item.prices.medium) || 0 },
+        { label: '17"', price: Number(item.prices.large) || 0 },
     ];
 
-    const currentPrice = sizes.find((s) => s.label === selectedSize)?.price || item.prices.medium;
+    const currentPrice = sizes.find((s) => s.label === selectedSize)?.price || Number(item.prices.medium) || 0;
 
     const handleAddToCart = () => {
         setIsAdding(true);
@@ -76,8 +76,8 @@ const MenuItem = ({ item }) => {
                                 key={size.label}
                                 onClick={() => setSelectedSize(size.label)}
                                 className={`flex-1 py-2 px-3 rounded-lg text-sm font-bold transition-all duration-200 ${selectedSize === size.label
-                                        ? 'bg-orange-500 text-white shadow-md scale-105'
-                                        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                                    ? 'bg-orange-500 text-white shadow-md scale-105'
+                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                                     }`}
                             >
                                 {size.label}
@@ -117,8 +117,8 @@ const MenuItem = ({ item }) => {
                     onClick={handleAddToCart}
                     disabled={isAdding}
                     className={`w-full py-3 rounded-xl font-bold text-white transition-all duration-300 ${isAdding
-                            ? 'bg-green-500 scale-95'
-                            : 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 hover:shadow-lg hover:scale-105'
+                        ? 'bg-green-500 scale-95'
+                        : 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 hover:shadow-lg hover:scale-105'
                         }`}
                 >
                     {isAdding ? '✓ Ajouté!' : 'Ajouter au panier'}
