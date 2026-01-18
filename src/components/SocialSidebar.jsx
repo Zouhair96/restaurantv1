@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { FaFacebookF, FaInstagram, FaLinkedinIn, FaYoutube } from 'react-icons/fa'
+import { FaFacebookF, FaInstagram, FaTiktok, FaYoutube } from 'react-icons/fa'
 
 const SocialSidebar = () => {
     const [isVisible, setIsVisible] = useState(true)
@@ -21,7 +21,7 @@ const SocialSidebar = () => {
     const socialLinks = [
         { icon: <FaFacebookF />, url: '#', color: 'bg-[#1877F2]', shadow: 'shadow-[#1877F2]/30', glow: 'hover:shadow-[0_0_30px_rgba(24,119,242,0.7)]' },
         { icon: <FaInstagram />, url: '#', color: 'bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF]', shadow: 'shadow-[#DD2A7B]/30', glow: 'hover:shadow-[0_0_30px_rgba(221,42,123,0.7)]' },
-        { icon: <FaLinkedinIn />, url: '#', color: 'bg-[#0A66C2]', shadow: 'shadow-[#0A66C2]/30', glow: 'hover:shadow-[0_0_30px_rgba(10,102,194,0.7)]' },
+        { icon: <FaTiktok />, url: '#', color: 'bg-[#000000]', shadow: 'shadow-black/30', glow: 'hover:shadow-[0_0_30px_rgba(37,244,238,0.5),0_0_30px_rgba(254,44,85,0.5)]' },
         { icon: <FaYoutube />, url: '#', color: 'bg-[#FF0000]', shadow: 'shadow-[#FF0000]/30', glow: 'hover:shadow-[0_0_30px_rgba(255,0,0,0.7)]' }
     ]
 
