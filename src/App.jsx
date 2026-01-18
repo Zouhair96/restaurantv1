@@ -9,8 +9,6 @@ import PublicMenu from './pages/PublicMenu'
 import AdminDashboard from './pages/AdminDashboard'
 import PlanDetails from './pages/PlanDetails'
 import TestMenu from './pages/TestMenu'
-import GeneratedMenu from './pages/GeneratedMenu'
-import ManageMenu from './pages/ManageMenu'
 import ScrollToTop from './components/ScrollToTop'
 import { LanguageProvider } from './context/LanguageContext'
 import { AuthProvider } from './context/AuthContext'
@@ -34,9 +32,6 @@ function App() {
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/pricing/:planId" element={<PlanDetails />} />
                 <Route path="/testme" element={<TestMenu />} />
-                {/* AI Generated Menu Routes */}
-                <Route path="/menu/:slug" element={<GeneratedMenu />} />
-                <Route path="/manage/:slug" element={<ManageMenu />} />
                 {/* Public Menu Route - Must be last to avoid conflicts */}
                 <Route path="/:restaurantName" element={<PublicMenu />} />
               </Routes>

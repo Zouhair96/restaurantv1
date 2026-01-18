@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import AdminSidebar from '../components/admin/AdminSidebar';
 import AdminHeader from '../components/admin/AdminHeader';
 
-const AdminLayout = ({ children, activeSection, onSectionChange, onAddMenuClick }) => {
+const AdminLayout = ({ children, activeSection, onSectionChange }) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const toggleMobileMenu = () => {
@@ -42,7 +42,6 @@ const AdminLayout = ({ children, activeSection, onSectionChange, onAddMenuClick 
                     activeSection={activeSection}
                     onSectionChange={onSectionChange}
                     toggleMobileMenu={toggleMobileMenu}
-                    onAddMenuClick={onAddMenuClick}
                 />
 
                 <main className="flex-1 p-4 sm:p-6 md:p-8 relative z-10 max-w-[1600px] mx-auto w-full">
