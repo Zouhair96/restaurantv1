@@ -28,10 +28,15 @@ const SocialSidebar = () => {
     useEffect(() => {
         const triggerPulseSequence = () => {
             socialLinks.forEach((_, index) => {
+                // Pulse starts (500ms between each)
                 setTimeout(() => {
                     setActiveIndex(index)
-                    setTimeout(() => setActiveIndex(-1), 800)
-                }, index * 400)
+
+                    // Pulse ends (lasting 400ms)
+                    setTimeout(() => {
+                        setActiveIndex(prev => prev === index ? -1 : prev)
+                    }, 400)
+                }, index * 500)
             })
         }
 
