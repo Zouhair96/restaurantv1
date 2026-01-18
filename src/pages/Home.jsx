@@ -11,6 +11,7 @@ import FAQ from '../components/FAQ'
 import Contact from '../components/Contact'
 import Footer from '../components/Footer'
 import BackToTop from '../components/BackToTop'
+import SocialSidebar from '../components/SocialSidebar'
 
 import ParallaxBackground from '../components/ParallaxBackground'
 
@@ -33,6 +34,7 @@ const Home = () => {
                 </ParallaxBackground>
             </main>
             <BackToTop />
+            <SocialSidebar />
         </div>
     )
 }
