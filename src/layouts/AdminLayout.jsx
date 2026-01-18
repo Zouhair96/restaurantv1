@@ -37,7 +37,7 @@ const AdminLayout = ({ children, activeSection, onSectionChange }) => {
                 closeMobileMenu={closeMobileMenu}
             />
 
-            <div className="flex flex-col min-h-screen pl-0 md:pl-24 transition-all duration-300">
+            <div className="flex flex-col min-h-screen pl-0 md:pl-28 transition-all duration-300">
                 <AdminHeader
                     activeSection={activeSection}
                     onSectionChange={onSectionChange}
