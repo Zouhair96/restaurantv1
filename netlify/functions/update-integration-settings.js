@@ -1,14 +1,30 @@
 import { query } from './db.js';
+import jwt from 'jsonwebtoken';
+
+const getUserFromToken = (headers) => {
+    const authHeader = headers.authorization || headers.Authorization;
+    if (!authHeader) return null;
+    const token = authHeader.replace('Bearer ', '');
+    try {
+        return jwt.verify(token, process.env.JWT_SECRET);
+    } catch (e) {
+        return null;
+    }
+};
 
 export const handler = async (event) => {
     if (event.httpMethod !== 'POST') {
         return { statusCode: 405, body: 'Method Not Allowed' };
     }
 
+    const user = getUserFromToken(event.headers);
+    if (!user) {
+        return { statusCode: 401, body: JSON.stringify({ error: "Unauthorized" }) };
+    }
+
     try {
         const data = JSON.parse(event.body);
         const {
-            restaurant_id,
             pos_provider,
             pos_enabled,
             pos_webhook_url,
@@ -19,9 +35,7 @@ export const handler = async (event) => {
             stock_api_key
         } = data;
 
-        if (!restaurant_id) {
-            return { statusCode: 400, body: JSON.stringify({ error: "Restaurant ID required" }) };
-        }
+        const restaurant_id = user.id;
 
         const result = await query(`
             INSERT INTO integration_settings (

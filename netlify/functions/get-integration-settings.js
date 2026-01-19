@@ -1,15 +1,26 @@
 import { query } from './db.js';
+import jwt from 'jsonwebtoken';
+
+const getUserFromToken = (headers) => {
+    const authHeader = headers.authorization || headers.Authorization;
+    if (!authHeader) return null;
+    const token = authHeader.replace('Bearer ', '');
+    try {
+        return jwt.verify(token, process.env.JWT_SECRET);
+    } catch (e) {
+        return null;
+    }
+};
 
 export const handler = async (event) => {
-    const { httpMethod, queryStringParameters } = event;
-    const restaurant_id = queryStringParameters?.restaurantId;
-
-    if (!restaurant_id) {
-        return { statusCode: 400, body: JSON.stringify({ error: "Restaurant ID required" }) };
+    const user = getUserFromToken(event.headers);
+    if (!user) {
+        return { statusCode: 401, body: JSON.stringify({ error: "Unauthorized" }) };
     }
+    const restaurant_id = user.id;
 
     try {
-        if (httpMethod === 'GET') {
+        if (event.httpMethod === 'GET') {
             const result = await query(
                 'SELECT * FROM integration_settings WHERE restaurant_id = $1',
                 [restaurant_id]

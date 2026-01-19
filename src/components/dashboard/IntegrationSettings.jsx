@@ -25,7 +25,10 @@ const IntegrationSettings = () => {
 
     const fetchSettings = async () => {
         try {
-            const response = await fetch(`/.netlify/functions/get-integration-settings?restaurantId=${user.id}`);
+            const token = localStorage.getItem('token');
+            const response = await fetch(`/.netlify/functions/get-integration-settings`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
             if (response.ok) {
                 const data = await response.json();
                 setSettings(data);
@@ -41,10 +44,14 @@ const IntegrationSettings = () => {
         e.preventDefault();
         setSaving(true);
         try {
+            const token = localStorage.getItem('token');
             const response = await fetch('/.netlify/functions/update-integration-settings', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...settings, restaurant_id: user.id })
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(settings)
             });
             if (response.ok) {
                 alert('Settings saved successfully!');

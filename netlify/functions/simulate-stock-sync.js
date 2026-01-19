@@ -1,15 +1,46 @@
 import { query } from './db.js';
+import jwt from 'jsonwebtoken';
+
+const getUserFromToken = (headers) => {
+    const authHeader = headers.authorization || headers.Authorization;
+    if (!authHeader) return null;
+    const token = authHeader.replace('Bearer ', '');
+    try {
+        return jwt.verify(token, process.env.JWT_SECRET);
+    } catch (e) {
+        return null;
+    }
+};
 
 export const handler = async (event) => {
     if (event.httpMethod !== 'POST') {
         return { statusCode: 405, body: 'Method Not Allowed' };
     }
 
-    try {
-        const { itemId, isAvailable, restaurantId } = JSON.parse(event.body);
+    const user = getUserFromToken(event.headers);
+    if (!user) {
+        return { statusCode: 401, body: JSON.stringify({ error: "Unauthorized" }) };
+    }
 
-        if (!itemId || isAvailable === undefined || !restaurantId) {
+    try {
+        const { itemId, isAvailable } = JSON.parse(event.body);
+        const restaurantId = user.id;
+
+        if (!itemId || isAvailable === undefined) {
             return { statusCode: 400, body: JSON.stringify({ error: "Missing required fields" }) };
+        }
+
+        // Verify integration is enabled
+        const settingsResult = await query(
+            'SELECT stock_enabled, stock_sync_url FROM integration_settings WHERE restaurant_id = $1',
+            [restaurantId]
+        );
+
+        if (settingsResult.rows.length === 0 || !settingsResult.rows[0].stock_enabled) {
+            return {
+                statusCode: 403,
+                body: JSON.stringify({ error: "Stock Integration is not enabled or configured" })
+            };
         }
 
         const result = await query(

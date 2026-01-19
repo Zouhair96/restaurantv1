@@ -7,6 +7,7 @@ const Simulator = () => {
     const [menuItems, setMenuItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('pos');
+    const [integrationSettings, setIntegrationSettings] = useState(null);
 
     useEffect(() => {
         if (user?.id) {
@@ -19,11 +20,14 @@ const Simulator = () => {
             const token = localStorage.getItem('token');
             if (!token) return;
 
-            const [ordersRes, itemsRes] = await Promise.all([
+            const [ordersRes, itemsRes, settingsRes] = await Promise.all([
                 fetch(`/.netlify/functions/get-orders`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 }),
                 fetch(`/.netlify/functions/menus`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                }),
+                fetch(`/.netlify/functions/get-integration-settings`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 })
             ]);
@@ -45,6 +49,10 @@ const Simulator = () => {
                     setMenuItems(allItems);
                 }
             }
+
+            if (settingsRes.ok) {
+                setIntegrationSettings(await settingsRes.json());
+            }
         } catch (error) {
             console.error('Error fetching simulator data:', error);
         } finally {
@@ -61,10 +69,13 @@ const Simulator = () => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ orderId, status: newStatus, restaurantId: user.id })
+                body: JSON.stringify({ orderId, status: newStatus })
             });
             if (response.ok) {
                 setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+            } else {
+                const err = await response.json();
+                alert(err.error || 'POS simulation failed');
             }
         } catch (error) {
             console.error('POS simulation error:', error);
@@ -80,76 +91,107 @@ const Simulator = () => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ itemId, isAvailable, restaurantId: user.id })
+                body: JSON.stringify({ itemId, isAvailable })
             });
             if (response.ok) {
                 setMenuItems(menuItems.map(item => item.id === itemId ? { ...item, is_available: isAvailable } : item));
+            } else {
+                const err = await response.json();
+                alert(err.error || 'Stock simulation failed');
             }
         } catch (error) {
             console.error('Stock simulation error:', error);
         }
     };
 
-    if (loading) return <div className="p-8 text-center">Loading Simulator...</div>;
+    if (loading) return <div className="p-8 text-center text-gray-500">Loading Simulator...</div>;
+
+    const isPosConfigured = integrationSettings?.pos_enabled &&
+        integrationSettings?.pos_webhook_url &&
+        integrationSettings?.pos_api_key;
+
+    const isStockConfigured = integrationSettings?.stock_enabled &&
+        integrationSettings?.stock_sync_url &&
+        integrationSettings?.stock_api_key;
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
+        <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900/50 p-8 animate-fade-in">
             <div className="max-w-6xl mx-auto">
-                <header className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Integration Simulator</h1>
-                    <p className="text-gray-600 dark:text-gray-400">Test how your platform reacts to "fake" external events from POS and Stock systems.</p>
+                <header className="mb-10 text-center sm:text-left">
+                    <h1 className="text-4xl font-black text-gray-900 dark:text-white mb-3 tracking-tighter">Integration Simulator</h1>
+                    <p className="text-lg text-gray-500 dark:text-gray-400">Test how your platform reacts to external events from your configured tools.</p>
                 </header>
 
-                <div className="flex space-x-4 mb-8">
+                <div className="flex flex-wrap gap-4 mb-10 justify-center sm:justify-start">
                     <button
                         onClick={() => setActiveTab('pos')}
-                        className={`px-6 py-2 rounded-lg font-semibold transition-all ${activeTab === 'pos' ? 'bg-primary text-white shadow-lg' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300'}`}
+                        className={`px-8 py-3 rounded-2xl font-black text-sm uppercase tracking-widest transition-all ${activeTab === 'pos'
+                            ? 'bg-yum-primary text-white shadow-xl shadow-red-500/30'
+                            : 'bg-white dark:bg-gray-800 text-gray-400 hover:text-gray-600 dark:hover:text-white border border-gray-100 dark:border-gray-700'}`}
                     >
-                        Fake POS Terminal
+                        POS Terminal
                     </button>
                     <button
                         onClick={() => setActiveTab('stock')}
-                        className={`px-6 py-2 rounded-lg font-semibold transition-all ${activeTab === 'stock' ? 'bg-primary text-white shadow-lg' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300'}`}
+                        className={`px-8 py-3 rounded-2xl font-black text-sm uppercase tracking-widest transition-all ${activeTab === 'stock'
+                            ? 'bg-yum-primary text-white shadow-xl shadow-red-500/30'
+                            : 'bg-white dark:bg-gray-800 text-gray-400 hover:text-gray-600 dark:hover:text-white border border-gray-100 dark:border-gray-700'}`}
                     >
-                        Fake Stock Management
+                        Stock Manager
                     </button>
                 </div>
 
-                {activeTab === 'pos' ? (
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
-                        <div className="p-6 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
-                            <h2 className="text-xl font-bold text-gray-800 dark:text-white">Incoming Orders (Kitchen View)</h2>
+                {!isPosConfigured && activeTab === 'pos' && (
+                    <div className="bg-white dark:bg-gray-800 rounded-[3rem] p-12 text-center border-2 border-dashed border-gray-100 dark:border-gray-700 shadow-2xl animate-scale-up">
+                        <div className="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">🔌</div>
+                        <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2">POS Not Configured</h2>
+                        <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-8">Please enable POS integration and provide a Webhook URL and API Key in the Settings tab to use the simulator.</p>
+                    </div>
+                )}
+
+                {!isStockConfigured && activeTab === 'stock' && (
+                    <div className="bg-white dark:bg-gray-800 rounded-[3rem] p-12 text-center border-2 border-dashed border-gray-100 dark:border-gray-700 shadow-2xl animate-scale-up">
+                        <div className="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">📦</div>
+                        <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2">Stock Tool Not Configured</h2>
+                        <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-8">Please enable Stock Management and provide a Sync URL and API Key in the Settings tab to use the simulator.</p>
+                    </div>
+                )}
+
+                {isPosConfigured && activeTab === 'pos' && (
+                    <div className="bg-white dark:bg-gray-800 rounded-[3rem] shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-700 animate-scale-up">
+                        <div className="p-8 border-b border-gray-50 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-700/20">
+                            <h2 className="text-xl font-black text-gray-800 dark:text-white uppercase tracking-widest">Incoming Orders</h2>
                         </div>
                         <div className="overflow-x-auto">
                             <table className="w-full">
-                                <thead className="bg-gray-50 dark:bg-gray-700/30 text-left">
+                                <thead className="bg-gray-50 dark:bg-gray-700/30 text-left border-b border-gray-100 dark:border-gray-700">
                                     <tr>
-                                        <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Order ID</th>
-                                        <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Items</th>
-                                        <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase">Current Status</th>
-                                        <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase text-right">Actions</th>
+                                        <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Order ID</th>
+                                        <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Items</th>
+                                        <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Status</th>
+                                        <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y dark:divide-gray-700">
+                                <tbody className="divide-y divide-gray-50 dark:divide-gray-700">
                                     {orders.map(order => (
-                                        <tr key={order.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                                            <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">#{order.id}</td>
-                                            <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">
+                                        <tr key={order.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition-colors">
+                                            <td className="px-8 py-6 text-sm font-black text-gray-900 dark:text-white">#{order.id}</td>
+                                            <td className="px-8 py-6 text-sm text-gray-500 dark:text-gray-400">
                                                 {Array.isArray(order.items) ? order.items.map(i => i.name).join(', ') : 'No items'}
                                             </td>
-                                            <td className="px-6 py-4">
-                                                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${order.status === 'completed' ? 'bg-green-100 text-green-800' :
-                                                    order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                                        'bg-blue-100 text-blue-800'
+                                            <td className="px-8 py-6 text-center">
+                                                <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tighter ${order.status === 'completed' ? 'bg-green-100 text-green-700' :
+                                                        order.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                                                            'bg-blue-100 text-blue-700'
                                                     }`}>
                                                     {order.status}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 text-right space-x-2">
+                                            <td className="px-8 py-6 text-right space-x-2">
                                                 {order.status === 'pending' && (
                                                     <button
                                                         onClick={() => handleSimulatePOS(order.id, 'preparing')}
-                                                        className="text-xs bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded"
+                                                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
                                                     >
                                                         Accept
                                                     </button>
@@ -157,7 +199,7 @@ const Simulator = () => {
                                                 {order.status === 'preparing' && (
                                                     <button
                                                         onClick={() => handleSimulatePOS(order.id, 'ready')}
-                                                        className="text-xs bg-orange-500 hover:bg-orange-600 text-white px-2 py-1 rounded"
+                                                        className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
                                                     >
                                                         Ready
                                                     </button>
@@ -165,9 +207,9 @@ const Simulator = () => {
                                                 {['ready', 'preparing'].includes(order.status) && (
                                                     <button
                                                         onClick={() => handleSimulatePOS(order.id, 'completed')}
-                                                        className="text-xs bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded"
+                                                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
                                                     >
-                                                        Complete
+                                                        Done
                                                     </button>
                                                 )}
                                             </td>
@@ -175,42 +217,45 @@ const Simulator = () => {
                                     ))}
                                     {orders.length === 0 && (
                                         <tr>
-                                            <td colSpan="4" className="px-6 py-8 text-center text-gray-500">No active orders to simulate.</td>
+                                            <td colSpan="4" className="px-8 py-16 text-center text-gray-400 font-bold italic">No active orders to simulate.</td>
                                         </tr>
                                     )}
                                 </tbody>
                             </table>
                         </div>
                     </div>
-                ) : (
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
-                        <div className="p-6 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
-                            <h2 className="text-xl font-bold text-gray-800 dark:text-white">Inventory Management (External Tool)</h2>
+                )}
+
+                {isStockConfigured && activeTab === 'stock' && (
+                    <div className="bg-white dark:bg-gray-800 rounded-[3rem] shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-700 animate-scale-up">
+                        <div className="p-8 border-b border-gray-50 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-700/20">
+                            <h2 className="text-xl font-black text-gray-800 dark:text-white uppercase tracking-widest">Inventory Management</h2>
                         </div>
-                        <div className="p-6 grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                        <div className="p-8 grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                             {menuItems.map(item => (
-                                <div key={item.id} className="p-4 border dark:border-gray-700 rounded-lg flex items-center justify-between">
-                                    <div>
-                                        <h3 className="font-semibold text-gray-800 dark:text-white">{item.name}</h3>
-                                        <p className="text-xs text-gray-500">{item.id}</p>
+                                <div key={item.id} className="p-6 bg-gray-50/50 dark:bg-gray-700/30 rounded-3xl border border-gray-100 dark:border-gray-600 flex items-center justify-between group">
+                                    <div className="mr-4">
+                                        <h3 className="font-black text-gray-800 dark:text-white mb-1 transition-colors group-hover:text-yum-primary">{item.name}</h3>
+                                        <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest">{item.id}</p>
                                     </div>
                                     <button
                                         onClick={() => handleSimulateStock(item.id, !item.is_available)}
-                                        className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${item.is_available
-                                            ? 'bg-green-100 text-green-800 hover:bg-red-100 hover:text-red-800'
-                                            : 'bg-red-100 text-red-800 hover:bg-green-100 hover:text-green-800'
+                                        className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border-2 ${item.is_available
+                                            ? 'bg-green-100/50 border-green-500 text-green-700 hover:bg-yum-primary hover:border-yum-primary hover:text-white'
+                                            : 'bg-red-100/50 border-red-500 text-red-700 hover:bg-green-500 hover:border-green-500 hover:text-white'
                                             }`}
                                     >
-                                        {item.is_available ? 'In Stock' : 'Out of Stock'}
+                                        {item.is_available ? 'Active' : 'Out'}
                                     </button>
                                 </div>
                             ))}
                             {menuItems.length === 0 && (
-                                <div className="col-span-full py-8 text-center text-gray-500">No menu items found. Please create a menu first.</div>
+                                <div className="col-span-full py-16 text-center text-gray-400 font-bold italic border-2 border-dashed border-gray-100 dark:border-gray-700 rounded-[2rem]">No menu items found. Please create a menu first.</div>
                             )}
                         </div>
                     </div>
                 )}
+
             </div>
         </div>
     );
