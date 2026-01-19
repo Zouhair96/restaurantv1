@@ -27,6 +27,7 @@ const PublicMenu = () => {
     })
     const [submitting, setSubmitting] = useState(false)
     const [orderSuccess, setOrderSuccess] = useState(false)
+    const [orderStatus, setOrderStatus] = useState(null)
     const [showSidebar, setShowSidebar] = useState(false)
     const [maxStepReached, setMaxStepReached] = useState(1)
     const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -979,6 +980,7 @@ const PublicMenu = () => {
                                 <button
                                     onClick={() => {
                                         setShowOrderModal(false)
+                                        setOrderSuccess(false)
                                         setOrderStatus(null)
                                     }}
                                     className="mt-8 w-full py-4 bg-yum-primary text-white font-bold rounded-xl hover:bg-red-500 transition-colors"
