@@ -16,21 +16,34 @@ const Simulator = () => {
 
     const fetchData = async () => {
         try {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+
             const [ordersRes, itemsRes] = await Promise.all([
-                fetch(`/.netlify/functions/get-orders?restaurantId=${user.id}`),
-                fetch(`/.netlify/functions/menus?userId=${user.id}`)
+                fetch(`/.netlify/functions/get-orders`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                }),
+                fetch(`/.netlify/functions/menus`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                })
             ]);
 
-            if (ordersRes.ok) setOrders(await ordersRes.json());
+            if (ordersRes.ok) {
+                const ordersData = await ordersRes.json();
+                setOrders(ordersData.orders || []);
+            }
+
             if (itemsRes.ok) {
                 const menus = await itemsRes.json();
-                // Extract items from first menu for simulation
-                const allItems = menus.reduce((acc, menu) => {
-                    const categories = menu.config?.categories || [];
-                    const items = categories.flatMap(cat => cat.items || []);
-                    return [...acc, ...items];
-                }, []);
-                setMenuItems(allItems);
+                if (Array.isArray(menus)) {
+                    // Extract items from all menus for simulation
+                    const allItems = menus.reduce((acc, menu) => {
+                        const categories = menu.config?.categories || [];
+                        const items = categories.flatMap(cat => cat.items || []);
+                        return [...acc, ...items];
+                    }, []);
+                    setMenuItems(allItems);
+                }
             }
         } catch (error) {
             console.error('Error fetching simulator data:', error);
@@ -41,9 +54,13 @@ const Simulator = () => {
 
     const handleSimulatePOS = async (orderId, newStatus) => {
         try {
+            const token = localStorage.getItem('token');
             const response = await fetch('/.netlify/functions/simulate-pos-update', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
                 body: JSON.stringify({ orderId, status: newStatus, restaurantId: user.id })
             });
             if (response.ok) {
@@ -56,9 +73,13 @@ const Simulator = () => {
 
     const handleSimulateStock = async (itemId, isAvailable) => {
         try {
+            const token = localStorage.getItem('token');
             const response = await fetch('/.netlify/functions/simulate-stock-sync', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
                 body: JSON.stringify({ itemId, isAvailable, restaurantId: user.id })
             });
             if (response.ok) {
@@ -118,8 +139,8 @@ const Simulator = () => {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <span className={`px-3 py-1 rounded-full text-xs font-semibold ${order.status === 'completed' ? 'bg-green-100 text-green-800' :
-                                                        order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                                            'bg-blue-100 text-blue-800'
+                                                    order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                                        'bg-blue-100 text-blue-800'
                                                     }`}>
                                                     {order.status}
                                                 </span>
@@ -176,8 +197,8 @@ const Simulator = () => {
                                     <button
                                         onClick={() => handleSimulateStock(item.id, !item.is_available)}
                                         className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${item.is_available
-                                                ? 'bg-green-100 text-green-800 hover:bg-red-100 hover:text-red-800'
-                                                : 'bg-red-100 text-red-800 hover:bg-green-100 hover:text-green-800'
+                                            ? 'bg-green-100 text-green-800 hover:bg-red-100 hover:text-red-800'
+                                            : 'bg-red-100 text-red-800 hover:bg-green-100 hover:text-green-800'
                                             }`}
                                     >
                                         {item.is_available ? 'In Stock' : 'Out of Stock'}
