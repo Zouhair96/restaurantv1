@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar'
-import { HiOutlineUserCircle, HiOutlineMenuAlt2, HiOutlineSun, HiOutlineMoon } from 'react-icons/hi'
+import { HiOutlineUserCircle, HiOutlineMenuAlt2, HiOutlineSun, HiOutlineMoon, HiOutlineX } from 'react-icons/hi'
 
 const PublicMenu = () => {
     const { restaurantName } = useParams()
