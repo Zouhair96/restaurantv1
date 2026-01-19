@@ -23,14 +23,18 @@ export const handler = async (event, context) => {
             };
         }
 
-        // 1. Find the user ID by restaurant_name (case insensitive search could be better, but exact for now)
-        // We handle spaces/URL decoding automatically via built-in URL decoding, but SQL match should be exact or similar
-        const userResult = await query(
-            'SELECT id, restaurant_name, subscription_status FROM users WHERE restaurant_name = $1',
-            [restaurantName]
-        );
+        // 1. Find the user ID by restaurant_name
+        // We join with menus to prioritize users who actually have a menu if duplicates exist
+        const result = await query(`
+            SELECT u.id, u.restaurant_name, m.id as menu_id
+            FROM users u
+            LEFT JOIN menus m ON u.id = m.user_id
+            WHERE u.restaurant_name = $1
+            ORDER BY m.updated_at DESC NULLS LAST
+            LIMIT 1
+        `, [restaurantName]);
 
-        if (userResult.rows.length === 0) {
+        if (result.rows.length === 0) {
             return {
                 statusCode: 404,
                 headers,
@@ -38,22 +42,32 @@ export const handler = async (event, context) => {
             };
         }
 
-        const user = userResult.rows[0];
+        const user = result.rows[0];
 
-        // 2. Fetch the most recent menu for this user
-        // In the future, we might want a specific "is_published" flag, but for now we take the latest updated one.
+        if (!user.menu_id) {
+            return {
+                statusCode: 404,
+                headers,
+                body: JSON.stringify({
+                    error: 'No menus published yet.',
+                    restaurant: user.restaurant_name
+                })
+            };
+        }
+
+        // 2. Fetch the actual menu details
         const menuResult = await query(
-            'SELECT * FROM menus WHERE user_id = $1 ORDER BY updated_at DESC LIMIT 1',
-            [user.id]
+            'SELECT * FROM menus WHERE id = $1',
+            [user.menu_id]
         );
 
         if (menuResult.rows.length === 0) {
             return {
-                statusCode: 404, // or 200 with empty indication
+                statusCode: 404,
                 headers,
                 body: JSON.stringify({
-                    restaurant: user.restaurant_name,
-                    message: 'No menus published yet.'
+                    error: 'No menus published yet.',
+                    restaurant: user.restaurant_name
                 })
             };
         }
