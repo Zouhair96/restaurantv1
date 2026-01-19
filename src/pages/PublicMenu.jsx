@@ -377,32 +377,38 @@ const PublicMenu = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {sizes.map((size, idx) => {
                                 const isSelected = selections.size?.id === size.id;
+                                const isAvailable = size.is_available !== false;
                                 return (
                                     <button
                                         key={size.id}
                                         style={{ animationDelay: `${idx * 100}ms` }}
-                                        onClick={() => handleToggleSelection('size', size)}
-                                        className={`p-6 rounded-3xl border-2 transition-all group animate-fade-in ${isSelected
-                                            ? 'bg-yum-primary/10 border-yum-primary'
-                                            : isDarkMode
-                                                ? 'bg-white/5 border-white/10 hover:border-white/30'
-                                                : 'bg-white border-gray-100 hover:border-gray-200 shadow-sm'
+                                        onClick={() => isAvailable && handleToggleSelection('size', size)}
+                                        disabled={!isAvailable}
+                                        className={`p-6 rounded-3xl border-2 transition-all group animate-fade-in ${!isAvailable ? 'opacity-50 grayscale cursor-not-allowed bg-gray-100 dark:bg-gray-800 border-transparent' :
+                                            isSelected ? 'bg-yum-primary/10 border-yum-primary' :
+                                                isDarkMode ? 'bg-white/5 border-white/10 hover:border-white/30' :
+                                                    'bg-white border-gray-100 hover:border-gray-200 shadow-sm'
                                             }`}
                                     >
                                         <div className="flex items-center gap-4 text-left">
-                                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-3xl transition-transform group-hover:scale-110 ${isSelected
-                                                ? 'bg-yum-primary text-white'
-                                                : isDarkMode ? 'bg-gray-800 text-gray-400' : 'bg-gray-100 text-gray-500'
+                                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-3xl transition-transform group-hover:scale-110 ${!isAvailable ? 'bg-gray-200 dark:bg-gray-700 text-gray-400' :
+                                                isSelected ? 'bg-yum-primary text-white' :
+                                                    isDarkMode ? 'bg-gray-800 text-gray-400' : 'bg-gray-100 text-gray-500'
                                                 }`}>
-                                                🌮
+                                                {isAvailable ? '🌮' : '🚫'}
                                             </div>
                                             <div>
-                                                <span className={`block font-black text-xl transition-colors ${isSelected ? (isDarkMode ? 'text-white' : 'text-yum-primary') : (isDarkMode ? 'text-white' : 'text-gray-900')}`}>{size.size}</span>
-                                                <span className={`text-sm font-bold transition-colors ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Base Option</span>
+                                                <span className={`block font-black text-xl transition-colors ${!isAvailable ? 'text-gray-400' :
+                                                    isSelected ? (isDarkMode ? 'text-white' : 'text-yum-primary') :
+                                                        (isDarkMode ? 'text-white' : 'text-gray-900')
+                                                    }`}>{size.size}</span>
+                                                <span className={`text-sm font-bold transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                                                    {isAvailable ? 'Base Option' : 'Sold Out'}
+                                                </span>
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <span className={`text-2xl font-black transition-colors ${isSelected ? (isDarkMode ? 'text-white' : 'text-yum-primary') : ''}`} style={{ color: isSelected ? '' : designConfig.accentColor }}>
+                                            <span className={`text-2xl font-black transition-colors ${isSelected ? (isDarkMode ? 'text-white' : 'text-yum-primary') : ''}`} style={{ color: isAvailable && !isSelected ? designConfig.accentColor : '' }}>
                                                 ${Number(size.price).toFixed(2)}
                                             </span>
                                         </div>
@@ -434,27 +440,35 @@ const PublicMenu = () => {
                             <h4 className={`text-sm font-bold uppercase tracking-widest mb-4 transition-colors ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Quantity</h4>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 {friesOption.filter(opt => ['sans', 'un_peu', 'moyenne', 'beaucoup'].includes(opt)).map(opt => {
-                                    const info = menuOptions.fries[opt] || { label: opt, icon: '🍟' }
-                                    const isSelected = selections.friesType === opt
+                                    const isAvailable = opt.is_available !== false && (typeof opt === 'string' || opt.is_available !== false);
+                                    // Note: friesOption might be strings or objects now
+                                    const optId = typeof opt === 'string' ? opt : opt.name;
+                                    const info = menuOptions.fries[optId] || { label: optId, icon: '🍟' };
+                                    const isSelected = selections.friesType === optId;
+                                    const available = typeof opt === 'object' ? opt.is_available !== false : true;
+
                                     return (
                                         <button
-                                            key={opt}
-                                            onClick={() => handleToggleSelection('friesType', opt)}
-                                            className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${isSelected
-                                                ? 'bg-yellow-500/20 border-yellow-500'
-                                                : isDarkMode
-                                                    ? 'bg-white/5 border-white/5 hover:bg-white/10'
-                                                    : 'bg-white border-gray-100 hover:bg-gray-50 shadow-sm'
+                                            key={optId}
+                                            disabled={!available}
+                                            onClick={() => available && handleToggleSelection('friesType', optId)}
+                                            className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${!available ? 'opacity-50 grayscale cursor-not-allowed bg-gray-100 dark:bg-gray-800/50 border-transparent' :
+                                                isSelected ? 'bg-yellow-500/20 border-yellow-500' :
+                                                    isDarkMode ? 'bg-white/5 border-white/5 hover:bg-white/10' :
+                                                        'bg-white border-gray-100 hover:bg-gray-50 shadow-sm'
                                                 }`}
                                         >
-                                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${isSelected
-                                                ? 'bg-yellow-500 text-white'
-                                                : isDarkMode ? 'bg-gray-800' : 'bg-gray-100'
+                                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${!available ? 'bg-gray-200 dark:bg-gray-700' :
+                                                isSelected ? 'bg-yellow-500 text-white' :
+                                                    isDarkMode ? 'bg-gray-800' : 'bg-gray-100'
                                                 }`}>
-                                                {info.icon}
+                                                {available ? info.icon : '🚫'}
                                             </div>
-                                            <span className={`font-bold capitalize transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{info.label}</span>
-                                            {isSelected && (
+                                            <div className="flex flex-col text-left">
+                                                <span className={`font-bold capitalize transition-colors ${!available ? 'text-gray-400' : isDarkMode ? 'text-white' : 'text-gray-900'}`}>{info.label}</span>
+                                                {!available && <span className="text-[10px] font-black uppercase text-red-500">Sold Out</span>}
+                                            </div>
+                                            {isSelected && available && (
                                                 <div className="ml-auto text-yellow-500">
                                                     <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                                                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -525,30 +539,36 @@ const PublicMenu = () => {
                             <p className={`transition-colors ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Pick your protein style</p>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {mealsOption.map((mealId, idx) => {
-                                const meal = menuOptions.chicken[mealId] || { label: mealId, icon: '🍗' }
+                            {mealsOption.map((meal, idx) => {
+                                const isObj = typeof meal === 'object' && meal !== null;
+                                const mealId = isObj ? meal.name : meal;
+                                const isAvailable = isObj ? meal.is_available !== false : true;
+                                const mealInfo = menuOptions.chicken[mealId] || { label: mealId, icon: '🍗' }
                                 const isSelected = selections.chicken.includes(mealId)
                                 return (
                                     <button
                                         key={mealId}
                                         style={{ animationDelay: `${idx * 50}ms` }}
-                                        onClick={() => handleToggleSelection('chicken', mealId)}
-                                        className={`flex items-center justify-between p-6 rounded-2xl border-2 transition-all group animate-fade-in ${isSelected
-                                            ? 'bg-yum-primary/20 border-yum-primary shadow-lg shadow-yum-primary/20'
-                                            : isDarkMode
-                                                ? 'bg-white/5 border-white/5 hover:border-white/20'
-                                                : 'bg-white border-gray-100 hover:border-gray-50 shadow-sm'
+                                        disabled={!isAvailable}
+                                        onClick={() => isAvailable && handleToggleSelection('chicken', mealId)}
+                                        className={`flex items-center justify-between p-6 rounded-2xl border-2 transition-all group animate-fade-in ${!isAvailable ? 'opacity-50 grayscale cursor-not-allowed bg-gray-100 dark:bg-gray-800/50 border-transparent' :
+                                            isSelected ? 'bg-yum-primary/20 border-yum-primary shadow-lg shadow-yum-primary/20' :
+                                                isDarkMode ? 'bg-white/5 border-white/5 hover:border-white/20' :
+                                                    'bg-white border-gray-100 hover:border-gray-50 shadow-sm'
                                             }`}
                                     >
-                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${isSelected
-                                            ? 'bg-green-500 text-white'
-                                            : isDarkMode ? 'bg-gray-800' : 'bg-gray-100'
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${!isAvailable ? 'bg-gray-200 dark:bg-gray-700' :
+                                            isSelected ? 'bg-green-500 text-white' :
+                                                isDarkMode ? 'bg-gray-800' : 'bg-gray-100'
                                             }`}>
-                                            {meal.icon}
+                                            {isAvailable ? mealInfo.icon : '🚫'}
                                         </div>
-                                        <span className={`font-bold capitalize transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{meal.label}</span>
-                                        {isSelected && (
-                                            <div className="ml-auto text-green-500">
+                                        <div className="flex flex-col text-right">
+                                            <span className={`font-bold capitalize transition-colors ${!isAvailable ? 'text-gray-400' : isDarkMode ? 'text-white' : 'text-gray-900'}`}>{mealInfo.label}</span>
+                                            {!isAvailable && <span className="text-[10px] font-black uppercase text-red-500">Sold Out</span>}
+                                        </div>
+                                        {isSelected && isAvailable && (
+                                            <div className="ml-auto text-green-500 pl-4">
                                                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                                 </svg>
@@ -572,27 +592,32 @@ const PublicMenu = () => {
                             <p className="text-gray-400">Add some flavor to your tacos</p>
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                            {saucesOption.map((sauceId, idx) => {
-                                const sauce = menuOptions.sauce[sauceId] || { label: sauceId, icon: '🌶️' }
+                            {saucesOption.map((sauce, idx) => {
+                                const isObj = typeof sauce === 'object' && sauce !== null;
+                                const sauceId = isObj ? sauce.name : sauce;
+                                const isAvailable = isObj ? sauce.is_available !== false : true;
+                                const info = menuOptions.sauce[sauceId] || { label: sauceId, icon: '🌶️' }
                                 const isSelected = selections.sauce.includes(sauceId)
                                 return (
                                     <button
                                         key={sauceId}
                                         style={{ animationDelay: `${idx * 50}ms` }}
-                                        onClick={() => handleToggleSelection('sauce', sauceId)}
-                                        className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all group animate-fade-in ${isSelected
-                                            ? 'bg-yum-primary/20 border-yum-primary shadow-lg shadow-yum-primary/20'
-                                            : 'bg-white/5 border-white/5 hover:border-white/20'
+                                        disabled={!isAvailable}
+                                        onClick={() => isAvailable && handleToggleSelection('sauce', sauceId)}
+                                        className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all group animate-fade-in ${!isAvailable ? 'opacity-30 grayscale cursor-not-allowed border-transparent' :
+                                            isSelected ? 'bg-yum-primary/20 border-yum-primary shadow-lg shadow-yum-primary/20' :
+                                                'bg-white/5 border-white/5 hover:border-white/20'
                                             }`}
                                     >
-                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${isSelected ? 'bg-red-500 text-white' : 'bg-gray-800'
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${!isAvailable ? 'bg-gray-800 text-gray-600' :
+                                            isSelected ? 'bg-red-500 text-white' : 'bg-gray-800'
                                             }`}>
-                                            {sauce.icon}
+                                            {isAvailable ? info.icon : '🚫'}
                                         </div>
-                                        <span className="font-bold text-white capitalize">{sauce.label}</span>
-                                        {isSelected && (
-                                            <div className="ml-auto text-red-500">
-                                                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                        <span className={`font-bold capitalize mt-2 ${!isAvailable ? 'text-gray-600' : 'text-white'}`}>{info.label}</span>
+                                        {isSelected && isAvailable && (
+                                            <div className="absolute top-2 right-2 text-red-500">
+                                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                                 </svg>
                                             </div>
@@ -615,27 +640,32 @@ const PublicMenu = () => {
                             <p className="text-gray-400">Pick a refreshing drink</p>
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                            {drinksOption.map((drinkId, idx) => {
-                                const drink = menuOptions.drink[drinkId] || { label: drinkId, icon: '🥤' }
+                            {drinksOption.map((drink, idx) => {
+                                const isObj = typeof drink === 'object' && drink !== null;
+                                const drinkId = isObj ? drink.name : drink;
+                                const isAvailable = isObj ? drink.is_available !== false : true;
+                                const drinkInfo = menuOptions.drink[drinkId] || { label: drinkId, icon: '🥤' }
                                 const isSelected = selections.drink === drinkId
                                 return (
                                     <button
                                         key={drinkId}
                                         style={{ animationDelay: `${idx * 50}ms` }}
-                                        onClick={() => handleToggleSelection('drink', drinkId)}
-                                        className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all group animate-fade-in ${isSelected
-                                            ? 'bg-yum-primary/20 border-yum-primary shadow-lg shadow-yum-primary/20'
-                                            : 'bg-white/5 border-white/5 hover:border-white/20'
+                                        disabled={!isAvailable}
+                                        onClick={() => isAvailable && handleToggleSelection('drink', drinkId)}
+                                        className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all group animate-fade-in ${!isAvailable ? 'opacity-30 grayscale cursor-not-allowed border-transparent' :
+                                                isSelected ? 'bg-yum-primary/20 border-yum-primary shadow-lg shadow-yum-primary/20' :
+                                                    'bg-white/5 border-white/5 hover:border-white/20'
                                             }`}
                                     >
-                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${isSelected ? 'bg-blue-500 text-white' : 'bg-gray-800'
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${!isAvailable ? 'bg-gray-800 text-gray-600' :
+                                                isSelected ? 'bg-blue-500 text-white' : 'bg-gray-800'
                                             }`}>
-                                            {drink.icon}
+                                            {isAvailable ? drinkInfo.icon : '🚫'}
                                         </div>
-                                        <span className="font-bold text-white capitalize">{drink.label}</span>
-                                        {isSelected && (
-                                            <div className="ml-auto text-blue-500">
-                                                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                        <span className={`font-bold mt-2 ${!isAvailable ? 'text-gray-600' : 'text-white'} capitalize`}>{drinkInfo.label}</span>
+                                        {isSelected && isAvailable && (
+                                            <div className="absolute top-2 right-2 text-blue-500">
+                                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                                 </svg>
                                             </div>
@@ -658,29 +688,37 @@ const PublicMenu = () => {
                             <p className="text-gray-400">Make it even more special</p>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {extrasOption.map((extraId, idx) => {
-                                const extra = menuOptions.extras[extraId] || { label: extraId, icon: '✨' }
+                            {extrasOption.map((extra, idx) => {
+                                const isObj = typeof extra === 'object' && extra !== null;
+                                const extraId = isObj ? extra.name : extra;
+                                const isAvailable = isObj ? extra.is_available !== false : true;
+                                const extraInfo = menuOptions.extras[extraId] || { label: extraId, icon: '✨' }
                                 const isSelected = selections.extras.includes(extraId)
                                 return (
                                     <button
                                         key={extraId}
                                         style={{ animationDelay: `${idx * 50}ms` }}
-                                        onClick={() => handleToggleSelection('extras', extraId)}
-                                        className={`flex items-center justify-between p-6 rounded-2xl border-2 transition-all group animate-fade-in ${isSelected
-                                            ? 'bg-yum-primary/20 border-yum-primary shadow-lg shadow-yum-primary/20'
-                                            : 'bg-white/5 border-white/5 hover:border-white/20'
+                                        disabled={!isAvailable}
+                                        onClick={() => isAvailable && handleToggleSelection('extras', extraId)}
+                                        className={`flex items-center justify-between p-6 rounded-2xl border-2 transition-all group animate-fade-in ${!isAvailable ? 'opacity-50 grayscale cursor-not-allowed bg-gray-100 dark:bg-gray-800/50 border-transparent' :
+                                                isSelected ? 'bg-yum-primary/20 border-yum-primary shadow-lg shadow-yum-primary/20' :
+                                                    'bg-white/5 border-white/5 hover:border-white/20'
                                             }`}
                                     >
                                         <div className="flex items-center gap-4 text-left">
-                                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${isSelected ? 'bg-yum-primary text-white' : 'bg-gray-800 text-gray-400'}`}>
-                                                {extra.icon}
+                                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${!isAvailable ? 'bg-gray-200 dark:bg-gray-700 text-gray-400' :
+                                                    isSelected ? 'bg-yum-primary text-white' : 'bg-gray-800 text-gray-400'
+                                                }`}>
+                                                {isAvailable ? extraInfo.icon : '🚫'}
                                             </div>
-                                            <div>
-                                                <span className="font-black text-white block capitalize">{extra.label}</span>
-                                                <span className="text-gray-500 text-xs font-bold uppercase tracking-widest">Extra Upgrade</span>
+                                            <div className="flex flex-col">
+                                                <span className={`font-black block capitalize ${!isAvailable ? 'text-gray-400' : 'text-white'}`}>{extraInfo.label}</span>
+                                                <span className="text-gray-500 text-xs font-bold uppercase tracking-widest">
+                                                    {isAvailable ? 'Extra Upgrade' : 'Sold Out'}
+                                                </span>
                                             </div>
                                         </div>
-                                        {isSelected && <div className="w-6 h-6 rounded-full bg-yum-primary flex items-center justify-center text-white text-xs">✓</div>}
+                                        {isSelected && isAvailable && <div className="w-6 h-6 rounded-full bg-yum-primary flex items-center justify-center text-white text-xs">✓</div>}
                                     </button>
                                 )
                             })}

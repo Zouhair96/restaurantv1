@@ -42,9 +42,58 @@ const Simulator = () => {
                 if (Array.isArray(menus)) {
                     // Extract items from all menus for simulation
                     const allItems = menus.reduce((acc, menu) => {
-                        const categories = menu.config?.categories || [];
-                        const items = categories.flatMap(cat => cat.items || []);
-                        return [...acc, ...items];
+                        const config = menu.config || {};
+
+                        // 1. Handle Category-based menus (if any)
+                        if (config.categories) {
+                            config.categories.forEach(cat => {
+                                if (cat.items) {
+                                    cat.items.forEach(item => {
+                                        acc.push({
+                                            id: item.id || `item-${item.name}`,
+                                            name: item.name,
+                                            is_available: item.is_available !== false,
+                                            menuId: menu.id,
+                                            source: 'categories'
+                                        });
+                                    });
+                                }
+                            });
+                        }
+
+                        // 2. Handle Dynamic (Step-by-Step) menus
+                        const dynamicSections = [
+                            { key: 'sizes', label: 'Size' },
+                            { key: 'mealsOption', label: 'Meal' },
+                            { key: 'saucesOption', label: 'Sauce' },
+                            { key: 'drinksOption', label: 'Drink' },
+                            { key: 'extrasOption', label: 'Extra' },
+                            { key: 'friesOption', label: 'Fries' }
+                        ];
+
+                        dynamicSections.forEach(section => {
+                            const data = config[section.key];
+                            if (Array.isArray(data)) {
+                                data.forEach((item, idx) => {
+                                    // Item might be a string or object
+                                    const isObj = typeof item === 'object' && item !== null;
+                                    const name = isObj ? (item.size || item.name || 'Unnamed') : item;
+                                    const id = isObj ? (item.id || `${section.key}-${idx}`) : `${section.key}-${item}`;
+
+                                    acc.push({
+                                        id: id,
+                                        name: `${section.label}: ${name}`,
+                                        is_available: isObj ? (item.is_available !== false) : true, // Default true for strings
+                                        menuId: menu.id,
+                                        source: 'dynamic',
+                                        section: section.key,
+                                        originalItem: item
+                                    });
+                                });
+                            }
+                        });
+
+                        return acc;
                     }, []);
                     setMenuItems(allItems);
                 }
@@ -181,8 +230,8 @@ const Simulator = () => {
                                             </td>
                                             <td className="px-8 py-6 text-center">
                                                 <span className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tighter ${order.status === 'completed' ? 'bg-green-100 text-green-700' :
-                                                        order.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                                                            'bg-blue-100 text-blue-700'
+                                                    order.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                                                        'bg-blue-100 text-blue-700'
                                                     }`}>
                                                     {order.status}
                                                 </span>
