@@ -16,6 +16,8 @@ import PromotionCard from '../components/dashboard/PromotionCard'
 import CreatePromoModal from '../components/dashboard/CreatePromoModal'
 import TemplateEditorModal from '../components/dashboard/TemplateEditorModal'
 import LiveOrders from '../components/dashboard/LiveOrders'
+import IntegrationSettings from '../components/dashboard/IntegrationSettings'
+import Simulator from './Simulator'
 import OrderDetailsModal from '../components/dashboard/OrderDetailsModal'
 import { fetchMenus, createMenu, updateMenu, deleteMenu } from '../utils/menus'
 
@@ -998,6 +1000,18 @@ const Profile = () => {
                 return renderPromos()
             case 'activity':
                 return renderActivity()
+            case 'integrations':
+                return (
+                    <div className="animate-fade-in shadow-2xl rounded-[3rem] overflow-hidden">
+                        <IntegrationSettings />
+                    </div>
+                )
+            case 'simulator':
+                return (
+                    <div className="animate-fade-in shadow-2xl rounded-[3rem] overflow-hidden">
+                        <Simulator />
+                    </div>
+                )
             case 'settings':
                 return renderSettings()
             default:
