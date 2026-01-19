@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import AdminLayout from '../layouts/AdminLayout'
+import IntegrationSettings from '../components/dashboard/IntegrationSettings'
+import Simulator from './Simulator'
 
 const AdminDashboard = () => {
     const { user, loading } = useAuth()
@@ -198,6 +200,18 @@ const AdminDashboard = () => {
                         </div>
                         <h2 className="text-3xl font-black text-gray-800 dark:text-white tracking-tight uppercase mb-2">Platform Analytics</h2>
                         <p className="text-gray-400 max-w-sm">Deep insights into user engagement, revenue growth, and platform health. Coming soon.</p>
+                    </div>
+                )}
+
+                {activeSection === 'integrations' && (
+                    <div className="animate-fade-in">
+                        <IntegrationSettings />
+                    </div>
+                )}
+
+                {activeSection === 'simulator' && (
+                    <div className="animate-fade-in shadow-2xl rounded-[3rem] overflow-hidden">
+                        <Simulator />
                     </div>
                 )}
             </div>

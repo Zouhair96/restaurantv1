@@ -23,7 +23,7 @@ const AdminHeader = ({ activeSection, onSectionChange, toggleMobileMenu, onAddMe
 
                 {/* Nav Tabs (Hidden on Mobile) */}
                 <nav className="hidden md:flex items-center gap-6 lg:gap-8">
-                    {['Dashboard', 'Workflows', 'Integrations'].map((item) => {
+                    {['Dashboard', 'Workflows', 'Integrations', 'Simulator'].map((item) => {
                         const id = item.toLowerCase();
                         const isActive = activeSection === id;
                         return (

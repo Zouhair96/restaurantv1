@@ -15,7 +15,11 @@ import {
     HiOutlineEnvelope,
     HiEnvelope,
     HiOutlineArrowRightOnRectangle,
-    HiXMark
+    HiXMark,
+    HiOutlineCog6Tooth,
+    HiCog6Tooth,
+    HiOutlineBeaker,
+    HiBeaker
 } from 'react-icons/hi2';
 
 const AdminSidebar = ({ activeSection, onSectionChange, isMobileMenuOpen, closeMobileMenu }) => {
@@ -38,6 +42,8 @@ const AdminSidebar = ({ activeSection, onSectionChange, isMobileMenuOpen, closeM
         { id: 'dashboard', outline: HiOutlineSquares2X2, solid: HiSquares2X2, label: 'Dashboard' },
         { id: 'users', outline: HiOutlineUser, solid: HiUser, label: 'Users' },
         { id: 'analytics', outline: HiOutlineChartPie, solid: HiChartPie, label: 'Analytics' },
+        { id: 'integrations', outline: HiOutlineCog6Tooth, solid: HiCog6Tooth, label: 'Integrations' },
+        { id: 'simulator', outline: HiOutlineBeaker, solid: HiBeaker, label: 'Simulator' },
         { id: 'notifications', outline: HiOutlineBell, solid: HiBell, label: 'Notifications' },
         { id: 'calendar', outline: HiOutlineCalendarDays, solid: HiCalendarDays, label: 'Calendar' },
         { id: 'inbox', outline: HiOutlineEnvelope, solid: HiEnvelope, label: 'Inbox' },
