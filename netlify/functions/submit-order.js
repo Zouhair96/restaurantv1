@@ -1,6 +1,7 @@
 import { query } from './db.js';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import { POSManager } from './pos-adapters/pos-manager.js';
 
 dotenv.config();
 
@@ -112,13 +113,55 @@ export const handler = async (event, context) => {
             [restaurantId, orderType, tableNumber, deliveryAddress, paymentMethod, JSON.stringify(items), totalPrice, customerId]
         );
 
+        const newOrder = {
+            id: orderResult.rows[0].id,
+            restaurant_id: restaurantId,
+            order_type: orderType,
+            table_number: tableNumber,
+            delivery_address: deliveryAddress,
+            payment_method: paymentMethod,
+            items: items,
+            total_price: totalPrice,
+            created_at: orderResult.rows[0].created_at
+        };
+
+        // --- POS INTEGRATION TRIGGER ---
+        let posStatus = { success: false, skipped: true };
+        try {
+            // Fetch integration settings
+            const settingsResult = await query(
+                'SELECT * FROM integration_settings WHERE restaurant_id = $1',
+                [restaurantId]
+            );
+
+            if (settingsResult.rows.length > 0) {
+                const settings = settingsResult.rows[0];
+                if (settings.pos_enabled) {
+                    posStatus = await POSManager.sendOrder(settings, newOrder);
+
+                    // Update order with external ID if successful
+                    if (posStatus.success && posStatus.external_id) {
+                        await query(
+                            'UPDATE orders SET external_id = $1 WHERE id = $2',
+                            [posStatus.external_id, newOrder.id]
+                        );
+                    }
+                }
+            }
+        } catch (posError) {
+            console.error('⚠️ POS Integration Error:', posError.message);
+            // We don't fail the order because the POS sync failed
+            posStatus = { success: false, error: posError.message };
+        }
+
         return {
             statusCode: 201,
             headers,
             body: JSON.stringify({
                 success: true,
-                orderId: orderResult.rows[0].id,
-                message: 'Order placed successfully'
+                orderId: newOrder.id,
+                message: 'Order placed successfully',
+                pos_sync: posStatus
             })
         };
 
