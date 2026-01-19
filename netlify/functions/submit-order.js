@@ -84,11 +84,15 @@ export const handler = async (event, context) => {
             };
         }
 
-        // Find restaurant by name
-        const restaurantResult = await query(
-            'SELECT id FROM users WHERE restaurant_name = $1',
-            [restaurantName]
-        );
+        // Find restaurant by name - robust lookup to handle duplicates
+        const restaurantResult = await query(`
+            SELECT u.id, u.restaurant_name 
+            FROM users u
+            LEFT JOIN menus m ON u.id = m.user_id
+            WHERE u.restaurant_name = $1
+            ORDER BY m.updated_at DESC NULLS LAST
+            LIMIT 1
+        `, [restaurantName]);
 
         if (restaurantResult.rows.length === 0) {
             return {
