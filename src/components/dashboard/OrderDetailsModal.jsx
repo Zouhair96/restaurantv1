@@ -93,11 +93,12 @@ const OrderDetailsModal = ({ order, isOpen, onClose, onStatusUpdate, getStatusCo
                                             {idx + 1}
                                         </span>
                                         <div>
-                                            <p className="font-bold text-gray-800 dark:text-white capitalize">
+                                            <p className="text-lg font-black text-gray-900 dark:text-white capitalize">
                                                 {item.name || item.size?.size + ' Menu'}
                                             </p>
-                                            <p className="text-xs text-gray-400">
-                                                {item.friesType && `Fries: ${item.friesType}`} {item.drink && `• Drink: ${item.drink}`}
+                                            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                                                {item.friesType && `🍟 ${item.friesType}`} {item.drink && `• 🥤 ${item.drink}`}
+                                                {item.sauces && item.sauces.length > 0 && ` • 🥣 ${item.sauces.join(', ')}`}
                                             </p>
                                         </div>
                                     </div>
@@ -112,16 +113,28 @@ const OrderDetailsModal = ({ order, isOpen, onClose, onStatusUpdate, getStatusCo
                         <div className="bg-orange-50 dark:bg-orange-900/10 p-6 rounded-[2rem] border border-orange-100 dark:border-orange-500/20 animate-fade-in">
                             <h4 className="text-lg font-black text-gray-800 dark:text-white mb-4">Assign Driver</h4>
                             <div className="space-y-4">
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Driver Name</label>
-                                    <input
-                                        type="text"
-                                        value={driverName}
-                                        onChange={(e) => setDriverName(e.target.value)}
-                                        className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 font-bold text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-yum-primary"
-                                        placeholder="e.g. John Doe"
-                                        autoFocus
-                                    />
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Driver Name</label>
+                                        <input
+                                            type="text"
+                                            value={driverName}
+                                            onChange={(e) => setDriverName(e.target.value)}
+                                            className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 font-bold text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-yum-primary"
+                                            placeholder="e.g. John Doe"
+                                            autoFocus
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Phone (Optional)</label>
+                                        <input
+                                            type="text"
+                                            value={driverPhone}
+                                            onChange={(e) => setDriverPhone(e.target.value)}
+                                            className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 font-bold text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-yum-primary"
+                                            placeholder="+1 234..."
+                                        />
+                                    </div>
                                 </div>
                                 <div className="flex gap-4">
                                     <button
@@ -145,6 +158,27 @@ const OrderDetailsModal = ({ order, isOpen, onClose, onStatusUpdate, getStatusCo
                 {/* Modal Footer */}
                 <div className="p-8 bg-gray-50 dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 flex flex-wrap gap-4 justify-end">
                     {/* Dynamic Main Action Button */}
+                    {/* Pending -> Preparing */}
+                    {!showDriverForm && order.status === 'pending' && (
+                        <button
+                            onClick={() => onStatusUpdate(order.id, 'preparing')}
+                            className="flex-1 md:flex-none px-8 py-3 bg-blue-600 text-white hover:bg-blue-700 rounded-2xl font-black shadow-xl transition-all hover:scale-105 active:scale-95"
+                        >
+                            👨‍🍳 Start Preparing
+                        </button>
+                    )}
+
+                    {/* Preparing -> Ready (Dine In) */}
+                    {!showDriverForm && order.status === 'preparing' && order.order_type === 'dine_in' && (
+                        <button
+                            onClick={() => onStatusUpdate(order.id, 'ready')}
+                            className="flex-1 md:flex-none px-8 py-3 bg-green-500 text-white hover:bg-green-600 rounded-2xl font-black shadow-xl transition-all hover:scale-105 active:scale-95"
+                        >
+                            ✅ Mark Ready
+                        </button>
+                    )}
+
+                    {/* Preparing -> Assign Driver (Take Out) */}
                     {!showDriverForm && order.status === 'preparing' && order.order_type === 'take_out' && (
                         <button
                             onClick={() => setShowDriverForm(true)}
@@ -154,7 +188,8 @@ const OrderDetailsModal = ({ order, isOpen, onClose, onStatusUpdate, getStatusCo
                         </button>
                     )}
 
-                    {(!showDriverForm && (order.status === 'ready' || order.status === 'out_for_delivery')) && (
+                    {/* Ready/Delivering -> Completed */}
+                    {!showDriverForm && (order.status === 'ready' || order.status === 'out_for_delivery') && (
                         <button
                             onClick={() => onStatusUpdate(order.id, 'completed')}
                             className="flex-1 md:flex-none px-8 py-3 bg-green-500 text-white hover:bg-green-600 rounded-2xl font-black shadow-xl transition-all hover:scale-105 active:scale-95"
