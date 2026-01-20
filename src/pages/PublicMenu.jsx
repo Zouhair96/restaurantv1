@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar'
 import { HiOutlineUserCircle, HiOutlineMenuAlt2, HiOutlineSun, HiOutlineMoon, HiOutlineX } from 'react-icons/hi'
 
 const PublicMenu = () => {
     const { restaurantName } = useParams()
+    const navigate = useNavigate()
     const [data, setData] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
