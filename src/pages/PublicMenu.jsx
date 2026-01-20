@@ -239,24 +239,9 @@ const PublicMenu = () => {
             setTimeout(() => {
                 setShowOrderModal(false)
                 setOrderSuccess(false)
-                // Reset to step 1
-                setCurrentStep(1)
-                setSelections({
-                    size: null,
-                    friesType: null,
-                    friesPlacement: null,
-                    chicken: [],
-                    sauce: [],
-                    drink: null,
-                    extras: []
-                })
-                setOrderDetails({
-                    orderType: 'dine_in',
-                    tableNumber: '',
-                    deliveryAddress: '',
-                    paymentMethod: 'cash'
-                })
-            }, 2000)
+                // Navigate to tracking page
+                navigate(`/order/${result.orderId}`)
+            }, 1000)
 
         } catch (err) {
             console.error('Order submission error:', err)
@@ -653,12 +638,12 @@ const PublicMenu = () => {
                                         disabled={!isAvailable}
                                         onClick={() => isAvailable && handleToggleSelection('drink', drinkId)}
                                         className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all group animate-fade-in ${!isAvailable ? 'opacity-30 grayscale cursor-not-allowed border-transparent' :
-                                                isSelected ? 'bg-yum-primary/20 border-yum-primary shadow-lg shadow-yum-primary/20' :
-                                                    'bg-white/5 border-white/5 hover:border-white/20'
+                                            isSelected ? 'bg-yum-primary/20 border-yum-primary shadow-lg shadow-yum-primary/20' :
+                                                'bg-white/5 border-white/5 hover:border-white/20'
                                             }`}
                                     >
                                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${!isAvailable ? 'bg-gray-800 text-gray-600' :
-                                                isSelected ? 'bg-blue-500 text-white' : 'bg-gray-800'
+                                            isSelected ? 'bg-blue-500 text-white' : 'bg-gray-800'
                                             }`}>
                                             {isAvailable ? drinkInfo.icon : '🚫'}
                                         </div>
@@ -701,13 +686,13 @@ const PublicMenu = () => {
                                         disabled={!isAvailable}
                                         onClick={() => isAvailable && handleToggleSelection('extras', extraId)}
                                         className={`flex items-center justify-between p-6 rounded-2xl border-2 transition-all group animate-fade-in ${!isAvailable ? 'opacity-50 grayscale cursor-not-allowed bg-gray-100 dark:bg-gray-800/50 border-transparent' :
-                                                isSelected ? 'bg-yum-primary/20 border-yum-primary shadow-lg shadow-yum-primary/20' :
-                                                    'bg-white/5 border-white/5 hover:border-white/20'
+                                            isSelected ? 'bg-yum-primary/20 border-yum-primary shadow-lg shadow-yum-primary/20' :
+                                                'bg-white/5 border-white/5 hover:border-white/20'
                                             }`}
                                     >
                                         <div className="flex items-center gap-4 text-left">
                                             <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${!isAvailable ? 'bg-gray-200 dark:bg-gray-700 text-gray-400' :
-                                                    isSelected ? 'bg-yum-primary text-white' : 'bg-gray-800 text-gray-400'
+                                                isSelected ? 'bg-yum-primary text-white' : 'bg-gray-800 text-gray-400'
                                                 }`}>
                                                 {isAvailable ? extraInfo.icon : '🚫'}
                                             </div>

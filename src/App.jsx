@@ -13,6 +13,7 @@ import Promotions from './pages/dashboard/Promotions'
 import Activity from './pages/dashboard/Activity'
 import Settings from './pages/dashboard/Settings'
 import ApiDocs from './pages/dashboard/ApiDocs'
+import OrderConfirmation from './pages/OrderConfirmation'
 import Checkout from './pages/Checkout'
 import PublicMenu from './pages/PublicMenu'
 import AdminDashboard from './pages/AdminDashboard'
@@ -58,6 +59,7 @@ function App() {
 
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/pricing/:planId" element={<PlanDetails />} />
+                <Route path="/order/:orderId" element={<OrderConfirmation />} />
                 <Route path="/testme" element={<TestMenu />} />
                 {/* <Route path="/simulator" element={<Simulator />} /> */}
                 {/* Public Menu Route - Must be last to avoid conflicts */}
