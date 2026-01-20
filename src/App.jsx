@@ -12,6 +12,7 @@ import Team from './pages/dashboard/Team'
 import Promotions from './pages/dashboard/Promotions'
 import Activity from './pages/dashboard/Activity'
 import Settings from './pages/dashboard/Settings'
+import ApiDocs from './pages/dashboard/ApiDocs'
 import Checkout from './pages/Checkout'
 import PublicMenu from './pages/PublicMenu'
 import AdminDashboard from './pages/AdminDashboard'
@@ -47,6 +48,7 @@ function App() {
                   <Route path="team" element={<Team />} />
                   <Route path="promos" element={<Promotions />} />
                   <Route path="activity" element={<Activity />} />
+                  <Route path="developer" element={<ApiDocs />} />
                   <Route path="integrations" element={<div className="animate-fade-in shadow-2xl rounded-[3rem] overflow-hidden"><IntegrationSettings /></div>} />
                   <Route path="simulator" element={<div className="animate-fade-in shadow-2xl rounded-[3rem] overflow-hidden"><Simulator /></div>} />
                   <Route path="settings" element={<Settings />} />

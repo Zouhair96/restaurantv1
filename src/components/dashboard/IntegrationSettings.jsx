@@ -225,9 +225,17 @@ const IntegrationSettings = () => {
                     </div>
                 ) : (
                     <div className="space-y-6">
-                        <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-                            <h3 className="text-blue-800 dark:text-blue-300 font-semibold mb-1">Developer API Access</h3>
-                            <p className="text-sm text-blue-600 dark:text-blue-400">Use these keys to connect your custom POS or third-party tools to our API.</p>
+                        <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800 flex justify-between items-center">
+                            <div>
+                                <h3 className="text-blue-800 dark:text-blue-300 font-semibold mb-1">Developer API Access</h3>
+                                <p className="text-sm text-blue-600 dark:text-blue-400">Use these keys to connect your custom POS or third-party tools to our API.</p>
+                            </div>
+                            <a
+                                href="/dashboard/developer"
+                                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg shadow transition-colors"
+                            >
+                                View Documentation &rarr;
+                            </a>
                         </div>
 
                         <div className="flex gap-4">
