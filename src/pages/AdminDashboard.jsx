@@ -11,35 +11,42 @@ const AdminDashboard = () => {
     const [error, setError] = useState(null)
     const [activeSection, setActiveSection] = useState('dashboard')
 
+    const [stats, setStats] = useState({
+        total_revenue: '0.00',
+        total_orders: 0,
+        monthly_revenue: '0.00',
+        monthly_growth_users: 0
+    })
+
     useEffect(() => {
         // Redirection for non-admins
         if (!loading) {
             if (!user || user.role !== 'admin') {
                 navigate('/profile')
             } else {
-                fetchUsers()
+                fetchData()
             }
         }
     }, [user, loading, navigate])
 
-    const fetchUsers = async () => {
+    const fetchData = async () => {
         try {
             const token = localStorage.getItem('token')
-            const response = await fetch('/.netlify/functions/admin-users', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            })
+            const headers = { 'Authorization': `Bearer ${token}` }
 
-            if (!response.ok) {
-                if (response.status === 401 || response.status === 403) {
-                    throw new Error('Unauthorized access')
-                }
-                throw new Error('Failed to fetch users')
-            }
+            // Parallel Fetch
+            const [usersRes, statsRes] = await Promise.all([
+                fetch('/.netlify/functions/admin-users', { headers }),
+                fetch('/.netlify/functions/admin-stats', { headers })
+            ])
 
-            const data = await response.json()
-            setUsers(data)
+            if (!usersRes.ok || !statsRes.ok) throw new Error('Failed to fetch dashboard data')
+
+            const usersData = await usersRes.json()
+            const statsData = await statsRes.json()
+
+            setUsers(usersData)
+            setStats(statsData)
         } catch (err) {
             setError(err.message)
         } finally {
@@ -72,8 +79,8 @@ const AdminDashboard = () => {
                             {[
                                 { label: 'Total Users', value: users.length, icon: '👥', color: 'bg-blue-500' },
                                 { label: 'Active Subscriptions', value: users.filter(u => u.subscription_status === 'active').length, icon: '💎', color: 'bg-[#6359E9]' },
-                                { label: 'Total Revenue', value: '4,250€', icon: '💰', color: 'bg-green-500' },
-                                { label: 'New this month', value: '+12%', icon: '📈', color: 'bg-pink-500' },
+                                { label: 'Total Revenue', value: `${stats.total_revenue}€`, icon: '💰', color: 'bg-green-500' },
+                                { label: 'New Users (Month)', value: `+${stats.monthly_growth_users}`, icon: '📈', color: 'bg-pink-500' },
                             ].map((stat, i) => (
                                 <div key={i} className="bg-white/50 dark:bg-white/5 backdrop-blur-xl p-6 rounded-[2rem] border border-white dark:border-white/5 shadow-sm hover:shadow-md transition-all group">
                                     <div className="flex justify-between items-start mb-4">

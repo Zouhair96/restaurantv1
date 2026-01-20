@@ -1,6 +1,15 @@
 -- Complete Database Schema for Restaurant Application
 -- Run this script to initialize or update your database
 
+-- Function to update updated_at timestamp (Must be defined first)
+CREATE OR REPLACE FUNCTION update_generated_menus_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 -- Users Table
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
@@ -17,6 +26,9 @@ CREATE TABLE IF NOT EXISTS users (
     subscription_status TEXT DEFAULT 'inactive',
     subscription_start_date TIMESTAMP,
     subscription_end_date TIMESTAMP WITH TIME ZONE,
+
+    -- Client Auth fields
+    registered_at_restaurant_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
     
     -- Metadata
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -50,26 +62,45 @@ CREATE TABLE IF NOT EXISTS orders (
     
     -- Status Management
     status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'preparing', 'ready', 'completed', 'cancelled')),
+
+    -- External Integrations
+    external_id TEXT,
+    customer_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
     
     -- Timestamps
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Indexes for faster queries
-CREATE INDEX IF NOT EXISTS idx_menus_user_id ON menus(user_id);
-CREATE INDEX IF NOT EXISTS idx_orders_restaurant_id ON orders(restaurant_id);
-CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
-CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at DESC);
+-- Integration Settings Table
+CREATE TABLE IF NOT EXISTS integration_settings (
+    id SERIAL PRIMARY KEY,
+    restaurant_id INTEGER REFERENCES users(id) ON DELETE CASCADE UNIQUE,
+    
+    -- POS Settings
+    pos_provider VARCHAR(50) DEFAULT 'custom',
+    pos_enabled BOOLEAN DEFAULT false,
+    pos_webhook_url TEXT,
+    pos_api_key TEXT,
+    
+    -- Stock Settings
+    stock_provider VARCHAR(50) DEFAULT 'custom',
+    stock_enabled BOOLEAN DEFAULT false,
+    stock_sync_url TEXT,
+    stock_api_key TEXT,
+    
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
 
--- Generated Menus Tables (from generated_menus_schema.sql)
+-- Generated Menus Tables
 CREATE TABLE IF NOT EXISTS generated_menus (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     menu_name VARCHAR(100) NOT NULL,
     slug VARCHAR(100) UNIQUE NOT NULL,
     status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'draft', 'archived')),
-    original_photos TEXT[], -- Array of uploaded photo URLs
+    original_photos TEXT[],
     thumbnail_url TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -92,28 +123,34 @@ CREATE TABLE IF NOT EXISTS generated_menu_items (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Indexes
+CREATE INDEX IF NOT EXISTS idx_menus_user_id ON menus(user_id);
+CREATE INDEX IF NOT EXISTS idx_orders_restaurant_id ON orders(restaurant_id);
+CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
+CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_orders_customer_id ON orders(customer_id);
+CREATE INDEX IF NOT EXISTS idx_integration_settings_restaurant_id ON integration_settings(restaurant_id);
 CREATE INDEX IF NOT EXISTS idx_generated_menus_user_id ON generated_menus(user_id);
 CREATE INDEX IF NOT EXISTS idx_generated_menus_slug ON generated_menus(slug);
 CREATE INDEX IF NOT EXISTS idx_generated_menu_items_menu_id ON generated_menu_items(menu_id);
 CREATE INDEX IF NOT EXISTS idx_generated_menu_items_category ON generated_menu_items(category);
 
--- Function to update updated_at timestamp
-CREATE OR REPLACE FUNCTION update_generated_menus_updated_at()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = NOW();
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
+-- Triggers
+-- Integration Settings Trigger
+DROP TRIGGER IF EXISTS update_integration_settings_timestamp ON integration_settings;
+CREATE TRIGGER update_integration_settings_timestamp
+    BEFORE UPDATE ON integration_settings
+    FOR EACH ROW
+    EXECUTE FUNCTION update_generated_menus_updated_at();
 
--- Trigger for generated_menus
+-- Generated Menus Trigger
 DROP TRIGGER IF EXISTS update_generated_menus_timestamp ON generated_menus;
 CREATE TRIGGER update_generated_menus_timestamp
     BEFORE UPDATE ON generated_menus
     FOR EACH ROW
     EXECUTE FUNCTION update_generated_menus_updated_at();
 
--- Trigger for generated_menu_items
+-- Generated Menu Items Trigger
 DROP TRIGGER IF EXISTS update_generated_menu_items_timestamp ON generated_menu_items;
 CREATE TRIGGER update_generated_menu_items_timestamp
     BEFORE UPDATE ON generated_menu_items
