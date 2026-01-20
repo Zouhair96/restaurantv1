@@ -13,7 +13,7 @@ import {
     HiOutlineSun
 } from 'react-icons/hi'
 
-const DashboardHeader = ({ onMenuClick, onModuleChange }) => {
+const DashboardHeader = ({ onMenuClick }) => {
     const { user, logout } = useAuth()
     const { isDarkMode, toggleTheme } = useTheme()
     const navigate = useNavigate()
@@ -159,7 +159,7 @@ const DashboardHeader = ({ onMenuClick, onModuleChange }) => {
                                         <div
                                             key={o.id}
                                             className="p-4 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer border-b border-gray-50 dark:border-white/5 last:border-0"
-                                            onClick={() => { setIsNotificationsOpen(false); onModuleChange('dashboard'); }}
+                                            onClick={() => { setIsNotificationsOpen(false); navigate('/dashboard'); }}
                                         >
                                             <div className="flex gap-3">
                                                 <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-500/10 flex items-center justify-center shrink-0">
@@ -181,7 +181,7 @@ const DashboardHeader = ({ onMenuClick, onModuleChange }) => {
                             </div>
                             <div className="p-4 text-center border-t border-gray-50 dark:border-white/5">
                                 <button
-                                    onClick={() => { setIsNotificationsOpen(false); onModuleChange('activity'); }}
+                                    onClick={() => { setIsNotificationsOpen(false); navigate('/dashboard/activity'); }}
                                     className="text-xs font-bold text-gray-500 hover:text-gray-800 dark:hover:text-white transition-colors"
                                 >
                                     View all activity &rarr;
@@ -217,14 +217,14 @@ const DashboardHeader = ({ onMenuClick, onModuleChange }) => {
                             </div>
                             <div className="p-2">
                                 <button
-                                    onClick={() => { setIsProfileOpen(false); onModuleChange('settings'); }}
+                                    onClick={() => { setIsProfileOpen(false); navigate('/dashboard/settings'); }}
                                     className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 rounded-2xl transition-all"
                                 >
                                     <HiOutlineUserCircle className="w-5 h-5" />
                                     My Profile
                                 </button>
                                 <button
-                                    onClick={() => { setIsProfileOpen(false); onModuleChange('settings'); }}
+                                    onClick={() => { setIsProfileOpen(false); navigate('/dashboard/settings'); }}
                                     className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 rounded-2xl transition-all"
                                 >
                                     <HiOutlineCog className="w-5 h-5" />
