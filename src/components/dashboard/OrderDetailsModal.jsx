@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { HiOutlineBan, HiOutlineCheckCircle, HiOutlineClock } from 'react-icons/hi'
 
-const OrderDetailsModal = ({ order, isOpen, onClose, onStatusUpdate, getStatusColor }) => {
+const OrderDetailsModal = ({ order, isOpen, onClose, onStatusUpdate, getStatusColor = () => '' }) => {
     const [showDriverForm, setShowDriverForm] = useState(false)
     const [driverName, setDriverName] = useState('')
     const [driverPhone, setDriverPhone] = useState('')

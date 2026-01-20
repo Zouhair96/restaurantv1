@@ -46,7 +46,7 @@ const LiveOrders = ({ onSelectOrder }) => {
         return () => clearInterval(interval)
     }, [])
 
-    const handleStatusUpdate = async (orderId, newStatus) => {
+    const handleStatusUpdate = async (orderId, newStatus, driver = null) => {
         try {
             const token = localStorage.getItem('token')
             const response = await fetch('/.netlify/functions/update-order-status', {
@@ -55,7 +55,7 @@ const LiveOrders = ({ onSelectOrder }) => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ orderId, status: newStatus })
+                body: JSON.stringify({ orderId, status: newStatus, driver })
             })
 
             const result = await response.json()

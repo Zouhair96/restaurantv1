@@ -152,9 +152,9 @@ const Overview = () => {
                 order={selectedOrder}
                 isOpen={!!selectedOrder}
                 onClose={() => setSelectedOrder(null)}
-                onStatusUpdate={(id, status) => {
+                onStatusUpdate={(id, status, driver) => {
                     if (modalHandlers.onStatusUpdate) {
-                        modalHandlers.onStatusUpdate(id, status).then(updatedOrder => {
+                        modalHandlers.onStatusUpdate(id, status, driver).then(updatedOrder => {
                             if (updatedOrder) {
                                 setSelectedOrder(updatedOrder)
                             }
