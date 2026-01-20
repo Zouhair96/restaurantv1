@@ -1,18 +1,35 @@
-import React from 'react'
+import React, { useState } from 'react'
+import { HiOutlineBan, HiOutlineCheckCircle, HiOutlineClock } from 'react-icons/hi'
 
 const OrderDetailsModal = ({ order, isOpen, onClose, onStatusUpdate, getStatusColor }) => {
+    const [showDriverForm, setShowDriverForm] = useState(false)
+    const [driverName, setDriverName] = useState('')
+    const [driverPhone, setDriverPhone] = useState('')
+
     if (!isOpen || !order) return null
 
     const items = order.items ? (typeof order.items === 'string' ? JSON.parse(order.items) : order.items) : {}
 
+    const handleAssignDriver = () => {
+        if (!driverName) return
+        onStatusUpdate(order.id, 'out_for_delivery', {
+            name: driverName,
+            phone: driverPhone
+        })
+        setShowDriverForm(false)
+        setDriverName('')
+        setDriverPhone('')
+    }
+
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-            <div className="bg-white dark:bg-gray-900 w-full max-w-lg rounded-[2.5rem] shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden animate-scale-in">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in custom-scrollbar overflow-y-auto">
+            <div className="bg-white dark:bg-gray-900 w-full max-w-2xl rounded-[2.5rem] shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden animate-scale-in relative">
+
                 {/* Modal Header */}
                 <div className="bg-gradient-to-r from-yum-primary/10 to-transparent p-8 flex justify-between items-start">
                     <div>
                         <div className="flex items-center gap-3 mb-2">
-                            <h2 className="text-3xl font-black text-gray-800 dark:text-white">Order #{order.id}</h2>
+                            <h2 className="text-3xl font-black text-gray-800 dark:text-white">Order #{order.id.slice(0, 8)}</h2>
                             <span className={`px-4 py-1.5 rounded-full text-xs font-black border uppercase tracking-widest ${getStatusColor(order.status)}`}>
                                 {order.status}
                             </span>
@@ -50,100 +67,107 @@ const OrderDetailsModal = ({ order, isOpen, onClose, onStatusUpdate, getStatusCo
                         </div>
                     </div>
 
+                    {/* Driver Info Display */}
+                    {order.status === 'out_for_delivery' && order.driver_name && (
+                        <div className="bg-purple-50 dark:bg-purple-900/10 p-5 rounded-3xl border border-purple-100 dark:border-purple-500/20 flex justify-between items-center">
+                            <div>
+                                <span className="block text-xs font-black uppercase tracking-widest text-purple-400 mb-1">Assigned Driver</span>
+                                <p className="text-lg font-black text-purple-700 dark:text-purple-300">🚗 {order.driver_name}</p>
+                            </div>
+                            {order.driver_phone && (
+                                <span className="bg-white/50 px-3 py-1 rounded-lg text-sm font-bold text-gray-600 dark:text-gray-400">
+                                    📞 {order.driver_phone}
+                                </span>
+                            )}
+                        </div>
+                    )}
+
                     {/* Detailed Items */}
                     <div className="bg-gray-50 dark:bg-gray-800/50 rounded-[2rem] p-6 border border-gray-100 dark:border-gray-700">
                         <h4 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-4">Items Summary</h4>
                         <div className="space-y-4">
-                            <div className="space-y-4 text-gray-700 dark:text-gray-200">
-                                {items.size && (
-                                    <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
-                                        <span className="font-bold">Meal Size</span>
-                                        <span className="bg-yum-primary/10 text-yum-primary px-3 py-1 rounded-lg font-black">{items.size.size}</span>
-                                    </div>
-                                )}
-                                {items.friesType && (
-                                    <div className="flex justify-between items-start py-2 border-b border-gray-100 dark:border-gray-700">
-                                        <span className="font-bold">Fries</span>
-                                        <div className="text-right">
-                                            <span className="block">{items.friesType}</span>
-                                            <span className="text-xs text-gray-400 italic">{items.friesPlacement}</span>
+                            {(Array.isArray(items) ? items : [items]).map((item, idx) => (
+                                <div key={idx} className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
+                                    <div className="flex items-center gap-3">
+                                        <span className="w-8 h-8 rounded-full bg-white dark:bg-gray-700 flex items-center justify-center text-xs font-bold shadow-sm">
+                                            {idx + 1}
+                                        </span>
+                                        <div>
+                                            <p className="font-bold text-gray-800 dark:text-white capitalize">
+                                                {item.name || item.size?.size + ' Menu'}
+                                            </p>
+                                            <p className="text-xs text-gray-400">
+                                                {item.friesType && `Fries: ${item.friesType}`} {item.drink && `• Drink: ${item.drink}`}
+                                            </p>
                                         </div>
                                     </div>
-                                )}
-                                {items.chicken && items.chicken.length > 0 && (
-                                    <div className="py-2 border-b border-gray-100 dark:border-gray-700">
-                                        <span className="block font-bold mb-2">Chicken Selection</span>
-                                        <div className="flex flex-wrap gap-2">
-                                            {items.chicken.map(c => <span key={c} className="bg-white dark:bg-gray-700 px-3 py-1 rounded-lg text-sm border border-gray-100 dark:border-gray-600">{c}</span>)}
-                                        </div>
-                                    </div>
-                                )}
-                                {items.sauce && items.sauce.length > 0 && (
-                                    <div className="py-2 border-b border-gray-100 dark:border-gray-700">
-                                        <span className="block font-bold mb-2">Sauces</span>
-                                        <div className="flex flex-wrap gap-2">
-                                            {items.sauce.map(s => <span key={s} className="bg-white dark:bg-gray-700 px-3 py-1 rounded-lg text-sm border border-gray-100 dark:border-gray-600">{s}</span>)}
-                                        </div>
-                                    </div>
-                                )}
-                                {items.drink && (
-                                    <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
-                                        <span className="font-bold">Beverage</span>
-                                        <span>{items.drink}</span>
-                                    </div>
-                                )}
-                                {items.extras && items.extras.length > 0 && (
-                                    <div className="py-2">
-                                        <span className="block font-bold mb-2">Extras</span>
-                                        <div className="flex flex-wrap gap-2">
-                                            {items.extras.map(e => <span key={e} className="bg-white dark:bg-gray-700 px-3 py-1 rounded-lg text-sm border border-gray-100 dark:border-gray-600">{e}</span>)}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
+                                    <span className="font-bold text-gray-800 dark:text-white">${item.price}</span>
+                                </div>
+                            ))}
                         </div>
                     </div>
 
-                    {/* Payment & Action */}
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-6 pt-4">
-                        <div className="text-center md:text-left">
-                            <span className="text-xs font-black uppercase tracking-widest text-gray-400 block mb-1">
-                                Total Payment ({order.payment_method?.replace('_', ' ') || 'N/A'})
-                            </span>
-                            <span className="text-4xl font-black text-yum-primary">${order.total_price || 0}</span>
+                    {/* Driver Assignment Form */}
+                    {showDriverForm && (
+                        <div className="bg-orange-50 dark:bg-orange-900/10 p-6 rounded-[2rem] border border-orange-100 dark:border-orange-500/20 animate-fade-in">
+                            <h4 className="text-lg font-black text-gray-800 dark:text-white mb-4">Assign Driver</h4>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Driver Name</label>
+                                    <input
+                                        type="text"
+                                        value={driverName}
+                                        onChange={(e) => setDriverName(e.target.value)}
+                                        className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 font-bold text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-yum-primary"
+                                        placeholder="e.g. John Doe"
+                                        autoFocus
+                                    />
+                                </div>
+                                <div className="flex gap-4">
+                                    <button
+                                        onClick={() => setShowDriverForm(false)}
+                                        className="flex-1 px-6 py-3 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-xl font-bold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border border-gray-200 dark:border-gray-700"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={handleAssignDriver}
+                                        className="flex-1 px-6 py-3 bg-yum-primary text-white rounded-xl font-bold hover:bg-yum-primary/90 transition-colors shadow-lg shadow-orange-500/20"
+                                    >
+                                        Assign & Send
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                        <div className="w-full md:w-auto">
-                            <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Update Order Status</label>
-                            <select
-                                value={order.status}
-                                onChange={(e) => onStatusUpdate(order.id, e.target.value)}
-                                className="w-full md:w-48 px-4 py-3 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl text-gray-800 dark:text-white font-black focus:ring-4 focus:ring-yum-primary/20 outline-none transition-all cursor-pointer"
-                            >
-                                <option value="pending">Pending</option>
-                                <option value="preparing">Preparing</option>
-                                <option value="ready">Ready</option>
-                                <option value="completed">Completed</option>
-                                <option value="cancelled">Cancelled</option>
-                            </select>
-                        </div>
-                    </div>
+                    )}
                 </div>
 
                 {/* Modal Footer */}
-                <div className="p-8 bg-gray-50 dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-4">
+                <div className="p-8 bg-gray-50 dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 flex flex-wrap gap-4 justify-end">
+                    {/* Dynamic Main Action Button */}
+                    {!showDriverForm && order.status === 'preparing' && order.order_type === 'take_out' && (
+                        <button
+                            onClick={() => setShowDriverForm(true)}
+                            className="flex-1 md:flex-none px-8 py-3 bg-purple-600 text-white hover:bg-purple-700 rounded-2xl font-black shadow-xl transition-all hover:scale-105 active:scale-95"
+                        >
+                            🚗 Assign Driver
+                        </button>
+                    )}
+
+                    {(!showDriverForm && (order.status === 'ready' || order.status === 'out_for_delivery')) && (
+                        <button
+                            onClick={() => onStatusUpdate(order.id, 'completed')}
+                            className="flex-1 md:flex-none px-8 py-3 bg-green-500 text-white hover:bg-green-600 rounded-2xl font-black shadow-xl transition-all hover:scale-105 active:scale-95"
+                        >
+                            ✅ Complete Order
+                        </button>
+                    )}
+
                     <button
                         onClick={onClose}
                         className="px-8 py-3 bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-2xl font-black shadow-lg hover:bg-gray-50 transition-all border border-gray-200 dark:border-gray-600"
                     >
                         Close
-                    </button>
-                    <button
-                        onClick={() => {
-                            onStatusUpdate(order.id, 'completed')
-                        }}
-                        className="px-8 py-3 bg-black text-white hover:bg-gray-800 rounded-2xl font-black shadow-xl transition-all hover:scale-105 active:scale-95"
-                    >
-                        Complete Order
                     </button>
                 </div>
             </div>
