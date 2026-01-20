@@ -58,7 +58,7 @@ const Activity = () => {
                                                     New {activity.order_type} Order Received
                                                 </p>
                                                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                                    Order <span className="font-mono bg-gray-100 dark:bg-gray-700 px-1 rounded">#{activity.id.slice(0, 8)}</span> for {activity.total_amount}€
+                                                    Order <span className="font-mono bg-gray-100 dark:bg-gray-700 px-1 rounded">#{String(activity.id).slice(0, 8)}</span> for {activity.total_amount}€
                                                 </p>
                                             </div>
                                             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">

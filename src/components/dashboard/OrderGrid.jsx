@@ -103,7 +103,7 @@ const OrderGrid = () => {
                     <div key={order.id} className={`bg-white dark:bg-gray-800/40 dark:backdrop-blur-md p-5 rounded-[2rem] border-l-4 relative group hover:scale-[1.02] transition-all duration-300 shadow-md hover:shadow-xl dark:shadow-none ${getStatusColor(order.status)}`}>
                         <div className="flex justify-between items-start mb-4">
                             <div>
-                                <h3 className="text-xl font-bold text-gray-800 dark:text-white">#{order.id.slice(0, 8)}</h3>
+                                <h3 className="text-xl font-bold text-gray-800 dark:text-white">#{String(order.id).slice(0, 8)}</h3>
                                 <p className="text-sm text-gray-500 dark:text-gray-400">
                                     {order.order_type === 'take_out' ? '🥡 Take Out' : `🍽️ Table ${order.table_number}`}
                                 </p>
@@ -171,7 +171,7 @@ const OrderGrid = () => {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in">
                     <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 max-w-md w-full shadow-2xl border border-gray-100 dark:border-white/10">
                         <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2">Assign Driver</h3>
-                        <p className="text-gray-500 dark:text-gray-400 mb-6">Who is delivering Order #{selectedOrder.id.slice(0, 8)}?</p>
+                        <p className="text-gray-500 dark:text-gray-400 mb-6">Who is delivering Order #{String(selectedOrder.id).slice(0, 8)}?</p>
 
                         <div className="space-y-4">
                             <div>
