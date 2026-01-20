@@ -94,15 +94,19 @@ const OrderDetailsModal = ({ order, isOpen, onClose, onStatusUpdate, getStatusCo
                                         </span>
                                         <div>
                                             <p className="text-lg font-black text-gray-900 dark:text-white capitalize">
-                                                {item.name || item.size?.size + ' Menu'}
+                                                {item.name || (item.size?.size ? `${item.size.size} Menu` : 'Taco Selection')}
                                             </p>
                                             <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                                {item.friesType && `🍟 ${item.friesType}`} {item.drink && `• 🥤 ${item.drink}`}
-                                                {item.sauces && item.sauces.length > 0 && ` • 🥣 ${item.sauces.join(', ')}`}
+                                                {[
+                                                    item.friesType && `🍟 ${item.friesType}`,
+                                                    item.drink && `🥤 ${item.drink}`,
+                                                    ...(item.sauce || []),
+                                                    ...(item.chicken || [])
+                                                ].filter(Boolean).join(' • ')}
                                             </p>
                                         </div>
                                     </div>
-                                    <span className="font-bold text-gray-800 dark:text-white">${item.price}</span>
+                                    <span className="font-bold text-gray-800 dark:text-white">${item.price || item.size?.price}</span>
                                 </div>
                             ))}
                         </div>

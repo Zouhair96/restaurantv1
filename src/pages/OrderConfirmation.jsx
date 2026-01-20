@@ -146,20 +146,25 @@ const OrderConfirmation = () => {
                     <div>
                         <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4">You Ordered</h3>
                         <div className="space-y-4">
-                            {order.items.map((item, i) => (
+                            {(Array.isArray(order.items) ? order.items : [order.items]).map((item, i) => (
                                 <div key={i} className="flex justify-between items-start">
                                     <div className="flex gap-4">
                                         <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center text-xl">
-                                            🌮
+                                            {item.size?.icon || '🌮'}
                                         </div>
                                         <div>
-                                            <p className="font-bold text-gray-800 dark:text-white">{item.size?.size} Menu</p>
+                                            <p className="font-bold text-gray-800 dark:text-white">{item.size?.size ? `${item.size.size} Menu` : 'Custom Tacos'}</p>
                                             <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">
-                                                {[item.friesType, ...item.chicken].filter(Boolean).join(', ')}
+                                                {[
+                                                    item.friesType && `🍟 ${item.friesType}`,
+                                                    ...(item.chicken || []),
+                                                    ...(item.sauce || []),
+                                                    item.drink && `🥤 ${item.drink}`
+                                                ].filter(Boolean).join(' • ')}
                                             </p>
                                         </div>
                                     </div>
-                                    <span className="font-bold text-gray-900 dark:text-white">${item.price}</span>
+                                    <span className="font-bold text-gray-900 dark:text-white">${item.size?.price || order.total_price}</span>
                                 </div>
                             ))}
                         </div>
