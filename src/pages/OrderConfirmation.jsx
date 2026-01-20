@@ -56,11 +56,21 @@ const OrderConfirmation = () => {
         { status: 'pending', label: 'Order Sent', icon: <HiOutlineClock /> },
         { status: 'engaging', label: 'Preparing', icon: <span className="animate-pulse">👨‍🍳</span> },
         { status: 'ready', label: 'Ready', icon: <HiOutlineCheck /> },
+        { status: 'out_for_delivery', label: 'On the Way', icon: <span className="animate-bounce-x">🚗</span> },
         { status: 'done', label: 'Completed', icon: <HiOutlineCheckCircle /> }
     ]
 
     const getStatusIndex = (s) => {
-        const map = { 'pending': 0, 'engaging': 1, 'ready': 2, 'done': 3, 'cancelled': -1 }
+        const map = {
+            'pending': 0,
+            'engaging': 1,
+            'preparing': 1,
+            'ready': 2,
+            'out_for_delivery': 3,
+            'done': 4,
+            'completed': 4,
+            'cancelled': -1
+        }
         return map[s] ?? 0
     }
 
@@ -86,10 +96,21 @@ const OrderConfirmation = () => {
                     ) : (
                         <div className="mb-6">
                             <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 text-green-500 rounded-full flex items-center justify-center text-4xl mx-auto mb-4 scale-up-center">
-                                <HiOutlineCheckCircle />
+                                {order.status === 'out_for_delivery' ? '🚗' : <HiOutlineCheckCircle />}
                             </div>
-                            <h1 className="text-3xl font-black text-gray-900 dark:text-white mb-2">Order Received!</h1>
+                            <h1 className="text-3xl font-black text-gray-900 dark:text-white mb-2">
+                                {order.status === 'out_for_delivery' ? 'On the Way!' : 'Order Received!'}
+                            </h1>
                             <p className="text-gray-500 dark:text-gray-400">Order #{order.id.slice(0, 8)} • {order.restaurant_name}</p>
+
+                            {/* Driver Info */}
+                            {order.status === 'out_for_delivery' && order.driver_name && (
+                                <div className="mt-4 inline-block bg-purple-50 dark:bg-purple-900/20 px-4 py-2 rounded-full border border-purple-100 dark:border-purple-500/20">
+                                    <p className="text-sm font-bold text-purple-700 dark:text-purple-300">
+                                        Your driver is <span className="underline decoration-2">{order.driver_name}</span>
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     )}
 

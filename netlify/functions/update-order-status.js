@@ -42,7 +42,7 @@ export const handler = async (event, context) => {
         const decoded = jwt.verify(token, secret);
         const restaurantId = decoded.id;
 
-        const { orderId, status } = JSON.parse(event.body);
+        const { orderId, status, driver } = JSON.parse(event.body);
 
         // Validation
         if (!orderId || !status) {
@@ -53,7 +53,7 @@ export const handler = async (event, context) => {
             };
         }
 
-        const validStatuses = ['pending', 'preparing', 'ready', 'completed', 'cancelled'];
+        const validStatuses = ['pending', 'preparing', 'ready', 'completed', 'cancelled', 'out_for_delivery'];
         if (!validStatuses.includes(status)) {
             return {
                 statusCode: 400,
@@ -76,14 +76,29 @@ export const handler = async (event, context) => {
             };
         }
 
+        // Prepare update fields
+        let updateQuery = `
+            UPDATE orders 
+            SET status = $1, updated_at = CURRENT_TIMESTAMP
+        `;
+        let queryParams = [status, orderId];
+
+        // If driver info is provided, update it
+        if (driver && status === 'out_for_delivery') {
+            updateQuery = `
+                UPDATE orders 
+                SET status = $1, 
+                    driver_name = $3, 
+                    driver_phone = $4,
+                    updated_at = CURRENT_TIMESTAMP
+            `;
+            queryParams = [status, orderId, driver.name, driver.phone];
+        }
+
+        updateQuery += ` WHERE id = $2 RETURNING id, status, driver_name, driver_phone, updated_at`;
+
         // Update order status
-        const updateResult = await query(
-            `UPDATE orders 
-             SET status = $1, updated_at = CURRENT_TIMESTAMP
-             WHERE id = $2
-             RETURNING id, order_type, table_number, delivery_address, payment_method, items, total_price, status, created_at, updated_at`,
-            [status, orderId]
-        );
+        const updateResult = await query(updateQuery, queryParams);
 
         return {
             statusCode: 200,

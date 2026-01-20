@@ -61,7 +61,11 @@ CREATE TABLE IF NOT EXISTS orders (
     total_price DECIMAL(10, 2) NOT NULL,
     
     -- Status Management
-    status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'preparing', 'ready', 'completed', 'cancelled')),
+    status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'preparing', 'ready', 'completed', 'cancelled', 'out_for_delivery')),
+
+    -- Driver Details
+    driver_name TEXT,
+    driver_phone TEXT,
 
     -- External Integrations
     external_id TEXT,
