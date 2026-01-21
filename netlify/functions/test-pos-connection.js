@@ -61,24 +61,17 @@ export const handler = async (event, context) => {
 
         const result = await POSManager.sendOrder(testSettings, dummyOrder);
 
-        if (result.success) {
-            return {
-                statusCode: 200,
-                body: JSON.stringify({
-                    success: true,
-                    message: 'POS test order sent successfully!',
-                    details: result.external_id ? `External ID: ${result.external_id}` : 'Payload delivered.'
-                })
-            };
-        } else {
-            return {
-                statusCode: 502,
-                body: JSON.stringify({
-                    error: 'POS test failed',
-                    details: result.error || 'The external server returned an error.'
-                })
-            };
-        }
+        return {
+            statusCode: 200,
+            body: JSON.stringify({
+                success: result.success,
+                message: result.success ? 'POS test order sent successfully!' : 'POS test failed',
+                details: result.success
+                    ? (result.external_id ? `External ID: ${result.external_id}` : 'Payload delivered.')
+                    : (result.error || `The external server returned status ${result.status}`),
+                status: result.status
+            })
+        };
 
     } catch (error) {
         console.error('POS Test Error:', error.message);

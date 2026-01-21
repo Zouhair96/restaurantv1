@@ -26,15 +26,26 @@ export class CustomAdapter {
                 })
             });
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`POS Webhook failed (${response.status}): ${errorText}`);
+            // Try to get response body as JSON, fallback to text
+            let result = {};
+            const contentType = response.headers.get("content-type") || "";
+
+            try {
+                if (contentType.includes("application/json")) {
+                    result = await response.json();
+                } else {
+                    const text = await response.text();
+                    result = { message: text.substring(0, 500) || "OK" };
+                }
+            } catch (e) {
+                result = { message: "Body parsing failed", error: e.message };
             }
 
-            const result = await response.json();
             return {
-                success: true,
+                success: response.ok,
+                status: response.status,
                 external_id: result.id || result.external_id || null,
+                error: response.ok ? null : `External server returned status ${response.status}`,
                 raw_response: result
             };
         } catch (error) {
