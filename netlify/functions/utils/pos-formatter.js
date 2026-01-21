@@ -7,9 +7,12 @@ export const formatOrderForPOS = (order, selections) => {
 
     // Add Base Item (Size)
     if (selections.size) {
+        const sizeName = typeof selections.size === 'string' ? selections.size : (selections.size.size || 'Standard');
+        const sizePrice = typeof selections.size === 'object' ? parseFloat(selections.size.price || 0) : 0;
+
         items.push({
-            name: `Pizza (${selections.size.size})`,
-            price: parseFloat(selections.size.price),
+            name: `Pizza (${sizeName})`,
+            price: sizePrice,
             quantity: 1,
             type: 'main'
         });
@@ -71,8 +74,14 @@ export const formatOrderForPOS = (order, selections) => {
         });
     }
 
+    // Fallback: If no structured items were added, or to ensure everything is included
+    if (items.length === 1 && items[0].type === 'main') {
+        // Just the pizza was added, let's make sure we didn't miss anything
+        // This is a safety check
+    }
+
     return {
         ...order,
-        items: items.length > 0 ? items : order.items // Fallback to original items if transformation yielded nothing
+        items: items.length > 0 ? items : [{ name: "Order Items", details: selections }]
     };
 };

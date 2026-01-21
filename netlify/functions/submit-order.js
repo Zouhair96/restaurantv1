@@ -186,11 +186,10 @@ export const handler = async (event, context) => {
         }
 
         // --- POS INTEGRATION TRIGGER ---
-        // Trigger POS sync IMMEDIATELY for all orders.
-        // For CC orders, it shows up as "pending payment".
         let posStatus = { success: false, skipped: true };
+        console.log(`🔍 [POS] Starting sync process for restaurant ${restaurantId} (#${newOrder.id})`);
+
         try {
-            // Update restaurant's owed balance if it's a cash order
             if (paymentMethod === 'cash') {
                 await query(
                     'UPDATE users SET owed_commission_balance = COALESCE(owed_commission_balance, 0) + $1 WHERE id = $2',
@@ -198,19 +197,23 @@ export const handler = async (event, context) => {
                 );
             }
 
-            // Fetch integration settings
             const settingsResult = await query(
                 'SELECT * FROM integration_settings WHERE restaurant_id = $1',
                 [restaurantId]
             );
 
+            console.log(`🔍 [POS] Settings found: ${settingsResult.rows.length > 0}`);
+
             if (settingsResult.rows.length > 0) {
                 const settings = settingsResult.rows[0];
-                if (settings.pos_enabled) {
-                    // Format the order for POS (Standardized Items Array)
+                console.log(`🔍 [POS] Enabled: ${settings.pos_enabled}, Provider: ${settings.pos_provider}, URL: ${!!settings.pos_webhook_url}`);
+
+                if (settings.pos_enabled && settings.pos_webhook_url) {
                     const formattedOrder = formatOrderForPOS(newOrder, items);
+                    console.log(`🔍 [POS] Sending formatted payload (${formattedOrder.items.length} items)`);
 
                     posStatus = await POSManager.sendOrder(settings, formattedOrder);
+                    console.log(`🔍 [POS] Sync result: ${posStatus.success ? 'SUCCESS' : 'FAILED'}`, posStatus.error || '');
 
                     if (posStatus.success && posStatus.external_id) {
                         await query(
@@ -218,10 +221,16 @@ export const handler = async (event, context) => {
                             [posStatus.external_id, newOrder.id]
                         );
                     }
+                } else {
+                    posStatus.reason = settings.pos_enabled ? "Missing Webhook URL" : "POS disabled in settings";
+                    console.log(`🔍 [POS] Skipped: ${posStatus.reason}`);
                 }
+            } else {
+                posStatus.reason = "No integration settings found for this restaurant";
+                console.log(`🔍 [POS] Skipped: ${posStatus.reason}`);
             }
         } catch (posError) {
-            console.error('⚠️ POS Integration Error:', posError.message);
+            console.error('❌ [POS] Integration Error:', posError.message);
             posStatus = { success: false, error: posError.message };
         }
 
