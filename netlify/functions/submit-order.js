@@ -5,7 +5,6 @@ import { POSManager } from './pos-adapters/pos-manager.js';
 import { getStripe } from './utils/stripe-client.js';
 
 export const handler = async (event, context) => {
-    const stripe = await getStripe();
     // Allow CORS
     const headers = {
         'Content-Type': 'application/json',
@@ -27,6 +26,7 @@ export const handler = async (event, context) => {
     }
 
     try {
+        const stripe = await getStripe();
         const { restaurantName, orderType, tableNumber, deliveryAddress, paymentMethod, items, totalPrice } = JSON.parse(event.body);
 
         // Optional: Get customer ID from token if present

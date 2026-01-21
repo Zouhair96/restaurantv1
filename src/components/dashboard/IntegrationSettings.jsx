@@ -261,33 +261,60 @@ const IntegrationSettings = () => {
                                         </div>
                                         <button
                                             type="button"
+                                            disabled={saving}
                                             onClick={async () => {
-                                                const token = localStorage.getItem('token');
-                                                const res = await fetch('/.netlify/functions/stripe-onboarding', {
-                                                    headers: { 'Authorization': `Bearer ${token}` }
-                                                });
-                                                const data = await res.json();
-                                                if (data.url) window.location.href = data.url;
+                                                try {
+                                                    setSaving(true);
+                                                    const token = localStorage.getItem('token');
+                                                    const res = await fetch('/.netlify/functions/stripe-onboarding', {
+                                                        headers: { 'Authorization': `Bearer ${token}` }
+                                                    });
+                                                    const data = await res.json();
+                                                    if (data.url) {
+                                                        window.location.href = data.url;
+                                                    } else {
+                                                        alert('Could not open Stripe management: ' + (data.error || 'Unknown error'));
+                                                    }
+                                                } catch (err) {
+                                                    alert('Error connecting to server.');
+                                                } finally {
+                                                    setSaving(false);
+                                                }
                                             }}
-                                            className="text-white/70 hover:text-white underline text-sm font-medium"
+                                            className="text-white/70 hover:text-white underline text-sm font-medium disabled:opacity-50"
                                         >
-                                            Manage Account
+                                            {saving ? 'Connecting...' : 'Manage Account'}
                                         </button>
                                     </div>
                                 ) : (
                                     <button
                                         type="button"
+                                        disabled={saving}
                                         onClick={async () => {
-                                            const token = localStorage.getItem('token');
-                                            const res = await fetch('/.netlify/functions/stripe-onboarding', {
-                                                headers: { 'Authorization': `Bearer ${token}` }
-                                            });
-                                            const data = await res.json();
-                                            if (data.url) window.location.href = data.url;
+                                            try {
+                                                setSaving(true);
+                                                const token = localStorage.getItem('token');
+                                                const res = await fetch('/.netlify/functions/stripe-onboarding', {
+                                                    headers: { 'Authorization': `Bearer ${token}` }
+                                                });
+                                                const data = await res.json();
+
+                                                if (data.url) {
+                                                    window.location.href = data.url;
+                                                } else {
+                                                    console.error('Stripe error:', data);
+                                                    alert('Could not start onboarding: ' + (data.error || 'Unknown error'));
+                                                }
+                                            } catch (err) {
+                                                console.error('Onboarding click error:', err);
+                                                alert('Connection error. Please try again.');
+                                            } finally {
+                                                setSaving(false);
+                                            }
                                         }}
-                                        className="px-8 py-4 bg-white text-blue-700 font-black rounded-xl hover:bg-blue-50 transition-all shadow-lg hover:scale-105 active:scale-95"
+                                        className="px-8 py-4 bg-white text-blue-700 font-black rounded-xl hover:bg-blue-50 transition-all shadow-lg hover:scale-105 active:scale-95 disabled:opacity-50"
                                     >
-                                        Connect existing Stripe account
+                                        {saving ? 'Loading...' : 'Connect existing Stripe account'}
                                     </button>
                                 )}
                             </div>

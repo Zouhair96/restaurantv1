@@ -17,21 +17,28 @@ export async function getStripe() {
             const result = await query('SELECT value FROM platform_settings WHERE key = $1', ['stripe_secret_key']);
             if (result.rows.length > 0) {
                 const setting = result.rows[0].value;
-                if (setting.is_encrypted) {
-                    apiKey = decrypt(setting.secret_key);
+                const rawKey = setting.secret_key;
+
+                // Robust decryption check: encrypted keys usually contain ':'
+                if (setting.is_encrypted || (rawKey && rawKey.includes(':'))) {
+                    apiKey = decrypt(rawKey);
                 } else {
-                    apiKey = setting.secret_key;
+                    apiKey = rawKey;
                 }
             }
         } catch (err) {
-            console.error('Error fetching Stripe key from DB:', err);
+            console.error(' [STRIPE-CLIENT] Error fetching key from DB:', err);
         }
     }
 
     if (!apiKey) {
-        throw new Error('Stripe API Key not found in Environment or Database');
+        throw new Error('Stripe API Key not found in Environment or Database. Please configure it in the Admin Dashboard.');
     }
 
-    stripeInstance = new Stripe(apiKey);
+    // Always use a fixed version for stability
+    stripeInstance = new Stripe(apiKey, {
+        apiVersion: '2023-10-16'
+    });
+
     return stripeInstance;
 }
