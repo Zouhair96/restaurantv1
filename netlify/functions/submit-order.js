@@ -107,8 +107,12 @@ export const handler = async (event, context) => {
 
         const restaurantId = restaurantResult.rows[0].id;
 
-        // Calculate Commission (2%)
-        const commissionRate = 0.02;
+        // Fetch Platform Settings
+        const settingsResult = await query('SELECT key, value FROM platform_settings WHERE key = $1', ['stripe_config']);
+        const stripeConfig = settingsResult.rows[0]?.value || { commission_rate: 0.02, currency: 'eur' };
+
+        const commissionRate = stripeConfig.commission_rate;
+        const currency = stripeConfig.currency || 'eur';
         const commissionAmount = parseFloat(totalPrice) * commissionRate;
 
         // Insert order
@@ -144,7 +148,7 @@ export const handler = async (event, context) => {
                         payment_method_types: ['card'],
                         line_items: [{
                             price_data: {
-                                currency: 'eur', // Or get from settings
+                                currency: currency,
                                 product_data: {
                                     name: `Order #${newOrder.id} - ${restaurantResult.rows[0].restaurant_name}`,
                                 },
