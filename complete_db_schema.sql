@@ -27,6 +27,12 @@ CREATE TABLE IF NOT EXISTS users (
     subscription_start_date TIMESTAMP,
     subscription_end_date TIMESTAMP WITH TIME ZONE,
 
+    -- Stripe Connect fields
+    stripe_account_id TEXT,
+    stripe_onboarding_complete BOOLEAN DEFAULT false,
+    commission_rate DECIMAL(5, 4) DEFAULT 0.0200, -- Default 2%
+    owed_commission_balance DECIMAL(12, 2) DEFAULT 0.00,
+
     -- Client Auth fields
     registered_at_restaurant_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
     
@@ -59,6 +65,12 @@ CREATE TABLE IF NOT EXISTS orders (
     -- Order Items (stored as JSONB)
     items JSONB NOT NULL,
     total_price DECIMAL(10, 2) NOT NULL,
+    commission_amount DECIMAL(10, 2) DEFAULT 0.00,
+    
+    -- Payment Details
+    payment_status TEXT DEFAULT 'pending' CHECK (payment_status IN ('pending', 'paid', 'failed', 'refunded', 'pending_cash')),
+    stripe_payment_intent_id TEXT,
+    stripe_checkout_session_id TEXT,
     
     -- Status Management
     status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'preparing', 'ready', 'completed', 'cancelled', 'out_for_delivery')),

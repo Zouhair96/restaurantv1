@@ -44,7 +44,7 @@ export const handler = async (event, context) => {
 
         // Get orders for this restaurant
         const result = await query(
-            `SELECT id, order_type, table_number, delivery_address, payment_method, items, total_price, status, created_at, updated_at, driver_name, driver_phone
+            `SELECT id, order_type, table_number, delivery_address, payment_method, items, total_price, status, created_at, updated_at, driver_name, driver_phone, payment_status, commission_amount
              FROM orders
              WHERE restaurant_id = $1
              ORDER BY created_at DESC`,

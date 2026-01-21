@@ -199,9 +199,17 @@ const LiveOrders = ({ onSelectOrder }) => {
                                             {new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </p>
                                     </div>
-                                    <span className={`px-3 py-1 rounded-full text-[10px] font-bold border ${getStatusColor(order.status)} capitalize`}>
-                                        {order.status}
-                                    </span>
+                                    <div className="flex flex-col items-end gap-1">
+                                        <span className={`px-3 py-1 rounded-full text-[10px] font-bold border ${getStatusColor(order.status)} capitalize`}>
+                                            {order.status}
+                                        </span>
+                                        <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase border ${order.payment_status === 'paid' ? 'bg-green-500/10 text-green-500 border-green-500/20' :
+                                                order.payment_status === 'pending_cash' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
+                                                    'bg-gray-500/10 text-gray-500 border-gray-500/20'
+                                            }`}>
+                                            {order.payment_status === 'pending_cash' ? 'Cash' : (order.payment_status || 'Unpaid')}
+                                        </span>
+                                    </div>
                                 </div>
 
                                 {/* Order Type Badge */}

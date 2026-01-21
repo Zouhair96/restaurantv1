@@ -14,7 +14,9 @@ const IntegrationSettings = () => {
         stock_provider: 'custom',
         stock_enabled: false,
         stock_sync_url: '',
-        stock_api_key: ''
+        stock_api_key: '',
+        stripe_onboarding_complete: false,
+        owed_commission_balance: 0
     });
     const [apiKeys, setApiKeys] = useState([]);
     const [newKeyName, setNewKeyName] = useState('');
@@ -106,6 +108,12 @@ const IntegrationSettings = () => {
                     Stock Management
                 </button>
                 <button
+                    onClick={() => setActiveTab('payments')}
+                    className={`pb-4 px-4 font-semibold transition-colors ${activeTab === 'payments' ? 'border-b-2 border-primary text-primary' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
+                >
+                    Payments & Commission
+                </button>
+                <button
                     onClick={() => setActiveTab('api')}
                     className={`pb-4 px-4 font-semibold transition-colors ${activeTab === 'api' ? 'border-b-2 border-primary text-primary' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
                 >
@@ -166,6 +174,83 @@ const IntegrationSettings = () => {
                                     value={settings.pos_api_key || ''}
                                     onChange={(e) => setSettings({ ...settings, pos_api_key: e.target.value })}
                                 />
+                            </div>
+                        </div>
+                    </div>
+                ) : activeTab === 'payments' ? (
+                    <div className="space-y-6">
+                        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-8 text-white shadow-xl relative overflow-hidden">
+                            <div className="relative z-10">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center text-2xl">💳</div>
+                                    <h3 className="text-2xl font-bold">Stripe Payments</h3>
+                                </div>
+                                <p className="text-blue-100 max-w-md mb-8">
+                                    Connect your existing Stripe account to receive 98% of online orders directly to your bank.
+                                </p>
+
+                                {settings.stripe_onboarding_complete ? (
+                                    <div className="flex items-center gap-4">
+                                        <div className="px-4 py-2 bg-green-400/20 border border-green-400/30 rounded-lg text-green-300 font-bold flex items-center gap-2">
+                                            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                                            Connected
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={async () => {
+                                                const token = localStorage.getItem('token');
+                                                const res = await fetch('/.netlify/functions/stripe-onboarding', {
+                                                    headers: { 'Authorization': `Bearer ${token}` }
+                                                });
+                                                const data = await res.json();
+                                                if (data.url) window.location.href = data.url;
+                                            }}
+                                            className="text-white/70 hover:text-white underline text-sm font-medium"
+                                        >
+                                            Manage Account
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={async () => {
+                                            const token = localStorage.getItem('token');
+                                            const res = await fetch('/.netlify/functions/stripe-onboarding', {
+                                                headers: { 'Authorization': `Bearer ${token}` }
+                                            });
+                                            const data = await res.json();
+                                            if (data.url) window.location.href = data.url;
+                                        }}
+                                        className="px-8 py-4 bg-white text-blue-700 font-black rounded-xl hover:bg-blue-50 transition-all shadow-lg hover:scale-105 active:scale-95"
+                                    >
+                                        Connect existing Stripe account
+                                    </button>
+                                )}
+                            </div>
+                            <div className="absolute top-0 right-0 p-8 text-white/5 pointer-events-none">
+                                <svg width="200" height="200" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <div className="bg-white dark:bg-gray-700/50 p-6 rounded-2xl border border-gray-100 dark:border-gray-700">
+                                <div className="flex items-center justify-between mb-2">
+                                    <h4 className="font-bold text-gray-500 dark:text-gray-400 uppercase text-xs tracking-widest">Platform Commission</h4>
+                                    <span className="px-2 py-1 bg-primary/10 text-primary text-[10px] font-black rounded-full text-white">2% Rate</span>
+                                </div>
+                                <div className="text-3xl font-black text-gray-900 dark:text-white">Applied Automatically</div>
+                                <p className="text-sm text-gray-500 mt-2">Taken by Stripe from every online payment.</p>
+                            </div>
+
+                            <div className="bg-white dark:bg-gray-700/50 p-6 rounded-2xl border border-gray-100 dark:border-gray-700">
+                                <div className="flex items-center justify-between mb-2">
+                                    <h4 className="font-bold text-yellow-500 uppercase text-xs tracking-widest">Cash Order Debt</h4>
+                                    <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+                                </div>
+                                <div className="text-3xl font-black text-gray-900 dark:text-white">${settings.owed_commission_balance?.toFixed(2)}</div>
+                                <p className="text-sm text-gray-500 mt-2">Commission due for orders paid in cash.</p>
                             </div>
                         </div>
                     </div>
@@ -325,58 +410,62 @@ const IntegrationSettings = () => {
                     </div>
                 )}
 
-                {activeTab !== 'api' && (
-                    <div className="flex justify-end pt-6">
-                        <button
-                            type="submit"
-                            disabled={saving}
-                            className="px-6 py-2.5 bg-primary text-white font-semibold rounded-lg shadow-md hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all disabled:opacity-50"
-                        >
-                            {saving ? 'Saving...' : 'Save Integration Settings'}
-                        </button>
-                    </div>
-                )}
-            </form>
-
-            {/* API Key Reveal Modal */}
-            {showKeyModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 max-w-md w-full animate-in fade-in zoom-in duration-200">
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Your New API Key</h3>
-                        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 p-4 rounded-lg mb-6 text-yellow-800 dark:text-yellow-300 text-sm">
-                            ⚠️ <strong>Important:</strong> Copy this key now! We will not show it to you again for security reasons.
-                        </div>
-                        <div className="relative mb-6">
-                            <input
-                                type="text"
-                                readOnly
-                                value={lastGeneratedKey}
-                                className="w-full p-3 bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg font-mono text-sm pr-12"
-                                id="api-key-input"
-                            />
+                {
+                    activeTab !== 'api' && (
+                        <div className="flex justify-end pt-6">
                             <button
-                                onClick={() => {
-                                    navigator.clipboard.writeText(lastGeneratedKey);
-                                    alert('Key copied to clipboard!');
-                                }}
-                                className="absolute right-2 top-2 p-2 text-gray-500 hover:text-primary transition-colors"
+                                type="submit"
+                                disabled={saving}
+                                className="px-6 py-2.5 bg-primary text-white font-semibold rounded-lg shadow-md hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all disabled:opacity-50"
                             >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                                </svg>
+                                {saving ? 'Saving...' : 'Save Integration Settings'}
                             </button>
                         </div>
-                        <button
-                            onClick={() => setShowKeyModal(false)}
-                            className="w-full py-3 bg-gray-900 dark:bg-white dark:text-gray-900 text-white font-bold rounded-xl hover:opacity-90 transition-all"
-                        >
-                            I've stored it safely
-                        </button>
-                    </div>
-                </div>
-            )}
+                    )
+                }
+            </form >
 
-        </div>
+            {/* API Key Reveal Modal */}
+            {
+                showKeyModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 max-w-md w-full animate-in fade-in zoom-in duration-200">
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Your New API Key</h3>
+                            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 p-4 rounded-lg mb-6 text-yellow-800 dark:text-yellow-300 text-sm">
+                                ⚠️ <strong>Important:</strong> Copy this key now! We will not show it to you again for security reasons.
+                            </div>
+                            <div className="relative mb-6">
+                                <input
+                                    type="text"
+                                    readOnly
+                                    value={lastGeneratedKey}
+                                    className="w-full p-3 bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg font-mono text-sm pr-12"
+                                    id="api-key-input"
+                                />
+                                <button
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(lastGeneratedKey);
+                                        alert('Key copied to clipboard!');
+                                    }}
+                                    className="absolute right-2 top-2 p-2 text-gray-500 hover:text-primary transition-colors"
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <button
+                                onClick={() => setShowKeyModal(false)}
+                                className="w-full py-3 bg-gray-900 dark:bg-white dark:text-gray-900 text-white font-bold rounded-xl hover:opacity-90 transition-all"
+                            >
+                                I've stored it safely
+                            </button>
+                        </div>
+                    </div>
+                )
+            }
+
+        </div >
     );
 };
 

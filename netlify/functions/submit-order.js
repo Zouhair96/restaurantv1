@@ -2,8 +2,10 @@ import { query } from './db.js';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { POSManager } from './pos-adapters/pos-manager.js';
+import Stripe from 'stripe';
 
 dotenv.config();
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export const handler = async (event, context) => {
     // Allow CORS
@@ -105,12 +107,16 @@ export const handler = async (event, context) => {
 
         const restaurantId = restaurantResult.rows[0].id;
 
+        // Calculate Commission (2%)
+        const commissionRate = 0.02;
+        const commissionAmount = parseFloat(totalPrice) * commissionRate;
+
         // Insert order
         const orderResult = await query(
-            `INSERT INTO orders (restaurant_id, order_type, table_number, delivery_address, payment_method, items, total_price, status, customer_id)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending', $8)
+            `INSERT INTO orders (restaurant_id, order_type, table_number, delivery_address, payment_method, items, total_price, status, customer_id, commission_amount, payment_status)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending', $8, $9, $10)
              RETURNING id, created_at`,
-            [restaurantId, orderType, tableNumber, deliveryAddress, paymentMethod, JSON.stringify(items), totalPrice, customerId]
+            [restaurantId, orderType, tableNumber, deliveryAddress, paymentMethod, JSON.stringify(items), totalPrice, customerId, commissionAmount, paymentMethod === 'cash' ? 'pending_cash' : 'pending']
         );
 
         const newOrder = {
@@ -125,33 +131,92 @@ export const handler = async (event, context) => {
             created_at: orderResult.rows[0].created_at
         };
 
+        // --- STRIPE CHECKOUT SESSION ---
+        let checkoutUrl = null;
+        if (paymentMethod === 'credit_card') {
+            try {
+                // Get restaurant's Stripe Account ID
+                const userResult = await query('SELECT stripe_account_id, stripe_onboarding_complete FROM users WHERE id = $1', [restaurantId]);
+                const restaurantUser = userResult.rows[0];
+
+                if (restaurantUser?.stripe_account_id && restaurantUser?.stripe_onboarding_complete) {
+                    const session = await stripe.checkout.sessions.create({
+                        payment_method_types: ['card'],
+                        line_items: [{
+                            price_data: {
+                                currency: 'eur', // Or get from settings
+                                product_data: {
+                                    name: `Order #${newOrder.id} - ${restaurantResult.rows[0].restaurant_name}`,
+                                },
+                                unit_amount: Math.round(totalPrice * 100),
+                            },
+                            quantity: 1,
+                        }],
+                        mode: 'payment',
+                        success_url: `${process.env.URL || 'http://localhost:8888'}/order/${newOrder.id}?payment=success`,
+                        cancel_url: `${process.env.URL || 'http://localhost:8888'}/order/${newOrder.id}?payment=cancel`,
+                        payment_intent_data: {
+                            application_fee_amount: Math.round(commissionAmount * 100),
+                            transfer_data: {
+                                destination: restaurantUser.stripe_account_id,
+                            },
+                        },
+                        metadata: {
+                            orderId: newOrder.id.toString(),
+                            restaurantId: restaurantId.toString()
+                        }
+                    });
+
+                    checkoutUrl = session.url;
+
+                    // Update order with session ID
+                    await query('UPDATE orders SET stripe_checkout_session_id = $1 WHERE id = $2', [session.id, newOrder.id]);
+                } else {
+                    console.warn('Restaurant stripe account not ready. Defaulting to Cash or Error.');
+                    // Optionally throw error if CC is required
+                }
+            } catch (stripeError) {
+                console.error('Stripe Session Error:', stripeError.message);
+            }
+        }
+
         // --- POS INTEGRATION TRIGGER ---
+        // Only trigger POS sync immediately for CASH orders. 
+        // For CC, we wait for Webhook (payment confirmation).
         let posStatus = { success: false, skipped: true };
-        try {
-            // Fetch integration settings
-            const settingsResult = await query(
-                'SELECT * FROM integration_settings WHERE restaurant_id = $1',
-                [restaurantId]
-            );
+        if (paymentMethod === 'cash') {
+            try {
+                // Update restaurant's owed balance
+                await query(
+                    'UPDATE users SET owed_commission_balance = owed_commission_balance + $1 WHERE id = $2',
+                    [commissionAmount, restaurantId]
+                );
 
-            if (settingsResult.rows.length > 0) {
-                const settings = settingsResult.rows[0];
-                if (settings.pos_enabled) {
-                    posStatus = await POSManager.sendOrder(settings, newOrder);
+                // Fetch integration settings
+                const settingsResult = await query(
+                    'SELECT * FROM integration_settings WHERE restaurant_id = $1',
+                    [restaurantId]
+                );
 
-                    // Update order with external ID if successful
-                    if (posStatus.success && posStatus.external_id) {
-                        await query(
-                            'UPDATE orders SET external_id = $1 WHERE id = $2',
-                            [posStatus.external_id, newOrder.id]
-                        );
+                if (settingsResult.rows.length > 0) {
+                    const settings = settingsResult.rows[0];
+                    if (settings.pos_enabled) {
+                        posStatus = await POSManager.sendOrder(settings, newOrder);
+
+                        if (posStatus.success && posStatus.external_id) {
+                            await query(
+                                'UPDATE orders SET external_id = $1 WHERE id = $2',
+                                [posStatus.external_id, newOrder.id]
+                            );
+                        }
                     }
                 }
+            } catch (posError) {
+                console.error('⚠️ POS Integration Error:', posError.message);
+                posStatus = { success: false, error: posError.message };
             }
-        } catch (posError) {
-            console.error('⚠️ POS Integration Error:', posError.message);
-            // We don't fail the order because the POS sync failed
-            posStatus = { success: false, error: posError.message };
+        } else {
+            posStatus = { success: false, skipped: true, reason: 'Waiting for payment confirmation' };
         }
 
         return {
@@ -161,7 +226,8 @@ export const handler = async (event, context) => {
                 success: true,
                 orderId: newOrder.id,
                 message: 'Order placed successfully',
-                pos_sync: posStatus
+                pos_sync: posStatus,
+                checkoutUrl: checkoutUrl
             })
         };
 

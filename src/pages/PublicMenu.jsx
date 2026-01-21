@@ -237,6 +237,12 @@ const PublicMenu = () => {
             // Dispatch event for real-time history update in sidebar
             window.dispatchEvent(new CustomEvent('clientOrderPlaced'));
 
+            // Handle Stripe Redirection if CC
+            if (result.checkoutUrl) {
+                window.location.href = result.checkoutUrl;
+                return;
+            }
+
             setTimeout(() => {
                 setShowOrderModal(false)
                 setOrderSuccess(false)

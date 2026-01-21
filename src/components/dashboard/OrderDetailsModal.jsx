@@ -50,7 +50,7 @@ const OrderDetailsModal = ({ order, isOpen, onClose, onStatusUpdate, getStatusCo
 
                 <div className="p-8 space-y-8 max-h-[70vh] overflow-y-auto custom-scrollbar">
                     {/* Order Context */}
-                    <div className="flex gap-4">
+                    <div className="flex flex-col md:flex-row gap-4">
                         <div className={`flex-1 p-5 rounded-3xl border ${order.order_type === 'dine_in' ? 'bg-blue-50/50 border-blue-100 dark:bg-blue-900/10 dark:border-blue-900/20' : 'bg-orange-50/50 border-orange-100 dark:bg-orange-900/10 dark:border-orange-900/20'}`}>
                             <span className="block text-xs font-black uppercase tracking-widest opacity-50 mb-2">Service Type</span>
                             <div className="flex items-center gap-3">
@@ -60,10 +60,25 @@ const OrderDetailsModal = ({ order, isOpen, onClose, onStatusUpdate, getStatusCo
                                 </span>
                             </div>
                             {order.order_type === 'take_out' && (
-                                <p className="mt-3 text-sm text-gray-600 dark:text-gray-400 bg-white/50 dark:bg-black/20 p-3 rounded-xl">
+                                <p className="mt-3 text-sm text-gray-600 dark:text-gray-400 bg-white/50 dark:bg-black/20 p-3 rounded-xl line-clamp-1">
                                     📍 {order.delivery_address}
                                 </p>
                             )}
+                        </div>
+
+                        <div className={`flex-1 p-5 rounded-3xl border ${order.payment_status === 'paid' ? 'bg-green-50/50 border-green-100 dark:bg-green-900/10 dark:border-green-900/20' : 'bg-gray-50/50 border-gray-100 dark:bg-gray-800/50 dark:border-gray-700'}`}>
+                            <span className="block text-xs font-black uppercase tracking-widest opacity-50 mb-2">Payment Info</span>
+                            <div className="flex items-center gap-3">
+                                <span className="text-2xl">{order.payment_status === 'paid' ? '💰' : '🕒'}</span>
+                                <div>
+                                    <span className={`text-xl font-bold ${order.payment_status === 'paid' ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'}`}>
+                                        {order.payment_status === 'paid' ? 'Paid Online' : order.payment_status === 'pending_cash' ? 'Pay in Cash' : 'Unpaid'}
+                                    </span>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                        Total: ${order.total_price} • Comm: ${order.commission_amount || (order.total_price * 0.02).toFixed(2)}
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -210,7 +225,7 @@ const OrderDetailsModal = ({ order, isOpen, onClose, onStatusUpdate, getStatusCo
                     </button>
                 </div>
             </div>
-        </div>
+        </div >
     )
 }
 
