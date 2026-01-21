@@ -33,10 +33,20 @@ export const handler = async (event, context) => {
             return { statusCode: 403, headers, body: JSON.stringify({ error: 'Forbidden' }) };
         }
 
-        const { key, value } = JSON.parse(event.body);
+        let { key, value } = JSON.parse(event.body);
 
         if (!key || value === undefined) {
             return { statusCode: 400, headers, body: JSON.stringify({ error: 'Key and value are required' }) };
+        }
+
+        // Special handling for sensitive keys
+        if (key === 'stripe_secret_key' || key === 'stripe_webhook_secret') {
+            if (!value.secret_key || value.secret_key.trim() === '') {
+                return { statusCode: 200, headers, body: JSON.stringify({ success: true, message: 'Skipped empty key' }) };
+            }
+            const { encrypt } = await import('./utils/encryption.js');
+            const encryptedValue = encrypt(value.secret_key);
+            value = { secret_key: encryptedValue, is_encrypted: true };
         }
 
         await query(

@@ -1,13 +1,9 @@
 import { query } from './db.js';
 import jwt from 'jsonwebtoken';
-import Stripe from 'stripe';
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+import { getStripe } from './utils/stripe-client.js';
 
 export const handler = async (event, context) => {
+    const stripe = await getStripe();
     const headers = {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',

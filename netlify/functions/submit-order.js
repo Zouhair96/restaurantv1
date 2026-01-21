@@ -2,12 +2,10 @@ import { query } from './db.js';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { POSManager } from './pos-adapters/pos-manager.js';
-import Stripe from 'stripe';
-
-dotenv.config();
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+import { getStripe } from './utils/stripe-client.js';
 
 export const handler = async (event, context) => {
+    const stripe = await getStripe();
     // Allow CORS
     const headers = {
         'Content-Type': 'application/json',

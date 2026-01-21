@@ -32,7 +32,14 @@ export const handler = async (event, context) => {
         const result = await query('SELECT key, value FROM platform_settings');
         const settings = {};
         result.rows.forEach(row => {
-            settings[row.key] = row.value;
+            if ((row.key === 'stripe_secret_key' || row.key === 'stripe_webhook_secret') && row.value?.secret_key) {
+                settings[row.key] = {
+                    secret_key: '',
+                    is_set: true
+                };
+            } else {
+                settings[row.key] = row.value;
+            }
         });
 
         return {

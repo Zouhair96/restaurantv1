@@ -19,7 +19,9 @@ const AdminDashboard = () => {
     })
     const [platformSettings, setPlatformSettings] = useState({
         stripe_config: { commission_rate: 0.02, currency: 'eur' },
-        general_config: { platform_name: 'YumYum', contact_email: 'admin@yumyum.com' }
+        general_config: { platform_name: 'YumYum', contact_email: 'admin@yumyum.com' },
+        stripe_secret_key: { secret_key: '', is_set: false },
+        stripe_webhook_secret: { secret_key: '', is_set: false }
     })
     const [isSaving, setIsSaving] = useState(false)
     const [saveSuccess, setSaveSuccess] = useState(false)
@@ -319,29 +321,82 @@ const AdminDashboard = () => {
                                         </div>
                                     </div>
 
-                                    <div className="bg-white dark:bg-white/5 p-8 rounded-[2rem] border border-gray-100 dark:border-white/5 flex flex-col items-center justify-center text-center">
-                                        <div className="w-16 h-16 bg-green-500/10 text-green-500 rounded-full flex items-center justify-center text-3xl mb-4">🏦</div>
-                                        <div className="text-[10px] font-black uppercase text-gray-400 tracking-widest mb-1">Stripe Connection</div>
-                                        <div className="text-xl font-black text-green-500 uppercase tracking-tight">System Connected</div>
-                                        <div className="mt-4 p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/10 w-full">
-                                            <div className="flex justify-between items-center text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
-                                                <span>Active Rate</span>
-                                                <span className="text-indigo-500">{(platformSettings.stripe_config.commission_rate * 100).toFixed(1)}%</span>
+                                    <div className="space-y-4">
+                                        <div className="bg-white dark:bg-white/5 p-8 rounded-[2rem] border border-gray-100 dark:border-white/5 flex flex-col items-center justify-center text-center">
+                                            <div className="w-16 h-16 bg-green-500/10 text-green-500 rounded-full flex items-center justify-center text-3xl mb-4">🏦</div>
+                                            <div className="text-[10px] font-black uppercase text-gray-400 tracking-widest mb-1">Stripe Connection</div>
+                                            <div className="text-xl font-black text-green-500 uppercase tracking-tight">System Connected</div>
+                                            <div className="mt-4 p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/10 w-full">
+                                                <div className="flex justify-between items-center text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
+                                                    <span>Active Rate</span>
+                                                    <span className="text-indigo-500">{(platformSettings.stripe_config.commission_rate * 100).toFixed(1)}%</span>
+                                                </div>
+                                                <div className="w-full bg-gray-200 dark:bg-white/10 h-1.5 rounded-full overflow-hidden">
+                                                    <div className="bg-indigo-500 h-full" style={{ width: `${platformSettings.stripe_config.commission_rate * 100}%` }}></div>
+                                                </div>
                                             </div>
-                                            <div className="w-full bg-gray-200 dark:bg-white/10 h-1.5 rounded-full overflow-hidden">
-                                                <div className="bg-indigo-500 h-full" style={{ width: `${platformSettings.stripe_config.commission_rate * 100}%` }}></div>
+
+                                            <div className="mt-8 pt-8 border-t border-gray-100 dark:border-white/5 w-full">
+                                                <a
+                                                    href="https://dashboard.stripe.com"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="block w-full py-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-2xl font-black text-sm uppercase tracking-widest hover:scale-[1.02] transition-all active:scale-95 shadow-xl shadow-black/10"
+                                                >
+                                                    Stripe Dashboard
+                                                </a>
                                             </div>
                                         </div>
 
-                                        <div className="mt-8 pt-8 border-t border-gray-100 dark:border-white/5 w-full">
-                                            <a
-                                                href="https://dashboard.stripe.com"
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="block w-full py-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-2xl font-black text-sm uppercase tracking-widest hover:scale-[1.02] transition-all active:scale-95 shadow-xl shadow-black/10"
-                                            >
-                                                Stripe Dashboard
-                                            </a>
+                                        <div className="p-8 bg-black dark:bg-white/5 rounded-[2.5rem] border border-white/10 shadow-2xl">
+                                            <div className="flex items-center gap-3 mb-6">
+                                                <div className="w-10 h-10 bg-indigo-500/20 text-indigo-400 rounded-xl flex items-center justify-center text-xl">🔐</div>
+                                                <h3 className="font-black text-white uppercase tracking-tight text-lg">Sensitive API Keys</h3>
+                                            </div>
+
+                                            <div className="space-y-6">
+                                                <div>
+                                                    <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Stripe Secret Key (sk_...)</label>
+                                                    <div className="relative">
+                                                        <input
+                                                            type="password"
+                                                            placeholder={platformSettings.stripe_secret_key.is_set ? "••••••••••••••••" : "Paste your secret key..."}
+                                                            value={platformSettings.stripe_secret_key.secret_key}
+                                                            onChange={(e) => setPlatformSettings({
+                                                                ...platformSettings,
+                                                                stripe_secret_key: { ...platformSettings.stripe_secret_key, secret_key: e.target.value }
+                                                            })}
+                                                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#6359E9]/50 transition-all"
+                                                        />
+                                                        {platformSettings.stripe_secret_key.is_set && (
+                                                            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[9px] font-black bg-green-500/20 text-green-400 px-2 py-1 rounded-md uppercase tracking-wider">Stored</div>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                <div>
+                                                    <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Webhook Secret (whsec_...)</label>
+                                                    <div className="relative">
+                                                        <input
+                                                            type="password"
+                                                            placeholder={platformSettings.stripe_webhook_secret.is_set ? "••••••••••••••••" : "Paste your webhook secret..."}
+                                                            value={platformSettings.stripe_webhook_secret.secret_key}
+                                                            onChange={(e) => setPlatformSettings({
+                                                                ...platformSettings,
+                                                                stripe_webhook_secret: { ...platformSettings.stripe_webhook_secret, secret_key: e.target.value }
+                                                            })}
+                                                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#6359E9]/50 transition-all"
+                                                        />
+                                                        {platformSettings.stripe_webhook_secret.is_set && (
+                                                            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[9px] font-black bg-green-500/20 text-green-400 px-2 py-1 rounded-md uppercase tracking-wider">Stored</div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <p className="mt-6 text-[11px] text-gray-500 font-medium leading-relaxed">
+                                                Keys are <b>encrypted at rest</b> using AES-256. Once saved, the full key is never visible in the dashboard for security.
+                                            </p>
                                         </div>
                                     </div>
                                 </div>

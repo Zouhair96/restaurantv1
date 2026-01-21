@@ -1,25 +1,33 @@
 import { query } from './db.js';
 import { POSManager } from './pos-adapters/pos-manager.js';
-import Stripe from 'stripe';
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+import { getStripe } from './utils/stripe-client.js';
 
 export const handler = async (event, context) => {
+    const stripe = await getStripe();
     if (event.httpMethod !== 'POST') {
         return { statusCode: 405, body: 'Method Not Allowed' };
     }
 
     const sig = event.headers['stripe-signature'];
+
+    // Try to get webhook secret from DB first, then env
+    let webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    if (!webhookSecret) {
+        const result = await query('SELECT value FROM platform_settings WHERE key = $1', ['stripe_webhook_secret']);
+        if (result.rows.length > 0) {
+            // Decrypt the webhook secret as well
+            const { decrypt } = await import('./utils/encryption.js');
+            webhookSecret = decrypt(result.rows[0].value.secret_key);
+        }
+    }
+
     let stripeEvent;
 
     try {
         stripeEvent = stripe.webhooks.constructEvent(
             event.body,
             sig,
-            process.env.STRIPE_WEBHOOK_SECRET
+            webhookSecret
         );
     } catch (err) {
         console.error('Webhook signature verification failed:', err.message);
