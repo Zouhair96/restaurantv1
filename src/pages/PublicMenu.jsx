@@ -1092,17 +1092,19 @@ const PublicMenu = () => {
                                             <div className="text-2xl mb-1">💵</div>
                                             <div className="font-bold text-sm">Cash</div>
                                         </button>
-                                        <button
-                                            onClick={() => setOrderDetails({ ...orderDetails, paymentMethod: 'credit_card' })}
-                                            className={`p-4 rounded-xl border-2 transition-all ${orderDetails.paymentMethod === 'credit_card'
-                                                ? 'bg-green-500/10 border-green-500 text-green-500'
-                                                : isDarkMode
-                                                    ? 'bg-white/5 border-white/5 text-gray-400 hover:border-white/10'
-                                                    : 'bg-gray-50 border-gray-100 text-gray-500 hover:border-gray-200'}`}
-                                        >
-                                            <div className="text-2xl mb-1">💳</div>
-                                            <div className="font-bold text-sm">Credit Card</div>
-                                        </button>
+                                        {data?.stripe_enabled && (
+                                            <button
+                                                onClick={() => setOrderDetails({ ...orderDetails, paymentMethod: 'credit_card' })}
+                                                className={`p-4 rounded-xl border-2 transition-all ${orderDetails.paymentMethod === 'credit_card'
+                                                    ? 'bg-green-500/10 border-green-500 text-green-500'
+                                                    : isDarkMode
+                                                        ? 'bg-white/5 border-white/5 text-gray-400 hover:border-white/10'
+                                                        : 'bg-gray-50 border-gray-100 text-gray-500 hover:border-gray-200'}`}
+                                            >
+                                                <div className="text-2xl mb-1">💳</div>
+                                                <div className="font-bold text-sm">Credit Card</div>
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
 

@@ -15,6 +15,8 @@ import {
     HiOutlineEnvelope,
     HiEnvelope,
     HiOutlineArrowRightOnRectangle,
+    HiOutlineCog6Tooth,
+    HiCog6Tooth,
     HiXMark
 } from 'react-icons/hi2';
 
@@ -41,6 +43,7 @@ const AdminSidebar = ({ activeSection, onSectionChange, isMobileMenuOpen, closeM
         { id: 'notifications', outline: HiOutlineBell, solid: HiBell, label: 'Notifications' },
         { id: 'calendar', outline: HiOutlineCalendarDays, solid: HiCalendarDays, label: 'Calendar' },
         { id: 'inbox', outline: HiOutlineEnvelope, solid: HiEnvelope, label: 'Inbox' },
+        { id: 'settings', outline: HiOutlineCog6Tooth, solid: HiCog6Tooth, label: 'Settings' },
     ];
 
     return (

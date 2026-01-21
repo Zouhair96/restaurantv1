@@ -208,6 +208,68 @@ const AdminDashboard = () => {
                     </div>
                 )}
 
+                {activeSection === 'settings' && (
+                    <div className="space-y-8 max-w-4xl">
+                        <div className="bg-white/50 dark:bg-white/5 backdrop-blur-xl rounded-[2.5rem] border border-white dark:border-white/10 p-10 overflow-hidden relative group">
+                            <div className="relative z-10">
+                                <h2 className="text-3xl font-black text-gray-800 dark:text-white tracking-tight uppercase mb-2">Platform Commission Setup</h2>
+                                <p className="text-gray-400 mb-8 max-w-2xl font-medium">As the platform owner, you receive 2% of every online order. This money goes directly to your own Stripe balance.</p>
+
+                                <div className="grid md:grid-cols-2 gap-8">
+                                    <div className="space-y-4">
+                                        <div className="p-6 bg-indigo-500/10 rounded-3xl border border-indigo-500/20">
+                                            <div className="w-10 h-10 bg-indigo-500 text-white rounded-xl flex items-center justify-center font-black mb-4 shadow-lg shadow-indigo-500/20">1</div>
+                                            <h3 className="font-bold text-gray-800 dark:text-white mb-2">Stripe Account</h3>
+                                            <p className="text-sm text-gray-400">Login to Stripe and ensure your Bank Account is linked in the "Payouts" section.</p>
+                                        </div>
+                                        <div className="p-6 bg-[#6359E9]/10 rounded-3xl border border-[#6359E9]/20">
+                                            <div className="w-10 h-10 bg-[#6359E9] text-white rounded-xl flex items-center justify-center font-black mb-4 shadow-lg shadow-[#6359E9]/20">2</div>
+                                            <h3 className="font-bold text-gray-800 dark:text-white mb-2">API Integration</h3>
+                                            <p className="text-sm text-gray-400">Add your <b>STRIPE_SECRET_KEY</b> to the platform settings to connect your wallet.</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-white dark:bg-white/5 p-8 rounded-[2rem] border border-gray-100 dark:border-white/5 flex flex-col items-center justify-center text-center">
+                                        <div className="w-16 h-16 bg-green-500/10 text-green-500 rounded-full flex items-center justify-center text-3xl mb-4">🏦</div>
+                                        <div className="text-[10px] font-black uppercase text-gray-400 tracking-widest mb-1">System Status</div>
+                                        <div className="text-xl font-black text-green-500 uppercase tracking-tight">Active & Ready</div>
+                                        <p className="text-xs text-gray-400 mt-2">All commissions will be routed to your primary balance.</p>
+
+                                        <div className="mt-8 pt-8 border-t border-gray-100 dark:border-white/5 w-full">
+                                            <button className="w-full py-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-2xl font-black text-sm uppercase tracking-widest hover:scale-[1.02] transition-all active:scale-95 shadow-xl shadow-black/10">
+                                                Go to Stripe Dashboard
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Decorative background element */}
+                            <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl transition-transform group-hover:scale-150 duration-700"></div>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <div className="bg-white/50 dark:bg-white/5 backdrop-blur-xl p-8 rounded-[2rem] border border-white dark:border-white/10">
+                                <h3 className="text-lg font-black text-gray-800 dark:text-white uppercase mb-4 tracking-tight">System Commission</h3>
+                                <div className="flex items-end gap-3 mb-2">
+                                    <div className="text-5xl font-black text-[#6359E9]">2.0%</div>
+                                    <div className="text-sm font-bold text-gray-400 mb-2 uppercase tracking-widest">Fixed Rate</div>
+                                </div>
+                                <p className="text-sm text-gray-400 font-medium">This rate is applied to all card payments automatically. No manual billing required.</p>
+                            </div>
+
+                            <div className="bg-white/50 dark:bg-white/5 backdrop-blur-xl p-8 rounded-[2rem] border border-white dark:border-white/10">
+                                <h3 className="text-lg font-black text-gray-800 dark:text-white uppercase mb-4 tracking-tight">Webhook Security</h3>
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="p-2 bg-green-500/10 text-green-500 rounded-lg">🛡️</div>
+                                    <div className="text-sm font-bold text-gray-800 dark:text-white">Sig-Verification Active</div>
+                                </div>
+                                <p className="text-sm text-gray-400 font-medium">Stripe webhooks are cryptographically signed to prevent fraud and ensure data integrity.</p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
             </div>
 
         </AdminLayout>

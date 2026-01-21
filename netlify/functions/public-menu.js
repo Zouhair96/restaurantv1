@@ -26,7 +26,7 @@ export const handler = async (event, context) => {
         // 1. Find the user ID by restaurant_name
         // We join with menus to prioritize users who actually have a menu if duplicates exist
         const result = await query(`
-            SELECT u.id, u.restaurant_name, m.id as menu_id
+            SELECT u.id, u.restaurant_name, u.stripe_onboarding_complete, m.id as menu_id
             FROM users u
             LEFT JOIN menus m ON u.id = m.user_id
             WHERE u.restaurant_name = $1
@@ -77,6 +77,7 @@ export const handler = async (event, context) => {
             headers,
             body: JSON.stringify({
                 restaurant: user.restaurant_name,
+                stripe_enabled: user.stripe_onboarding_complete,
                 menu: menuResult.rows[0]
             })
         };
