@@ -132,25 +132,25 @@ const IntegrationSettings = () => {
             <div className="flex space-x-4 mb-8 border-b dark:border-gray-700">
                 <button
                     onClick={() => setActiveTab('pos')}
-                    className={`pb-4 px-4 font-semibold transition-colors ${activeTab === 'pos' ? 'border-b-2 border-primary text-primary' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
+                    className={`pb-4 px-4 font-semibold transition-colors ${activeTab === 'pos' ? 'border-b-2 border-yum-primary text-yum-primary' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
                 >
                     POS Integration
                 </button>
                 <button
                     onClick={() => setActiveTab('stock')}
-                    className={`pb-4 px-4 font-semibold transition-colors ${activeTab === 'stock' ? 'border-b-2 border-primary text-primary' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
+                    className={`pb-4 px-4 font-semibold transition-colors ${activeTab === 'stock' ? 'border-b-2 border-yum-primary text-yum-primary' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
                 >
                     Stock Management
                 </button>
                 <button
                     onClick={() => setActiveTab('payments')}
-                    className={`pb-4 px-4 font-semibold transition-colors ${activeTab === 'payments' ? 'border-b-2 border-primary text-primary' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
+                    className={`pb-4 px-4 font-semibold transition-colors ${activeTab === 'payments' ? 'border-b-2 border-yum-primary text-yum-primary' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
                 >
                     Payments & Commission
                 </button>
                 <button
                     onClick={() => setActiveTab('api')}
-                    className={`pb-4 px-4 font-semibold transition-colors ${activeTab === 'api' ? 'border-b-2 border-primary text-primary' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
+                    className={`pb-4 px-4 font-semibold transition-colors ${activeTab === 'api' ? 'border-b-2 border-yum-primary text-yum-primary' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
                 >
                     API Access
                 </button>
@@ -171,7 +171,7 @@ const IntegrationSettings = () => {
                                     checked={settings.pos_enabled}
                                     onChange={(e) => setSettings({ ...settings, pos_enabled: e.target.checked })}
                                 />
-                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/80 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-yum-primary/20 dark:peer-focus:ring-yum-primary/80 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-yum-primary"></div>
                             </label>
                         </div>
 
@@ -179,7 +179,7 @@ const IntegrationSettings = () => {
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">POS Provider</label>
                                 <select
-                                    className="w-full p-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary focus:border-primary text-gray-900 dark:text-white"
+                                    className="w-full p-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-yum-primary focus:border-yum-primary text-gray-900 dark:text-white"
                                     value={settings.pos_provider}
                                     onChange={(e) => setSettings({ ...settings, pos_provider: e.target.value })}
                                 >
@@ -194,7 +194,7 @@ const IntegrationSettings = () => {
                                 <input
                                     type="url"
                                     placeholder="https://your-pos.com/api/webhook"
-                                    className="w-full p-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary focus:border-primary text-gray-900 dark:text-white"
+                                    className="w-full p-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-yum-primary focus:border-yum-primary text-gray-900 dark:text-white"
                                     value={settings.pos_webhook_url || ''}
                                     onChange={(e) => setSettings({ ...settings, pos_webhook_url: e.target.value })}
                                 />
@@ -205,7 +205,7 @@ const IntegrationSettings = () => {
                                 <input
                                     type="password"
                                     placeholder="Enter your POS API Key"
-                                    className="w-full p-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary focus:border-primary text-gray-900 dark:text-white"
+                                    className="w-full p-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-yum-primary focus:border-yum-primary text-gray-900 dark:text-white"
                                     value={settings.pos_api_key || ''}
                                     onChange={(e) => setSettings({ ...settings, pos_api_key: e.target.value })}
                                 />
@@ -329,7 +329,7 @@ const IntegrationSettings = () => {
                             <div className="bg-white dark:bg-gray-700/50 p-6 rounded-2xl border border-gray-100 dark:border-gray-700">
                                 <div className="flex items-center justify-between mb-2">
                                     <h4 className="font-bold text-gray-500 dark:text-gray-400 uppercase text-xs tracking-widest">Platform Commission</h4>
-                                    <span className="px-2 py-1 bg-primary/10 text-primary text-[10px] font-black rounded-full text-white">2% Rate</span>
+                                    <span className="px-2 py-1 bg-yum-primary/10 text-yum-primary text-[10px] font-black rounded-full">2% Rate</span>
                                 </div>
                                 <div className="text-3xl font-black text-gray-900 dark:text-white">Applied Automatically</div>
                                 <p className="text-sm text-gray-500 mt-2">Taken by Stripe from every online payment.</p>
@@ -359,7 +359,7 @@ const IntegrationSettings = () => {
                                     checked={settings.stock_enabled}
                                     onChange={(e) => setSettings({ ...settings, stock_enabled: e.target.checked })}
                                 />
-                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/80 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-yum-primary/20 dark:peer-focus:ring-yum-primary/80 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-yum-primary"></div>
                             </label>
                         </div>
 
@@ -367,7 +367,7 @@ const IntegrationSettings = () => {
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Stock Provider</label>
                                 <select
-                                    className="w-full p-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary focus:border-primary text-gray-900 dark:text-white"
+                                    className="w-full p-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-yum-primary focus:border-yum-primary text-gray-900 dark:text-white"
                                     value={settings.stock_provider}
                                     onChange={(e) => setSettings({ ...settings, stock_provider: e.target.value })}
                                 >
@@ -381,7 +381,7 @@ const IntegrationSettings = () => {
                                 <input
                                     type="url"
                                     placeholder="https://your-inventory.com/api/stock"
-                                    className="w-full p-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary focus:border-primary text-gray-900 dark:text-white"
+                                    className="w-full p-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-yum-primary focus:border-yum-primary text-gray-900 dark:text-white"
                                     value={settings.stock_sync_url || ''}
                                     onChange={(e) => setSettings({ ...settings, stock_sync_url: e.target.value })}
                                 />
@@ -392,7 +392,7 @@ const IntegrationSettings = () => {
                                 <input
                                     type="password"
                                     placeholder="Enter your Stock API Key"
-                                    className="w-full p-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary focus:border-primary text-gray-900 dark:text-white"
+                                    className="w-full p-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-yum-primary focus:border-yum-primary text-gray-900 dark:text-white"
                                     value={settings.stock_api_key || ''}
                                     onChange={(e) => setSettings({ ...settings, stock_api_key: e.target.value })}
                                 />
@@ -443,7 +443,7 @@ const IntegrationSettings = () => {
                                         fetchApiKeys();
                                     }
                                 }}
-                                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+                                className="px-4 py-2 bg-yum-primary text-white rounded-lg hover:opacity-90 transition-colors"
                             >
                                 Generate Key
                             </button>
@@ -507,7 +507,7 @@ const IntegrationSettings = () => {
                             <button
                                 type="submit"
                                 disabled={saving}
-                                className="px-6 py-2.5 bg-primary text-white font-semibold rounded-lg shadow-md hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all disabled:opacity-50"
+                                className="px-8 py-3 bg-yum-primary text-white font-black uppercase tracking-widest rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
                             >
                                 {saving ? 'Saving...' : 'Save Integration Settings'}
                             </button>
@@ -538,7 +538,7 @@ const IntegrationSettings = () => {
                                         navigator.clipboard.writeText(lastGeneratedKey);
                                         alert('Key copied to clipboard!');
                                     }}
-                                    className="absolute right-2 top-2 p-2 text-gray-500 hover:text-primary transition-colors"
+                                    className="absolute right-2 top-2 p-2 text-gray-500 hover:text-yum-primary transition-colors"
                                 >
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
