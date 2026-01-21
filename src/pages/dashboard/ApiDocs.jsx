@@ -5,9 +5,9 @@ const ApiDocs = () => {
         <div className="max-w-4xl mx-auto space-y-8 pb-12">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-black text-gray-800 dark:text-white">Developer API & Webhooks</h1>
+                    <h1 className="text-3xl font-black text-gray-800 dark:text-white">Integration & Payments</h1>
                     <p className="text-gray-500 dark:text-gray-400 mt-2">
-                        Connect your existing POS or external systems to our platform using our Universal API standard.
+                        Configure your split payments, connect your POS, and manage your restaurant's automated revenue flow.
                     </p>
                 </div>
                 <div className="text-right">
@@ -19,9 +19,41 @@ const ApiDocs = () => {
 
             {/* Introduction */}
             <div className="bg-white dark:bg-gray-800/40 border border-gray-100 dark:border-white/5 rounded-[2rem] p-8 shadow-sm">
-                <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4">How it works</h2>
+                <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4">Payment & Commission Logic</h2>
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
+                    Our platform automates revenue collection for both online and physical orders. Here is how our <strong>98/2 Split System</strong> works for your restaurant:
+                </p>
+                <div className="grid md:grid-cols-2 gap-6">
+                    <div className="p-6 bg-green-500/5 rounded-3xl border border-green-500/10">
+                        <div className="flex items-center gap-3 mb-4">
+                            <span className="text-2xl">💳</span>
+                            <h3 className="font-black text-gray-800 dark:text-white uppercase tracking-tight">Online Card Payments</h3>
+                        </div>
+                        <ul className="space-y-3 text-sm text-gray-500 dark:text-gray-400">
+                            <li className="flex gap-2"><span>•</span> <strong>Instant Settlement</strong>: Funds are split at the moment of purchase.</li>
+                            <li className="flex gap-2"><span>•</span> <strong>98% to You</strong>: Sent directly to your connected bank via Stripe.</li>
+                            <li className="flex gap-2"><span>•</span> <strong>2% Fee</strong>: Automatically deducted for platform service.</li>
+                        </ul>
+                    </div>
+                    <div className="p-6 bg-orange-500/5 rounded-3xl border border-orange-500/10">
+                        <div className="flex items-center gap-3 mb-4">
+                            <span className="text-2xl">💵</span>
+                            <h3 className="font-black text-gray-800 dark:text-white uppercase tracking-tight">Physical Cash Orders</h3>
+                        </div>
+                        <ul className="space-y-3 text-sm text-gray-500 dark:text-gray-400">
+                            <li className="flex gap-2"><span>•</span> <strong>Full Receipt</strong>: You collect 100% of the cash from the customer.</li>
+                            <li className="flex gap-2"><span>•</span> <strong>Owed Balance</strong>: A 2% debt is recorded in your dashboard.</li>
+                            <li className="flex gap-2"><span>•</span> <strong>Monthly Billing</strong>: We bill your balance at the end of each cycle.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            {/* How it works */}
+            <div className="bg-white dark:bg-gray-800/40 border border-gray-100 dark:border-white/5 rounded-[2rem] p-8 shadow-sm">
+                <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4">Developer Integration</h2>
                 <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
-                    Our platform supports a <strong>Universal Webhook</strong> integration protocol. This allows you to receive real-time notifications whenever a new order is placed, regardless of the POS system you use.
+                    Receive real-time notifications whenever a new order is placed, regardless of the POS system you use.
                 </p>
                 <div className="grid md:grid-cols-3 gap-6 mt-8">
                     <div className="p-4 bg-gray-50 dark:bg-gray-700/30 rounded-2xl border border-gray-100 dark:border-white/5">
@@ -81,6 +113,8 @@ X-DigiMenu-Platform: v1`}
     "table_number": "12",      // null if take_out
     "delivery_address": null,  // string if take_out
     "payment_method": "credit_card",
+    "payment_status": "paid",   // "paid" (Stripe) or "pending_cash" (Cash)
+    "commission_amount": 0.26,  // platform fee (2%)
     "items": [
       {
         "id": 101,
