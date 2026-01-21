@@ -249,6 +249,8 @@ const AdminDashboard = () => {
                                                     })
                                                 ))
                                                 setSaveSuccess(true)
+                                                // Refetch to sync "Stored" status and mask keys
+                                                await fetchData()
                                                 setTimeout(() => setSaveSuccess(false), 3000)
                                             } catch (err) {
                                                 setError('Failed to save settings')
