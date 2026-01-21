@@ -116,7 +116,7 @@ const AdminDashboard = () => {
                         Error: {error}
                     </div>
                 )}
-                ...
+
                 {activeSection === 'users' && (
                     /* Users Table Card */
                     <div className="bg-white/50 dark:bg-white/5 backdrop-blur-xl rounded-[2.5rem] border border-white dark:border-white/10 shadow-xl shadow-indigo-500/5 overflow-hidden">
