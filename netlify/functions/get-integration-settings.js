@@ -43,14 +43,18 @@ export const handler = async (event) => {
                         stock_provider: 'custom',
                         stock_enabled: false,
                         stripe_onboarding_complete: userRow?.stripe_onboarding_complete || false,
-                        owed_commission_balance: userRow?.owed_commission_balance || 0
+                        owed_commission_balance: Number(userRow?.owed_commission_balance || 0)
                     })
                 };
             }
 
+            const settings = result.rows[0];
             return {
                 statusCode: 200,
-                body: JSON.stringify(result.rows[0])
+                body: JSON.stringify({
+                    ...settings,
+                    owed_commission_balance: Number(settings.owed_commission_balance || 0)
+                })
             };
         }
 

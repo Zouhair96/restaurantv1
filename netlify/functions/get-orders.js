@@ -60,7 +60,7 @@ export const handler = async (event, context) => {
         };
 
     } catch (error) {
-        console.error('Get Orders Error:', error);
+        console.error(' [GET-ORDERS DEBUG] Full Error:', error);
 
         if (error.name === 'JsonWebTokenError') {
             return {

@@ -313,7 +313,7 @@ const IntegrationSettings = () => {
                                     <h4 className="font-bold text-yellow-500 uppercase text-xs tracking-widest">Cash Order Debt</h4>
                                     <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
                                 </div>
-                                <div className="text-3xl font-black text-gray-900 dark:text-white">${settings.owed_commission_balance?.toFixed(2)}</div>
+                                <div className="text-3xl font-black text-gray-900 dark:text-white">${Number(settings.owed_commission_balance || 0).toFixed(2)}</div>
                                 <p className="text-sm text-gray-500 mt-2">Commission due for orders paid in cash.</p>
                             </div>
                         </div>

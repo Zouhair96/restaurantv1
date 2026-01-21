@@ -91,7 +91,7 @@ export const handler = async (event, context) => {
 
         return { statusCode: 405, body: 'Method Not Allowed' };
     } catch (error) {
-        console.error('API Keys Error:', error);
-        return { statusCode: 500, body: JSON.stringify({ error: error.message }) };
+        console.error(' [API-KEYS DEBUG] Full Error:', error);
+        return { statusCode: 500, body: JSON.stringify({ error: error.message, stack: error.stack }) };
     }
 };
