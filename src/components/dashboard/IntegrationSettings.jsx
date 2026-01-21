@@ -22,6 +22,8 @@ const IntegrationSettings = () => {
     const [newKeyName, setNewKeyName] = useState('');
     const [showKeyModal, setShowKeyModal] = useState(false);
     const [lastGeneratedKey, setLastGeneratedKey] = useState(null);
+    const [testingPos, setTestingPos] = useState(false);
+    const [testResult, setTestResult] = useState(null);
 
     useEffect(() => {
         if (user?.id) {
@@ -59,6 +61,39 @@ const IntegrationSettings = () => {
             console.error('Error fetching settings:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+
+    const handleTestConnection = async () => {
+        if (!settings.pos_webhook_url) return alert('Please enter a Webhook URL first');
+        setTestingPos(true);
+        setTestResult(null);
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch('/.netlify/functions/test-pos-connection', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    pos_webhook_url: settings.pos_webhook_url,
+                    pos_api_key: settings.pos_api_key,
+                    pos_provider: settings.pos_provider
+                })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                setTestResult({ success: true, message: data.message });
+            } else {
+                setTestResult({ success: false, message: data.error || data.details || 'Test failed' });
+            }
+        } catch (error) {
+            setTestResult({ success: false, message: 'Connection error' });
+        } finally {
+            setTestingPos(false);
+            setTimeout(() => setTestResult(null), 5000);
         }
     };
 
@@ -174,6 +209,35 @@ const IntegrationSettings = () => {
                                     value={settings.pos_api_key || ''}
                                     onChange={(e) => setSettings({ ...settings, pos_api_key: e.target.value })}
                                 />
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-4 pt-4 border-t dark:border-gray-700 mt-4">
+                            <button
+                                type="button"
+                                onClick={handleTestConnection}
+                                disabled={testingPos || !settings.pos_webhook_url}
+                                className={`flex-1 py-3 px-6 rounded-xl font-black text-[11px] uppercase tracking-[0.1em] shadow-lg transition-all border-2 ${testResult?.success ? 'bg-green-500 border-green-500 text-white shadow-green-500/20' :
+                                    testResult?.success === false ? 'bg-red-500 border-red-500 text-white shadow-red-500/20' :
+                                        'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 text-gray-500 hover:text-yum-primary hover:border-yum-primary'
+                                    } disabled:opacity-50`}
+                            >
+                                {testingPos ? (
+                                    <span className="flex items-center justify-center gap-2">
+                                        <svg className="animate-spin h-3 w-3 text-current" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Testing...
+                                    </span>
+                                ) : testResult ? (
+                                    <span>{testResult.message}</span>
+                                ) : (
+                                    'Test Connection'
+                                )}
+                            </button>
+                            <div className="text-[10px] text-gray-400 font-medium max-w-[180px] leading-tight italic">
+                                Heads up: We'll send a dummy order to verify your URL is reachable.
                             </div>
                         </div>
                     </div>
