@@ -1,6 +1,7 @@
 import { query } from './db.js';
 import { POSManager } from './pos-adapters/pos-manager.js';
 import { getStripe } from './utils/stripe-client.js';
+import { formatOrderForPOS } from './utils/pos-formatter.js';
 
 export const handler = async (event, context) => {
     if (event.httpMethod === 'OPTIONS') {
@@ -64,9 +65,12 @@ export const handler = async (event, context) => {
 
             console.log(`💰 Payment confirmed for order ${orderId}`);
 
-            // 1. Update order status
+            // 1. Update order status and fetch enriched data
             const updateResult = await query(
-                'UPDATE orders SET payment_status = $1, stripe_payment_intent_id = $2 WHERE id = $3 RETURNING *',
+                `UPDATE orders o 
+                 SET payment_status = $1, stripe_payment_intent_id = $2 
+                 WHERE o.id = $3 
+                 RETURNING o.*, (SELECT restaurant_name FROM users WHERE id = o.restaurant_id) as restaurant_name`,
                 ['paid', session.payment_intent, orderId]
             );
 
@@ -83,7 +87,10 @@ export const handler = async (event, context) => {
                 if (settingsResult.rows.length > 0) {
                     const settings = settingsResult.rows[0];
                     if (settings.pos_enabled) {
-                        const posStatus = await POSManager.sendOrder(settings, order);
+                        // Format the order for POS (Standardized Items Array)
+                        const formattedOrder = formatOrderForPOS(order, order.items);
+
+                        const posStatus = await POSManager.sendOrder(settings, formattedOrder);
 
                         if (posStatus.success && posStatus.external_id) {
                             await query(

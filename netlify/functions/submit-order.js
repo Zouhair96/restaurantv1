@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { POSManager } from './pos-adapters/pos-manager.js';
 import { getStripe } from './utils/stripe-client.js';
+import { formatOrderForPOS } from './utils/pos-formatter.js';
 
 export const handler = async (event, context) => {
     // Allow CORS
@@ -124,10 +125,12 @@ export const handler = async (event, context) => {
         const newOrder = {
             id: orderResult.rows[0].id,
             restaurant_id: restaurantId,
+            restaurant_name: restaurantResult.rows[0].restaurant_name,
             order_type: orderType,
             table_number: tableNumber,
             delivery_address: deliveryAddress,
             payment_method: paymentMethod,
+            payment_status: paymentMethod === 'cash' ? 'pending_cash' : 'pending',
             items: items,
             total_price: totalPrice,
             created_at: orderResult.rows[0].created_at
@@ -183,42 +186,43 @@ export const handler = async (event, context) => {
         }
 
         // --- POS INTEGRATION TRIGGER ---
-        // Only trigger POS sync immediately for CASH orders. 
-        // For CC, we wait for Webhook (payment confirmation).
+        // Trigger POS sync IMMEDIATELY for all orders.
+        // For CC orders, it shows up as "pending payment".
         let posStatus = { success: false, skipped: true };
-        if (paymentMethod === 'cash') {
-            try {
-                // Update restaurant's owed balance
+        try {
+            // Update restaurant's owed balance if it's a cash order
+            if (paymentMethod === 'cash') {
                 await query(
                     'UPDATE users SET owed_commission_balance = COALESCE(owed_commission_balance, 0) + $1 WHERE id = $2',
                     [commissionAmount, restaurantId]
                 );
+            }
 
-                // Fetch integration settings
-                const settingsResult = await query(
-                    'SELECT * FROM integration_settings WHERE restaurant_id = $1',
-                    [restaurantId]
-                );
+            // Fetch integration settings
+            const settingsResult = await query(
+                'SELECT * FROM integration_settings WHERE restaurant_id = $1',
+                [restaurantId]
+            );
 
-                if (settingsResult.rows.length > 0) {
-                    const settings = settingsResult.rows[0];
-                    if (settings.pos_enabled) {
-                        posStatus = await POSManager.sendOrder(settings, newOrder);
+            if (settingsResult.rows.length > 0) {
+                const settings = settingsResult.rows[0];
+                if (settings.pos_enabled) {
+                    // Format the order for POS (Standardized Items Array)
+                    const formattedOrder = formatOrderForPOS(newOrder, items);
 
-                        if (posStatus.success && posStatus.external_id) {
-                            await query(
-                                'UPDATE orders SET external_id = $1 WHERE id = $2',
-                                [posStatus.external_id, newOrder.id]
-                            );
-                        }
+                    posStatus = await POSManager.sendOrder(settings, formattedOrder);
+
+                    if (posStatus.success && posStatus.external_id) {
+                        await query(
+                            'UPDATE orders SET external_id = $1 WHERE id = $2',
+                            [posStatus.external_id, newOrder.id]
+                        );
                     }
                 }
-            } catch (posError) {
-                console.error('⚠️ POS Integration Error:', posError.message);
-                posStatus = { success: false, error: posError.message };
             }
-        } else {
-            posStatus = { success: false, skipped: true, reason: 'Waiting for payment confirmation' };
+        } catch (posError) {
+            console.error('⚠️ POS Integration Error:', posError.message);
+            posStatus = { success: false, error: posError.message };
         }
 
         return {
