@@ -178,7 +178,7 @@ const AdminDashboard = () => {
                                                 </div>
                                             </td>
                                             <td className="px-8 py-5 text-gray-700 dark:text-gray-300 font-black">
-                                                {u.role === 'restaurant' ? (
+                                                {u.role !== 'admin' ? (
                                                     <span className={parseFloat(u.owed_commission_balance) > 0 ? "text-orange-500" : "text-gray-400"}>
                                                         {parseFloat(u.owed_commission_balance || 0).toFixed(2)}€
                                                     </span>

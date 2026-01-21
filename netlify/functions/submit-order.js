@@ -190,7 +190,7 @@ export const handler = async (event, context) => {
             try {
                 // Update restaurant's owed balance
                 await query(
-                    'UPDATE users SET owed_commission_balance = owed_commission_balance + $1 WHERE id = $2',
+                    'UPDATE users SET owed_commission_balance = COALESCE(owed_commission_balance, 0) + $1 WHERE id = $2',
                     [commissionAmount, restaurantId]
                 );
 
