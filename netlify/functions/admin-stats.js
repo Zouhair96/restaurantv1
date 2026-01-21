@@ -42,9 +42,9 @@ export const handler = async (event, context) => {
             WITH OrderStats AS (
                 SELECT 
                     COUNT(*) as total_orders,
-                    SUM(total_price * 0.02) as total_revenue,
+                    SUM(commission_amount) as total_revenue,
                     COUNT(CASE WHEN created_at > NOW() - INTERVAL '30 days' THEN 1 END) as monthly_orders,
-                    SUM(CASE WHEN created_at > NOW() - INTERVAL '30 days' THEN total_price * 0.02 ELSE 0 END) as monthly_revenue
+                    SUM(CASE WHEN created_at > NOW() - INTERVAL '30 days' THEN commission_amount ELSE 0 END) as monthly_revenue
                 FROM orders
                 WHERE status != 'cancelled'
             ),

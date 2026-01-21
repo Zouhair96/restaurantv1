@@ -140,6 +140,7 @@ const AdminDashboard = () => {
                                         <th className="px-8 py-5">User & Restaurant</th>
                                         <th className="px-8 py-5">Access Level</th>
                                         <th className="px-8 py-5">Plan</th>
+                                        <th className="px-8 py-5">Owed Balance</th>
                                         <th className="px-8 py-5">Status</th>
                                         <th className="px-8 py-5">Joined Date</th>
                                         <th className="px-8 py-5 text-right">Actions</th>
@@ -175,6 +176,13 @@ const AdminDashboard = () => {
                                                     <span className={`w-2 h-2 rounded-full ${u.subscription_plan === 'Enterprise' ? 'bg-orange-500' : u.subscription_plan === 'Pro' ? 'bg-indigo-500' : 'bg-gray-400'}`}></span>
                                                     <span className="font-bold text-gray-700 dark:text-gray-300 capitalize">{u.subscription_plan || 'Starter'}</span>
                                                 </div>
+                                            </td>
+                                            <td className="px-8 py-5 text-gray-700 dark:text-gray-300 font-black">
+                                                {u.role === 'restaurant' ? (
+                                                    <span className={parseFloat(u.owed_commission_balance) > 0 ? "text-orange-500" : "text-gray-400"}>
+                                                        {parseFloat(u.owed_commission_balance || 0).toFixed(2)}€
+                                                    </span>
+                                                ) : '-'}
                                             </td>
                                             <td className="px-8 py-5">
                                                 <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-tighter ${u.subscription_status === 'active'

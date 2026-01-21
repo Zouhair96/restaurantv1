@@ -40,7 +40,8 @@ export const handler = async (event, context) => {
         // 4. Fetch Users
         const text = `
             SELECT id, name, email, restaurant_name, role, 
-                   subscription_plan, subscription_status, subscription_start_date, created_at
+                   subscription_plan, subscription_status, subscription_start_date, 
+                   owed_commission_balance, created_at
             FROM users
             ORDER BY created_at DESC
         `;
