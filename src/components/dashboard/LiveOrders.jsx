@@ -157,7 +157,7 @@ const LiveOrders = ({ onSelectOrder }) => {
                 <div className="flex flex-col gap-3">
                     {/* Status Filters */}
                     <div className="flex flex-wrap gap-2">
-                        {['pending', 'preparing', 'ready', 'completed'].map(status => (
+                        {['pending', 'preparing', 'ready', 'completed', 'cancelled'].map(status => (
                             <button
                                 key={status}
                                 onClick={() => setFilter(status)}

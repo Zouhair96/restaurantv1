@@ -139,21 +139,45 @@ const OrderGrid = () => {
 
                         <div className="flex gap-3 mt-auto">
                             {order.status === 'pending' && (
-                                <button
-                                    onClick={() => handleUpdateStatus(order.id, 'preparing')}
-                                    className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-xl text-sm font-bold transition-all shadow-lg shadow-blue-500/30"
-                                >
-                                    Start Preparing
-                                </button>
+                                <>
+                                    <button
+                                        onClick={() => handleUpdateStatus(order.id, 'preparing')}
+                                        className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-xl text-sm font-bold transition-all shadow-lg shadow-blue-500/30"
+                                    >
+                                        Start Preparing
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            if (window.confirm('⚠️ Cancel this order? This may incur a 2% commission fee.')) {
+                                                handleUpdateStatus(order.id, 'cancelled')
+                                            }
+                                        }}
+                                        className="px-4 bg-red-500 hover:bg-red-600 text-white py-2 rounded-xl text-sm font-bold transition-all"
+                                    >
+                                        ✕
+                                    </button>
+                                </>
                             )}
 
                             {order.status === 'preparing' && (
-                                <button
-                                    onClick={() => order.order_type === 'take_out' ? openDriverModal(order) : handleUpdateStatus(order.id, 'ready')}
-                                    className="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-xl text-sm font-bold transition-all shadow-lg shadow-green-500/30"
-                                >
-                                    {order.order_type === 'take_out' ? 'Assign Driver' : 'Mark Ready'}
-                                </button>
+                                <>
+                                    <button
+                                        onClick={() => order.order_type === 'take_out' ? openDriverModal(order) : handleUpdateStatus(order.id, 'ready')}
+                                        className="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-xl text-sm font-bold transition-all shadow-lg shadow-green-500/30"
+                                    >
+                                        {order.order_type === 'take_out' ? 'Assign Driver' : 'Mark Ready'}
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            if (window.confirm('⚠️ Cancel this order? This may incur a 2% commission fee.')) {
+                                                handleUpdateStatus(order.id, 'cancelled')
+                                            }
+                                        }}
+                                        className="px-4 bg-red-500 hover:bg-red-600 text-white py-2 rounded-xl text-sm font-bold transition-all"
+                                    >
+                                        ✕
+                                    </button>
+                                </>
                             )}
 
                             {order.status === 'out_for_delivery' && (
