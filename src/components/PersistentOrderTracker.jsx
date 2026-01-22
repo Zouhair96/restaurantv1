@@ -49,22 +49,39 @@ const PersistentOrderTracker = ({ orderId, onClose }) => {
     }
 
     const showNotification = (message) => {
-        // Request permission and show notification
-        if ('Notification' in window && Notification.permission === 'granted') {
-            new Notification('YumYum Order Update', {
-                body: message,
-                icon: '/logo.png',
-                badge: '/logo.png'
-            })
-        } else if ('Notification' in window && Notification.permission !== 'denied') {
-            Notification.requestPermission().then(permission => {
-                if (permission === 'granted') {
-                    new Notification('YumYum Order Update', {
-                        body: message,
-                        icon: '/logo.png'
-                    })
-                }
-            })
+        // Request permission if not granted
+        if ('Notification' in window) {
+            if (Notification.permission === 'granted') {
+                new Notification('🎉 YumYum Order Ready!', {
+                    body: message,
+                    icon: '/logo.png',
+                    badge: '/logo.png',
+                    tag: `order-${orderId}`,
+                    requireInteraction: true, // Notification stays until user interacts
+                    vibrate: [200, 100, 200, 100, 200],
+                    actions: [
+                        { action: 'view', title: '👀 View Order', icon: '/logo.png' },
+                        { action: 'close', title: 'Dismiss' }
+                    ],
+                    data: {
+                        orderId: orderId,
+                        url: `/order/${orderId}`
+                    }
+                })
+            } else if (Notification.permission !== 'denied') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        new Notification('🎉 YumYum Order Ready!', {
+                            body: message,
+                            icon: '/logo.png',
+                            badge: '/logo.png',
+                            tag: `order-${orderId}`,
+                            requireInteraction: true,
+                            vibrate: [200, 100, 200, 100, 200]
+                        })
+                    }
+                })
+            }
         }
     }
 

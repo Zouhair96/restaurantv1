@@ -28,6 +28,7 @@ import { AuthProvider } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
 import { CartProvider } from './context/CartContext'
 import PersistentOrderTracker from './components/PersistentOrderTracker'
+import PWAInstallPrompt from './components/PWAInstallPrompt'
 
 function App() {
   const [activeOrderId, setActiveOrderId] = React.useState(() => {
@@ -65,6 +66,7 @@ function App() {
                   onClose={handleCloseTracker}
                 />
               )}
+              <PWAInstallPrompt />
               <ScrollToTop />
               <Routes>
                 <Route path="/" element={<Home />} />
