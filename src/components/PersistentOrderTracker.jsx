@@ -41,7 +41,9 @@ const PersistentOrderTracker = ({ orderId, onClose }) => {
 
     const playCompletionSound = () => {
         try {
-            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3')
+            // Professional success notification sound
+            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3')
+            audio.volume = 0.7 // Slightly lower volume for pleasantness
             audio.play().catch(e => console.warn('Audio play failed:', e))
         } catch (err) {
             console.error('Audio error:', err)
