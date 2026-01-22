@@ -101,6 +101,18 @@ export const handler = async (event, context) => {
                     }
                 }
             }
+        } else if (stripeEvent.type === 'setup_intent.succeeded') {
+            const setupIntent = stripeEvent.data.object;
+            const restaurantId = setupIntent.metadata.restaurantId;
+            const paymentMethodId = setupIntent.payment_method;
+
+            if (restaurantId && paymentMethodId) {
+                console.log(`💳 Saving payment method ${paymentMethodId} for restaurant ${restaurantId}`);
+                await query(
+                    'UPDATE users SET stripe_payment_method_id = $1 WHERE id = $2',
+                    [paymentMethodId, restaurantId]
+                );
+            }
         } else if (stripeEvent.type === 'account.updated') {
             const account = stripeEvent.data.object;
             if (account.details_submitted) {

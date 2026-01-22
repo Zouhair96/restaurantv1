@@ -190,12 +190,16 @@ export const handler = async (event, context) => {
         console.log(`🔍 [POS] Starting sync process for restaurant ${restaurantId} (#${newOrder.id})`);
 
         try {
+            // The commission will now be recorded when the order is ACCEPTED (manually or via 15-min auto-accept)
+            // as per the new "Marketing First" strategy.
+            /* 
             if (paymentMethod === 'cash') {
                 await query(
                     'UPDATE users SET owed_commission_balance = COALESCE(owed_commission_balance, 0) + $1 WHERE id = $2',
                     [commissionAmount, restaurantId]
                 );
             }
+            */
 
             const settingsResult = await query(
                 'SELECT * FROM integration_settings WHERE restaurant_id = $1',

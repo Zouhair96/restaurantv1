@@ -76,29 +76,111 @@ export const handler = async (event, context) => {
             };
         }
 
-        // Prepare update fields
-        let updateQuery = `
-            UPDATE orders 
-            SET status = $1, updated_at = CURRENT_TIMESTAMP
-        `;
-        let queryParams = [status, orderId];
+        // Update order status and handle commission recording for acceptance
+        let updateResult;
 
-        // If driver info is provided, update it
-        if (driver && status === 'out_for_delivery') {
-            updateQuery = `
+        if (status === 'preparing') {
+            // Check if already accepted to avoid double billing
+            const orderCheck = await query(
+                'SELECT commission_recorded, commission_amount FROM orders WHERE id = $1',
+                [orderId]
+            );
+
+            const alreadyRecorded = orderCheck.rows[0]?.commission_recorded;
+            const commissionAmount = orderCheck.rows[0]?.commission_amount || 0;
+
+            let updateQuery = `
                 UPDATE orders 
                 SET status = $1, 
-                    driver_name = $3, 
-                    driver_phone = $4,
-                    updated_at = CURRENT_TIMESTAMP
+                    updated_at = CURRENT_TIMESTAMP,
+                    accepted_at = COALESCE(accepted_at, CURRENT_TIMESTAMP),
+                    commission_recorded = TRUE
+                WHERE id = $2 
+                RETURNING id, status, updated_at, commission_recorded
             `;
-            queryParams = [status, orderId, driver.name, driver.phone];
+            updateResult = await query(updateQuery, [status, orderId]);
+
+            // If this is the first time it's being accepted, update the restaurant's balance
+            if (!alreadyRecorded && commissionAmount > 0) {
+                await query(
+                    'UPDATE users SET owed_commission_balance = COALESCE(owed_commission_balance, 0) + $1 WHERE id = $2',
+                    [commissionAmount, restaurantId]
+                );
+            }
+        } else if (status === 'cancelled') {
+            // --- 2-FREE-CANCELLATION POLICY ---
+            // 1. Get count of cancellations today
+            const cancelCountResult = await query(
+                `SELECT COUNT(*) FROM orders 
+                 WHERE restaurant_id = $1 AND status = 'cancelled' 
+                 AND updated_at >= CURRENT_DATE`,
+                [restaurantId]
+            );
+            const cancelCount = parseInt(cancelCountResult.rows[0].count);
+
+            // 2. Get order details to see if it was already billed
+            const orderInfo = await query(
+                'SELECT commission_recorded, commission_amount FROM orders WHERE id = $1',
+                [orderId]
+            );
+            const wasRecorded = orderInfo.rows[0]?.commission_recorded;
+            const commissionAmount = orderInfo.rows[0]?.commission_amount || 0;
+
+            // 3. Update status
+            updateResult = await query(
+                `UPDATE orders SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 
+                 RETURNING id, status, updated_at`,
+                [status, orderId]
+            );
+
+            let message = "Order cancelled.";
+
+            // 4. Handle refund logic
+            if (cancelCount < 2) {
+                // Within free limit - refund if it was billed
+                if (wasRecorded && commissionAmount > 0) {
+                    await query(
+                        'UPDATE users SET owed_commission_balance = GREATEST(0, COALESCE(owed_commission_balance, 0) - $1) WHERE id = $2',
+                        [commissionAmount, restaurantId]
+                    );
+                    message += " Commission was refunded (Daily free limit).";
+                }
+            } else {
+                // Limit exceeded - no refund
+                message += " We will still collect our 2% commission for this order. Tomorrow, your '2 Free Cancellations' limit will reset.";
+            }
+
+            return {
+                statusCode: 200,
+                headers,
+                body: JSON.stringify({
+                    success: true,
+                    order: updateResult.rows[0],
+                    message: message
+                })
+            };
+        } else {
+            // Standard update for other statuses
+            let updateQuery = `
+                UPDATE orders 
+                SET status = $1, updated_at = CURRENT_TIMESTAMP
+            `;
+            let queryParams = [status, orderId];
+
+            if (driver && status === 'out_for_delivery') {
+                updateQuery = `
+                    UPDATE orders 
+                    SET status = $1, 
+                        driver_name = $3, 
+                        driver_phone = $4,
+                        updated_at = CURRENT_TIMESTAMP
+                `;
+                queryParams = [status, orderId, driver.name, driver.phone];
+            }
+
+            updateQuery += ` WHERE id = $2 RETURNING id, status, driver_name, driver_phone, updated_at`;
+            updateResult = await query(updateQuery, queryParams);
         }
-
-        updateQuery += ` WHERE id = $2 RETURNING id, status, driver_name, driver_phone, updated_at`;
-
-        // Update order status
-        const updateResult = await query(updateQuery, queryParams);
 
         return {
             statusCode: 200,

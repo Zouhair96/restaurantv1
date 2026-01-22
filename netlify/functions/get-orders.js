@@ -42,6 +42,41 @@ export const handler = async (event, context) => {
         const decoded = jwt.verify(token, secret);
         const restaurantId = decoded.id;
 
+        // --- AUTO-ACCEPTANCE ROUTINE (Marketing First Strategy) ---
+        // Find pending orders older than 15 minutes
+        const autoAcceptResult = await query(
+            `SELECT id, commission_amount FROM orders 
+             WHERE restaurant_id = $1 AND status = 'pending' 
+             AND created_at < NOW() - INTERVAL '15 minutes'`,
+            [restaurantId]
+        );
+
+        if (autoAcceptResult.rows.length > 0) {
+            console.log(`[AUTO-ACCEPT] Processing ${autoAcceptResult.rows.length} orders for restaurant ${restaurantId}`);
+            for (const order of autoAcceptResult.rows) {
+                // Update order to preparing and mark as auto-accepted
+                await query(
+                    `UPDATE orders SET 
+                     status = 'preparing', 
+                     accepted_at = created_at + INTERVAL '15 minutes', 
+                     is_auto_accepted = TRUE, 
+                     commission_recorded = TRUE, 
+                     updated_at = CURRENT_TIMESTAMP 
+                     WHERE id = $1`,
+                    [order.id]
+                );
+
+                // Update restaurant commission balance
+                if (order.commission_amount > 0) {
+                    await query(
+                        'UPDATE users SET owed_commission_balance = COALESCE(owed_commission_balance, 0) + $1 WHERE id = $2',
+                        [order.commission_amount, restaurantId]
+                    );
+                }
+            }
+        }
+        // ------------------------------------------------------------
+
         // Get orders for this restaurant
         const result = await query(
             `SELECT id, order_type, table_number, delivery_address, payment_method, items, total_price, status, created_at, updated_at, driver_name, driver_phone, payment_status, commission_amount

@@ -25,6 +25,17 @@ const OrderGrid = () => {
             if (response.ok) {
                 const data = await response.json()
                 const activeOrders = (data.orders || []).filter(o => o.status !== 'completed' && o.status !== 'cancelled')
+
+                if (activeOrders.length > (orders || []).length) {
+                    const newPendingCount = activeOrders.filter(o => o.status === 'pending').length;
+                    const oldPendingCount = (orders || []).filter(o => o.status === 'pending').length;
+                    if (newPendingCount > oldPendingCount) {
+                        try {
+                            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+                            audio.play().catch(() => { });
+                        } catch (e) { }
+                    }
+                }
                 setOrders(activeOrders)
             }
         } catch (error) {
@@ -47,6 +58,10 @@ const OrderGrid = () => {
             })
 
             if (response.ok) {
+                const result = await response.json();
+                if (result.message) {
+                    alert(result.message);
+                }
                 fetchOrders() // Refresh immediately
                 setSelectedOrder(null) // Close modal if open
                 setDriverName('')
