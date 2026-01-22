@@ -27,14 +27,44 @@ import { LanguageProvider } from './context/LanguageContext'
 import { AuthProvider } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
 import { CartProvider } from './context/CartContext'
+import PersistentOrderTracker from './components/PersistentOrderTracker'
 
 function App() {
+  const [activeOrderId, setActiveOrderId] = React.useState(() => {
+    return localStorage.getItem('activeOrderId') || null
+  })
+
+  // Listen for new orders
+  React.useEffect(() => {
+    const handleNewOrder = (event) => {
+      const orderId = event.detail?.orderId
+      if (orderId) {
+        setActiveOrderId(orderId)
+        localStorage.setItem('activeOrderId', orderId)
+      }
+    }
+
+    window.addEventListener('orderPlaced', handleNewOrder)
+    return () => window.removeEventListener('orderPlaced', handleNewOrder)
+  }, [])
+
+  const handleCloseTracker = () => {
+    setActiveOrderId(null)
+    localStorage.removeItem('activeOrderId')
+  }
+
   return (
     <LanguageProvider>
       <AuthProvider>
         <ThemeProvider>
           <CartProvider>
             <Router>
+              {activeOrderId && (
+                <PersistentOrderTracker
+                  orderId={activeOrderId}
+                  onClose={handleCloseTracker}
+                />
+              )}
               <ScrollToTop />
               <Routes>
                 <Route path="/" element={<Home />} />
