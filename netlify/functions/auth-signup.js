@@ -60,7 +60,7 @@ export const handler = async (event, context) => {
 
         // Insert user
         const newUser = await query(
-            'INSERT INTO users (name, email, password_hash, restaurant_name, address, phone_number) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, name, email, restaurant_name, role',
+            'INSERT INTO users (name, email, password_hash, restaurant_name, address, phone_number) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, name, email, restaurant_name, role, stripe_payment_method_id',
             [name, email, passwordHash, restaurantName, address, phoneNumber]
         );
 

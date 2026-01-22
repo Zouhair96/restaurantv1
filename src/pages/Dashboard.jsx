@@ -73,7 +73,13 @@ const Dashboard = () => {
         )
     }
 
-    // Authenticated & Subscribed - Render Dashboard
+    // Check if payment method is set up (for new "Marketing First" strategy)
+    if (!user.stripe_payment_method_id) {
+        navigate('/payment-setup')
+        return null
+    }
+
+    // Authenticated & Subscribed & Payment Method Set - Render Dashboard
     return (
         <>
             {showOnboarding && <OnboardingOverlay onClose={handleCloseOnboarding} />}

@@ -24,7 +24,7 @@ export const handler = async (event, context) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
         // Check if user is admin
-        const userResult = await query('SELECT role FROM users WHERE id = $1', [decoded.id]);
+        const userResult = await query('SELECT id, role, email, name, owed_commission_balance, stripe_payment_method_id FROM users WHERE id = $1', [decoded.id]);
         if (userResult.rows.length === 0 || userResult.rows[0].role !== 'admin') {
             return { statusCode: 403, headers, body: JSON.stringify({ error: 'Forbidden' }) };
         }
@@ -45,7 +45,10 @@ export const handler = async (event, context) => {
         return {
             statusCode: 200,
             headers,
-            body: JSON.stringify(settings)
+            body: JSON.stringify({
+                settings,
+                user: userResult.rows[0]
+            })
         };
     } catch (error) {
         console.error('Get Admin Settings Error:', error);
