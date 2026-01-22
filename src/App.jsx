@@ -13,7 +13,6 @@ import Promotions from './pages/dashboard/Promotions'
 import Activity from './pages/dashboard/Activity'
 import Settings from './pages/dashboard/Settings'
 import BillingSettings from './pages/dashboard/BillingSettings'
-import PaymentOnboarding from './pages/PaymentOnboarding'
 import ApiDocs from './pages/dashboard/ApiDocs'
 import OrderConfirmation from './pages/OrderConfirmation'
 import Checkout from './pages/Checkout'
@@ -41,7 +40,6 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/demo" element={<Demo />} />
                 <Route path="/login" element={<Login />} />
-                <Route path="/payment-setup" element={<PaymentOnboarding />} />
                 <Route path="/admin" element={<AdminDashboard />} />
 
                 {/* Dashboard Routes */}

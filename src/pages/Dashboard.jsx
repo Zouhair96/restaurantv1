@@ -25,13 +25,6 @@ const Dashboard = () => {
         }
     }, [location, navigate])
 
-    // Check if payment method is set up (for new "Marketing First" strategy)
-    useEffect(() => {
-        if (user && hasSubscription && !user.stripe_payment_method_id) {
-            navigate('/payment-setup')
-        }
-    }, [user, hasSubscription, navigate])
-
     const handleCloseOnboarding = () => {
         setShowOnboarding(false)
     }
