@@ -153,9 +153,9 @@ const OrderGrid = () => {
                                                 handleUpdateStatus(order.id, 'cancelled')
                                             }
                                         }}
-                                        className="px-4 bg-red-500 hover:bg-red-600 text-white py-2 rounded-xl text-sm font-bold transition-all"
+                                        className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-black transition-all shadow-lg"
                                     >
-                                        Cancel
+                                        ❌ Cancel
                                     </button>
                                 </>
                             )}
@@ -174,9 +174,9 @@ const OrderGrid = () => {
                                                 handleUpdateStatus(order.id, 'cancelled')
                                             }
                                         }}
-                                        className="px-4 bg-red-500 hover:bg-red-600 text-white py-2 rounded-xl text-sm font-bold transition-all"
+                                        className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-black transition-all shadow-lg"
                                     >
-                                        Cancel
+                                        ❌ Cancel
                                     </button>
                                 </>
                             )}
