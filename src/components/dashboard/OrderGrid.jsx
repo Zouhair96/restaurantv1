@@ -154,7 +154,7 @@ const OrderGrid = () => {
                                         }}
                                         className="px-4 bg-red-500 hover:bg-red-600 text-white py-2 rounded-xl text-sm font-bold transition-all"
                                     >
-                                        ✕
+                                        Cancel
                                     </button>
                                 </>
                             )}
@@ -175,7 +175,7 @@ const OrderGrid = () => {
                                         }}
                                         className="px-4 bg-red-500 hover:bg-red-600 text-white py-2 rounded-xl text-sm font-bold transition-all"
                                     >
-                                        ✕
+                                        Cancel
                                     </button>
                                 </>
                             )}
