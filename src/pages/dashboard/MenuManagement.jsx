@@ -22,12 +22,35 @@ const MenuManagement = () => {
     const [editingMenu, setEditingMenu] = useState(null)
     const [selectedTemplate, setSelectedTemplate] = useState(null)
     const [isEditorOpen, setIsEditorOpen] = useState(false)
+    const [templates, setTemplates] = useState([])
+    const [isLoadingTemplates, setIsLoadingTemplates] = useState(true)
 
     useEffect(() => {
         if (user) {
             loadMenus()
         }
     }, [user])
+
+    useEffect(() => {
+        if (user) {
+            loadTemplates()
+        }
+    }, [user])
+
+    const loadTemplates = async () => {
+        try {
+            const token = localStorage.getItem('token')
+            const response = await fetch(`/.netlify/functions/templates?plan=${user.subscription_plan || 'starter'}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            const data = await response.json()
+            setTemplates(data)
+        } catch (error) {
+            console.error('Error loading templates:', error)
+        } finally {
+            setIsLoadingTemplates(false)
+        }
+    }
 
     const loadMenus = async () => {
         try {
@@ -72,25 +95,7 @@ const MenuManagement = () => {
 
     const hasMenu = savedMenus.length > 0
 
-    const templateConfig = {
-        starter: [
-            { id: 's1', name: 'Starter Template S1', image: s1Template, icon: '📄', description: 'Clean & Minimal' },
-            { id: 's2', name: 'Starter Template S2', image: s2Template, icon: '✨', description: 'Modern & Vibrant' }
-        ],
-        pro: [
-            { id: 'p1', name: 'Pro Template P1', image: p1Template, icon: '👑', description: 'Elegant & Dark' },
-            { id: 'p2', name: 'Pro Template P2', image: p2Template, icon: '🌿', description: 'Fresh & Trendy' },
-            { id: 'p3', name: 'Pro Template P3', image: p3Template, icon: '🏙️', description: 'Urban Street Style' }
-        ],
-        enterprise: [
-            { id: 'tacos', name: 'Tacos Edition', image: tacosTemplate, icon: '🌮', description: 'Dynamic • High Energy' },
-            { id: 'pizza', name: 'Pizza Party', image: pizzaTemplate, icon: '🍕', description: 'Full Display • Modern', isComingSoon: true },
-            { id: 'other', name: 'Other / Custom', image: saladTemplate, icon: '🍽️', description: 'Versatile Layout', isComingSoon: true }
-        ]
-    }
-
     const userPlan = (user?.subscription_plan || 'starter').toLowerCase()
-    const availableTemplates = templateConfig[userPlan] || templateConfig.starter
 
     return (
         <div className="space-y-6">
@@ -172,62 +177,68 @@ const MenuManagement = () => {
                 </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {availableTemplates.map((template) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {templates.map((template) => (
                     <div
                         key={template.id}
-                        onClick={() => {
-                            if (hasMenu) return
-                            setSelectedTemplate(template.id)
-                            setEditingMenu(null)
-                            setIsEditorOpen(true)
-                        }}
-                        className={`group relative rounded-2xl overflow-hidden transition-all duration-300 border-2 ${hasMenu
-                            ? 'cursor-not-allowed opacity-40 grayscale border-transparent'
-                            : 'cursor-pointer hover:shadow-2xl hover:scale-[1.02] border-transparent hover:border-yum-primary'}`}
+                        className="group bg-white dark:bg-white/5 backdrop-blur-xl rounded-[2.5rem] p-6 shadow-xl border border-white dark:border-white/5 hover:shadow-2xl transition-all hover:-translate-y-1 relative overflow-hidden"
                     >
-                        <div className="aspect-[9/16] bg-black relative">
-                            <img
-                                src={template.image}
-                                alt={template.name}
-                                className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                            />
-                            {/* Play Overlay */}
-                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 group-hover:bg-black/60 transition-colors">
-                                {hasMenu ? (
-                                    <div className="text-center px-4">
-                                        <div className="w-16 h-16 rounded-full bg-gray-800/80 backdrop-blur-sm flex items-center justify-center mb-4 mx-auto">
-                                            <span className="text-3xl text-gray-500">🔒</span>
-                                        </div>
-                                        <p className="text-white font-bold text-lg mb-1">Locked</p>
-                                        <p className="text-gray-400 text-xs">Delete current menu to unlock</p>
-                                    </div>
-                                ) : (
-                                    <>
-                                        <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                            <span className="text-3xl">{template.icon}</span>
-                                        </div>
-                                        <button className="px-6 py-2 bg-yum-primary text-white font-bold rounded-lg opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-                                            Create This Menu
-                                        </button>
-                                    </>
-                                )}
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform"></div>
+
+                        {/* Header */}
+                        <div className="flex items-center gap-4 mb-6 relative">
+                            <div className="w-16 h-16 rounded-2xl bg-indigo-100 dark:bg-indigo-500/10 flex items-center justify-center text-3xl shadow-sm border border-indigo-100 dark:border-indigo-500/20">
+                                {template.icon || '🍽️'}
                             </div>
-                            {template.isComingSoon && (
-                                <div className="absolute top-4 right-4 z-20">
-                                    <span className="bg-yum-primary text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg uppercase tracking-widest animate-pulse">
-                                        {t('features.comingSoon')}
-                                    </span>
-                                </div>
+                            <div>
+                                <h2 className="text-xl font-black text-gray-800 dark:text-white tracking-tight uppercase">{template.name}</h2>
+                                <span className="text-xs text-gray-400 font-medium">Template Active</span>
+                            </div>
+                        </div>
+
+                        {/* Preview */}
+                        <div className="h-40 bg-gray-50 dark:bg-black/20 rounded-2xl mb-6 border border-gray-100 dark:border-white/5 overflow-hidden flex items-center justify-center relative">
+                            {template.image_url ? (
+                                <img src={template.image_url} alt={template.name} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" />
+                            ) : (
+                                <div className="absolute inset-0 bg-indigo-500/5"></div>
                             )}
-                            {/* Label */}
-                            <div className="absolute bottom-0 inset-x-0 p-4 bg-gradient-to-t from-black/90 to-transparent">
-                                <h3 className="text-white font-bold text-lg">{template.name}</h3>
-                                <p className="text-gray-300 text-xs">{template.description}</p>
+                            <div className="relative z-10 flex flex-col items-center gap-2">
+                                <span className="p-3 bg-white/80 dark:bg-black/50 rounded-full backdrop-blur-md shadow-lg text-indigo-600 scale-90 group-hover:scale-100 transition-transform">
+                                    <QRCodeSVG value={`${window.location.origin}/${user.restaurant_name}`} size={60} />
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="space-y-3">
+                            <div className="grid grid-cols-2 gap-3">
+                                <a
+                                    href={`${window.location.origin}/${user.restaurant_name}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-600/20"
+                                >
+                                    👁️ Show
+                                </a>
+                                <Link
+                                    to={`/manage_menu_${template.template_key}`}
+                                    className="flex items-center justify-center gap-2 px-4 py-3 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-gray-700 dark:text-white font-bold rounded-xl transition-all border border-gray-100 dark:border-white/10 shadow-sm"
+                                >
+                                    ⚙️ Manage
+                                </Link>
                             </div>
                         </div>
                     </div>
                 ))}
+
+                {templates.length === 0 && !isLoadingTemplates && (
+                    <div className="col-span-full py-16 text-center bg-gray-50 dark:bg-white/5 rounded-[2.5rem] border-2 border-dashed border-gray-200 dark:border-white/10">
+                        <div className="text-4xl mb-4 opacity-50">📋</div>
+                        <h3 className="text-xl font-black text-gray-800 dark:text-white uppercase">No Templates Available</h3>
+                        <p className="text-gray-400">There are no templates deployed for your {userPlan} plan yet.</p>
+                    </div>
+                )}
             </div>
 
             <TemplateEditorModal
