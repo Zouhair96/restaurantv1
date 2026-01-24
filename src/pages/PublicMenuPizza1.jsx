@@ -103,7 +103,7 @@ const PublicMenuPizza1 = () => {
 
                         {/* 2. Exiting Item (Flies away top-left) */}
                         {exitingItem && (
-                            <div className="absolute inset-0 w-full h-full rounded-full overflow-hidden border-4 border-white shadow-2xl animate-[exitToTopLeft_1s_ease-in_forwards] z-20">
+                            <div className="absolute inset-0 w-full h-full rounded-full overflow-hidden border-4 border-white shadow-2xl animate-[exitToTopLeft_0.6s_cubic-bezier(0.5,0,1,0.5)_forwards] z-20">
                                 <img
                                     src={exitingItem.image}
                                     alt={exitingItem.name}
@@ -116,7 +116,7 @@ const PublicMenuPizza1 = () => {
                         <div
                             key={selectedItem.id}
                             className={`absolute inset-0 w-full h-full rounded-full overflow-hidden border-4 border-white shadow-2xl z-10 transition-transform duration-500
-                                ${exitingItem ? 'animate-[enterFromBottomRight_1s_cubic-bezier(0.25,1,0.5,1)_forwards]' : 'hover:scale-105'}`}
+                                ${exitingItem ? 'animate-[enterFromBottomRight_0.8s_cubic-bezier(0.34,1.56,0.64,1)_forwards] delay-[300ms] opacity-0' : 'hover:scale-105'}`}
                         >
                             <img
                                 src={selectedItem.image}
