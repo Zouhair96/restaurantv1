@@ -83,7 +83,7 @@ const DashboardWidgets = () => {
         const d = new Date()
         d.setDate(d.getDate() - (6 - i))
         const dateStr = d.toISOString().split('T')[0]
-        const stat = salesData.weeklyStats.find(s => s.date.split('T')[0] === dateStr)
+        const stat = (salesData.weeklyStats || []).find(s => s.date.split('T')[0] === dateStr)
         return stat ? parseFloat(stat.daily_total) : 0
     })
 
@@ -206,7 +206,7 @@ const DashboardWidgets = () => {
                             </div>
 
                             <div className="space-y-4">
-                                {healthData.metrics.map((metric, i) => (
+                                {(healthData.metrics || []).map((metric, i) => (
                                     <div key={i} className="space-y-2">
                                         <div className="flex justify-between items-center text-xs">
                                             <span className="text-gray-500 dark:text-gray-400 font-bold">{metric.label}</span>
