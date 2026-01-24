@@ -2,33 +2,45 @@ import { query } from './db.js';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 
+dotenv.config({ path: '../../.env' });
+dotenv.config({ path: './.env' });
 dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 export const handler = async (event, context) => {
-    const { httpMethod, headers, queryStringParameters, body } = event;
+    const headers = {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS'
+    };
+
+    if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers, body: '' };
 
     // Helper for auth
-    const authHeader = headers.authorization || headers.Authorization;
+    const authHeader = event.headers.authorization || event.headers.Authorization;
     let user = null;
     if (authHeader) {
         try {
             const token = authHeader.split(' ')[1];
-            user = jwt.verify(token, JWT_SECRET);
+            if (token && token !== 'null' && token !== 'undefined') {
+                user = jwt.verify(token, JWT_SECRET);
+            }
         } catch (err) {
-            console.error('JWT Error:', err);
+            console.error('[Templates Auth Error]:', err.message);
         }
     }
 
     try {
-        if (httpMethod === 'GET') {
-            const plan = queryStringParameters?.plan;
+        if (event.httpMethod === 'GET') {
+            const plan = event.queryStringParameters?.plan || '';
+
             let sql = 'SELECT * FROM templates WHERE status = $1';
             let params = ['active'];
 
-            if (plan && user?.role !== 'admin') {
-                // For restaurants, only show allowed plans
+            // Filter if plan is provided AND user is not admin
+            if (plan && (!user || user.role !== 'admin')) {
                 sql += ' AND allowed_plans ? $2';
                 params.push(plan.toLowerCase());
             }
@@ -36,69 +48,84 @@ export const handler = async (event, context) => {
             const result = await query(sql, params);
             return {
                 statusCode: 200,
-                body: JSON.stringify(result.rows),
-                headers: { 'Content-Type': 'application/json' }
+                headers,
+                body: JSON.stringify(result.rows)
             };
         }
 
-        if (httpMethod === 'POST') {
-            // Admin only check
+        if (event.httpMethod === 'POST') {
             if (!user || user.role !== 'admin') {
-                return { statusCode: 403, body: JSON.stringify({ error: 'Unauthorized' }) };
+                return { statusCode: 403, headers, body: JSON.stringify({ error: 'Unauthorized: Admin access required' }) };
             }
 
-            const { id, allowed_plans } = JSON.parse(body);
-            if (!id || !allowed_plans) {
-                return { statusCode: 400, body: JSON.stringify({ error: 'Missing required fields' }) };
+            if (!event.body) {
+                return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing request body' }) };
             }
 
-            const q = 'UPDATE templates SET allowed_plans = $1, updated_at = NOW() WHERE id = $2 RETURNING *';
-            const result = await query(q, [JSON.stringify(allowed_plans), id]);
+            let payload;
+            try {
+                payload = JSON.parse(event.body);
+            } catch (e) {
+                return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid JSON body' }) };
+            }
+
+            const { id, allowed_plans } = payload;
+            if (id === undefined || !allowed_plans) {
+                return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing id or allowed_plans' }) };
+            }
+
+            const targetId = parseInt(id);
+            if (isNaN(targetId)) {
+                return { statusCode: 400, headers, body: JSON.stringify({ error: 'ID must be an integer' }) };
+            }
+
+            const q = 'UPDATE templates SET allowed_plans = $1::jsonb, updated_at = NOW() WHERE id = $2 RETURNING *';
+            const result = await query(q, [JSON.stringify(allowed_plans), targetId]);
 
             if (result.rowCount === 0) {
-                return { statusCode: 404, body: JSON.stringify({ error: 'Template not found' }) };
+                return { statusCode: 404, headers, body: JSON.stringify({ error: 'Template not found' }) };
             }
 
             return {
                 statusCode: 200,
-                body: JSON.stringify(result.rows[0]),
-                headers: { 'Content-Type': 'application/json' }
+                headers,
+                body: JSON.stringify(result.rows[0])
             };
         }
 
-        if (httpMethod === 'DELETE') {
-            // Admin only check
+        if (event.httpMethod === 'DELETE') {
             if (!user || user.role !== 'admin') {
-                return { statusCode: 403, body: JSON.stringify({ error: 'Unauthorized' }) };
+                return { statusCode: 403, headers, body: JSON.stringify({ error: 'Unauthorized' }) };
             }
 
-            const { id } = JSON.parse(body);
-            if (!id) {
-                return { statusCode: 400, body: JSON.stringify({ error: 'Missing template ID' }) };
-            }
-
+            const { id } = JSON.parse(event.body);
+            const targetId = parseInt(id);
             const sql = 'DELETE FROM templates WHERE id = $1 RETURNING *';
-            const result = await query(sql, [id]);
+            const result = await query(sql, [targetId]);
 
             if (result.rowCount === 0) {
-                return { statusCode: 404, body: JSON.stringify({ error: 'Template not found' }) };
+                return { statusCode: 404, headers, body: JSON.stringify({ error: 'Template not found' }) };
             }
 
             return {
                 statusCode: 200,
-                body: JSON.stringify({ message: 'Template deleted successfully' }),
-                headers: { 'Content-Type': 'application/json' }
+                headers,
+                body: JSON.stringify({ message: 'Template deleted' })
             };
         }
 
-        return { statusCode: 405, body: 'Method Not Allowed' };
+        return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method Not Allowed' }) };
 
     } catch (error) {
-        console.error('API Error:', error);
+        console.error('[Templates CRITICAL ERROR]:', error);
         return {
             statusCode: 500,
-            body: JSON.stringify({ error: error.message }),
-            headers: { 'Content-Type': 'application/json' }
+            headers,
+            body: JSON.stringify({
+                error: 'Operation Failed',
+                message: error.message,
+                details: 'Please check database triggers and constraints.'
+            })
         };
     }
 };

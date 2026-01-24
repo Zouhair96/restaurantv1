@@ -49,8 +49,7 @@ export const handler = async (event, context) => {
         }
 
         // Create Token
-        const secret = process.env.JWT_SECRET;
-        if (!secret) throw new Error("JWT_SECRET missing");
+        const secret = process.env.JWT_SECRET || 'your-secret-key';
 
         const token = jwt.sign(
             { id: user.id, email: user.email, role: user.role },

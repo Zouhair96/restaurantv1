@@ -1,8 +1,9 @@
 import pg from 'pg';
 import dotenv from 'dotenv';
 
-dotenv.config({ path: '../../.env' }); // Try to find it in the root from functions/
-dotenv.config(); // Also try standard
+dotenv.config({ path: '../../.env' }); // Root from functions/
+dotenv.config({ path: './.env' });      // Local
+dotenv.config();                        // Standard path lookup
 
 const { Pool } = pg;
 
