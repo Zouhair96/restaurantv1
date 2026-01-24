@@ -393,7 +393,20 @@ const ManageMenuPizza1 = () => {
                     <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                         {items.map((item) => (
                             <tr key={item.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/20 transition-colors">
-                                <td className="p-6 font-bold text-gray-900 dark:text-white">{item.name}</td>
+                                <td className="p-6">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-100 shrink-0 border border-gray-100 dark:border-gray-600 relative group">
+                                            {item.image ? (
+                                                <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                                    <HiPhoto className="w-6 h-6" />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <span className="font-bold text-gray-900 dark:text-white">{item.name}</span>
+                                    </div>
+                                </td>
                                 <td className="p-6">
                                     <select
                                         value={item.category}
