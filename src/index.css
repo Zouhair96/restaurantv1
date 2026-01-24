@@ -165,31 +165,32 @@
     }
   }
 
-  /* Food Reveal Animations - Fluent Sweep */
-  @keyframes enterFromBottomRight {
+  /* Food Reveal Animations - Wheel Rotation */
+  /* The pivot point is handled in the component class (transform-origin) */
+  @keyframes wheelEnterRight {
     0% {
       opacity: 0;
-      transform: translate(80%, 80%) scale(0.6) rotate(90deg);
+      transform: rotate(60deg);
       filter: blur(4px);
     }
 
     100% {
       opacity: 1;
-      transform: translate(0, 0) scale(1) rotate(0deg);
+      transform: rotate(0deg);
       filter: blur(0);
     }
   }
 
-  @keyframes exitToTopLeft {
+  @keyframes wheelExitLeft {
     0% {
       opacity: 1;
-      transform: translate(0, 0) scale(1) rotate(0deg);
+      transform: rotate(0deg);
       filter: blur(0);
     }
 
     100% {
       opacity: 0;
-      transform: translate(-80%, -80%) scale(0.6) rotate(-90deg);
+      transform: rotate(-60deg);
       filter: blur(4px);
     }
   }
@@ -207,7 +208,6 @@
     100% {
       opacity: 0;
       transform: translateY(-60px) scale(1.5) translateX(10px);
-      /* Slight drift */
     }
   }
 }
