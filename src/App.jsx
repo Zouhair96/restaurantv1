@@ -26,6 +26,7 @@ import ManageMenuPizza1 from './pages/ManageMenuPizza1'
 import ScrollToTop from './components/ScrollToTop'
 import { LanguageProvider } from './context/LanguageContext'
 import { AuthProvider } from './context/AuthContext'
+import { ClientAuthProvider } from './context/ClientAuthContext'
 import { ThemeProvider } from './context/ThemeContext'
 import { CartProvider } from './context/CartContext'
 import PersistentOrderTracker from './components/PersistentOrderTracker'
@@ -58,52 +59,54 @@ function App() {
   return (
     <LanguageProvider>
       <AuthProvider>
-        <ThemeProvider>
-          <CartProvider>
-            <Router>
-              {activeOrderId && (
-                <PersistentOrderTracker
-                  orderId={activeOrderId}
-                  onClose={handleCloseTracker}
-                />
-              )}
-              <PWAInstallPrompt />
-              <ScrollToTop />
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/demo" element={<Demo />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/admin" element={<AdminDashboard />} />
+        <ClientAuthProvider>
+          <ThemeProvider>
+            <CartProvider>
+              <Router>
+                {activeOrderId && (
+                  <PersistentOrderTracker
+                    orderId={activeOrderId}
+                    onClose={handleCloseTracker}
+                  />
+                )}
+                <PWAInstallPrompt />
+                <ScrollToTop />
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/demo" element={<Demo />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/admin" element={<AdminDashboard />} />
 
-                {/* Dashboard Routes */}
-                <Route path="/dashboard" element={<Dashboard />}>
-                  <Route index element={<Overview />} />
-                  <Route path="menu" element={<MenuManagement />} />
-                  <Route path="analytics" element={<Analytics />} />
-                  <Route path="team" element={<Team />} />
-                  <Route path="promos" element={<Promotions />} />
-                  <Route path="activity" element={<Activity />} />
+                  {/* Dashboard Routes */}
+                  <Route path="/dashboard" element={<Dashboard />}>
+                    <Route index element={<Overview />} />
+                    <Route path="menu" element={<MenuManagement />} />
+                    <Route path="analytics" element={<Analytics />} />
+                    <Route path="team" element={<Team />} />
+                    <Route path="promos" element={<Promotions />} />
+                    <Route path="activity" element={<Activity />} />
 
 
 
-                  <Route path="settings" element={<Settings />} />
-                </Route>
+                    <Route path="settings" element={<Settings />} />
+                  </Route>
 
-                <Route path="/profile" element={<Navigate to="/dashboard" replace />} />
+                  <Route path="/profile" element={<Navigate to="/dashboard" replace />} />
 
-                <Route path="/checkout" element={<Checkout />} />
-                <Route path="/pricing/:planId" element={<PlanDetails />} />
-                <Route path="/order/:orderId" element={<OrderConfirmation />} />
-                <Route path="/testme" element={<TestMenu />} />
-                <Route path="/menu_pizza1" element={<PublicMenuPizza1 />} />
-                <Route path="/manage_menu_pizza1" element={<ManageMenuPizza1 />} />
+                  <Route path="/checkout" element={<Checkout />} />
+                  <Route path="/pricing/:planId" element={<PlanDetails />} />
+                  <Route path="/order/:orderId" element={<OrderConfirmation />} />
+                  <Route path="/testme" element={<TestMenu />} />
+                  <Route path="/menu_pizza1" element={<PublicMenuPizza1 />} />
+                  <Route path="/manage_menu_pizza1" element={<ManageMenuPizza1 />} />
 
-                {/* Public Menu Route - Must be last to avoid conflicts */}
-                <Route path="/:restaurantName" element={<PublicMenu />} />
-              </Routes>
-            </Router>
-          </CartProvider>
-        </ThemeProvider>
+                  {/* Public Menu Route - Must be last to avoid conflicts */}
+                  <Route path="/:restaurantName" element={<PublicMenu />} />
+                </Routes>
+              </Router>
+            </CartProvider>
+          </ThemeProvider>
+        </ClientAuthProvider>
       </AuthProvider>
     </LanguageProvider>
   )
