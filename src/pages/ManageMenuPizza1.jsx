@@ -18,7 +18,16 @@ const ManageMenuPizza1 = () => {
     useEffect(() => {
         const storedManagerItems = localStorage.getItem('pizza_time_manager_items');
         if (storedManagerItems) {
-            setItems(JSON.parse(storedManagerItems));
+            try {
+                const parsedItems = JSON.parse(storedManagerItems);
+                if (Array.isArray(parsedItems)) {
+                    // Filter out nulls or invalid items to prevent crashes
+                    const validItems = parsedItems.filter(item => item && item.id);
+                    setItems(validItems);
+                }
+            } catch (error) {
+                console.error('Failed to parse manager items:', error);
+            }
         }
     }, []);
 

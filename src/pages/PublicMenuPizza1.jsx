@@ -27,7 +27,16 @@ const PublicMenuPizza1 = () => {
     useEffect(() => {
         const storedItems = localStorage.getItem('pizza_time_menu_items');
         if (storedItems) {
-            setMenuItems(JSON.parse(storedItems));
+            try {
+                const parsedItems = JSON.parse(storedItems);
+                if (Array.isArray(parsedItems)) {
+                    // Filter out nulls or invalid items
+                    const validItems = parsedItems.filter(item => item && item.id);
+                    setMenuItems(validItems);
+                }
+            } catch (error) {
+                console.error('Failed to parse public menu items:', error);
+            }
         }
     }, []);
 
