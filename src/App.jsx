@@ -80,6 +80,7 @@ function App() {
                   <Route path="team" element={<Team />} />
                   <Route path="promos" element={<Promotions />} />
                   <Route path="activity" element={<Activity />} />
+                  <Route path="templates" element={<Templates />} />
 
 
                   <Route path="settings" element={<Settings />} />
@@ -91,7 +92,9 @@ function App() {
                 <Route path="/pricing/:planId" element={<PlanDetails />} />
                 <Route path="/order/:orderId" element={<OrderConfirmation />} />
                 <Route path="/testme" element={<TestMenu />} />
-                {/* <Route path="/simulator" element={<Simulator />} /> */}
+                <Route path="/menu_pizza1" element={<PublicMenuPizza1 />} />
+                <Route path="/manage_menu_pizza1" element={<ManageMenuPizza1 />} />
+
                 {/* Public Menu Route - Must be last to avoid conflicts */}
                 <Route path="/:restaurantName" element={<PublicMenu />} />
               </Routes>
