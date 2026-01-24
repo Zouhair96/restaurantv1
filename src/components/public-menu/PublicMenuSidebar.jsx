@@ -4,7 +4,7 @@ import { HiXMark, HiUser, HiEnvelope, HiLockClosed, HiArrowRightOnRectangle, HiA
 import { useClientAuth } from '../../context/ClientAuthContext';
 import { translations } from '../../translations';
 
-const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDarkMode, setIsDarkMode }) => {
+const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDarkMode, setIsDarkMode, themeColor = '#f97316' }) => {
     const [view, setView] = useState('welcome'); // 'welcome', 'login', 'signup', 'profile', 'forgot-password'
     const [language, setLanguage] = useState('FR'); // 'FR', 'EN'
     const [clientUser, setClientUser] = useState(null);
@@ -138,7 +138,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
                 ? 'bg-[#1a1c23] border-white/5'
                 : 'bg-gray-50 border-gray-100'}`}>
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-yum-primary/20 flex items-center justify-center text-yum-primary">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${themeColor}20`, color: themeColor }}>
                         <HiOutlineUserCircle size={24} />
                     </div>
                     <div>
@@ -171,7 +171,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
 
                 {view === 'welcome' && (
                     <div className="animate-fade-in flex flex-col items-center justify-center h-full text-center -mt-10">
-                        <div className="w-24 h-24 bg-orange-100 rounded-full flex items-center justify-center mb-6 text-orange-500">
+                        <div className="w-24 h-24 rounded-full flex items-center justify-center mb-6" style={{ backgroundColor: `${themeColor}20`, color: themeColor }}>
                             <HiOutlineUserCircle size={48} />
                         </div>
                         <h3 className={`text-2xl font-black mb-4 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -184,7 +184,8 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
                         <div className="w-full space-y-4">
                             <button
                                 onClick={() => setView('login')}
-                                className="w-full py-4 bg-yum-primary text-white font-black rounded-xl hover:bg-red-500 transition-all shadow-lg shadow-yum-primary/20"
+                                className="w-full py-4 text-white font-black rounded-xl transition-all shadow-lg"
+                                style={{ backgroundColor: themeColor, boxShadow: `0 10px 15px -3px ${themeColor}40` }}
                             >
                                 Login
                             </button>
@@ -235,7 +236,8 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full py-4 bg-yum-primary text-white font-black rounded-xl hover:bg-red-500 transition-all flex items-center justify-center gap-2 shadow-lg shadow-yum-primary/20"
+                                className="w-full py-4 text-white font-black rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg"
+                                style={{ backgroundColor: themeColor, boxShadow: `0 10px 15px -3px ${themeColor}40` }}
                             >
                                 {loading ? '...' : <><HiOutlineLogin size={20} /> {t.submitLogin}</>}
                             </button>
@@ -250,7 +252,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
                         </div>
                         <p className={`mt-4 text-center text-sm transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
                             {t.toggleToSignup} {' '}
-                            <button onClick={() => setView('signup')} className="text-yum-primary font-bold hover:underline">{t.linkSignup}</button>
+                            <button onClick={() => setView('signup')} className="font-bold hover:underline" style={{ color: themeColor }}>{t.linkSignup}</button>
                         </p>
                     </div>
                 )}
@@ -301,14 +303,15 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full py-4 bg-yum-primary text-white font-black rounded-xl hover:bg-red-500 transition-all flex items-center justify-center gap-2 shadow-lg shadow-yum-primary/20"
+                                className="w-full py-4 text-white font-black rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg"
+                                style={{ backgroundColor: themeColor, boxShadow: `0 10px 15px -3px ${themeColor}40` }}
                             >
                                 {loading ? '...' : <><HiOutlineUserAdd size={20} /> {t.submitSignup}</>}
                             </button>
                         </form>
                         <p className={`mt-8 text-center text-sm transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
                             {t.toggleToLogin} {' '}
-                            <button onClick={() => setView('login')} className="text-yum-primary font-bold hover:underline">{t.linkLogin}</button>
+                            <button onClick={() => setView('login')} className="font-bold hover:underline" style={{ color: themeColor }}>{t.linkLogin}</button>
                         </p>
                     </div>
                 )}
@@ -332,7 +335,8 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
                             </div>
                             <button
                                 type="submit"
-                                className="w-full py-4 bg-yum-primary text-white font-black rounded-xl hover:bg-red-500 transition-all flex items-center justify-center gap-2 shadow-lg shadow-yum-primary/20"
+                                className="w-full py-4 text-white font-black rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg"
+                                style={{ backgroundColor: themeColor, boxShadow: `0 10px 15px -3px ${themeColor}40` }}
                             >
                                 {t.sendResetLink}
                             </button>
@@ -369,7 +373,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
                         {/* Order History */}
                         <div>
                             <div className="flex items-center gap-2 mb-4">
-                                <HiOutlineClipboardList className="text-yum-primary" size={20} />
+                                <HiOutlineClipboardList style={{ color: themeColor }} size={20} />
                                 <h3 className={`font-black uppercase tracking-widest text-sm transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{t.orderHistory}</h3>
                             </div>
 
@@ -383,10 +387,12 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
                                                 <span className={`font-bold block transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Order #{order.id}</span>
                                                 <span className={`text-xs transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{new Date(order.created_at).toLocaleDateString()}</span>
                                             </div>
-                                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${order.status === 'completed' ? 'bg-green-500/20 text-green-500' :
-                                                order.status === 'cancelled' ? 'bg-red-500/20 text-red-500' :
-                                                    'bg-yum-primary/20 text-yum-primary'
-                                                }`}>
+                                            <span
+                                                className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter`}
+                                                style={order.status === 'completed' ? { backgroundColor: '#22c55e33', color: '#22c55e' } :
+                                                    order.status === 'cancelled' ? { backgroundColor: '#ef444433', color: '#ef4444' } :
+                                                        { backgroundColor: `${themeColor}33`, color: themeColor }}
+                                            >
                                                 {order.status}
                                             </span>
                                         </div>
