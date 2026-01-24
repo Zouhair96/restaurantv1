@@ -36,7 +36,6 @@ const PublicMenuPizza1 = () => {
     };
 
     return (
-    return (
         <div className="flex flex-col md:flex-row h-screen bg-white text-gray-900 font-sans overflow-hidden relative">
 
             {/* Left Sidebar / Thumbnail List */}
