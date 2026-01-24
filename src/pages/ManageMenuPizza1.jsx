@@ -327,6 +327,13 @@ const ManageMenuPizza1 = () => {
                                 <td className="p-6 text-right">
                                     <div className="flex items-center justify-end gap-2">
                                         <button
+                                            onClick={() => handleAddToMenu(item)}
+                                            className="p-2 text-green-500 hover:bg-green-50 rounded-lg transition-colors"
+                                            title="Add to Public Menu"
+                                        >
+                                            <HiArrowRightOnRectangle className="w-5 h-5" />
+                                        </button>
+                                        <button
                                             onClick={() => handleEditClick(item)}
                                             className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
                                             title="Edit Details"
