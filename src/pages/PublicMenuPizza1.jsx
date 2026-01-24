@@ -66,7 +66,7 @@ const PublicMenuPizza1 = () => {
             <div className="flex-1 flex flex-col h-full overflow-y-auto relative z-0">
 
                 {/* Header */}
-                <div className="flex justify-between items-center p-6 md:p-10">
+                <div className="flex justify-between items-center p-4 md:p-10">
                     <div>
                         <h2 className="text-sm font-bold text-orange-500 tracking-widest uppercase mb-1">Pizza Time</h2>
                         <h1 className="text-2xl md:text-3xl font-black text-gray-900 animate-fade-in">{selectedItem.category} Menu</h1>
@@ -133,7 +133,7 @@ const PublicMenuPizza1 = () => {
                 </div>
 
                 {/* Details Card */}
-                <div className="p-8 md:p-12 pb-24 animate-fade-in-up">
+                <div className="p-4 md:p-12 pb-24 animate-fade-in-up">
                     <div className="flex justify-between items-start mb-4">
                         <div>
                             <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-2">{selectedItem.name}</h2>
@@ -153,29 +153,31 @@ const PublicMenuPizza1 = () => {
                     </div>
 
                     {/* Bottom Action Bar */}
-                    <div className="flex items-center justify-between gap-8">
-                        <div className="flex items-baseline gap-1">
-                            <span className="text-lg font-bold text-orange-500">$</span>
-                            <span className="text-4xl font-black text-gray-900">{selectedItem.price.toFixed(2)}</span>
+                    <div className="flex flex-col xl:flex-row items-center justify-between gap-6 md:gap-8">
+                        <div className="flex items-center justify-between w-full xl:w-auto gap-8">
+                            <div className="flex items-baseline gap-1">
+                                <span className="text-lg font-bold text-orange-500">$</span>
+                                <span className="text-4xl font-black text-gray-900">{selectedItem.price.toFixed(2)}</span>
+                            </div>
+
+                            <div className="flex items-center bg-gray-100 rounded-full p-1">
+                                <button
+                                    onClick={() => Math.max(1, setQuantity(q => q > 1 ? q - 1 : 1))}
+                                    className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-600 hover:text-orange-500 transition-colors"
+                                >
+                                    <HiMinus />
+                                </button>
+                                <span className="w-12 text-center font-bold text-lg">{quantity}</span>
+                                <button
+                                    onClick={() => setQuantity(q => q + 1)}
+                                    className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-600 hover:text-orange-500 transition-colors"
+                                >
+                                    <HiPlus />
+                                </button>
+                            </div>
                         </div>
 
-                        <div className="flex items-center bg-gray-100 rounded-full p-1">
-                            <button
-                                onClick={() => Math.max(1, setQuantity(q => q > 1 ? q - 1 : 1))}
-                                className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-600 hover:text-orange-500 transition-colors"
-                            >
-                                <HiMinus />
-                            </button>
-                            <span className="w-12 text-center font-bold text-lg">{quantity}</span>
-                            <button
-                                onClick={() => setQuantity(q => q + 1)}
-                                className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-600 hover:text-orange-500 transition-colors"
-                            >
-                                <HiPlus />
-                            </button>
-                        </div>
-
-                        <button className="flex-1 bg-orange-500 hover:bg-orange-600 text-white rounded-[2rem] py-4 px-8 font-bold text-lg shadow-xl shadow-orange-500/30 flex items-center justify-center gap-3 transition-transform hover:scale-105 active:scale-95">
+                        <button className="w-full xl:flex-1 bg-orange-500 hover:bg-orange-600 text-white rounded-[2rem] py-4 px-8 font-bold text-lg shadow-xl shadow-orange-500/30 flex items-center justify-center gap-3 transition-transform hover:scale-105 active:scale-95">
                             <span>Add to Bag</span>
                             <HiShoppingBag className="w-6 h-6" />
                         </button>
