@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { HiPencil, HiTrash, HiX, HiCloudUpload, HiPhotograph } from 'react-icons/hi';
+import { HiPencil, HiTrash, HiX, HiCloudUpload, HiPhotograph, HiPlus } from 'react-icons/hi';
 
 const ManageMenuPizza1 = () => {
     // Initial State mimicking DB
@@ -24,8 +24,20 @@ const ManageMenuPizza1 = () => {
         setIsEditModalOpen(true);
     };
 
+    const handleAddItem = () => {
+        setEditingItem({ id: null, name: '', description: '', price: 0, category: categories[0], image: '' });
+        setIsEditModalOpen(true);
+    };
+
     const handleSaveEdit = () => {
-        setItems(items.map(i => i.id === editingItem.id ? editingItem : i));
+        if (editingItem.id) {
+            // Update existing
+            setItems(items.map(i => i.id === editingItem.id ? editingItem : i));
+        } else {
+            // Create new
+            const newId = Math.max(...items.map(i => i.id), 0) + 1;
+            setItems([...items, { ...editingItem, id: newId }]);
+        }
         setIsEditModalOpen(false);
         setEditingItem(null);
     };
@@ -95,6 +107,14 @@ const ManageMenuPizza1 = () => {
                             Add
                         </button>
                     </div>
+                </div>
+                <div className="flex gap-2">
+                    <button
+                        onClick={handleAddItem}
+                        className="px-6 py-3 bg-yum-primary text-white font-bold rounded-xl shadow-lg transition-all flex items-center gap-2 hover:bg-red-500"
+                    >
+                        <HiPlus className="w-5 h-5" /> Add Item
+                    </button>
                     <button
                         onClick={handleSave}
                         className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl shadow-lg transition-all"
@@ -238,6 +258,32 @@ const ManageMenuPizza1 = () => {
                                         value={editingItem.name}
                                         onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })}
                                         className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                    />
+                                </div>
+
+                                {!editingItem.id && (
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Category</label>
+                                        <select
+                                            value={editingItem.category}
+                                            onChange={(e) => setEditingItem({ ...editingItem, category: e.target.value })}
+                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                        >
+                                            {categories.map(cat => (
+                                                <option key={cat} value={cat}>{cat}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                )}
+
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Initial Price (€)</label>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        value={editingItem.price}
+                                        onChange={(e) => setEditingItem({ ...editingItem, price: parseFloat(e.target.value) || 0 })}
+                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none font-mono"
                                     />
                                 </div>
                                 <div>
