@@ -154,8 +154,9 @@ const PublicMenuPizza1 = () => {
                             <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-1">{selectedItem.name}</h2>
                             <div className="flex items-center gap-2 mb-2">
                                 <span className="text-gray-300 text-xl font-light">≣</span>
-                                <p className="text-gray-400 text-sm font-medium">ingredients</p>
+                                <p className="text-gray-400 text-sm font-medium uppercase tracking-wide">Ingredients</p>
                             </div>
+                            <p className="text-gray-500 text-sm leading-relaxed max-w-xs">{selectedItem.description}</p>
                         </div>
                         <button
                             onClick={() => setLiked(!liked)}
