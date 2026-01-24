@@ -166,15 +166,32 @@ const PublicMenuPizza1 = () => {
                     </div>
 
                     {/* Bottom Action Bar */}
-                    <div className="flex items-center justify-between mt-6">
+                    <div className="flex items-center justify-between mt-4">
                         <div className="flex items-baseline gap-1">
                             <span className="text-lg font-bold text-orange-500">$</span>
                             <span className="text-3xl font-black text-gray-900">{selectedItem.price.toFixed(2)}</span>
                         </div>
 
+                        {/* Quantity Control */}
+                        <div className="flex items-center bg-gray-100 rounded-full p-1 h-10">
+                            <button
+                                onClick={() => Math.max(1, setQuantity(q => q > 1 ? q - 1 : 1))}
+                                className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-600 hover:text-orange-500 transition-colors"
+                            >
+                                <HiMinus className="w-4 h-4" />
+                            </button>
+                            <span className="w-8 text-center font-bold text-gray-900">{quantity}</span>
+                            <button
+                                onClick={() => setQuantity(q => q + 1)}
+                                className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-600 hover:text-orange-500 transition-colors"
+                            >
+                                <HiPlus className="w-4 h-4" />
+                            </button>
+                        </div>
+
                         <button className="bg-white border hover:border-orange-200 border-orange-100 text-orange-500 hover:text-orange-600 rounded-[1.2rem] py-2 px-5 font-bold text-sm md:text-lg shadow-sm flex items-center justify-center gap-2 transition-transform active:scale-95">
                             <span>Add to</span>
-                            <HiShoppingBag className="w-5 h-5" />
+                            <HiShoppingBag className="w-4 h-4 md:w-5 md:h-5" />
                         </button>
                     </div>
                 </div>
