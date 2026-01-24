@@ -166,33 +166,32 @@ const PublicMenuPizza1 = () => {
                     </div>
 
                     {/* Bottom Action Bar */}
-                    <div className="flex items-center justify-between mt-4">
-                        <div className="flex items-baseline gap-1">
+                    <div className="flex items-end justify-between mt-4">
+                        <div className="flex items-baseline gap-1 mb-2">
                             <span className="text-lg font-bold text-orange-500">$</span>
                             <span className="text-3xl font-black text-gray-900">{selectedItem.price.toFixed(2)}</span>
                         </div>
 
-                        {/* Unified Action Button */}
-                        <div className="flex items-center bg-white border hover:border-orange-200 border-orange-100 rounded-[1.2rem] p-1.5 shadow-sm gap-3">
-                            {/* Quantity */}
-                            <div className="flex items-center gap-2 bg-gray-50 rounded-full px-2 py-1">
+                        <div className="flex flex-col items-center gap-3">
+                            {/* Quantity Control (Stacked on top) */}
+                            <div className="flex items-center gap-3 bg-gray-100 rounded-full px-3 py-1.5 h-8">
                                 <button
                                     onClick={() => Math.max(1, setQuantity(q => q > 1 ? q - 1 : 1))}
-                                    className="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-orange-500 hover:bg-white transition-all active:scale-95"
+                                    className="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-orange-500 transition-colors active:scale-95"
                                 >
                                     <HiMinus className="w-3 h-3" />
                                 </button>
                                 <span className="w-4 text-center font-bold text-gray-900 text-sm">{quantity}</span>
                                 <button
                                     onClick={() => setQuantity(q => q + 1)}
-                                    className="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-orange-500 hover:bg-white transition-all active:scale-95"
+                                    className="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-orange-500 transition-colors active:scale-95"
                                 >
                                     <HiPlus className="w-3 h-3" />
                                 </button>
                             </div>
 
-                            {/* Add Label */}
-                            <button className="flex items-center gap-2 pr-3 text-orange-500 font-bold text-sm">
+                            {/* Add Button */}
+                            <button className="bg-white border hover:border-orange-200 border-orange-100 text-orange-500 hover:text-orange-600 rounded-[1.2rem] py-2.5 px-6 font-bold text-sm shadow-sm flex items-center justify-center gap-2 transition-transform active:scale-95">
                                 <span>Add to</span>
                                 <HiShoppingBag className="w-4 h-4" />
                             </button>
