@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus } from 'react-icons/hi2';
 import { Link } from 'react-router-dom';
-import FoodRevealOverlay from '../components/animations/FoodRevealOverlay';
 
 const PublicMenuPizza1 = () => {
     // Hardcoded Pizza Time Data
@@ -17,31 +16,27 @@ const PublicMenuPizza1 = () => {
     ];
 
     const [selectedItem, setSelectedItem] = useState(menuItems[0]);
+    const [exitingItem, setExitingItem] = useState(null); // The item leaving
     const [quantity, setQuantity] = useState(1);
     const [liked, setLiked] = useState(false);
-    const [showAnimation, setShowAnimation] = useState(false);
-    const [animatingItem, setAnimatingItem] = useState(null);
 
     const handleItemSelect = (item) => {
         if (selectedItem.id === item.id) return;
 
-        setAnimatingItem(item);
-        setShowAnimation(true);
+        // Start transition
+        setExitingItem(selectedItem);
         setSelectedItem(item);
         setQuantity(1);
         setLiked(false);
+
+        // Clear exiting item after animation completes (match CSS duration)
+        setTimeout(() => {
+            setExitingItem(null);
+        }, 1000);
     };
 
     return (
         <div className="flex h-screen bg-white text-gray-900 font-sans overflow-hidden relative">
-
-            {/* Animation Overlay */}
-            {showAnimation && animatingItem && (
-                <FoodRevealOverlay
-                    image={animatingItem.image}
-                    onComplete={() => setShowAnimation(false)}
-                />
-            )}
 
             {/* Left Sidebar / Thumbnail List */}
             <div className="w-24 md:w-32 lg:w-40 h-full border-r border-gray-100 flex flex-col items-center py-8 overflow-y-auto no-scrollbar scroll-smooth relative z-10 bg-white">
@@ -74,7 +69,7 @@ const PublicMenuPizza1 = () => {
                 <div className="flex justify-between items-center p-6 md:p-10">
                     <div>
                         <h2 className="text-sm font-bold text-orange-500 tracking-widest uppercase mb-1">Pizza Time</h2>
-                        <h1 className="text-2xl md:text-3xl font-black text-gray-900">{selectedItem.category} Menu</h1>
+                        <h1 className="text-2xl md:text-3xl font-black text-gray-900 animate-fade-in">{selectedItem.category} Menu</h1>
                     </div>
                     <div className="flex items-center gap-4">
                         <span className="text-2xl font-mono font-bold text-gray-300">0{selectedItem.id}</span>
@@ -89,23 +84,52 @@ const PublicMenuPizza1 = () => {
                     </div>
                 </div>
 
-                {/* Hero Image */}
+                {/* Hero Image & Animation Container */}
                 <div className="flex-1 flex items-center justify-center p-6 relative">
                     {/* Circle Background */}
                     <div className="absolute w-[30vh] h-[30vh] md:w-[50vh] md:h-[50vh] bg-orange-50 rounded-full -z-10 blur-3xl opacity-60"></div>
 
-                    <div className="w-64 h-64 md:w-96 md:h-96 rounded-full shadow-2xl shadow-orange-500/20 overflow-hidden animate-fade-in relative z-10 border-4 border-white">
-                        <img
-                            key={selectedItem.id} /* Key forces re-render/animation on change */
-                            src={selectedItem.image}
-                            alt={selectedItem.name}
-                            className="w-full h-full object-cover hover:scale-110 transition-transform duration-700 ease-in-out"
-                        />
+                    {/* Central Image Container */}
+                    <div className="w-64 h-64 md:w-96 md:h-96 relative z-10">
+
+                        {/* 1. Steam Effect (Only when stationary/selected) */}
+                        {!exitingItem && (
+                            <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-40 h-32 flex justify-center gap-4 opacity-40 pointer-events-none z-20">
+                                <span className="w-4 h-16 bg-gradient-to-t from-gray-200 to-transparent blur-md rounded-full animate-[steamRiseLocal_2s_infinite_ease-out]"></span>
+                                <span className="w-4 h-20 bg-gradient-to-t from-gray-200 to-transparent blur-md rounded-full animate-[steamRiseLocal_2.5s_infinite_ease-out_0.5s]"></span>
+                                <span className="w-4 h-12 bg-gradient-to-t from-gray-200 to-transparent blur-md rounded-full animate-[steamRiseLocal_3s_infinite_ease-out_0.2s]"></span>
+                            </div>
+                        )}
+
+                        {/* 2. Exiting Item (Flies away top-left) */}
+                        {exitingItem && (
+                            <div className="absolute inset-0 w-full h-full rounded-full overflow-hidden border-4 border-white shadow-2xl animate-[exitToTopLeft_1s_ease-in_forwards] z-20">
+                                <img
+                                    src={exitingItem.image}
+                                    alt={exitingItem.name}
+                                    className="w-full h-full object-cover"
+                                />
+                            </div>
+                        )}
+
+                        {/* 3. Entering/Selected Item (Flies in from bottom-right) */}
+                        <div
+                            key={selectedItem.id}
+                            className={`absolute inset-0 w-full h-full rounded-full overflow-hidden border-4 border-white shadow-2xl z-10 transition-transform duration-500
+                                ${exitingItem ? 'animate-[enterFromBottomRight_1s_cubic-bezier(0.25,1,0.5,1)_forwards]' : 'hover:scale-105'}`}
+                        >
+                            <img
+                                src={selectedItem.image}
+                                alt={selectedItem.name}
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
+
                     </div>
                 </div>
 
                 {/* Details Card */}
-                <div className="p-8 md:p-12 pb-24">
+                <div className="p-8 md:p-12 pb-24 animate-fade-in-up">
                     <div className="flex justify-between items-start mb-4">
                         <div>
                             <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-2">{selectedItem.name}</h2>

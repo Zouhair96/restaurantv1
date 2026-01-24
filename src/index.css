@@ -165,17 +165,16 @@
     }
   }
 
-  /* Food Reveal Animations - Curved Sweep */
+  /* Food Reveal Animations - Local Sweep */
   @keyframes enterFromBottomRight {
     0% {
       opacity: 0;
-      transform: translate(40vw, 40vh) scale(0.2) rotate(45deg);
+      transform: translate(120%, 120%) scale(0.5) rotate(45deg);
     }
 
     60% {
       opacity: 1;
-      transform: translate(-5%, -5%) scale(1.1) rotate(-10deg);
-      /* Slight overshoot */
+      transform: translate(-10%, -10%) scale(1.05) rotate(-5deg);
     }
 
     100% {
@@ -188,22 +187,22 @@
     0% {
       opacity: 1;
       transform: translate(0, 0) scale(1) rotate(0deg);
+      position: absolute;
+      /* Find a way to handle layout flow if needed, but transform handles visual */
     }
 
-    30% {
+    40% {
       opacity: 1;
-      transform: translate(5%, 5%) scale(0.95);
-      /* Anticipation */
+      transform: translate(10%, 10%) scale(0.95);
     }
 
     100% {
       opacity: 0;
-      transform: translate(-40vw, -40vh) scale(0.5) rotate(-45deg);
-      /* Exit to corner */
+      transform: translate(-120%, -120%) scale(0.5) rotate(-45deg);
     }
   }
 
-  @keyframes steamRise {
+  @keyframes steamRiseLocal {
     0% {
       opacity: 0;
       transform: translateY(0) scale(1);
@@ -215,7 +214,7 @@
 
     100% {
       opacity: 0;
-      transform: translateY(-50px) scale(1.5);
+      transform: translateY(-40px) scale(1.5);
     }
   }
 }
