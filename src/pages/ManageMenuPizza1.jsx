@@ -13,6 +13,20 @@ const ManageMenuPizza1 = () => {
         { id: 8, name: 'Bolognaise', description: 'Sauce chili BBQ, fromage, sauce bolognaise, pepperoni', price: 17.90, category: 'Special', categoryColor: 'bg-orange-100 text-orange-800' },
     ]);
 
+    const [categories, setCategories] = useState(['Classic', 'Premium', 'Special', 'Drinks', 'Desserts']);
+    const [newCategory, setNewCategory] = useState('');
+
+    const handleAddCategory = () => {
+        if (newCategory.trim() && !categories.includes(newCategory.trim())) {
+            setCategories([...categories, newCategory.trim()]);
+            setNewCategory('');
+        }
+    };
+
+    const handleCategoryChange = (id, newCategory) => {
+        setItems(items.map(i => i.id === id ? { ...i, category: newCategory } : i));
+    };
+
     const handlePriceChange = (id, newPrice) => {
         setItems(items.map(i => i.id === id ? { ...i, price: parseFloat(newPrice) || 0 } : i));
     };
@@ -28,12 +42,29 @@ const ManageMenuPizza1 = () => {
                     <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white">Menu Management</h1>
                     <p className="text-gray-500 text-sm md:text-base">Manage your restaurant's menu items. Update descriptions, categories, and adjust unit prices.</p>
                 </div>
-                <button
-                    onClick={handleSave}
-                    className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl shadow-lg transition-all"
-                >
-                    Save Changes
-                </button>
+                <div className="flex gap-4">
+                    <div className="flex gap-2">
+                        <input
+                            type="text"
+                            placeholder="New category..."
+                            value={newCategory}
+                            onChange={(e) => setNewCategory(e.target.value)}
+                            className="px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                        />
+                        <button
+                            onClick={handleAddCategory}
+                            className="px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl shadow-lg transition-all"
+                        >
+                            Add
+                        </button>
+                    </div>
+                    <button
+                        onClick={handleSave}
+                        className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl shadow-lg transition-all"
+                    >
+                        Save Changes
+                    </button>
+                </div>
             </header>
 
             <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden overflow-x-auto">
@@ -52,9 +83,15 @@ const ManageMenuPizza1 = () => {
                             <tr key={item.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/20 transition-colors">
                                 <td className="p-6 font-bold text-gray-900 dark:text-white">{item.name}</td>
                                 <td className="p-6">
-                                    <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${item.categoryColor}`}>
-                                        {item.category}
-                                    </span>
+                                    <select
+                                        value={item.category}
+                                        onChange={(e) => handleCategoryChange(item.id, e.target.value)}
+                                        className="px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white font-bold text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                                    >
+                                        {categories.map((cat) => (
+                                            <option key={cat} value={cat}>{cat}</option>
+                                        ))}
+                                    </select>
                                 </td>
                                 <td className="p-6 text-sm text-gray-500 max-w-md truncate" title={item.description}>
                                     {item.description}
