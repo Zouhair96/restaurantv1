@@ -5,8 +5,8 @@ import { useCart } from '../context/CartContext';
 import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
 
 const PublicMenuPizza1 = () => {
-    // Hardcoded Pizza Time Data
-    const menuItems = [
+    // Hardcoded Pizza Time Data (Fallback)
+    const hardcodedMenuItems = [
         { id: 1, name: 'Sicilienne', description: 'Sauce tomate, fromage, poivron, oignons, olives, anchois', price: 11.90, image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?q=80&w=1000&auto=format&fit=crop', category: 'Classic' },
         { id: 2, name: 'Calzone', description: 'Sauce tomate, fromage, jambon, champignons, olives, œuf', price: 11.90, image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=1000&auto=format&fit=crop', category: 'Classic' },
         { id: 3, name: 'Pêcheur', description: 'Sauce tomate, fromage, thon, saumon, olives, oignon', price: 12.90, image: 'https://images.unsplash.com/photo-1604382355076-af4b0eb60143?q=80&w=1000&auto=format&fit=crop', category: 'Classic' },
@@ -19,7 +19,27 @@ const PublicMenuPizza1 = () => {
         { id: 10, name: 'Tiramisu', description: 'Homemade italian classic', price: 5.90, image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?q=80&w=1000&auto=format&fit=crop', category: 'Desserts' },
     ];
 
-    const [selectedItem, setSelectedItem] = useState(menuItems[0]);
+
+
+    // State
+    const [menuItems, setMenuItems] = useState(hardcodedMenuItems); // Rename original const if needed or just initialize
+
+    useEffect(() => {
+        const storedItems = localStorage.getItem('pizza_time_menu_items');
+        if (storedItems) {
+            setMenuItems(JSON.parse(storedItems));
+        }
+    }, []);
+
+    const [selectedItem, setSelectedItem] = useState(null); // Init as null to wait for data? Or safe default?
+
+    // Effect to set initial selected item once menuItems are loaded
+    useEffect(() => {
+        if (menuItems.length > 0 && !selectedItem) {
+            setSelectedItem(menuItems[0]);
+        }
+    }, [menuItems]);
+
     const [exitingItem, setExitingItem] = useState(null); // The item leaving
     const [quantity, setQuantity] = useState(1);
     const [liked, setLiked] = useState(false);

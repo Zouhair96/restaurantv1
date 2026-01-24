@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { HiPencil, HiTrash, HiX, HiCloudUpload, HiPhotograph, HiPlus, HiDuplicate } from 'react-icons/hi';
+import { HiPencil, HiTrash, HiX, HiCloudUpload, HiPhotograph, HiPlus, HiArrowRightOnRectangle } from 'react-icons/hi2';
 
 const ManageMenuPizza1 = () => {
     // Initial State mimicking DB
@@ -48,10 +48,24 @@ const ManageMenuPizza1 = () => {
         }
     };
 
-    const handleDuplicate = (item) => {
-        const newId = Math.max(...items.map(i => i.id), 0) + 1;
-        const newItem = { ...item, id: newId, name: `${item.name} (Copy)` };
-        setItems([...items, newItem]);
+
+
+    const handleAddToMenu = (item) => {
+        // Read existing public menu
+        const existingData = localStorage.getItem('pizza_time_menu_items');
+        let publicMenu = existingData ? JSON.parse(existingData) : [];
+
+        // Check if item exists (by name/id) and update or append
+        const index = publicMenu.findIndex(i => i.name === item.name); // Using name as unique key for now or generate distinct ID logic
+        if (index >= 0) {
+            publicMenu[index] = item; // Update
+        } else {
+            publicMenu.push(item); // Add
+        }
+
+        // Save back
+        localStorage.setItem('pizza_time_menu_items', JSON.stringify(publicMenu));
+        alert(`"${item.name}" added to Public Menu!`);
     };
 
     // Swipe Logic
@@ -174,8 +188,8 @@ const ManageMenuPizza1 = () => {
                     >
                         {/* Actions Background Layer */}
                         <div className="absolute inset-0 flex justify-end">
-                            <button onClick={() => handleDuplicate(item)} className="h-full w-20 bg-green-500 text-white flex items-center justify-center">
-                                <HiDuplicate size={24} />
+                            <button onClick={() => handleAddToMenu(item)} className="h-full w-20 bg-green-500 text-white flex items-center justify-center" title="Add to Public Menu">
+                                <HiArrowRightOnRectangle size={24} />
                             </button>
                             <button onClick={() => handleEditClick(item)} className="h-full w-20 bg-blue-500 text-white flex items-center justify-center">
                                 <HiPencil size={24} />
