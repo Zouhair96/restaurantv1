@@ -34,7 +34,7 @@ const ManageMenuPizza1 = () => {
             try {
                 // 1. Fetch from server
                 const serverMenus = await fetchMenus();
-                const pizzaMenu = serverMenus.find(m => m.name === 'Pizza Menu');
+                const pizzaMenu = serverMenus.find(m => m.template_type === 'pizza1' || m.name === 'Pizza Menu');
 
                 if (pizzaMenu) {
                     // Found on server, use it
@@ -54,14 +54,14 @@ const ManageMenuPizza1 = () => {
                             if (validItems.length > 0) {
                                 // Migrate to Server
                                 console.log('Migrating local menu to server...');
-                                const newMenu = await createMenu('Pizza Menu', 'custom', { items: validItems });
+                                const newMenu = await createMenu('Pizza Menu', 'pizza1', { items: validItems });
                                 setMenuId(newMenu.id);
                                 setItems(validItems);
                                 // Optional: Clear local storage after successful migration
                                 // localStorage.removeItem('pizza_time_manager_items'); 
                             } else {
                                 // No valid local items, create empty menu
-                                const newMenu = await createMenu('Pizza Menu', 'custom', { items: [] });
+                                const newMenu = await createMenu('Pizza Menu', 'pizza1', { items: [] });
                                 setMenuId(newMenu.id);
                                 setItems([]);
                             }
@@ -70,7 +70,7 @@ const ManageMenuPizza1 = () => {
                         }
                     } else {
                         // Nothing anywhere, create new empty menu
-                        const newMenu = await createMenu('Pizza Menu', 'custom', { items: [] });
+                        const newMenu = await createMenu('Pizza Menu', 'pizza1', { items: [] });
                         setMenuId(newMenu.id);
                         // Convert default fallback items to real items if desired, or start empty?
                         // For now, let's keep the hardcoded initial state as default if creating new

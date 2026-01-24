@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar'
+import PublicMenuPizza1 from './PublicMenuPizza1'
 import { HiOutlineUserCircle, HiOutlineMenuAlt2, HiOutlineSun, HiOutlineMoon, HiOutlineX } from 'react-icons/hi'
 
 const PublicMenu = () => {
@@ -184,6 +185,11 @@ const PublicMenu = () => {
                 <p className="text-xl text-gray-400">No menu published yet.</p>
             </div>
         )
+    }
+
+    // Branch to specialized templates
+    if (data.menu.template_type === 'pizza1') {
+        return <PublicMenuPizza1 />
     }
 
 

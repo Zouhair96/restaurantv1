@@ -89,6 +89,10 @@ const MenuManagement = () => {
     }
 
     const handleEditMenu = (menu) => {
+        if (menu.template_type === 'pizza1') {
+            navigate('/manage_menu_pizza1');
+            return;
+        }
         setEditingMenu(menu)
         setSelectedTemplate(menu.template_type)
         setIsEditorOpen(true)
@@ -179,59 +183,86 @@ const MenuManagement = () => {
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {templates.map((template) => (
-                    <div
-                        key={template.id}
-                        className="group bg-white dark:bg-white/5 backdrop-blur-xl rounded-[2.5rem] p-6 shadow-xl border border-white dark:border-white/5 hover:shadow-2xl transition-all hover:-translate-y-1 relative overflow-hidden"
-                    >
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform"></div>
+                {templates.map((template) => {
+                    const isActive = savedMenus[0]?.template_type === template.template_key;
+                    const isLocked = hasMenu && !isActive;
 
-                        {/* Header */}
-                        <div className="flex items-center gap-4 mb-6 relative">
-                            <div className="w-16 h-16 rounded-2xl bg-indigo-100 dark:bg-indigo-500/10 flex items-center justify-center text-3xl shadow-sm border border-indigo-100 dark:border-indigo-500/20">
-                                {template.icon || '🍽️'}
-                            </div>
-                            <div>
-                                <h2 className="text-xl font-black text-gray-800 dark:text-white tracking-tight uppercase">{template.name}</h2>
-                                <span className="text-xs text-gray-400 font-medium">Template Active</span>
+                    return (
+                        <div
+                            key={template.id}
+                            onClick={() => {
+                                if (isLocked) return;
+                                if (hasMenu && isActive) return; // Already created, use widget at top
+
+                                if (template.template_key === 'pizza1') {
+                                    navigate('/manage_menu_pizza1');
+                                    return;
+                                }
+
+                                setSelectedTemplate(template.template_key);
+                                setEditingMenu(null);
+                                setIsEditorOpen(true);
+                            }}
+                            className={`group relative rounded-[2.5rem] overflow-hidden transition-all duration-300 border-2 ${isLocked
+                                ? 'opacity-40 grayscale cursor-not-allowed border-transparent'
+                                : isActive
+                                    ? 'border-green-500 shadow-xl cursor-default'
+                                    : 'cursor-pointer hover:shadow-2xl hover:scale-[1.02] border-transparent hover:border-indigo-500'}`}
+                        >
+                            <div className="aspect-[9/16] bg-black relative">
+                                {template.image_url ? (
+                                    <img
+                                        src={template.image_url}
+                                        alt={template.name}
+                                        className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full bg-indigo-900/20"></div>
+                                )}
+
+                                {/* Overlay */}
+                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 group-hover:bg-black/60 transition-colors">
+                                    {isLocked ? (
+                                        <div className="text-center px-4">
+                                            <div className="w-16 h-16 rounded-full bg-gray-800/80 backdrop-blur-sm flex items-center justify-center mb-4 mx-auto">
+                                                <span className="text-3xl">🔒</span>
+                                            </div>
+                                            <p className="text-white font-black uppercase tracking-widest text-sm">Locked</p>
+                                            <p className="text-gray-400 text-[10px] mt-1">Delete active menu to change</p>
+                                        </div>
+                                    ) : isActive ? (
+                                        <div className="text-center px-4">
+                                            <div className="w-16 h-16 rounded-full bg-green-500/20 backdrop-blur-sm flex items-center justify-center mb-4 mx-auto border border-green-500/30">
+                                                <span className="text-3xl text-green-500">✓</span>
+                                            </div>
+                                            <p className="text-green-500 font-black uppercase tracking-widest text-sm">Active Template</p>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                                <span className="text-4xl">{template.icon || '🍽️'}</span>
+                                            </div>
+                                            <button className="px-8 py-3 bg-indigo-600 text-white font-black rounded-xl opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 uppercase tracking-widest text-xs shadow-xl shadow-indigo-600/40">
+                                                Select Template
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
+
+                                {/* Label */}
+                                <div className="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-2xl">{template.icon || '🍽️'}</span>
+                                        <div>
+                                            <h3 className="text-white font-black text-xl uppercase tracking-tight">{template.name}</h3>
+                                            <p className="text-gray-300 text-xs font-medium">{template.description}</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-
-                        {/* Preview */}
-                        <div className="h-40 bg-gray-50 dark:bg-black/20 rounded-2xl mb-6 border border-gray-100 dark:border-white/5 overflow-hidden flex items-center justify-center relative">
-                            {template.image_url ? (
-                                <img src={template.image_url} alt={template.name} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" />
-                            ) : (
-                                <div className="absolute inset-0 bg-indigo-500/5"></div>
-                            )}
-                            <div className="relative z-10 flex flex-col items-center gap-2">
-                                <span className="p-3 bg-white/80 dark:bg-black/50 rounded-full backdrop-blur-md shadow-lg text-indigo-600 scale-90 group-hover:scale-100 transition-transform">
-                                    <QRCodeSVG value={`${window.location.origin}/${user.restaurant_name}`} size={60} />
-                                </span>
-                            </div>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="space-y-3">
-                            <div className="grid grid-cols-2 gap-3">
-                                <a
-                                    href={`${window.location.origin}/${user.restaurant_name}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-600/20"
-                                >
-                                    👁️ Show
-                                </a>
-                                <Link
-                                    to={`/manage_menu_${template.template_key}`}
-                                    className="flex items-center justify-center gap-2 px-4 py-3 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-gray-700 dark:text-white font-bold rounded-xl transition-all border border-gray-100 dark:border-white/10 shadow-sm"
-                                >
-                                    ⚙️ Manage
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
-                ))}
+                    );
+                })}
 
                 {templates.length === 0 && !isLoadingTemplates && (
                     <div className="col-span-full py-16 text-center bg-gray-50 dark:bg-white/5 rounded-[2.5rem] border-2 border-dashed border-gray-200 dark:border-white/10">
