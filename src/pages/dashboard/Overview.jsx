@@ -130,7 +130,7 @@ const Overview = () => {
                                     </a>
 
                                     <button
-                                        onClick={(e) => handleDeleteMenu(savedMenus[0].id, e)}
+                                        onClick={(e) => savedMenus[0] && handleDeleteMenu(savedMenus[0].id, e)}
                                         className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 dark:text-red-500 rounded-xl font-bold transition-all border border-red-200 dark:border-red-900/30 group"
                                     >
                                         <span className="group-hover:scale-110 transition-transform">🗑️</span> Delete

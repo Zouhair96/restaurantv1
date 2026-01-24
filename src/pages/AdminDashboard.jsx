@@ -149,7 +149,7 @@ const AdminDashboard = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-50 dark:divide-white/5 text-[13px]">
-                                    {users.map((u) => (
+                                    {users.filter(u => u).map((u) => (
                                         <tr key={u.id} className="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors group">
                                             <td className="px-8 py-5">
                                                 <div className="flex items-center gap-4">
