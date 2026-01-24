@@ -33,7 +33,14 @@ const ManageMenuPizza1 = () => {
 
     // Save to local storage whenever items change
     useEffect(() => {
-        localStorage.setItem('pizza_time_manager_items', JSON.stringify(items));
+        try {
+            localStorage.setItem('pizza_time_manager_items', JSON.stringify(items));
+        } catch (error) {
+            console.error("LocalStorage Save Failed:", error);
+            if (error.name === 'QuotaExceededError') {
+                alert("Storage Limit Reached! The image you are trying to save is too large for the browser's local storage. Please try a smaller image.");
+            }
+        }
     }, [items]);
 
     const [categories, setCategories] = useState(['Classic', 'Premium', 'Special', 'Drinks', 'Desserts']);
@@ -142,26 +149,60 @@ const ManageMenuPizza1 = () => {
         }
     };
 
-    const handleImageDrop = (e) => {
+    // Helper: Compress Image to avoid LocalStorage Quota limits
+    const compressImage = async (file) => {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    // Resize to manageable dimensions (e.g. max 600px width)
+                    const MAX_WIDTH = 600;
+                    const scaleSize = MAX_WIDTH / img.width;
+                    const width = (img.width > MAX_WIDTH) ? MAX_WIDTH : img.width;
+                    const height = (img.width > MAX_WIDTH) ? img.height * scaleSize : img.height;
+
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Compress as JPEG with 0.7 quality
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                    resolve(dataUrl);
+                };
+            };
+        });
+    };
+
+    const handleImageDrop = async (e) => {
         e.preventDefault();
         const file = e.dataTransfer.files[0];
         if (file && file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setEditingItem({ ...editingItem, image: reader.result });
-            };
-            reader.readAsDataURL(file);
+            try {
+                const compressedImage = await compressImage(file);
+                setEditingItem({ ...editingItem, image: compressedImage });
+            } catch (error) {
+                console.error("Image compression failed", error);
+                alert("Failed to process image. Please try a smaller file.");
+            }
         }
     };
 
-    const handleImageSelect = (e) => {
+    const handleImageSelect = async (e) => {
         const file = e.target.files[0];
         if (file && file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setEditingItem({ ...editingItem, image: reader.result });
-            };
-            reader.readAsDataURL(file);
+            try {
+                const compressedImage = await compressImage(file);
+                setEditingItem({ ...editingItem, image: compressedImage });
+            } catch (error) {
+                console.error("Image compression failed", error);
+                alert("Failed to process image. Please try a smaller file.");
+            }
         }
     };
 
