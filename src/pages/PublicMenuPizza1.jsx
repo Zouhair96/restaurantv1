@@ -149,24 +149,24 @@ const PublicMenuPizza1 = () => {
                 </div>
 
                 {/* Details Card */}
-                <div className="px-6 pb-6 md:pb-12 mt-auto">
-                    <div className="flex justify-between items-start mb-2">
-                        <div>
-                            <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-1">{selectedItem.name}</h2>
-                            <div className="flex items-start gap-2 mb-1 h-[3rem] overflow-hidden">
+                <div className="px-6 pb-6 md:pb-12 mt-auto shrink-0 z-20 bg-white">
+                    <div className="flex justify-between items-start mb-1">
+                        <div className="flex-1 min-w-0 pr-4">
+                            <h2 className="text-xl md:text-3xl font-black text-gray-900 mb-1 truncate h-8 flex items-center">{selectedItem.name}</h2>
+                            <div className="flex items-start gap-2 mb-1 h-12 overflow-hidden">
                                 <p className="text-gray-500 text-xs md:text-sm leading-relaxed max-w-xs line-clamp-2 md:line-clamp-none">{selectedItem.description}</p>
                             </div>
                         </div>
                         <button
                             onClick={() => setLiked(!liked)}
-                            className="text-gray-400 hover:text-red-500 transition-colors"
+                            className="text-gray-400 hover:text-red-500 transition-colors shrink-0 pt-1"
                         >
-                            {liked ? <HiHeart className="w-7 h-7 text-red-500" /> : <HiOutlineHeart className="w-7 h-7" />}
+                            {liked ? <HiHeart className="w-6 h-6 text-red-500" /> : <HiOutlineHeart className="w-6 h-6" />}
                         </button>
                     </div>
 
                     {/* Bottom Action Bar */}
-                    <div className="flex items-end justify-between mt-4">
+                    <div className="flex items-end justify-between mt-2">
                         <div className="flex items-baseline gap-1 mb-2">
                             <span className="text-lg font-bold text-orange-500">$</span>
                             <span className="text-3xl font-black text-gray-900">{selectedItem.price.toFixed(2)}</span>
