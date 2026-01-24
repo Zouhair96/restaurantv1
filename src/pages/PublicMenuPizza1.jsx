@@ -106,7 +106,7 @@ const PublicMenuPizza1 = () => {
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] bg-orange-50/50 rounded-full blur-[80px] -z-10 pointer-events-none"></div>
 
                     {/* Central Image Container */}
-                    <div className="w-48 h-48 sm:w-64 sm:h-64 md:w-96 md:h-96 relative z-10 aspect-square shrink-0">
+                    <div className="w-56 h-56 sm:w-64 sm:h-64 md:w-96 md:h-96 relative z-10 aspect-square shrink-0">
 
                         {/* 1. Steam Effect (Only when stationary/selected) */}
                         {!exitingItem && (
@@ -149,11 +149,11 @@ const PublicMenuPizza1 = () => {
                 </div>
 
                 {/* Details Card */}
-                <div className="px-6 pb-6 md:pb-12 animate-fade-in-up mt-auto">
+                <div className="px-6 pb-6 md:pb-12 mt-auto">
                     <div className="flex justify-between items-start mb-2">
                         <div>
                             <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-1">{selectedItem.name}</h2>
-                            <div className="flex items-start gap-2 mb-1">
+                            <div className="flex items-start gap-2 mb-1 min-h-[2.5rem]">
                                 <p className="text-gray-500 text-xs md:text-sm leading-relaxed max-w-xs line-clamp-2 md:line-clamp-none">{selectedItem.description}</p>
                             </div>
                         </div>
