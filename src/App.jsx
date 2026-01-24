@@ -19,7 +19,7 @@ import PublicMenu from './pages/PublicMenu'
 import AdminDashboard from './pages/AdminDashboard'
 import PlanDetails from './pages/PlanDetails'
 import TestMenu from './pages/TestMenu'
-import TestMenu from './pages/TestMenu'
+
 import ScrollToTop from './components/ScrollToTop'
 import { LanguageProvider } from './context/LanguageContext'
 import { AuthProvider } from './context/AuthContext'
