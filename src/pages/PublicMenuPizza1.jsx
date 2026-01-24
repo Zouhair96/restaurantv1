@@ -110,7 +110,7 @@ const PublicMenuPizza1 = () => {
                                 <img
                                     src={exitingItem.image}
                                     alt={exitingItem.name}
-                                    className="w-full h-full object-cover"
+                                    className="w-full h-full object-cover animate-[pizzaSpinOut_0.4s_ease-in_forwards]"
                                 />
                             </div>
                         )}
@@ -125,7 +125,7 @@ const PublicMenuPizza1 = () => {
                             <img
                                 src={selectedItem.image}
                                 alt={selectedItem.name}
-                                className="w-full h-full object-cover"
+                                className={`w-full h-full object-cover ${exitingItem ? 'animate-[pizzaSpinIn_0.4s_ease-out_forwards]' : ''}`}
                             />
                         </div>
 
