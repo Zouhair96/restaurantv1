@@ -1,3 +1,4 @@
+import { query } from './db.js';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 
@@ -87,9 +88,9 @@ export const handler = async (event, context) => {
     } catch (error) {
         console.error('Admin Stats Error:', error.message);
         return {
-            statusCode: 400, // Changed to 400 to differentiate from auth error
+            statusCode: 500, // Detailed server error for debugging fetch issues
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ error: 'Failed to fetch stats' })
+            body: JSON.stringify({ error: 'Failed to fetch dashboard stats' })
         };
     }
 };

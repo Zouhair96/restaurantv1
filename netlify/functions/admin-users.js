@@ -59,9 +59,9 @@ export const handler = async (event, context) => {
     } catch (error) {
         console.error('Admin Fetch Error:', error.message);
         return {
-            statusCode: 401,
+            statusCode: 500, // Return server error so frontend doesn't think it's just a logout
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ error: 'Unauthorized: Invalid token' })
+            body: JSON.stringify({ error: 'Internal Server Error' })
         };
     }
 };
