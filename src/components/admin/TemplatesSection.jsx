@@ -22,7 +22,12 @@ const Templates = () => {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
-            setTemplates(data);
+            if (Array.isArray(data)) {
+                setTemplates(data);
+            } else {
+                console.error('Templates data is not an array:', data);
+                setTemplates([]);
+            }
         } catch (error) {
             console.error('Error fetching templates:', error);
         } finally {

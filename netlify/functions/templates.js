@@ -1,12 +1,7 @@
-import { Pool } from 'pg';
+import { query } from './db.js';
 import jwt from 'jsonwebtoken';
 
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
-});
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 export const handler = async (event, context) => {
     const { httpMethod, headers, queryStringParameters, body } = event;
@@ -26,16 +21,16 @@ export const handler = async (event, context) => {
     try {
         if (httpMethod === 'GET') {
             const plan = queryStringParameters?.plan;
-            let query = 'SELECT * FROM templates WHERE status = $1';
+            let sql = 'SELECT * FROM templates WHERE status = $1';
             let params = ['active'];
 
             if (plan && user?.role !== 'admin') {
                 // For restaurants, only show allowed plans
-                query += ' AND allowed_plans ? $2';
+                sql += ' AND allowed_plans ? $2';
                 params.push(plan.toLowerCase());
             }
 
-            const result = await pool.query(query, params);
+            const result = await query(sql, params);
             return {
                 statusCode: 200,
                 body: JSON.stringify(result.rows),
@@ -54,8 +49,8 @@ export const handler = async (event, context) => {
                 return { statusCode: 400, body: JSON.stringify({ error: 'Missing required fields' }) };
             }
 
-            const query = 'UPDATE templates SET allowed_plans = $1, updated_at = NOW() WHERE id = $2 RETURNING *';
-            const result = await pool.query(query, [JSON.stringify(allowed_plans), id]);
+            const q = 'UPDATE templates SET allowed_plans = $1, updated_at = NOW() WHERE id = $2 RETURNING *';
+            const result = await query(q, [JSON.stringify(allowed_plans), id]);
 
             if (result.rowCount === 0) {
                 return { statusCode: 404, body: JSON.stringify({ error: 'Template not found' }) };
