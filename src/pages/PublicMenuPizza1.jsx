@@ -90,14 +90,14 @@ const PublicMenuPizza1 = () => {
                     <div className="absolute w-[30vh] h-[30vh] md:w-[50vh] md:h-[50vh] bg-orange-50 rounded-full -z-10 blur-3xl opacity-60"></div>
 
                     {/* Central Image Container */}
-                    <div className="w-64 h-64 md:w-96 md:h-96 relative z-10">
+                    <div className="w-48 h-48 sm:w-64 sm:h-64 md:w-96 md:h-96 relative z-10 aspect-square shrink-0">
 
                         {/* 1. Steam Effect (Only when stationary/selected) */}
                         {!exitingItem && (
-                            <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-40 h-32 flex justify-center gap-4 opacity-40 pointer-events-none z-20">
-                                <span className="w-4 h-16 bg-gradient-to-t from-gray-200 to-transparent blur-md rounded-full animate-[steamRiseLocal_2s_infinite_ease-out]"></span>
-                                <span className="w-4 h-20 bg-gradient-to-t from-gray-200 to-transparent blur-md rounded-full animate-[steamRiseLocal_2.5s_infinite_ease-out_0.5s]"></span>
-                                <span className="w-4 h-12 bg-gradient-to-t from-gray-200 to-transparent blur-md rounded-full animate-[steamRiseLocal_3s_infinite_ease-out_0.2s]"></span>
+                            <div className="absolute -top-12 md:-top-16 left-1/2 -translate-x-1/2 w-32 md:w-40 h-24 md:h-32 flex justify-center gap-4 opacity-40 pointer-events-none z-20">
+                                <span className="w-3 md:w-4 h-12 md:h-16 bg-gradient-to-t from-gray-200 to-transparent blur-md rounded-full animate-[steamRiseLocal_2s_infinite_ease-out]"></span>
+                                <span className="w-3 md:w-4 h-16 md:h-20 bg-gradient-to-t from-gray-200 to-transparent blur-md rounded-full animate-[steamRiseLocal_2.5s_infinite_ease-out_0.5s]"></span>
+                                <span className="w-3 md:w-4 h-10 md:h-12 bg-gradient-to-t from-gray-200 to-transparent blur-md rounded-full animate-[steamRiseLocal_3s_infinite_ease-out_0.2s]"></span>
                             </div>
                         )}
 
