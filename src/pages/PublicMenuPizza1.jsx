@@ -189,7 +189,5 @@ const PublicMenuPizza1 = () => {
         </div>
     );
 };
-    );
-};
 
 export default PublicMenuPizza1;
