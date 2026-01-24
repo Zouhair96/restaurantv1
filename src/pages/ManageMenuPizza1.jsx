@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { HiPencil, HiTrash, HiXMark, HiCloudArrowUp, HiPhoto, HiPlus, HiArrowRightOnRectangle } from 'react-icons/hi2';
+import React, { useState, useRef, useEffect } from 'react';
+import { HiPencil, HiTrash, HiXMark, HiCloudArrowUp, HiPhoto, HiPlus, HiArrowRightOnRectangle, HiCog6Tooth } from 'react-icons/hi2';
 import { fetchMenus, createMenu, updateMenu } from '../utils/menus';
 
 const ManageMenuPizza1 = () => {
@@ -14,6 +15,15 @@ const ManageMenuPizza1 = () => {
         { id: 7, name: 'Chicken', description: 'Crème fraîche, fromage, poulet fumé, champignons', price: 13.90, category: 'Premium', categoryColor: 'bg-purple-100 text-purple-800', image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?q=80&w=1000' },
         { id: 8, name: 'Bolognaise', description: 'Sauce chili BBQ, fromage, sauce bolognaise, pepperoni', price: 17.90, category: 'Special', categoryColor: 'bg-orange-100 text-orange-800', image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?q=80&w=1000' },
     ]);
+
+    // Menu Configuration State
+    const [menuConfig, setMenuConfig] = useState({
+        restaurantName: 'Pizza Time',
+        themeColor: '#f97316', // Orange-500 default
+        logoImage: null,
+        useLogo: false
+    });
+    const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
     const [menuId, setMenuId] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -30,8 +40,9 @@ const ManageMenuPizza1 = () => {
                 if (pizzaMenu) {
                     // Found on server, use it
                     setMenuId(pizzaMenu.id);
-                    if (pizzaMenu.config && pizzaMenu.config.items) {
-                        setItems(pizzaMenu.config.items);
+                    if (pizzaMenu.config) {
+                        setItems(pizzaMenu.config.items || []);
+                        setMenuConfig(prev => ({ ...prev, ...pizzaMenu.config }));
                     }
                 } else {
                     // Not found on server, check local storage for migration
@@ -87,10 +98,10 @@ const ManageMenuPizza1 = () => {
             isFirstRun.current = false;
             return;
         }
-        if (menuId && items.length > 0) {
+        if (menuId) {
             const saveToServer = async () => {
                 try {
-                    await updateMenu(menuId, 'Pizza Menu', { items });
+                    await updateMenu(menuId, 'Pizza Menu', { items, ...menuConfig });
                     console.log('Saved to server');
                 } catch (error) {
                     console.error('Save failed:', error);
@@ -100,7 +111,7 @@ const ManageMenuPizza1 = () => {
             const timeoutId = setTimeout(saveToServer, 1000);
             return () => clearTimeout(timeoutId);
         }
-    }, [items, menuId]);
+    }, [items, menuId, menuConfig]);
 
     const [categories, setCategories] = useState(['Classic', 'Premium', 'Special', 'Drinks', 'Desserts']);
     const [newCategory, setNewCategory] = useState('');
@@ -257,6 +268,33 @@ const ManageMenuPizza1 = () => {
         }
     };
 
+    const handleLogoDrop = async (e) => {
+        e.preventDefault();
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) {
+            try {
+                const compressedImage = await compressImage(file);
+                setMenuConfig({ ...menuConfig, logoImage: compressedImage });
+            } catch (error) {
+                console.error("Image compression failed", error);
+                alert("Failed to process image.");
+            }
+        }
+    };
+
+    const handleLogoSelect = async (e) => {
+        const file = e.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+            try {
+                const compressedImage = await compressImage(file);
+                setMenuConfig({ ...menuConfig, logoImage: compressedImage });
+            } catch (error) {
+                console.error("Image compression failed", error);
+                alert("Failed to process image.");
+            }
+        }
+    };
+
     const handleAddCategory = () => {
         if (newCategory.trim() && !categories.includes(newCategory.trim())) {
             setCategories([...categories, newCategory.trim()]);
@@ -283,7 +321,14 @@ const ManageMenuPizza1 = () => {
                     <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white">Menu Management</h1>
                     <p className="text-gray-500 text-sm md:text-base">Manage your restaurant's menu items. Update descriptions, categories, and adjust unit prices.</p>
                 </div>
-                <div className="flex flex-wrap gap-2 w-full md:w-auto">
+                <div className="flex gap-2 w-full md:w-auto">
+                    <button
+                        onClick={() => setIsSettingsModalOpen(true)}
+                        className="p-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl shadow-sm transition-all flex items-center gap-2"
+                        title="Menu Settings"
+                    >
+                        <HiCog6Tooth className="w-5 h-5" /> Settings
+                    </button>
                     <div className="flex gap-2 w-full md:w-auto">
                         <input
                             type="text"
@@ -567,6 +612,106 @@ const ManageMenuPizza1 = () => {
                                     className="px-6 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl shadow-lg transition-all"
                                 >
                                     Save Changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+            {/* Settings Modal */}
+            {
+                isSettingsModalOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-fade-in">
+                            <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-700/50">
+                                <h3 className="text-xl font-black text-gray-900 dark:text-white">Menu Settings</h3>
+                                <button onClick={() => setIsSettingsModalOpen(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                                    <HiXMark className="w-6 h-6" />
+                                </button>
+                            </div>
+                            <div className="p-6 space-y-6">
+                                {/* Restaurant Name */}
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Restaurant Name</label>
+                                    <input
+                                        type="text"
+                                        value={menuConfig.restaurantName}
+                                        onChange={(e) => setMenuConfig({ ...menuConfig, restaurantName: e.target.value })}
+                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                    />
+                                </div>
+
+                                {/* Theme Color */}
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Theme Color</label>
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="color"
+                                            value={menuConfig.themeColor}
+                                            onChange={(e) => setMenuConfig({ ...menuConfig, themeColor: e.target.value })}
+                                            className="h-12 w-16 p-1 rounded-xl border border-gray-200 cursor-pointer"
+                                        />
+                                        <input
+                                            type="text"
+                                            value={menuConfig.themeColor}
+                                            onChange={(e) => setMenuConfig({ ...menuConfig, themeColor: e.target.value })}
+                                            className="flex-1 px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Logo Upload */}
+                                <div>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300">Logo Image</label>
+                                        <div className="flex items-center gap-2">
+                                            <input
+                                                type="checkbox"
+                                                id="useLogo"
+                                                checked={menuConfig.useLogo}
+                                                onChange={(e) => setMenuConfig({ ...menuConfig, useLogo: e.target.checked })}
+                                                className="w-4 h-4 rounded text-blue-500 focus:ring-blue-500"
+                                            />
+                                            <label htmlFor="useLogo" className="text-sm text-gray-600 dark:text-gray-400">Use Logo instead of Text</label>
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        className="relative w-full h-32 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl flex flex-col items-center justify-center text-gray-500 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-gray-700/50 transition-all cursor-pointer overflow-hidden group"
+                                        onDrop={handleLogoDrop}
+                                        onDragOver={(e) => e.preventDefault()}
+                                        onClick={() => document.getElementById('logo-upload').click()}
+                                    >
+                                        {menuConfig.logoImage ? (
+                                            <>
+                                                <img src={menuConfig.logoImage} alt="Logo" className="absolute inset-0 w-full h-full object-contain p-2 opacity-50 group-hover:opacity-30 transition-opacity" />
+                                                <div className="z-10 flex flex-col items-center">
+                                                    <HiCloudArrowUp className="w-8 h-8 mb-2 text-blue-500" />
+                                                    <span className="text-sm font-bold text-gray-900 dark:text-white">Click or Drop to Replace</span>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <div className="flex flex-col items-center">
+                                                <HiCloudArrowUp className="w-8 h-8 mb-2" />
+                                                <span className="text-sm font-medium">Click to upload logo</span>
+                                            </div>
+                                        )}
+                                        <input
+                                            type="file"
+                                            id="logo-upload"
+                                            className="hidden"
+                                            accept="image/*"
+                                            onChange={handleLogoSelect}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="p-6 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-100 dark:border-gray-700 flex justify-end">
+                                <button
+                                    onClick={() => setIsSettingsModalOpen(false)}
+                                    className="px-6 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl shadow-lg transition-all"
+                                >
+                                    Done
                                 </button>
                             </div>
                         </div>

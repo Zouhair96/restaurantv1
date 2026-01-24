@@ -24,7 +24,12 @@ const PublicMenuPizza1 = () => {
     // State
     const [menuItems, setMenuItems] = useState(hardcodedMenuItems); // Rename original const if needed or just initialize
 
-    const [restaurantName, setRestaurantName] = useState('Pizza Time'); // Default or derived
+    const [config, setConfig] = useState({
+        restaurantName: 'Pizza Time',
+        themeColor: '#f97316',
+        logoImage: null,
+        useLogo: false
+    });
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -54,7 +59,11 @@ const PublicMenuPizza1 = () => {
 
                 if (data.menu && data.menu.config && data.menu.config.items) {
                     setMenuItems(data.menu.config.items);
-                    setRestaurantName(data.restaurant || targetRestaurant);
+                    setConfig(prev => ({
+                        ...prev,
+                        ...data.menu.config,
+                        restaurantName: data.menu.config.restaurantName || data.restaurant || targetRestaurant
+                    }));
                 } else if (data.menu && Array.isArray(data.menu)) {
                     // Handle legacy array format if exists
                     setMenuItems(data.menu);
@@ -142,7 +151,16 @@ const PublicMenuPizza1 = () => {
     }
 
     return (
-        <div className="flex h-screen bg-white text-gray-900 font-sans overflow-hidden relative">
+        <div className="flex h-screen bg-white text-gray-900 font-sans overflow-hidden relative" style={{ '--theme-color': config.themeColor }}>
+            <style>{`
+                .text-theme { color: var(--theme-color) !important; }
+                .bg-theme { background-color: var(--theme-color) !important; }
+                .border-theme { border-color: var(--theme-color) !important; }
+                .shadow-theme { box-shadow: 0 4px 14px 0 rgba(0,0,0,0.1); } 
+                .hover-text-theme:hover { color: var(--theme-color) !important; }
+                .hover-bg-theme:hover { background-color: var(--theme-color) !important; }
+                .peer:checked ~ .peer-checked-text-theme { color: var(--theme-color); }
+             `}</style>
 
             {/* Mobile Overlay - REMOVED */}
 
@@ -196,7 +214,11 @@ const PublicMenuPizza1 = () => {
                             {/* Button removed */}
                         </div>
 
-                        <h1 className="text-xl md:text-2xl font-black text-gray-900 mx-auto tracking-tight uppercase">{restaurantName}</h1>
+                        {config.useLogo && config.logoImage ? (
+                            <img src={config.logoImage} alt={config.restaurantName} className="h-12 md:h-16 w-auto object-contain mx-auto" />
+                        ) : (
+                            <h1 className="text-xl md:text-2xl font-black text-gray-900 mx-auto tracking-tight uppercase">{config.restaurantName}</h1>
+                        )}
 
                         <div className="flex items-center gap-2 text-gray-400">
                             <button
@@ -218,8 +240,8 @@ const PublicMenuPizza1 = () => {
                                 key={category}
                                 onClick={() => handleCategorySelect(category)}
                                 className={`font-bold pb-1 whitespace-nowrap transition-colors ${activeCategory === category
-                                    ? 'text-gray-900 border-b-2 border-orange-500'
-                                    : 'text-gray-400 hover:text-gray-600'
+                                    ? 'text-gray-900 border-b-2 border-theme'
+                                    : 'text-gray-400 hover-text-theme'
                                     }`}
                             >
                                 {category}
@@ -298,7 +320,7 @@ const PublicMenuPizza1 = () => {
                 {/* Bottom Action Bar */}
                 <div className="px-5 pb-4 flex items-center justify-between mt-1">
                     <div className="flex items-baseline gap-1">
-                        <span className="text-base font-bold text-orange-500">$</span>
+                        <span className="text-base font-bold text-theme">$</span>
                         <span className="text-2xl font-black text-gray-900">{selectedItem.price.toFixed(2)}</span>
                     </div>
 
@@ -307,14 +329,14 @@ const PublicMenuPizza1 = () => {
                         <div className="flex items-center gap-3 bg-gray-100 rounded-full px-3 py-1.5 h-10">
                             <button
                                 onClick={() => Math.max(1, setQuantity(q => q > 1 ? q - 1 : 1))}
-                                className="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-orange-500 transition-colors active:scale-95"
+                                className="w-5 h-5 flex items-center justify-center text-gray-400 hover-text-theme transition-colors active:scale-95"
                             >
                                 <HiMinus className="w-4 h-4" />
                             </button>
                             <span className="w-4 text-center font-bold text-gray-900 text-sm">{quantity}</span>
                             <button
-                                onClick={() => setQuantity(q => q + 1)}
-                                className="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-orange-500 transition-colors active:scale-95"
+                                onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)}
+                                className="w-5 h-5 flex items-center justify-center text-gray-400 hover-text-theme transition-colors active:scale-95"
                             >
                                 <HiPlus className="w-4 h-4" />
                             </button>
@@ -323,7 +345,8 @@ const PublicMenuPizza1 = () => {
                         {/* Add Button (Right) */}
                         <button
                             onClick={handleAddToCart}
-                            className="bg-white border hover:border-orange-200 border-orange-100 text-orange-500 hover:text-orange-600 rounded-[1.2rem] py-2.5 px-6 font-bold text-sm shadow-sm flex items-center justify-center gap-2 transition-transform active:scale-95 h-10"
+                            className="bg-white border transition-colors hover:border-theme border-gray-200 text-theme hover-text-theme rounded-[1.2rem] py-2.5 px-6 font-bold text-sm shadow-sm flex items-center justify-center gap-2 transition-transform active:scale-95 h-10"
+                            style={{ color: config.themeColor, borderColor: `${config.themeColor}40` }}
                         >
                             <span>Add to</span>
                             <HiShoppingBag className="w-5 h-5" />
@@ -367,7 +390,7 @@ const PublicMenuPizza1 = () => {
                                                 </button>
                                             </div>
                                             <div className="flex justify-between items-end">
-                                                <span className="font-bold text-orange-500 text-sm">${(item.price * item.quantity).toFixed(2)}</span>
+                                                <span className="font-bold text-theme text-sm" style={{ color: config.themeColor }}>${(item.price * item.quantity).toFixed(2)}</span>
                                                 <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-2 py-1">
                                                     <button
                                                         onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
