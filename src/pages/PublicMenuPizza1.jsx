@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus } from 'react-icons/hi2';
+import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, HiBars3, HiBuildingStorefront } from 'react-icons/hi2';
 import { Link } from 'react-router-dom';
 
 const PublicMenuPizza1 = () => {
@@ -13,12 +13,15 @@ const PublicMenuPizza1 = () => {
         { id: 6, name: 'Chèvre', description: 'Crème fraîche, fromage, chèvre, olives, oignon', price: 13.90, image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=1000&auto=format&fit=crop', category: 'Premium' },
         { id: 7, name: 'Chicken', description: 'Crème fraîche, fromage, poulet fumé, champignons', price: 13.90, image: 'https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?q=80&w=1000&auto=format&fit=crop', category: 'Premium' },
         { id: 8, name: 'Bolognaise', description: 'Sauce chili BBQ, fromage, sauce bolognaise, pepperoni', price: 17.90, image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?q=80&w=1000&auto=format&fit=crop', category: 'Special' },
+        { id: 9, name: 'Coca-Cola', description: '33cl can chilled', price: 2.50, image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?q=80&w=1000&auto=format&fit=crop', category: 'Drinks' },
+        { id: 10, name: 'Tiramisu', description: 'Homemade italian classic', price: 5.90, image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?q=80&w=1000&auto=format&fit=crop', category: 'Desserts' },
     ];
 
     const [selectedItem, setSelectedItem] = useState(menuItems[0]);
     const [exitingItem, setExitingItem] = useState(null); // The item leaving
     const [quantity, setQuantity] = useState(1);
     const [liked, setLiked] = useState(false);
+    const [showCheckout, setShowCheckout] = useState(false);
 
     const handleItemSelect = (item) => {
         if (selectedItem.id === item.id) return;
@@ -40,9 +43,9 @@ const PublicMenuPizza1 = () => {
 
             {/* Left Sidebar / Thumbnail List */}
             <div className="w-24 md:w-32 lg:w-40 h-full flex flex-col items-center py-6 overflow-y-auto no-scrollbar scroll-smooth relative z-10 bg-white/50 backdrop-blur-sm">
-                <Link to="/" className="mb-6 p-4 rounded-[1.5rem] border border-gray-100 shadow-sm hover:shadow-md transition-shadow bg-white text-gray-600">
-                    <HiArrowLeft className="w-5 h-5" />
-                </Link>
+                <button className="mb-6 p-4 rounded-[1.5rem] border border-gray-100 shadow-sm hover:shadow-md transition-shadow bg-white text-gray-600">
+                    <HiBars3 className="w-6 h-6" />
+                </button>
 
                 <div className="space-y-6 w-full px-3 flex flex-col items-center">
                     {menuItems.map((item) => (
@@ -79,24 +82,25 @@ const PublicMenuPizza1 = () => {
                         {/* Mobile Back Button (if needed, otherwise hidden as per design which has it in sidebar/top-left) */}
                         <div className="md:hidden"></div>
 
-                        <h1 className="text-lg font-bold text-gray-900 mx-auto">Menu</h1>
+                        <h1 className="text-xl md:text-2xl font-black text-gray-900 mx-auto tracking-tight">PIZZA TIME</h1>
 
                         <div className="flex items-center gap-2 text-gray-400">
-                            <span className="font-mono font-bold text-gray-900 text-lg">0{selectedItem.id}</span>
-                            <div className="w-px h-4 bg-gray-300 mx-1"></div>
-                            {/* Grid Icon Placeholder */}
-                            <div className="grid grid-cols-2 gap-0.5 w-5 h-5 opacity-60">
-                                <span className="bg-gray-800 rounded-sm"></span><span className="bg-gray-800 rounded-sm"></span>
-                                <span className="bg-gray-800 rounded-sm"></span><span className="bg-gray-800 rounded-sm"></span>
-                            </div>
+                            <button
+                                onClick={() => setShowCheckout(!showCheckout)}
+                                className="p-2 -mr-2 text-gray-400 hover:text-gray-900 transition-colors"
+                            >
+                                <HiBuildingStorefront className="w-6 h-6" />
+                            </button>
                         </div>
                     </div>
 
                     {/* Category Tabs */}
-                    <div className="flex items-center justify-center gap-8 text-sm md:text-base mb-2">
-                        <button className="text-gray-400 font-medium hover:text-gray-600 transition-colors">Platta</button>
-                        <button className="text-gray-900 font-bold border-b-2 border-orange-500 pb-1">With Bread</button>
-                        <button className="text-gray-400 font-medium hover:text-gray-600 transition-colors">With Rice</button>
+                    <div className="flex items-center justify-center gap-4 md:gap-8 text-sm md:text-base mb-2 overflow-x-auto no-scrollbar py-1">
+                        <button className="text-gray-900 font-bold border-b-2 border-orange-500 pb-1 whitespace-nowrap">Classic</button>
+                        <button className="text-gray-400 font-medium hover:text-gray-600 transition-colors whitespace-nowrap">Premium</button>
+                        <button className="text-gray-400 font-medium hover:text-gray-600 transition-colors whitespace-nowrap">Special</button>
+                        <button className="text-gray-400 font-medium hover:text-gray-600 transition-colors whitespace-nowrap">Drinks</button>
+                        <button className="text-gray-400 font-medium hover:text-gray-600 transition-colors whitespace-nowrap">Desserts</button>
                     </div>
                 </div>
 
@@ -199,6 +203,34 @@ const PublicMenuPizza1 = () => {
                     </div>
                 </div>
             </div>
+            {/* Right Sidebar / Checkout */}
+            <div className={`fixed inset-y-0 right-0 w-80 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50 ${showCheckout ? 'translate-x-0' : 'translate-x-full'}`}>
+                <div className="flex flex-col h-full bg-white">
+                    <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+                        <h2 className="text-xl font-bold text-gray-900">Your Order</h2>
+                        <button onClick={() => setShowCheckout(false)} className="text-gray-400 hover:text-gray-600">
+                            <HiMinus className="w-6 h-6 rotate-45" />
+                        </button>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto p-6 flex flex-col items-center justify-center text-gray-500">
+                        <HiShoppingBag className="w-12 h-12 mb-3 opacity-20" />
+                        <p>Your cart is empty</p>
+                        <p className="text-sm mt-1">Add some delicious pizza!</p>
+                    </div>
+
+                    <div className="p-6 border-t border-gray-100 bg-gray-50">
+                        <div className="flex justify-between mb-4">
+                            <span className="text-gray-600">Total</span>
+                            <span className="font-bold text-2xl text-gray-900">$0.00</span>
+                        </div>
+                        <button className="w-full bg-gray-900 text-white font-bold py-3 rounded-xl hover:bg-gray-800 transition-colors">
+                            Checkout
+                        </button>
+                    </div>
+                </div>
+            </div>
+
         </div>
     );
 };
