@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-import AdminLayout from '../layouts/AdminLayout'
+import TemplatesSection from '../components/admin/TemplatesSection'
 
 const AdminDashboard = () => {
+    // ... existing state ...
     const { user, loading } = useAuth()
     const navigate = useNavigate()
     const [users, setUsers] = useState([])
@@ -228,6 +226,10 @@ const AdminDashboard = () => {
                         <h2 className="text-3xl font-black text-gray-800 dark:text-white tracking-tight uppercase mb-2">Platform Analytics</h2>
                         <p className="text-gray-400 max-w-sm">Deep insights into user engagement, revenue growth, and platform health. Coming soon.</p>
                     </div>
+                )}
+
+                {activeSection === 'templates' && (
+                    <TemplatesSection />
                 )}
 
                 {activeSection === 'settings' && (

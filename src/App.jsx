@@ -22,7 +22,7 @@ import TestMenu from './pages/TestMenu'
 
 import PublicMenuPizza1 from './pages/PublicMenuPizza1'
 import ManageMenuPizza1 from './pages/ManageMenuPizza1'
-import Templates from './pages/dashboard/Templates'
+
 import ScrollToTop from './components/ScrollToTop'
 import { LanguageProvider } from './context/LanguageContext'
 import { AuthProvider } from './context/AuthContext'
@@ -83,7 +83,7 @@ function App() {
                   <Route path="team" element={<Team />} />
                   <Route path="promos" element={<Promotions />} />
                   <Route path="activity" element={<Activity />} />
-                  <Route path="templates" element={<Templates />} />
+
 
 
                   <Route path="settings" element={<Settings />} />
