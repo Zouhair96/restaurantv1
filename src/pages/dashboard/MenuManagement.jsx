@@ -19,6 +19,7 @@ import p3Template from '../../assets/p3_template.png'
 const MenuManagement = () => {
     const { user } = useAuth()
     const { t } = useLanguage()
+    const navigate = useNavigate()
     const [savedMenus, setSavedMenus] = useState([])
     const [editingMenu, setEditingMenu] = useState(null)
     const [selectedTemplate, setSelectedTemplate] = useState(null)

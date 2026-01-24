@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { HiPencil, HiTrash, HiXMark, HiCloudArrowUp, HiPhoto, HiPlus, HiArrowRightOnRectangle, HiCog6Tooth } from 'react-icons/hi2';
+import { HiPencil, HiTrash, HiXMark, HiCloudArrowUp, HiPhoto, HiPlus, HiArrowRightOnRectangle, HiCog6Tooth, HiArrowLeft } from 'react-icons/hi2';
+import { useNavigate } from 'react-router-dom';
 import { fetchMenus, createMenu, updateMenu } from '../utils/menus';
 
 const ManageMenuPizza1 = () => {
+    const navigate = useNavigate();
     // Initial State mimicking DB
     const [items, setItems] = useState([
         { id: 1, name: 'Sicilienne', description: 'Sauce tomate, fromage, poivron, oignons, olives, anchois', price: 11.90, category: 'Classic', categoryColor: 'bg-blue-100 text-blue-800', image: '/pizzas/sicilienne.png' },
@@ -317,6 +319,12 @@ const ManageMenuPizza1 = () => {
         <div className="p-8 max-w-7xl mx-auto">
             <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
+                    <button
+                        onClick={() => navigate('/dashboard/menu')}
+                        className="flex items-center gap-2 text-gray-500 hover:text-gray-900 mb-4 font-bold transition-colors"
+                    >
+                        <HiArrowLeft className="w-5 h-5" /> Back to Dashboard
+                    </button>
                     <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white">Menu Management</h1>
                     <p className="text-gray-500 text-sm md:text-base">Manage your restaurant's menu items. Update descriptions, categories, and adjust unit prices.</p>
                 </div>
