@@ -173,14 +173,13 @@ const PublicMenuPizza1 = () => {
             `}>
                 <button
                     onClick={() => setShowAuthSidebar(true)}
-                    className="mb-6 p-4 rounded-[1.5rem] border shadow-sm bg-white transition-all active:scale-95"
+                    className="mb-6 p-4 rounded-[1.5rem] border shadow-sm transition-all active:scale-95"
                     style={{
-                        color: isAuthHovered ? config.themeColor : '#4b5563',
-                        borderColor: isAuthHovered ? config.themeColor : '#f3f4f6',
-                        boxShadow: isAuthHovered ? `0 4px 6px -1px ${config.themeColor}30` : '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                        color: config.themeColor,
+                        borderColor: `${config.themeColor}40`,
+                        backgroundColor: `${config.themeColor}08`,
+                        boxShadow: `0 4px 6px -1px ${config.themeColor}20`
                     }}
-                    onMouseEnter={() => setIsAuthHovered(true)}
-                    onMouseLeave={() => setIsAuthHovered(false)}
                 >
                     <HiBars3 className="w-6 h-6 block" />
                 </button>
