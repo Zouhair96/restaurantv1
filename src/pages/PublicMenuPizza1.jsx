@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, HiBars3, HiBuildingStorefront, HiXMark, HiTrash } from 'react-icons/hi2';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
 
 const PublicMenuPizza1 = () => {
     // Hardcoded Pizza Time Data
@@ -23,6 +24,7 @@ const PublicMenuPizza1 = () => {
     const [quantity, setQuantity] = useState(1);
     const [liked, setLiked] = useState(false);
     // const [showCheckout, setShowCheckout] = useState(false); // Replaced by CartContext
+    const [showAuthSidebar, setShowAuthSidebar] = useState(false);
     const [activeCategory, setActiveCategory] = useState('Classic');
 
     const {
@@ -76,9 +78,12 @@ const PublicMenuPizza1 = () => {
                 w-24 md:w-32 lg:w-40 h-full flex flex-col items-center py-6 pb-48
                 overflow-y-auto scroll-smooth transition-all duration-300
             `}>
-                <div className="mb-6 p-4 rounded-[1.5rem] border border-gray-100 shadow-sm bg-white text-gray-600 cursor-default">
+                <button
+                    onClick={() => setShowAuthSidebar(true)}
+                    className="mb-6 p-4 rounded-[1.5rem] border border-gray-100 shadow-sm bg-white text-gray-600 hover:text-gray-900 hover:shadow-md transition-all active:scale-95"
+                >
                     <HiBars3 className="w-6 h-6 block" />
-                </div>
+                </button>
 
                 <div className="space-y-6 w-full px-3 flex flex-col items-center">
                     {menuItems.filter(item => item.category === activeCategory).map((item) => (
@@ -328,6 +333,12 @@ const PublicMenuPizza1 = () => {
                 </div>
             </div>
 
+            {/* Auth Sidebar */}
+            <PublicMenuSidebar
+                isOpen={showAuthSidebar}
+                onClose={() => setShowAuthSidebar(false)}
+                restaurantName="Pizza Time"
+            />
         </div>
     );
 };
