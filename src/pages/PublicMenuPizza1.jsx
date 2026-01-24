@@ -96,6 +96,10 @@ const PublicMenuPizza1 = () => {
         }, 400);
     };
 
+    if (!selectedItem) {
+        return <div className="min-h-screen flex items-center justify-center bg-white text-gray-900">Loading...</div>;
+    }
+
     return (
         <div className="flex h-screen bg-white text-gray-900 font-sans overflow-hidden relative">
 
@@ -115,7 +119,7 @@ const PublicMenuPizza1 = () => {
                 </button>
 
                 <div className="space-y-6 w-full px-3 flex flex-col items-center">
-                    {menuItems.filter(item => item.category === activeCategory).map((item) => (
+                    {menuItems.filter(item => item && item.category === activeCategory).map((item) => (
                         <button
                             key={item.id}
                             onClick={() => handleItemSelect(item)}
@@ -306,7 +310,7 @@ const PublicMenuPizza1 = () => {
                             </div>
                         ) : (
                             <div className="space-y-4">
-                                {cartItems.map((item, index) => (
+                                {cartItems.filter(item => item).map((item, index) => (
                                     <div key={`${item.id}-${index}`} className="flex gap-3 bg-white border border-gray-50 rounded-2xl p-3 shadow-sm">
                                         <div className="w-16 h-16 shrink-0 bg-gray-50 rounded-xl overflow-hidden">
                                             <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
