@@ -146,16 +146,22 @@ const ManageMenuPizza1 = () => {
         e.preventDefault();
         const file = e.dataTransfer.files[0];
         if (file && file.type.startsWith('image/')) {
-            const imageUrl = URL.createObjectURL(file);
-            setEditingItem({ ...editingItem, image: imageUrl });
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setEditingItem({ ...editingItem, image: reader.result });
+            };
+            reader.readAsDataURL(file);
         }
     };
 
     const handleImageSelect = (e) => {
         const file = e.target.files[0];
         if (file && file.type.startsWith('image/')) {
-            const imageUrl = URL.createObjectURL(file);
-            setEditingItem({ ...editingItem, image: imageUrl });
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setEditingItem({ ...editingItem, image: reader.result });
+            };
+            reader.readAsDataURL(file);
         }
     };
 
