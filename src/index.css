@@ -164,6 +164,49 @@
       transform: translateX(0);
     }
   }
+
+  /* Food Reveal Animations */
+  @keyframes foodAppear {
+    0% {
+      opacity: 0;
+      transform: scale(0.8) translateY(20px);
+    }
+
+    100% {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  @keyframes steamRise {
+    0% {
+      opacity: 0;
+      transform: translateY(0) scale(1);
+    }
+
+    50% {
+      opacity: 0.6;
+    }
+
+    100% {
+      opacity: 0;
+      transform: translateY(-40px) scale(1.5);
+    }
+  }
+
+  @keyframes overlayFadeOut {
+    0% {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    100% {
+      opacity: 0;
+      transform: scale(1.05);
+      /* Slight zoom out on exit */
+      visibility: hidden;
+    }
+  }
 }
 
 @layer utilities {

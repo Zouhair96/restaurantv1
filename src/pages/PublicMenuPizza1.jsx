@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus } from 'react-icons/hi2';
 import { Link } from 'react-router-dom';
+import FoodRevealOverlay from '../components/animations/FoodRevealOverlay';
 
 const PublicMenuPizza1 = () => {
     // Hardcoded Pizza Time Data
@@ -18,11 +19,32 @@ const PublicMenuPizza1 = () => {
     const [selectedItem, setSelectedItem] = useState(menuItems[0]);
     const [quantity, setQuantity] = useState(1);
     const [liked, setLiked] = useState(false);
+    const [showAnimation, setShowAnimation] = useState(false);
+    const [animatingItem, setAnimatingItem] = useState(null);
+
+    const handleItemSelect = (item) => {
+        if (selectedItem.id === item.id) return;
+
+        setAnimatingItem(item);
+        setShowAnimation(true);
+        setSelectedItem(item);
+        setQuantity(1);
+        setLiked(false);
+    };
 
     return (
-        <div className="flex h-screen bg-white text-gray-900 font-sans overflow-hidden">
+        <div className="flex h-screen bg-white text-gray-900 font-sans overflow-hidden relative">
+
+            {/* Animation Overlay */}
+            {showAnimation && animatingItem && (
+                <FoodRevealOverlay
+                    image={animatingItem.image}
+                    onComplete={() => setShowAnimation(false)}
+                />
+            )}
+
             {/* Left Sidebar / Thumbnail List */}
-            <div className="w-24 md:w-32 lg:w-40 h-full border-r border-gray-100 flex flex-col items-center py-8 overflow-y-auto no-scrollbar scroll-smooth">
+            <div className="w-24 md:w-32 lg:w-40 h-full border-r border-gray-100 flex flex-col items-center py-8 overflow-y-auto no-scrollbar scroll-smooth relative z-10 bg-white">
                 <Link to="/" className="mb-8 p-3 rounded-2xl bg-gray-50 hover:bg-gray-100 transition-colors">
                     <HiArrowLeft className="w-6 h-6 text-gray-600" />
                 </Link>
@@ -31,7 +53,7 @@ const PublicMenuPizza1 = () => {
                     {menuItems.map((item) => (
                         <button
                             key={item.id}
-                            onClick={() => { setSelectedItem(item); setQuantity(1); setLiked(false); }}
+                            onClick={() => handleItemSelect(item)}
                             className={`relative group w-full flex flex-col items-center transition-all duration-300 ${selectedItem.id === item.id ? 'scale-110' : 'opacity-70 hover:opacity-100'}`}
                         >
                             <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden shadow-lg border-2 transition-all ${selectedItem.id === item.id ? 'border-orange-500 shadow-orange-500/30' : 'border-transparent'}`}>
@@ -46,7 +68,7 @@ const PublicMenuPizza1 = () => {
             </div>
 
             {/* Main Content Area */}
-            <div className="flex-1 flex flex-col h-full overflow-y-auto relative">
+            <div className="flex-1 flex flex-col h-full overflow-y-auto relative z-0">
 
                 {/* Header */}
                 <div className="flex justify-between items-center p-6 md:p-10">
@@ -74,6 +96,7 @@ const PublicMenuPizza1 = () => {
 
                     <div className="w-64 h-64 md:w-96 md:h-96 rounded-full shadow-2xl shadow-orange-500/20 overflow-hidden animate-fade-in relative z-10 border-4 border-white">
                         <img
+                            key={selectedItem.id} /* Key forces re-render/animation on change */
                             src={selectedItem.image}
                             alt={selectedItem.name}
                             className="w-full h-full object-cover hover:scale-110 transition-transform duration-700 ease-in-out"
