@@ -601,7 +601,7 @@ const PublicMenu = () => {
                                         style={{ animationDelay: `${idx * 50}ms` }}
                                         disabled={!isAvailable}
                                         onClick={() => isAvailable && handleToggleSelection('sauce', sauceId)}
-                                        className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all group animate-fade-in ${!isAvailable ? 'opacity-30 grayscale cursor-not-allowed border-transparent' :
+                                        className={`relative flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all group animate-fade-in ${!isAvailable ? 'opacity-30 grayscale cursor-not-allowed border-transparent' :
                                             isSelected ? 'bg-yum-primary/20 border-yum-primary shadow-lg shadow-yum-primary/20' :
                                                 'bg-white/5 border-white/5 hover:border-white/20'
                                             }`}
@@ -649,7 +649,7 @@ const PublicMenu = () => {
                                         style={{ animationDelay: `${idx * 50}ms` }}
                                         disabled={!isAvailable}
                                         onClick={() => isAvailable && handleToggleSelection('drink', drinkId)}
-                                        className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all group animate-fade-in ${!isAvailable ? 'opacity-30 grayscale cursor-not-allowed border-transparent' :
+                                        className={`relative flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all group animate-fade-in ${!isAvailable ? 'opacity-30 grayscale cursor-not-allowed border-transparent' :
                                             isSelected ? 'bg-yum-primary/20 border-yum-primary shadow-lg shadow-yum-primary/20' :
                                                 'bg-white/5 border-white/5 hover:border-white/20'
                                             }`}
