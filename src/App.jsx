@@ -12,7 +12,6 @@ import Team from './pages/dashboard/Team'
 import Promotions from './pages/dashboard/Promotions'
 import Activity from './pages/dashboard/Activity'
 import Settings from './pages/dashboard/Settings'
-import BillingSettings from './pages/dashboard/BillingSettings'
 
 import OrderConfirmation from './pages/OrderConfirmation'
 import Checkout from './pages/Checkout'
@@ -20,8 +19,7 @@ import PublicMenu from './pages/PublicMenu'
 import AdminDashboard from './pages/AdminDashboard'
 import PlanDetails from './pages/PlanDetails'
 import TestMenu from './pages/TestMenu'
-import Simulator from './pages/Simulator'
-import IntegrationSettings from './components/dashboard/IntegrationSettings'
+import TestMenu from './pages/TestMenu'
 import ScrollToTop from './components/ScrollToTop'
 import { LanguageProvider } from './context/LanguageContext'
 import { AuthProvider } from './context/AuthContext'
@@ -83,9 +81,7 @@ function App() {
                   <Route path="promos" element={<Promotions />} />
                   <Route path="activity" element={<Activity />} />
 
-                  <Route path="payments" element={<div className="animate-fade-in shadow-2xl rounded-[3rem] overflow-hidden"><IntegrationSettings /></div>} />
-                  <Route path="simulator" element={<div className="animate-fade-in shadow-2xl rounded-[3rem] overflow-hidden"><Simulator /></div>} />
-                  <Route path="billing" element={<BillingSettings />} />
+
                   <Route path="settings" element={<Settings />} />
                 </Route>
 
