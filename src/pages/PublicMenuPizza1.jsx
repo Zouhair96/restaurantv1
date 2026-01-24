@@ -39,24 +39,30 @@ const PublicMenuPizza1 = () => {
         <div className="flex h-screen bg-white text-gray-900 font-sans overflow-hidden relative">
 
             {/* Left Sidebar / Thumbnail List */}
-            <div className="w-24 md:w-32 lg:w-40 h-full border-r border-gray-100 flex flex-col items-center py-8 overflow-y-auto no-scrollbar scroll-smooth relative z-10 bg-white">
-                <Link to="/" className="mb-8 p-3 rounded-2xl bg-gray-50 hover:bg-gray-100 transition-colors">
-                    <HiArrowLeft className="w-6 h-6 text-gray-600" />
+            <div className="w-24 md:w-32 lg:w-40 h-full flex flex-col items-center py-6 overflow-y-auto no-scrollbar scroll-smooth relative z-10 bg-white/50 backdrop-blur-sm">
+                <Link to="/" className="mb-6 p-4 rounded-[1.5rem] border border-gray-100 shadow-sm hover:shadow-md transition-shadow bg-white text-gray-600">
+                    <HiArrowLeft className="w-5 h-5" />
                 </Link>
 
-                <div className="space-y-6 w-full px-2">
+                <div className="space-y-6 w-full px-3 flex flex-col items-center">
                     {menuItems.map((item) => (
                         <button
                             key={item.id}
                             onClick={() => handleItemSelect(item)}
-                            className={`relative group w-full flex flex-col items-center transition-transform duration-300 ${selectedItem.id === item.id ? 'scale-110' : 'opacity-70 hover:opacity-100'}`}
+                            className={`relative group w-full flex flex-col items-center justify-center transition-all duration-300`}
                         >
-                            <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden shadow-lg border-2 transition-all ${selectedItem.id === item.id ? 'border-orange-500 shadow-orange-500/30' : 'border-transparent'}`}>
-                                <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                            <div className={`
+                                w-16 h-16 md:w-20 md:h-20 flex items-center justify-center transition-all duration-300
+                                ${selectedItem.id === item.id
+                                    ? 'bg-orange-100 rounded-[1.8rem] p-1.5'
+                                    : 'rounded-full p-0 scale-90 opacity-70 hover:opacity-100 hover:scale-100'}
+                            `}>
+                                <img
+                                    src={item.image}
+                                    alt={item.name}
+                                    className={`w-full h-full object-cover rounded-full shadow-md ${selectedItem.id === item.id ? 'shadow-orange-500/10' : ''}`}
+                                />
                             </div>
-                            {selectedItem.id === item.id && (
-                                <div className="absolute -right-1 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-orange-500 rounded-l-full"></div>
-                            )}
                         </button>
                     ))}
                 </div>
@@ -65,32 +71,41 @@ const PublicMenuPizza1 = () => {
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col h-full overflow-y-auto relative z-0">
 
-                {/* Header */}
-                <div className="flex justify-between items-center p-4 md:p-10">
-                    <div>
-                        <h2 className="text-sm font-bold text-orange-500 tracking-widest uppercase mb-1">Pizza Time</h2>
-                        <h1 className="text-2xl md:text-3xl font-black text-gray-900 animate-fade-in">{selectedItem.category} Menu</h1>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <span className="text-2xl font-mono font-bold text-gray-300">0{selectedItem.id}</span>
-                        <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center">
-                            <div className="w-4 h-4 grid grid-cols-2 gap-0.5">
-                                <span className="bg-gray-800 rounded-sm"></span>
-                                <span className="bg-gray-400 rounded-sm"></span>
-                                <span className="bg-gray-400 rounded-sm"></span>
-                                <span className="bg-gray-800 rounded-sm"></span>
+                {/* Header Section */}
+                <div className="px-6 pt-6 pb-2 shrink-0 z-20">
+                    {/* Top Bar */}
+                    <div className="flex justify-between items-center mb-6">
+                        {/* Mobile Back Button (if needed, otherwise hidden as per design which has it in sidebar/top-left) */}
+                        <div className="md:hidden"></div>
+
+                        <h1 className="text-lg font-bold text-gray-900 mx-auto">Menu</h1>
+
+                        <div className="flex items-center gap-2 text-gray-400">
+                            <span className="font-mono font-bold text-gray-900 text-lg">0{selectedItem.id}</span>
+                            <div className="w-px h-4 bg-gray-300 mx-1"></div>
+                            {/* Grid Icon Placeholder */}
+                            <div className="grid grid-cols-2 gap-0.5 w-5 h-5 opacity-60">
+                                <span className="bg-gray-800 rounded-sm"></span><span className="bg-gray-800 rounded-sm"></span>
+                                <span className="bg-gray-800 rounded-sm"></span><span className="bg-gray-800 rounded-sm"></span>
                             </div>
                         </div>
+                    </div>
+
+                    {/* Category Tabs */}
+                    <div className="flex items-center justify-center gap-8 text-sm md:text-base mb-2">
+                        <button className="text-gray-400 font-medium hover:text-gray-600 transition-colors">Platta</button>
+                        <button className="text-gray-900 font-bold border-b-2 border-orange-500 pb-1">With Bread</button>
+                        <button className="text-gray-400 font-medium hover:text-gray-600 transition-colors">With Rice</button>
                     </div>
                 </div>
 
                 {/* Hero Image & Animation Container */}
-                <div className="flex-1 flex items-center justify-center p-6 relative">
-                    {/* Circle Background */}
-                    <div className="absolute w-[30vh] h-[30vh] md:w-[50vh] md:h-[50vh] bg-orange-50 rounded-full -z-10 blur-3xl opacity-60"></div>
+                <div className="flex-1 flex items-center justify-center p-4 relative min-h-[300px]">
+                    {/* Background decorations */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] bg-orange-50/50 rounded-full blur-[80px] -z-10 pointer-events-none"></div>
 
                     {/* Central Image Container */}
-                    <div className="w-48 h-48 sm:w-64 sm:h-64 md:w-96 md:h-96 relative z-10 aspect-square shrink-0">
+                    <div className="w-56 h-56 sm:w-72 sm:h-72 md:w-96 md:h-96 relative z-10 aspect-square shrink-0">
 
                         {/* 1. Steam Effect (Only when stationary/selected) */}
                         {!exitingItem && (
@@ -104,7 +119,7 @@ const PublicMenuPizza1 = () => {
                         {/* 2. Exiting Item (Rotates out to left) */}
                         {exitingItem && (
                             <div
-                                className="absolute inset-0 w-full h-full rounded-full overflow-hidden border-4 border-white shadow-none animate-[wheelExitLeft_0.4s_ease-in_forwards] z-20"
+                                className="absolute inset-0 w-full h-full rounded-full overflow-hidden border-none shadow-none animate-[wheelExitLeft_0.4s_ease-in_forwards] z-20"
                                 style={{ transformOrigin: '50% 250%' }}
                             >
                                 <img
@@ -118,7 +133,7 @@ const PublicMenuPizza1 = () => {
                         {/* 3. Entering/Selected Item (Rotates in from right) */}
                         <div
                             key={selectedItem.id}
-                            className={`absolute inset-0 w-full h-full rounded-full overflow-hidden border-4 border-white shadow-none z-10 transition-transform duration-500
+                            className={`absolute inset-0 w-full h-full rounded-full overflow-hidden border-none shadow-none z-10 transition-transform duration-500
                                 ${exitingItem ? 'animate-[wheelEnterRight_0.4s_ease-out_forwards]' : 'hover:scale-105'}`}
                             style={{ transformOrigin: '50% 250%' }}
                         >
@@ -133,53 +148,33 @@ const PublicMenuPizza1 = () => {
                 </div>
 
                 {/* Details Card */}
-                <div className="p-4 md:p-12 pb-24 animate-fade-in-up">
-                    <div className="flex justify-between items-start mb-4">
+                <div className="px-8 pb-8 md:pb-12 animate-fade-in-up">
+                    <div className="flex justify-between items-start mb-2">
                         <div>
-                            <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-2">{selectedItem.name}</h2>
-                            <p className="text-gray-500 max-w-md leading-relaxed">{selectedItem.description}</p>
+                            <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-1">{selectedItem.name}</h2>
+                            <div className="flex items-center gap-2 mb-2">
+                                <span className="text-gray-300 text-xl font-light">≣</span>
+                                <p className="text-gray-400 text-sm font-medium">ingredients</p>
+                            </div>
                         </div>
                         <button
                             onClick={() => setLiked(!liked)}
-                            className="p-3 rounded-full hover:bg-gray-50 transition-colors"
+                            className="text-gray-400 hover:text-red-500 transition-colors"
                         >
-                            {liked ? <HiHeart className="w-8 h-8 text-red-500" /> : <HiOutlineHeart className="w-8 h-8 text-gray-400" />}
+                            {liked ? <HiHeart className="w-7 h-7 text-red-500" /> : <HiOutlineHeart className="w-7 h-7" />}
                         </button>
                     </div>
 
-                    <div className="flex items-center gap-2 mb-8">
-                        <span className="text-gray-400 text-sm font-bold uppercase tracking-widest">Ingredients</span>
-                        <div className="h-px bg-gray-200 flex-1 ml-4"></div>
-                    </div>
-
                     {/* Bottom Action Bar */}
-                    <div className="flex flex-col xl:flex-row items-center justify-between gap-6 md:gap-8">
-                        <div className="flex items-center justify-between w-full xl:w-auto gap-8">
-                            <div className="flex items-baseline gap-1">
-                                <span className="text-lg font-bold text-orange-500">$</span>
-                                <span className="text-4xl font-black text-gray-900">{selectedItem.price.toFixed(2)}</span>
-                            </div>
-
-                            <div className="flex items-center bg-gray-100 rounded-full p-1">
-                                <button
-                                    onClick={() => Math.max(1, setQuantity(q => q > 1 ? q - 1 : 1))}
-                                    className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-600 hover:text-orange-500 transition-colors"
-                                >
-                                    <HiMinus />
-                                </button>
-                                <span className="w-12 text-center font-bold text-lg">{quantity}</span>
-                                <button
-                                    onClick={() => setQuantity(q => q + 1)}
-                                    className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-600 hover:text-orange-500 transition-colors"
-                                >
-                                    <HiPlus />
-                                </button>
-                            </div>
+                    <div className="flex items-center justify-between mt-6">
+                        <div className="flex items-baseline gap-1">
+                            <span className="text-lg font-bold text-orange-500">$</span>
+                            <span className="text-3xl font-black text-gray-900">{selectedItem.price.toFixed(2)}</span>
                         </div>
 
-                        <button className="w-full xl:flex-1 bg-orange-500 hover:bg-orange-600 text-white rounded-[2rem] py-4 px-8 font-bold text-lg shadow-xl shadow-orange-500/30 flex items-center justify-center gap-3 transition-transform hover:scale-105 active:scale-95">
-                            <span>Add to Bag</span>
-                            <HiShoppingBag className="w-6 h-6" />
+                        <button className="bg-white border-2 border-orange-100 hover:border-orange-200 text-orange-500 hover:text-orange-600 rounded-[1.5rem] py-3 px-6 font-bold text-lg shadow-sm flex items-center justify-center gap-3 transition-transform active:scale-95">
+                            <span>Add to</span>
+                            <HiShoppingBag className="w-5 h-5" />
                         </button>
                     </div>
                 </div>
