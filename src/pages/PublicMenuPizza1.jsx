@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, HiBars3, HiBuildingStorefront } from 'react-icons/hi2';
+import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, HiBars3, HiBuildingStorefront, HiXMark } from 'react-icons/hi2';
 import { Link } from 'react-router-dom';
 
 const PublicMenuPizza1 = () => {
@@ -22,6 +22,7 @@ const PublicMenuPizza1 = () => {
     const [quantity, setQuantity] = useState(1);
     const [liked, setLiked] = useState(false);
     const [showCheckout, setShowCheckout] = useState(false);
+    const [showLeftSidebar, setShowLeftSidebar] = useState(false);
 
     const handleItemSelect = (item) => {
         if (selectedItem.id === item.id) return;
@@ -41,10 +42,28 @@ const PublicMenuPizza1 = () => {
     return (
         <div className="flex h-screen bg-white text-gray-900 font-sans overflow-hidden relative">
 
+            {/* Mobile Overlay */}
+            {showLeftSidebar && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-30 md:hidden backdrop-blur-sm"
+                    onClick={() => setShowLeftSidebar(false)}
+                />
+            )}
+
             {/* Left Sidebar / Thumbnail List */}
-            <div className="w-24 md:w-32 lg:w-40 h-full flex flex-col items-center py-6 overflow-y-auto no-scrollbar scroll-smooth relative z-10 bg-white/50 backdrop-blur-sm">
-                <button className="mb-6 p-4 rounded-[1.5rem] border border-gray-100 shadow-sm hover:shadow-md transition-shadow bg-white text-gray-600">
-                    <HiBars3 className="w-6 h-6" />
+            <div className={`
+                fixed inset-y-0 left-0 z-40 bg-white/90 backdrop-blur-md md:bg-white/50 
+                w-24 md:w-32 lg:w-40 h-full flex flex-col items-center py-6 
+                overflow-y-auto no-scrollbar scroll-smooth transition-transform duration-300
+                md:relative md:translate-x-0
+                ${showLeftSidebar ? 'translate-x-0' : '-translate-x-full'}
+            `}>
+                <button
+                    onClick={() => setShowLeftSidebar(false)}
+                    className="mb-6 p-4 rounded-[1.5rem] border border-gray-100 shadow-sm hover:shadow-md transition-shadow bg-white text-gray-600 md:cursor-default"
+                >
+                    <HiBars3 className="w-6 h-6 md:block hidden" />
+                    <HiXMark className="w-6 h-6 md:hidden" />
                 </button>
 
                 <div className="space-y-6 w-full px-3 flex flex-col items-center">
@@ -79,8 +98,15 @@ const PublicMenuPizza1 = () => {
                 <div className="px-5 pt-4 pb-1 shrink-0 z-20">
                     {/* Top Bar */}
                     <div className="flex justify-between items-center mb-6">
-                        {/* Mobile Back Button (if needed, otherwise hidden as per design which has it in sidebar/top-left) */}
-                        <div className="md:hidden"></div>
+                        {/* Mobile Back Button (Hamburger Trigger) */}
+                        <div className="md:hidden">
+                            <button
+                                onClick={() => setShowLeftSidebar(true)}
+                                className="p-2 -ml-2 text-gray-600 hover:text-gray-900"
+                            >
+                                <HiBars3 className="w-6 h-6" />
+                            </button>
+                        </div>
 
                         <h1 className="text-xl md:text-2xl font-black text-gray-900 mx-auto tracking-tight">PIZZA TIME</h1>
 
@@ -95,7 +121,7 @@ const PublicMenuPizza1 = () => {
                     </div>
 
                     {/* Category Tabs */}
-                    <div className="flex items-center justify-center gap-4 md:gap-8 text-sm md:text-base mb-2 overflow-x-auto no-scrollbar py-1">
+                    <div className="flex items-center justify-start gap-4 md:gap-8 text-sm md:text-base mb-2 overflow-x-auto no-scrollbar py-1">
                         <button className="text-gray-900 font-bold border-b-2 border-orange-500 pb-1 whitespace-nowrap">Classic</button>
                         <button className="text-gray-400 font-medium hover:text-gray-600 transition-colors whitespace-nowrap">Premium</button>
                         <button className="text-gray-400 font-medium hover:text-gray-600 transition-colors whitespace-nowrap">Special</button>
