@@ -49,6 +49,28 @@ const Templates = () => {
         }
     };
 
+    const handleDeleteTemplate = async (id) => {
+        if (!window.confirm('Are you sure you want to delete this template?')) return;
+
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch('/.netlify/functions/templates', {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id })
+            });
+
+            if (response.ok) {
+                await fetchTemplates();
+            }
+        } catch (error) {
+            console.error('Error deleting template:', error);
+        }
+    };
+
     const handleSaveDeployment = async () => {
         setIsSaving(true);
         try {
@@ -140,6 +162,12 @@ const Templates = () => {
                                 className="w-full px-4 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 active:scale-95 uppercase tracking-widest text-xs"
                             >
                                 <HiRocketLaunch className="w-5 h-5" /> Deploy Template
+                            </button>
+                            <button
+                                onClick={() => handleDeleteTemplate(template.id)}
+                                className="w-full px-4 py-3 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-xl transition-colors flex items-center justify-center gap-2 text-xs uppercase tracking-widest"
+                            >
+                                <HiTrash className="w-4 h-4" /> Delete Template
                             </button>
                         </div>
                     </div>

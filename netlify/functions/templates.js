@@ -63,6 +63,31 @@ export const handler = async (event, context) => {
             };
         }
 
+        if (httpMethod === 'DELETE') {
+            // Admin only check
+            if (!user || user.role !== 'admin') {
+                return { statusCode: 403, body: JSON.stringify({ error: 'Unauthorized' }) };
+            }
+
+            const { id } = JSON.parse(body);
+            if (!id) {
+                return { statusCode: 400, body: JSON.stringify({ error: 'Missing template ID' }) };
+            }
+
+            const q = 'DELETE FROM templates WHERE id = $1 RETURNING *';
+            const result = await query(q, [id]);
+
+            if (result.rowCount === 0) {
+                return { statusCode: 404, body: JSON.stringify({ error: 'Template not found' }) };
+            }
+
+            return {
+                statusCode: 200,
+                body: JSON.stringify({ message: 'Template deleted successfully' }),
+                headers: { 'Content-Type': 'application/json' }
+            };
+        }
+
         return { statusCode: 405, body: 'Method Not Allowed' };
 
     } catch (error) {
