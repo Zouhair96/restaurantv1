@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { HiOutlineUserCircle, HiOutlineX, HiOutlineShoppingBag, HiOutlineLogout, HiOutlineLogin, HiOutlineClipboardList, HiOutlineUserAdd, HiOutlineSun, HiOutlineMoon } from 'react-icons/hi';
+import { translations } from '../../translations';
 
 const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDarkMode, setIsDarkMode }) => {
     const [view, setView] = useState('welcome'); // 'welcome', 'login', 'signup', 'profile', 'forgot-password'
@@ -13,6 +14,10 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
         email: '',
         password: ''
     });
+
+    const lang = language.toLowerCase();
+    const t = translations[lang]?.auth || translations['fr'].auth;
+    const headerT = translations[lang]?.header || translations['fr'].header;
 
     useEffect(() => {
         const storedUser = localStorage.getItem('client_user');
@@ -135,7 +140,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
                         <HiOutlineUserCircle size={24} />
                     </div>
                     <div>
-                        <h2 className={`font-black text-lg transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>My Profile</h2>
+                        <h2 className={`font-black text-lg transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{headerT.profile}</h2>
                         <p className={`text-xs uppercase tracking-widest font-bold transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{restaurantName}</p>
                     </div>
                 </div>
@@ -197,12 +202,12 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
                 {view === 'login' && (
                     <div className="animate-fade-in">
                         <div className="text-center mb-8">
-                            <h3 className={`text-2xl font-black mb-2 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Welcome Back!</h3>
-                            <p className={isDarkMode ? 'text-gray-400 text-sm' : 'text-gray-500 text-sm'}>Log in to track your orders and earn rewards.</p>
+                            <h3 className={`text-2xl font-black mb-2 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{t.loginTitle}</h3>
+                            <p className={isDarkMode ? 'text-gray-400 text-sm' : 'text-gray-500 text-sm'}>{t.welcomeSubtitle}</p>
                         </div>
                         <form onSubmit={handleLogin} className="space-y-4">
                             <div>
-                                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Email or Phone</label>
+                                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t.emailOrPhone}</label>
                                 <input
                                     type="text"
                                     required
@@ -214,7 +219,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
                                 />
                             </div>
                             <div>
-                                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Password</label>
+                                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t.password}</label>
                                 <input
                                     type="password"
                                     required
@@ -230,7 +235,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
                                 disabled={loading}
                                 className="w-full py-4 bg-yum-primary text-white font-black rounded-xl hover:bg-red-500 transition-all flex items-center justify-center gap-2 shadow-lg shadow-yum-primary/20"
                             >
-                                {loading ? 'Logging in...' : <><HiOutlineLogin size={20} /> Login</>}
+                                {loading ? '...' : <><HiOutlineLogin size={20} /> {t.submitLogin}</>}
                             </button>
                         </form>
                         <div className="mt-6 text-center">
@@ -238,12 +243,12 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
                                 onClick={() => setView('forgot-password')}
                                 className={`text-sm font-medium transition-colors ${isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'}`}
                             >
-                                Forgot Password?
+                                {t.forgotPassword}
                             </button>
                         </div>
                         <p className={`mt-4 text-center text-sm transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                            Don't have an account?{' '}
-                            <button onClick={() => setView('signup')} className="text-yum-primary font-bold hover:underline">Sign up</button>
+                            {t.toggleToSignup} {' '}
+                            <button onClick={() => setView('signup')} className="text-yum-primary font-bold hover:underline">{t.linkSignup}</button>
                         </p>
                     </div>
                 )}
@@ -251,12 +256,12 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
                 {view === 'signup' && (
                     <div className="animate-fade-in">
                         <div className="text-center mb-8">
-                            <h3 className={`text-2xl font-black mb-2 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Join Us!</h3>
-                            <p className={isDarkMode ? 'text-gray-400 text-sm' : 'text-gray-500 text-sm'}>Create an account for a personalized experience.</p>
+                            <h3 className={`text-2xl font-black mb-2 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{t.signupTitle}</h3>
+                            <p className={isDarkMode ? 'text-gray-400 text-sm' : 'text-gray-500 text-sm'}>{t.welcomeSubtitle}</p>
                         </div>
                         <form onSubmit={handleSignup} className="space-y-4">
                             <div>
-                                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Full Name</label>
+                                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t.name}</label>
                                 <input
                                     type="text"
                                     required
@@ -268,7 +273,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
                                 />
                             </div>
                             <div>
-                                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Email or Phone Number</label>
+                                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t.emailOrPhoneLong}</label>
                                 <input
                                     type="text"
                                     required
@@ -280,7 +285,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
                                 />
                             </div>
                             <div>
-                                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Password</label>
+                                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t.password}</label>
                                 <input
                                     type="password"
                                     required
@@ -296,12 +301,12 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
                                 disabled={loading}
                                 className="w-full py-4 bg-yum-primary text-white font-black rounded-xl hover:bg-red-500 transition-all flex items-center justify-center gap-2 shadow-lg shadow-yum-primary/20"
                             >
-                                {loading ? 'Creating account...' : <><HiOutlineUserAdd size={20} /> Sign Up</>}
+                                {loading ? '...' : <><HiOutlineUserAdd size={20} /> {t.submitSignup}</>}
                             </button>
                         </form>
                         <p className={`mt-8 text-center text-sm transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                            Already have an account?{' '}
-                            <button onClick={() => setView('login')} className="text-yum-primary font-bold hover:underline">Login</button>
+                            {t.toggleToLogin} {' '}
+                            <button onClick={() => setView('login')} className="text-yum-primary font-bold hover:underline">{t.linkLogin}</button>
                         </p>
                     </div>
                 )}
@@ -309,12 +314,12 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
                 {view === 'forgot-password' && (
                     <div className="animate-fade-in">
                         <div className="text-center mb-8">
-                            <h3 className={`text-2xl font-black mb-2 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Reset Password</h3>
-                            <p className={isDarkMode ? 'text-gray-400 text-sm' : 'text-gray-500 text-sm'}>Enter your details to receive a reset link.</p>
+                            <h3 className={`text-2xl font-black mb-2 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{t.resetPasswordTitle}</h3>
+                            <p className={isDarkMode ? 'text-gray-400 text-sm' : 'text-gray-500 text-sm'}>{t.resetPasswordSubtitle}</p>
                         </div>
                         <form onSubmit={(e) => { e.preventDefault(); /* Handle reset logic */ }} className="space-y-4">
                             <div>
-                                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Email or Phone Number</label>
+                                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t.emailOrPhoneLong}</label>
                                 <input
                                     type="text"
                                     required
@@ -327,7 +332,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
                                 type="submit"
                                 className="w-full py-4 bg-yum-primary text-white font-black rounded-xl hover:bg-red-500 transition-all flex items-center justify-center gap-2 shadow-lg shadow-yum-primary/20"
                             >
-                                Send Reset Link
+                                {t.sendResetLink}
                             </button>
                         </form>
                         <div className="mt-6 text-center">
@@ -335,7 +340,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
                                 onClick={() => setView('login')}
                                 className={`text-sm font-medium hover:underline transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                             >
-                                Back to Login
+                                {t.backToLogin}
                             </button>
                         </div>
                     </div>
@@ -355,7 +360,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
                                     ? 'text-gray-400 hover:text-red-500'
                                     : 'text-gray-500 hover:text-red-500'}`}
                             >
-                                <HiOutlineLogout size={18} /> Logout
+                                <HiOutlineLogout size={18} /> {headerT.logout}
                             </button>
                         </div>
 
@@ -363,7 +368,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
                         <div>
                             <div className="flex items-center gap-2 mb-4">
                                 <HiOutlineClipboardList className="text-yum-primary" size={20} />
-                                <h3 className={`font-black uppercase tracking-widest text-sm transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Order History</h3>
+                                <h3 className={`font-black uppercase tracking-widest text-sm transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{t.orderHistory}</h3>
                             </div>
 
                             <div className="space-y-4">
@@ -383,8 +388,9 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
                                                 {order.status}
                                             </span>
                                         </div>
+
                                         <div className="flex justify-between items-center mt-4">
-                                            <span className={`text-sm transition-colors ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{order.order_type === 'dine_in' ? '🍽️ Dine In' : '🥡 Take Out'}</span>
+                                            <span className={`text-sm transition-colors ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{order.order_type === 'dine_in' ? `🍽️ ${t.dineIn}` : `🥡 ${t.takeOut}`}</span>
                                             <span className={`font-black text-lg transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>${Number(order.total_price).toFixed(2)}</span>
                                         </div>
                                     </div>
@@ -393,8 +399,8 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
                                         ? 'bg-white/5 border-white/10'
                                         : 'bg-gray-50 border-gray-200'}`}>
                                         <HiOutlineShoppingBag size={48} className={`mx-auto mb-4 transition-colors ${isDarkMode ? 'text-gray-700' : 'text-gray-300'}`} />
-                                        <p className={`font-bold transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>No orders yet</p>
-                                        <p className={`text-xs mt-1 transition-colors ${isDarkMode ? 'text-gray-600' : 'text-gray-500'}`}>Your delicious meals will appear here!</p>
+                                        <p className={`font-bold transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{t.noOrders}</p>
+                                        <p className={`text-xs mt-1 transition-colors ${isDarkMode ? 'text-gray-600' : 'text-gray-500'}`}>{t.noOrdersDesc}</p>
                                     </div>
                                 )}
                             </div>
@@ -402,7 +408,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 };
 
