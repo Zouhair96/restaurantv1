@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import React, { useState, useRef, useEffect } from 'react';
 import { HiPencil, HiTrash, HiXMark, HiCloudArrowUp, HiPhoto, HiPlus, HiArrowRightOnRectangle, HiCog6Tooth } from 'react-icons/hi2';
 import { fetchMenus, createMenu, updateMenu } from '../utils/menus';
 
