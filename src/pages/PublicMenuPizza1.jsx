@@ -32,7 +32,7 @@ const PublicMenuPizza1 = () => {
         // Clear exiting item after animation completes (match CSS duration)
         setTimeout(() => {
             setExitingItem(null);
-        }, 1000);
+        }, 400);
     };
 
     return (
@@ -104,7 +104,7 @@ const PublicMenuPizza1 = () => {
                         {/* 2. Exiting Item (Rotates out to left) */}
                         {exitingItem && (
                             <div
-                                className="absolute inset-0 w-full h-full rounded-full overflow-hidden border-4 border-white shadow-2xl animate-[wheelExitLeft_0.6s_ease-in_forwards] z-20"
+                                className="absolute inset-0 w-full h-full rounded-full overflow-hidden border-4 border-white shadow-2xl animate-[wheelExitLeft_0.4s_ease-in_forwards] z-20"
                                 style={{ transformOrigin: '50% 250%' }}
                             >
                                 <img
@@ -119,7 +119,7 @@ const PublicMenuPizza1 = () => {
                         <div
                             key={selectedItem.id}
                             className={`absolute inset-0 w-full h-full rounded-full overflow-hidden border-4 border-white shadow-2xl z-10 transition-transform duration-500
-                                ${exitingItem ? 'animate-[wheelEnterRight_0.6s_ease-out_forwards]' : 'hover:scale-105'}`}
+                                ${exitingItem ? 'animate-[wheelEnterRight_0.4s_ease-out_forwards]' : 'hover:scale-105'}`}
                             style={{ transformOrigin: '50% 250%' }}
                         >
                             <img
