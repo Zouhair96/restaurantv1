@@ -47,7 +47,6 @@ const PublicMenuPizza1 = () => {
             quantity: quantity,
             size: 'Standard' // Default size if not specified
         });
-        setIsCartOpen(true);
         setQuantity(1); // Reset quantity after adding
     };
 
