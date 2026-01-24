@@ -165,16 +165,40 @@
     }
   }
 
-  /* Food Reveal Animations */
-  @keyframes foodAppear {
+  /* Food Reveal Animations - Curved Sweep */
+  @keyframes enterFromBottomRight {
     0% {
       opacity: 0;
-      transform: scale(0.8) translateY(20px);
+      transform: translate(50vw, 50vh) scale(0.2) rotate(45deg);
+    }
+
+    60% {
+      opacity: 1;
+      transform: translate(-10%, -10%) scale(1.1) rotate(-5deg);
+      /* Overshoot */
     }
 
     100% {
       opacity: 1;
-      transform: scale(1) translateY(0);
+      transform: translate(0, 0) scale(1) rotate(0deg);
+    }
+  }
+
+  @keyframes exitToTopLeft {
+    0% {
+      opacity: 1;
+      transform: translate(0, 0) scale(1) rotate(0deg);
+    }
+
+    40% {
+      opacity: 1;
+      transform: translate(10%, 10%) scale(0.9);
+      /* Anticipation */
+    }
+
+    100% {
+      opacity: 0;
+      transform: translate(-50vw, -50vh) scale(0.2) rotate(-45deg);
     }
   }
 
@@ -196,14 +220,11 @@
 
   @keyframes overlayFadeOut {
     0% {
-      opacity: 1;
-      transform: scale(1);
+      background-color: white;
     }
 
     100% {
-      opacity: 0;
-      transform: scale(1.05);
-      /* Slight zoom out on exit */
+      background-color: transparent;
       visibility: hidden;
     }
   }
