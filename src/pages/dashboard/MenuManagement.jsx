@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
 import { useLanguage } from '../../context/LanguageContext'
 import { QRCodeSVG } from 'qrcode.react'
 import TemplateEditorModal from '../../components/dashboard/TemplateEditorModal'
