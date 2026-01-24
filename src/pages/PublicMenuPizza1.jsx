@@ -72,7 +72,8 @@ const PublicMenuPizza1 = () => {
             <div className="flex-1 flex flex-col h-full overflow-y-auto relative z-0">
 
                 {/* Header Section */}
-                <div className="px-6 pt-6 pb-2 shrink-0 z-20">
+                {/* Header Section */}
+                <div className="px-5 pt-4 pb-1 shrink-0 z-20">
                     {/* Top Bar */}
                     <div className="flex justify-between items-center mb-6">
                         {/* Mobile Back Button (if needed, otherwise hidden as per design which has it in sidebar/top-left) */}
@@ -100,12 +101,12 @@ const PublicMenuPizza1 = () => {
                 </div>
 
                 {/* Hero Image & Animation Container */}
-                <div className="flex-1 flex items-center justify-center p-4 relative min-h-[300px]">
+                <div className="flex-1 flex items-center justify-center p-2 relative min-h-[220px]">
                     {/* Background decorations */}
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] bg-orange-50/50 rounded-full blur-[80px] -z-10 pointer-events-none"></div>
 
                     {/* Central Image Container */}
-                    <div className="w-56 h-56 sm:w-72 sm:h-72 md:w-96 md:h-96 relative z-10 aspect-square shrink-0">
+                    <div className="w-40 h-40 sm:w-64 sm:h-64 md:w-96 md:h-96 relative z-10 aspect-square shrink-0">
 
                         {/* 1. Steam Effect (Only when stationary/selected) */}
                         {!exitingItem && (
@@ -148,13 +149,12 @@ const PublicMenuPizza1 = () => {
                 </div>
 
                 {/* Details Card */}
-                <div className="px-8 pb-8 md:pb-12 animate-fade-in-up">
+                <div className="px-6 pb-6 md:pb-12 animate-fade-in-up mt-auto">
                     <div className="flex justify-between items-start mb-2">
                         <div>
                             <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-1">{selectedItem.name}</h2>
-                            <div className="flex items-start gap-2 mb-2">
-                                <span className="text-gray-300 text-xl font-light mt-0.5">≣</span>
-                                <p className="text-gray-500 text-sm leading-relaxed max-w-xs">{selectedItem.description}</p>
+                            <div className="flex items-start gap-2 mb-1">
+                                <p className="text-gray-500 text-xs md:text-sm leading-relaxed max-w-xs line-clamp-2 md:line-clamp-none">{selectedItem.description}</p>
                             </div>
                         </div>
                         <button
@@ -172,7 +172,7 @@ const PublicMenuPizza1 = () => {
                             <span className="text-3xl font-black text-gray-900">{selectedItem.price.toFixed(2)}</span>
                         </div>
 
-                        <button className="bg-white border-2 border-orange-100 hover:border-orange-200 text-orange-500 hover:text-orange-600 rounded-[1.5rem] py-3 px-6 font-bold text-lg shadow-sm flex items-center justify-center gap-3 transition-transform active:scale-95">
+                        <button className="bg-white border hover:border-orange-200 border-orange-100 text-orange-500 hover:text-orange-600 rounded-[1.2rem] py-2 px-5 font-bold text-sm md:text-lg shadow-sm flex items-center justify-center gap-2 transition-transform active:scale-95">
                             <span>Add to</span>
                             <HiShoppingBag className="w-5 h-5" />
                         </button>
