@@ -30,10 +30,16 @@ const Login = () => {
 
         try {
             if (isLogin) {
-                await login(email, password)
+                const { user } = await login(email, password)
                 setSuccess(t('auth.successLogin'))
                 // Redirect after short delay
-                setTimeout(() => navigate('/demo'), 1500)
+                setTimeout(() => {
+                    if (user?.role === 'admin') {
+                        navigate('/admin')
+                    } else {
+                        navigate('/dashboard')
+                    }
+                }, 1500)
             } else {
                 // Validation for Restaurant Name
                 const restaurantNameRegex = /^[a-zA-Z0-9.\-\_\s]+$/
@@ -41,10 +47,17 @@ const Login = () => {
                     throw new Error(t('auth.invalidRestaurantName') || "Restaurant name contains invalid characters.")
                 }
 
-                await signup({ name, email, password, restaurantName, address, phoneNumber })
+                const { user } = await signup({ name, email, password, restaurantName, address, phoneNumber })
                 setSuccess(t('auth.successSignup'))
                 // Redirect after short delay
-                setTimeout(() => navigate('/demo'), 1500)
+                setTimeout(() => {
+                    // New signups are typically restaurants/clients, but we check role to be safe
+                    if (user?.role === 'admin') {
+                        navigate('/admin')
+                    } else {
+                        navigate('/dashboard')
+                    }
+                }, 1500)
             }
         } catch (err) {
             setError(err.message || 'An error occurred')
