@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { HiPencil, HiTrash, HiXMark, HiCloudArrowUp, HiPhoto, HiPlus, HiArrowRightOnRectangle } from 'react-icons/hi2';
+import { fetchMenus, createMenu, updateMenu } from '../utils/menus';
 
 const ManageMenuPizza1 = () => {
     // Initial State mimicking DB
@@ -14,34 +15,92 @@ const ManageMenuPizza1 = () => {
         { id: 8, name: 'Bolognaise', description: 'Sauce chili BBQ, fromage, sauce bolognaise, pepperoni', price: 17.90, category: 'Special', categoryColor: 'bg-orange-100 text-orange-800', image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?q=80&w=1000' },
     ]);
 
-    // Load from local storage on mount
+    const [menuId, setMenuId] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    // Initial Load & Migration Logic
     useEffect(() => {
-        const storedManagerItems = localStorage.getItem('pizza_time_manager_items');
-        if (storedManagerItems) {
+        const loadData = async () => {
+            setIsLoading(true);
             try {
-                const parsedItems = JSON.parse(storedManagerItems);
-                if (Array.isArray(parsedItems)) {
-                    // Filter out nulls or invalid items to prevent crashes
-                    const validItems = parsedItems.filter(item => item && item.id);
-                    setItems(validItems);
+                // 1. Fetch from server
+                const serverMenus = await fetchMenus();
+                const pizzaMenu = serverMenus.find(m => m.name === 'Pizza Menu');
+
+                if (pizzaMenu) {
+                    // Found on server, use it
+                    setMenuId(pizzaMenu.id);
+                    if (pizzaMenu.config && pizzaMenu.config.items) {
+                        setItems(pizzaMenu.config.items);
+                    }
+                } else {
+                    // Not found on server, check local storage for migration
+                    const storedManagerItems = localStorage.getItem('pizza_time_manager_items');
+                    if (storedManagerItems) {
+                        try {
+                            const parsedItems = JSON.parse(storedManagerItems);
+                            const validItems = Array.isArray(parsedItems) ? parsedItems.filter(i => i && i.id) : [];
+
+                            if (validItems.length > 0) {
+                                // Migrate to Server
+                                console.log('Migrating local menu to server...');
+                                const newMenu = await createMenu('Pizza Menu', 'custom', { items: validItems });
+                                setMenuId(newMenu.id);
+                                setItems(validItems);
+                                // Optional: Clear local storage after successful migration
+                                // localStorage.removeItem('pizza_time_manager_items'); 
+                            } else {
+                                // No valid local items, create empty menu
+                                const newMenu = await createMenu('Pizza Menu', 'custom', { items: [] });
+                                setMenuId(newMenu.id);
+                                setItems([]);
+                            }
+                        } catch (e) {
+                            console.error('Migration failed:', e);
+                        }
+                    } else {
+                        // Nothing anywhere, create new empty menu
+                        const newMenu = await createMenu('Pizza Menu', 'custom', { items: [] });
+                        setMenuId(newMenu.id);
+                        // Convert default fallback items to real items if desired, or start empty?
+                        // For now, let's keep the hardcoded initial state as default if creating new
+                        // setItems(initialStateItems); // Assuming we want to keep defaults
+                    }
                 }
             } catch (error) {
-                console.error('Failed to parse manager items:', error);
+                console.error('Failed to load menu data:', error);
+                alert("Failed to connect to server. Changes may not save.");
+            } finally {
+                setIsLoading(false);
             }
-        }
+        };
+
+        loadData();
     }, []);
 
-    // Save to local storage whenever items change
+    // Save to Server whenever items change (Debounced or explicit?)
+    // For this simple implementation, we'll save on every change but we need to reference menuId
+    // Note: React effects run after render, so menuId should be set if loaded.
+    const isFirstRun = useRef(true);
     useEffect(() => {
-        try {
-            localStorage.setItem('pizza_time_manager_items', JSON.stringify(items));
-        } catch (error) {
-            console.error("LocalStorage Save Failed:", error);
-            if (error.name === 'QuotaExceededError') {
-                alert("Storage Limit Reached! The image you are trying to save is too large for the browser's local storage. Please try a smaller image.");
-            }
+        if (isFirstRun.current) {
+            isFirstRun.current = false;
+            return;
         }
-    }, [items]);
+        if (menuId && items.length > 0) {
+            const saveToServer = async () => {
+                try {
+                    await updateMenu(menuId, 'Pizza Menu', { items });
+                    console.log('Saved to server');
+                } catch (error) {
+                    console.error('Save failed:', error);
+                }
+            };
+            // Debounce slightly to avoid too many requests
+            const timeoutId = setTimeout(saveToServer, 1000);
+            return () => clearTimeout(timeoutId);
+        }
+    }, [items, menuId]);
 
     const [categories, setCategories] = useState(['Classic', 'Premium', 'Special', 'Drinks', 'Desserts']);
     const [newCategory, setNewCategory] = useState('');
@@ -103,22 +162,14 @@ const ManageMenuPizza1 = () => {
 
 
 
-    const handleAddToMenu = (item) => {
-        // Read existing public menu
-        const existingData = localStorage.getItem('pizza_time_menu_items');
-        let publicMenu = existingData ? JSON.parse(existingData) : [];
+    const handleAddToMenu = async (item) => {
+        // In the new DB-first approach, the "Manage" list IS the source of truth.
+        // We can optionally have a "published" flag, but for now, since we synced "items" to the DB,
+        // and the PublicMenu will fetch this same DB entry, we just need to ensure the Public API serves it.
+        // The Public API (public-menu.js) fetches the menu by user_id linked to restaurant_name.
+        // So simply saving here (which happens automatically via useEffect) updates the public menu.
 
-        // Check if item exists (by name/id) and update or append
-        const index = publicMenu.findIndex(i => i.name === item.name); // Using name as unique key for now or generate distinct ID logic
-        if (index >= 0) {
-            publicMenu[index] = item; // Update
-        } else {
-            publicMenu.push(item); // Add
-        }
-
-        // Save back
-        localStorage.setItem('pizza_time_menu_items', JSON.stringify(publicMenu));
-        alert(`"${item.name}" added to Public Menu!`);
+        alert(`"${item.name}" is saved to the cloud and available on the public menu.`);
     };
 
     // Swipe Logic

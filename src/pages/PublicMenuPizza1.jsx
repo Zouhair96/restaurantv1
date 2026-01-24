@@ -24,20 +24,61 @@ const PublicMenuPizza1 = () => {
     // State
     const [menuItems, setMenuItems] = useState(hardcodedMenuItems); // Rename original const if needed or just initialize
 
+    const [restaurantName, setRestaurantName] = useState('Pizza Time'); // Default or derived
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // Fetch Public Menu Data
     useEffect(() => {
-        const storedItems = localStorage.getItem('pizza_time_menu_items');
-        if (storedItems) {
+        const fetchPublicMenu = async () => {
+            setIsLoading(true);
             try {
-                const parsedItems = JSON.parse(storedItems);
-                if (Array.isArray(parsedItems)) {
-                    // Filter out nulls or invalid items
-                    const validItems = parsedItems.filter(item => item && item.id);
-                    setMenuItems(validItems);
+                // Determine restaurant name from URL query or default
+                // Ideally this page is served like /:restaurantName/menu, but for now we fallback or use query
+                const params = new URLSearchParams(window.location.search);
+                const targetRestaurant = params.get('restaurant') || 'Pizza Time';
+
+                const response = await fetch(`/.netlify/functions/public-menu?restaurantName=${encodeURIComponent(targetRestaurant)}`);
+
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        // Try fallback to localStorage if API fails (e.g. during dev/transition)
+                        // OR just stay empty. Let's try to be robust.
+                        console.warn("Public API not found or error, checking local storage as fallback.");
+                        throw new Error("API_FAIL");
+                    }
+                    throw new Error('Failed to load menu');
                 }
-            } catch (error) {
-                console.error('Failed to parse public menu items:', error);
+
+                const data = await response.json();
+
+                if (data.menu && data.menu.config && data.menu.config.items) {
+                    setMenuItems(data.menu.config.items);
+                    setRestaurantName(data.restaurant || targetRestaurant);
+                } else if (data.menu && Array.isArray(data.menu)) {
+                    // Handle legacy array format if exists
+                    setMenuItems(data.menu);
+                }
+
+            } catch (err) {
+                console.error("Public menu fetch error:", err);
+
+                // Fallback to LocalStorage if API fails (Backward Compatibility during migration)
+                const storedItems = localStorage.getItem('pizza_time_menu_items');
+                if (storedItems) {
+                    try {
+                        const parsedItems = JSON.parse(storedItems);
+                        if (Array.isArray(parsedItems)) {
+                            setMenuItems(parsedItems.filter(item => item && item.id));
+                        }
+                    } catch (e) { console.error("Local fallback failed", e); }
+                }
+            } finally {
+                setIsLoading(false);
             }
-        }
+        };
+
+        fetchPublicMenu();
     }, []);
 
     const [selectedItem, setSelectedItem] = useState(null); // Init as null to wait for data? Or safe default?
@@ -155,7 +196,7 @@ const PublicMenuPizza1 = () => {
                             {/* Button removed */}
                         </div>
 
-                        <h1 className="text-xl md:text-2xl font-black text-gray-900 mx-auto tracking-tight">PIZZA TIME</h1>
+                        <h1 className="text-xl md:text-2xl font-black text-gray-900 mx-auto tracking-tight uppercase">{restaurantName}</h1>
 
                         <div className="flex items-center gap-2 text-gray-400">
                             <button
