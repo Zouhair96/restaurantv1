@@ -153,7 +153,7 @@ const PublicMenuPizza1 = () => {
                     <div className="flex justify-between items-start mb-2">
                         <div>
                             <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-1">{selectedItem.name}</h2>
-                            <div className="flex items-start gap-2 mb-1 min-h-[2.5rem]">
+                            <div className="flex items-start gap-2 mb-1 h-[3rem] overflow-hidden">
                                 <p className="text-gray-500 text-xs md:text-sm leading-relaxed max-w-xs line-clamp-2 md:line-clamp-none">{selectedItem.description}</p>
                             </div>
                         </div>
