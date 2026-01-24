@@ -1,7 +1,10 @@
 import { query } from './db.js';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
 
-const JWT_SECRET = process.env.JWT_SECRET;
+dotenv.config();
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 export const handler = async (event, context) => {
     const { httpMethod, headers, queryStringParameters, body } = event;
@@ -74,8 +77,8 @@ export const handler = async (event, context) => {
                 return { statusCode: 400, body: JSON.stringify({ error: 'Missing template ID' }) };
             }
 
-            const q = 'DELETE FROM templates WHERE id = $1 RETURNING *';
-            const result = await query(q, [id]);
+            const sql = 'DELETE FROM templates WHERE id = $1 RETURNING *';
+            const result = await query(sql, [id]);
 
             if (result.rowCount === 0) {
                 return { statusCode: 404, body: JSON.stringify({ error: 'Template not found' }) };

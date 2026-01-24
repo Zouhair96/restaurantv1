@@ -119,7 +119,7 @@ const MenuManagement = () => {
                                         <span className="text-4xl">
                                             {savedMenus[0].template_type === 'tacos' ? '🌮' :
                                                 savedMenus[0].template_type === 'pizza' ? '🍕' :
-                                                    ['s1', 's2', 'p1', 'p2', 'p3'].includes(savedMenus[0].template_type) ? (templateConfig.starter.concat(templateConfig.pro).find(t => t.id === savedMenus[0].template_type)?.icon || '🍽️') : '🍽️'}
+                                                    (templates.find(t => t.template_key === savedMenus[0].template_type)?.icon || '🍽️')}
                                         </span>
                                     </div>
                                     <div>

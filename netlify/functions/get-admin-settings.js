@@ -4,6 +4,8 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+
 export const handler = async (event, context) => {
     const headers = {
         'Content-Type': 'application/json',
@@ -21,7 +23,7 @@ export const handler = async (event, context) => {
         }
 
         const token = authHeader.split(' ')[1];
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, JWT_SECRET);
 
         // Check if user is admin
         const userResult = await query('SELECT id, role, email, name, owed_commission_balance, stripe_payment_method_id FROM users WHERE id = $1', [decoded.id]);

@@ -1,5 +1,10 @@
 import { query } from './db.js';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 export const handler = async (event, context) => {
     // 1. Check Method
@@ -24,9 +29,7 @@ export const handler = async (event, context) => {
     const token = authHeader.split(' ')[1];
 
     try {
-        const secret = process.env.JWT_SECRET;
-        if (!secret) throw new Error("JWT_SECRET missing");
-        const decoded = jwt.verify(token, secret);
+        const decoded = jwt.verify(token, JWT_SECRET);
 
         // 3. Check Admin Role
         if (decoded.role !== 'admin') {
