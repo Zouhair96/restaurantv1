@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { HiOutlineUserCircle, HiOutlineX, HiOutlineShoppingBag, HiOutlineLogout, HiOutlineLogin, HiOutlineClipboardList, HiOutlineUserAdd, HiOutlineSun, HiOutlineMoon } from 'react-icons/hi';
+import { HiXMark, HiUser, HiEnvelope, HiLockClosed, HiArrowRightOnRectangle, HiArchiveBox, HiChevronRight } from 'react-icons/hi2';
+import { useClientAuth } from '../../context/ClientAuthContext';
 import { translations } from '../../translations';
 
 const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDarkMode, setIsDarkMode }) => {

@@ -445,7 +445,8 @@ const PublicMenuPizza1 = () => {
             <PublicMenuSidebar
                 isOpen={showAuthSidebar}
                 onClose={() => setShowAuthSidebar(false)}
-                restaurantName="Pizza Time"
+                restaurantName={config.restaurantName}
+                themeColor={config.themeColor}
             />
         </div>
     );
