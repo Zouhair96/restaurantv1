@@ -30,6 +30,7 @@ const PublicMenuPizza1 = () => {
         logoImage: null,
         useLogo: false
     });
+    const [isAuthHovered, setIsAuthHovered] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -172,8 +173,14 @@ const PublicMenuPizza1 = () => {
             `}>
                 <button
                     onClick={() => setShowAuthSidebar(true)}
-                    className="mb-6 p-4 rounded-[1.5rem] border border-gray-100 shadow-sm bg-white text-gray-600 hover-text-theme hover:border-theme hover:shadow-md transition-all active:scale-95"
-                    style={{ '--theme-color': config.themeColor }}
+                    className="mb-6 p-4 rounded-[1.5rem] border shadow-sm bg-white transition-all active:scale-95"
+                    style={{
+                        color: isAuthHovered ? config.themeColor : '#4b5563',
+                        borderColor: isAuthHovered ? config.themeColor : '#f3f4f6',
+                        boxShadow: isAuthHovered ? `0 4px 6px -1px ${config.themeColor}30` : '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                    }}
+                    onMouseEnter={() => setIsAuthHovered(true)}
+                    onMouseLeave={() => setIsAuthHovered(false)}
                 >
                     <HiBars3 className="w-6 h-6 block" />
                 </button>
@@ -185,16 +192,20 @@ const PublicMenuPizza1 = () => {
                             onClick={() => handleItemSelect(item)}
                             className={`relative group w-full flex flex-col items-center justify-center transition-all duration-300`}
                         >
-                            <div className={`
+                            <div
+                                className={`
                                 w-16 h-16 md:w-20 md:h-20 flex items-center justify-center transition-all duration-300
                                 ${selectedItem.id === item.id
-                                    ? 'bg-orange-100 rounded-[1.8rem] p-1.5'
-                                    : 'rounded-full p-0 scale-90 opacity-70 hover:opacity-100 hover:scale-100'}
-                            `}>
+                                        ? 'rounded-[1.8rem] p-1.5'
+                                        : 'rounded-full p-0 scale-90 opacity-70 hover:opacity-100 hover:scale-100'}
+                                `}
+                                style={selectedItem.id === item.id ? { backgroundColor: `${config.themeColor}20`, color: config.themeColor } : {}}
+                            >
                                 <img
                                     src={item.image}
                                     alt={item.name}
-                                    className={`w-full h-full object-cover rounded-full shadow-md ${selectedItem.id === item.id ? 'shadow-orange-500/10' : ''}`}
+                                    className={`w-full h-full object-cover rounded-full shadow-md`}
+                                    style={selectedItem.id === item.id ? { boxShadow: `0 4px 14px 0 ${config.themeColor}40` } : {}}
                                 />
                             </div>
                         </button>
