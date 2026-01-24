@@ -54,7 +54,7 @@ const PublicMenuPizza1 = () => {
             {/* Left Sidebar / Thumbnail List */}
             <div className={`
                 relative shrink-0 z-40 bg-white/90 backdrop-blur-md md:bg-white/50 
-                w-24 md:w-32 lg:w-40 h-full flex flex-col items-center py-6 
+                w-24 md:w-32 lg:w-40 h-full flex flex-col items-center py-6 pb-48
                 overflow-y-auto scroll-smooth transition-all duration-300
             `}>
                 <div className="mb-6 p-4 rounded-[1.5rem] border border-gray-100 shadow-sm bg-white text-gray-600 cursor-default">
@@ -86,7 +86,7 @@ const PublicMenuPizza1 = () => {
             </div>
 
             {/* Main Content Area */}
-            <div className="flex-1 flex flex-col h-full overflow-y-auto relative z-0">
+            <div className="flex-1 flex flex-col h-full overflow-y-auto relative z-0 pb-48">
 
                 {/* Header Section */}
                 {/* Header Section */}
@@ -105,7 +105,7 @@ const PublicMenuPizza1 = () => {
                                 onClick={() => setShowCheckout(!showCheckout)}
                                 className="p-2 -mr-2 text-gray-400 hover:text-gray-900 transition-colors"
                             >
-                                <HiBuildingStorefront className="w-6 h-6" />
+                                <HiShoppingBag className="w-6 h-6" />
                             </button>
                         </div>
                     </div>
@@ -175,54 +175,55 @@ const PublicMenuPizza1 = () => {
                     </div>
                 </div>
 
-                {/* Details Card */}
-                <div className="pb-6 md:pb-12 mt-auto shrink-0 z-20 bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.05)] border-t border-gray-50">
-                    <div className="px-6 pt-6 flex justify-between items-start mb-1">
-                        <div className="flex-1 min-w-0 pr-4">
-                            <h2 className="text-xl md:text-3xl font-black text-gray-900 mb-1 truncate h-8 flex items-center">{selectedItem.name}</h2>
-                            <div className="flex items-start gap-2 mb-1 h-12 overflow-hidden">
-                                <p className="text-gray-500 text-xs md:text-sm leading-relaxed max-w-xs line-clamp-2 md:line-clamp-none">{selectedItem.description}</p>
-                            </div>
+            </div>
+
+            {/* Details Card - Fixed Bottom Overlay */}
+            <div className="fixed bottom-0 left-0 right-0 z-[60] bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.05)] border-t border-gray-50">
+                <div className="px-6 pt-6 pb-6 md:pb-12 flex justify-between items-start mb-1">
+                    <div className="flex-1 min-w-0 pr-4">
+                        <h2 className="text-xl md:text-3xl font-black text-gray-900 mb-1 truncate h-8 flex items-center">{selectedItem.name}</h2>
+                        <div className="flex items-start gap-2 mb-1 h-12 overflow-hidden">
+                            <p className="text-gray-500 text-xs md:text-sm leading-relaxed max-w-xs line-clamp-2 md:line-clamp-none">{selectedItem.description}</p>
                         </div>
-                        <button
-                            onClick={() => setLiked(!liked)}
-                            className="text-gray-400 hover:text-red-500 transition-colors shrink-0 pt-1"
-                        >
-                            {liked ? <HiHeart className="w-6 h-6 text-red-500" /> : <HiOutlineHeart className="w-6 h-6" />}
-                        </button>
+                    </div>
+                    <button
+                        onClick={() => setLiked(!liked)}
+                        className="text-gray-400 hover:text-red-500 transition-colors shrink-0 pt-1"
+                    >
+                        {liked ? <HiHeart className="w-6 h-6 text-red-500" /> : <HiOutlineHeart className="w-6 h-6" />}
+                    </button>
+                </div>
+
+                {/* Bottom Action Bar */}
+                <div className="px-6 pb-6 flex items-end justify-between mt-2">
+                    <div className="flex items-baseline gap-1 mb-2">
+                        <span className="text-lg font-bold text-orange-500">$</span>
+                        <span className="text-3xl font-black text-gray-900">{selectedItem.price.toFixed(2)}</span>
                     </div>
 
-                    {/* Bottom Action Bar */}
-                    <div className="flex items-end justify-between mt-2">
-                        <div className="flex items-baseline gap-1 mb-2">
-                            <span className="text-lg font-bold text-orange-500">$</span>
-                            <span className="text-3xl font-black text-gray-900">{selectedItem.price.toFixed(2)}</span>
-                        </div>
-
-                        <div className="flex flex-col items-center gap-3">
-                            {/* Quantity Control (Stacked on top) */}
-                            <div className="flex items-center gap-3 bg-gray-100 rounded-full px-3 py-1.5 h-8">
-                                <button
-                                    onClick={() => Math.max(1, setQuantity(q => q > 1 ? q - 1 : 1))}
-                                    className="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-orange-500 transition-colors active:scale-95"
-                                >
-                                    <HiMinus className="w-3 h-3" />
-                                </button>
-                                <span className="w-4 text-center font-bold text-gray-900 text-sm">{quantity}</span>
-                                <button
-                                    onClick={() => setQuantity(q => q + 1)}
-                                    className="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-orange-500 transition-colors active:scale-95"
-                                >
-                                    <HiPlus className="w-3 h-3" />
-                                </button>
-                            </div>
-
-                            {/* Add Button */}
-                            <button className="bg-white border hover:border-orange-200 border-orange-100 text-orange-500 hover:text-orange-600 rounded-[1.2rem] py-2.5 px-6 font-bold text-sm shadow-sm flex items-center justify-center gap-2 transition-transform active:scale-95">
-                                <span>Add to</span>
-                                <HiShoppingBag className="w-4 h-4" />
+                    <div className="flex flex-col items-center gap-3">
+                        {/* Quantity Control (Stacked on top) */}
+                        <div className="flex items-center gap-3 bg-gray-100 rounded-full px-3 py-1.5 h-8">
+                            <button
+                                onClick={() => Math.max(1, setQuantity(q => q > 1 ? q - 1 : 1))}
+                                className="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-orange-500 transition-colors active:scale-95"
+                            >
+                                <HiMinus className="w-3 h-3" />
+                            </button>
+                            <span className="w-4 text-center font-bold text-gray-900 text-sm">{quantity}</span>
+                            <button
+                                onClick={() => setQuantity(q => q + 1)}
+                                className="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-orange-500 transition-colors active:scale-95"
+                            >
+                                <HiPlus className="w-3 h-3" />
                             </button>
                         </div>
+
+                        {/* Add Button */}
+                        <button className="bg-white border hover:border-orange-200 border-orange-100 text-orange-500 hover:text-orange-600 rounded-[1.2rem] py-2.5 px-6 font-bold text-sm shadow-sm flex items-center justify-center gap-2 transition-transform active:scale-95">
+                            <span>Add to</span>
+                            <HiShoppingBag className="w-4 h-4" />
+                        </button>
                     </div>
                 </div>
             </div>
