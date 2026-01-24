@@ -25,8 +25,8 @@ const ManageMenuPizza1 = () => {
         <div className="p-8 max-w-7xl mx-auto">
             <header className="flex justify-between items-center mb-8">
                 <div>
-                    <h1 className="text-3xl font-black text-gray-900 dark:text-white">Pizza Time Management</h1>
-                    <p className="text-gray-500">Edit prices and details for your public menu.</p>
+                    <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white">Menu Management</h1>
+                    <p className="text-gray-500 text-sm md:text-base">Manage your restaurant's menu items. Update descriptions, categories, and adjust unit prices.</p>
                 </div>
                 <button
                     onClick={handleSave}
@@ -36,14 +36,14 @@ const ManageMenuPizza1 = () => {
                 </button>
             </header>
 
-            <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-                <table className="w-full text-left">
+            <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden overflow-x-auto">
+                <table className="w-full text-left min-w-[800px]">
                     <thead className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-700">
                         <tr>
                             <th className="p-6 text-sm font-black text-gray-500 uppercase tracking-widest">Item Name</th>
                             <th className="p-6 text-sm font-black text-gray-500 uppercase tracking-widest">Category</th>
                             <th className="p-6 text-sm font-black text-gray-500 uppercase tracking-widest">Description</th>
-                            <th className="p-6 text-sm font-black text-gray-500 uppercase tracking-widest w-32">Price (€)</th>
+                            <th className="p-6 text-sm font-black text-gray-500 uppercase tracking-widest w-32">Unit Price (€)</th>
                             <th className="p-6 text-sm font-black text-gray-500 uppercase tracking-widest text-right">Actions</th>
                         </tr>
                     </thead>
