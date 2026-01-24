@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { HiPencil, HiTrash, HiX, HiCloudUpload, HiPhotograph, HiPlus, HiArrowRightOnRectangle } from 'react-icons/hi2';
+import React, { useState, useRef, useEffect } from 'react';
+import { HiPencil, HiTrash, HiXMark, HiCloudArrowUp, HiPhoto, HiPlus, HiArrowRightOnRectangle } from 'react-icons/hi2';
 
 const ManageMenuPizza1 = () => {
     // Initial State mimicking DB
@@ -13,6 +13,19 @@ const ManageMenuPizza1 = () => {
         { id: 7, name: 'Chicken', description: 'Crème fraîche, fromage, poulet fumé, champignons', price: 13.90, category: 'Premium', categoryColor: 'bg-purple-100 text-purple-800', image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?q=80&w=1000' },
         { id: 8, name: 'Bolognaise', description: 'Sauce chili BBQ, fromage, sauce bolognaise, pepperoni', price: 17.90, category: 'Special', categoryColor: 'bg-orange-100 text-orange-800', image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?q=80&w=1000' },
     ]);
+
+    // Load from local storage on mount
+    useEffect(() => {
+        const storedManagerItems = localStorage.getItem('pizza_time_manager_items');
+        if (storedManagerItems) {
+            setItems(JSON.parse(storedManagerItems));
+        }
+    }, []);
+
+    // Save to local storage whenever items change
+    useEffect(() => {
+        localStorage.setItem('pizza_time_manager_items', JSON.stringify(items));
+    }, [items]);
 
     const [categories, setCategories] = useState(['Classic', 'Premium', 'Special', 'Drinks', 'Desserts']);
     const [newCategory, setNewCategory] = useState('');
@@ -30,21 +43,45 @@ const ManageMenuPizza1 = () => {
     };
 
     const handleSaveEdit = () => {
+        let updatedItems;
         if (editingItem.id) {
             // Update existing
-            setItems(items.map(i => i.id === editingItem.id ? editingItem : i));
+            updatedItems = items.map(i => i.id === editingItem.id ? editingItem : i);
+
+            // Sync with Public Menu if it exists there
+            const publicMenuData = localStorage.getItem('pizza_time_menu_items');
+            if (publicMenuData) {
+                let publicMenu = JSON.parse(publicMenuData);
+                const publicIndex = publicMenu.findIndex(i => i.id === editingItem.id || i.name === editingItem.name);
+                if (publicIndex >= 0) {
+                    publicMenu[publicIndex] = editingItem;
+                    localStorage.setItem('pizza_time_menu_items', JSON.stringify(publicMenu));
+                }
+            }
         } else {
             // Create new
             const newId = Math.max(...items.map(i => i.id), 0) + 1;
-            setItems([...items, { ...editingItem, id: newId }]);
+            updatedItems = [...items, { ...editingItem, id: newId }];
         }
+        setItems(updatedItems);
         setIsEditModalOpen(false);
         setEditingItem(null);
     };
 
     const handleDeleteClick = (id) => {
         if (window.confirm('Are you sure you want to delete this item?')) {
+            const itemToDelete = items.find(i => i.id === id);
             setItems(items.filter(i => i.id !== id));
+
+            // Sync Delete with Public Menu
+            if (itemToDelete) {
+                const publicMenuData = localStorage.getItem('pizza_time_menu_items');
+                if (publicMenuData) {
+                    let publicMenu = JSON.parse(publicMenuData);
+                    const newPublicMenu = publicMenu.filter(i => i.id !== id && i.name !== itemToDelete.name);
+                    localStorage.setItem('pizza_time_menu_items', JSON.stringify(newPublicMenu));
+                }
+            }
         }
     };
 
@@ -210,7 +247,7 @@ const ManageMenuPizza1 = () => {
                                     <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                        <HiPhotograph className="w-8 h-8" />
+                                        <HiPhoto className="w-8 h-8" />
                                     </div>
                                 )}
                             </div>
@@ -310,7 +347,7 @@ const ManageMenuPizza1 = () => {
                             <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-700/50">
                                 <h3 className="text-xl font-black text-gray-900 dark:text-white">Edit Item Details</h3>
                                 <button onClick={() => setIsEditModalOpen(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-                                    <HiX className="w-6 h-6" />
+                                    <HiXMark className="w-6 h-6" />
                                 </button>
                             </div>
                             <div className="p-6 space-y-4">
@@ -361,13 +398,13 @@ const ManageMenuPizza1 = () => {
                                             <>
                                                 <img src={editingItem.image} alt="Preview" className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-30 transition-opacity" />
                                                 <div className="z-10 flex flex-col items-center">
-                                                    <HiCloudUpload className="w-8 h-8 mb-2 text-blue-500" />
+                                                    <HiCloudArrowUp className="w-8 h-8 mb-2 text-blue-500" />
                                                     <span className="text-sm font-bold text-gray-900 dark:text-white">Click or Drop to Replace</span>
                                                 </div>
                                             </>
                                         ) : (
                                             <div className="flex flex-col items-center">
-                                                <HiCloudUpload className="w-8 h-8 mb-2" />
+                                                <HiCloudArrowUp className="w-8 h-8 mb-2" />
                                                 <span className="text-sm font-medium">Click to upload or drag & drop</span>
                                                 <span className="text-xs mt-1">PNG, JPG up to 5MB</span>
                                             </div>
