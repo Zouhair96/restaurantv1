@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { HiPencil, HiTrash, HiX, HiCloudUpload, HiPhotograph, HiPlus } from 'react-icons/hi';
+import { HiPencil, HiTrash, HiX, HiCloudUpload, HiPhotograph, HiPlus, HiDuplicate } from 'react-icons/hi';
 
 const ManageMenuPizza1 = () => {
     // Initial State mimicking DB
@@ -48,6 +48,40 @@ const ManageMenuPizza1 = () => {
         }
     };
 
+    const handleDuplicate = (item) => {
+        const newId = Math.max(...items.map(i => i.id), 0) + 1;
+        const newItem = { ...item, id: newId, name: `${item.name} (Copy)` };
+        setItems([...items, newItem]);
+    };
+
+    // Swipe Logic
+    const [swipedItemId, setSwipedItemId] = useState(null);
+    const touchStart = useRef(null);
+    const touchEnd = useRef(null);
+
+    const handleTouchStart = (e) => {
+        touchEnd.current = null;
+        touchStart.current = e.targetTouches[0].clientX;
+    };
+
+    const handleTouchMove = (e) => {
+        touchEnd.current = e.targetTouches[0].clientX;
+    };
+
+    const handleTouchEnd = (id) => {
+        if (!touchStart.current || !touchEnd.current) return;
+        const distance = touchStart.current - touchEnd.current;
+        const isLeftSwipe = distance > 50;
+        const isRightSwipe = distance < -50;
+
+        if (isLeftSwipe) {
+            setSwipedItemId(id);
+        }
+        if (isRightSwipe && swipedItemId === id) {
+            setSwipedItemId(null);
+        }
+    };
+
     const handleImageDrop = (e) => {
         e.preventDefault();
         const file = e.dataTransfer.files[0];
@@ -86,19 +120,19 @@ const ManageMenuPizza1 = () => {
 
     return (
         <div className="p-8 max-w-7xl mx-auto">
-            <header className="flex justify-between items-center mb-8">
+            <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
                     <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white">Menu Management</h1>
                     <p className="text-gray-500 text-sm md:text-base">Manage your restaurant's menu items. Update descriptions, categories, and adjust unit prices.</p>
                 </div>
-                <div className="flex gap-4">
-                    <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2 w-full md:w-auto">
+                    <div className="flex gap-2 w-full md:w-auto">
                         <input
                             type="text"
                             placeholder="New category..."
                             value={newCategory}
                             onChange={(e) => setNewCategory(e.target.value)}
-                            className="px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                            className="flex-1 px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white min-w-0"
                         />
                         <button
                             onClick={handleAddCategory}
@@ -108,18 +142,18 @@ const ManageMenuPizza1 = () => {
                         </button>
                     </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 w-full md:w-auto">
                     <button
                         onClick={handleAddItem}
-                        className="px-6 py-3 bg-yum-primary text-white font-bold rounded-xl shadow-lg transition-all flex items-center gap-2 hover:bg-red-500"
+                        className="flex-1 md:flex-none px-6 py-3 bg-yum-primary text-white font-bold rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 hover:bg-red-500 whitespace-nowrap"
                     >
                         <HiPlus className="w-5 h-5" /> Add Item
                     </button>
                     <button
                         onClick={handleSave}
-                        className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl shadow-lg transition-all"
+                        className="flex-1 md:flex-none px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl shadow-lg transition-all whitespace-nowrap"
                     >
-                        Save Changes
+                        Save
                     </button>
                 </div>
             </header>
@@ -127,45 +161,60 @@ const ManageMenuPizza1 = () => {
 
 
             {/* Mobile Card View (Visible on small screens) */}
-            <div className="grid grid-cols-1 gap-4 md:hidden">
+            {/* Mobile Card View (Visible on small screens) */}
+            <div className="flex flex-col gap-4 md:hidden overflow-hidden">
+                <p className="text-xs text-center text-gray-400 mb-2">Tip: Swipe item left to edit, duplicate or delete</p>
                 {items.map((item) => (
-                    <div key={item.id} className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 flex gap-4 items-center relative overflow-hidden">
-                        {/* Swipe Action Background (Visual cue) */}
-                        <div className="absolute right-0 inset-y-0 w-24 bg-gradient-to-l from-gray-50 to-transparent dark:from-gray-800 pointer-events-none" />
+                    <div
+                        key={item.id}
+                        className="relative h-28 w-full rounded-2xl overflow-hidden"
+                        onTouchStart={handleTouchStart}
+                        onTouchMove={handleTouchMove}
+                        onTouchEnd={() => handleTouchEnd(item.id)}
+                    >
+                        {/* Actions Background Layer */}
+                        <div className="absolute inset-0 flex justify-end">
+                            <button onClick={() => handleDuplicate(item)} className="h-full w-20 bg-green-500 text-white flex items-center justify-center">
+                                <HiDuplicate size={24} />
+                            </button>
+                            <button onClick={() => handleEditClick(item)} className="h-full w-20 bg-blue-500 text-white flex items-center justify-center">
+                                <HiPencil size={24} />
+                            </button>
+                            <button onClick={() => handleDeleteClick(item.id)} className="h-full w-20 bg-red-500 text-white flex items-center justify-center">
+                                <HiTrash size={24} />
+                            </button>
+                        </div>
 
-                        {/* Image */}
-                        <div className="shrink-0 w-20 h-20 bg-gray-100 rounded-xl overflow-hidden relative group">
-                            {item.image ? (
-                                <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                            ) : (
-                                <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                    <HiPhotograph className="w-8 h-8" />
+                        {/* Foreground Content Layer */}
+                        <div
+                            className={`absolute inset-0 bg-white dark:bg-gray-800 p-4 border border-gray-100 dark:border-gray-700 flex gap-4 items-center transition-transform duration-300 ease-out ${swipedItemId === item.id ? '-translate-x-60' : 'translate-x-0'}`}
+                            onClick={() => swipedItemId === item.id && setSwipedItemId(null)} // Click to close swipe
+                        >
+                            {/* Image */}
+                            <div className="shrink-0 w-20 h-20 bg-gray-100 rounded-xl overflow-hidden relative group">
+                                {item.image ? (
+                                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                        <HiPhotograph className="w-8 h-8" />
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Content */}
+                            <div className="flex-1 min-w-0">
+                                <div className="flex justify-between items-start">
+                                    <h3 className="font-black text-gray-900 dark:text-white truncate">{item.name}</h3>
+                                    <span className="font-bold text-lg text-blue-600 dark:text-blue-400">€{item.price.toFixed(2)}</span>
                                 </div>
+                                <p className="text-xs text-gray-500 mb-1 truncate">{item.category}</p>
+                                <p className="text-sm text-gray-500 line-clamp-2">{item.description}</p>
+                            </div>
+
+                            {/* Chevon/Hint */}
+                            {swipedItemId !== item.id && (
+                                <div className="h-8 w-1 bg-gray-200 dark:bg-gray-700 rounded-full shrink-0" />
                             )}
-                        </div>
-
-                        {/* Content */}
-                        <div className="flex-1 min-w-0">
-                            <h3 className="font-black text-gray-900 dark:text-white truncate">{item.name}</h3>
-                            <p className="text-xs text-gray-500 mb-1 truncate">{item.category}</p>
-                            <p className="text-sm text-gray-500 line-clamp-1 mb-2">{item.description}</p>
-                            <span className="font-bold text-lg text-blue-600 dark:text-blue-400">€{item.price.toFixed(2)}</span>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex flex-col gap-2 shrink-0 z-10">
-                            <button
-                                onClick={() => handleEditClick(item)}
-                                className="p-2 bg-blue-50 text-blue-500 rounded-xl hover:bg-blue-100 transition-colors"
-                            >
-                                <HiPencil className="w-5 h-5" />
-                            </button>
-                            <button
-                                onClick={() => handleDeleteClick(item.id)}
-                                className="p-2 bg-red-50 text-red-500 rounded-xl hover:bg-red-100 transition-colors"
-                            >
-                                <HiTrash className="w-5 h-5" />
-                            </button>
                         </div>
                     </div>
                 ))}
