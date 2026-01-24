@@ -13,7 +13,7 @@ import Promotions from './pages/dashboard/Promotions'
 import Activity from './pages/dashboard/Activity'
 import Settings from './pages/dashboard/Settings'
 import BillingSettings from './pages/dashboard/BillingSettings'
-import ApiDocs from './pages/dashboard/ApiDocs'
+
 import OrderConfirmation from './pages/OrderConfirmation'
 import Checkout from './pages/Checkout'
 import PublicMenu from './pages/PublicMenu'
@@ -82,8 +82,8 @@ function App() {
                   <Route path="team" element={<Team />} />
                   <Route path="promos" element={<Promotions />} />
                   <Route path="activity" element={<Activity />} />
-                  <Route path="developer" element={<ApiDocs />} />
-                  <Route path="integrations" element={<div className="animate-fade-in shadow-2xl rounded-[3rem] overflow-hidden"><IntegrationSettings /></div>} />
+
+                  <Route path="payments" element={<div className="animate-fade-in shadow-2xl rounded-[3rem] overflow-hidden"><IntegrationSettings /></div>} />
                   <Route path="simulator" element={<div className="animate-fade-in shadow-2xl rounded-[3rem] overflow-hidden"><Simulator /></div>} />
                   <Route path="billing" element={<BillingSettings />} />
                   <Route path="settings" element={<Settings />} />

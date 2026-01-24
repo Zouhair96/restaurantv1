@@ -1,9 +1,7 @@
 import { query } from './db.js';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-import { POSManager } from './pos-adapters/pos-manager.js';
 import { getStripe } from './utils/stripe-client.js';
-import { formatOrderForPOS } from './utils/pos-formatter.js';
 
 export const handler = async (event, context) => {
     // Allow CORS
@@ -185,59 +183,6 @@ export const handler = async (event, context) => {
             }
         }
 
-        // --- POS INTEGRATION TRIGGER ---
-        let posStatus = { success: false, skipped: true };
-        console.log(`🔍 [POS] Starting sync process for restaurant ${restaurantId} (#${newOrder.id})`);
-
-        try {
-            // The commission will now be recorded when the order is ACCEPTED (manually or via 15-min auto-accept)
-            // as per the new "Marketing First" strategy.
-            /* 
-            if (paymentMethod === 'cash') {
-                await query(
-                    'UPDATE users SET owed_commission_balance = COALESCE(owed_commission_balance, 0) + $1 WHERE id = $2',
-                    [commissionAmount, restaurantId]
-                );
-            }
-            */
-
-            const settingsResult = await query(
-                'SELECT * FROM integration_settings WHERE restaurant_id = $1',
-                [restaurantId]
-            );
-
-            console.log(`🔍 [POS] Settings found: ${settingsResult.rows.length > 0}`);
-
-            if (settingsResult.rows.length > 0) {
-                const settings = settingsResult.rows[0];
-                console.log(`🔍 [POS] Enabled: ${settings.pos_enabled}, Provider: ${settings.pos_provider}, URL: ${!!settings.pos_webhook_url}`);
-
-                if (settings.pos_enabled && settings.pos_webhook_url) {
-                    const formattedOrder = formatOrderForPOS(newOrder, items);
-                    console.log(`🔍 [POS] Sending formatted payload (${formattedOrder.items.length} items)`);
-
-                    posStatus = await POSManager.sendOrder(settings, formattedOrder);
-                    console.log(`🔍 [POS] Sync result: ${posStatus.success ? 'SUCCESS' : 'FAILED'}`, posStatus.error || '');
-
-                    if (posStatus.success && posStatus.external_id) {
-                        await query(
-                            'UPDATE orders SET external_id = $1 WHERE id = $2',
-                            [posStatus.external_id, newOrder.id]
-                        );
-                    }
-                } else {
-                    posStatus.reason = settings.pos_enabled ? "Missing Webhook URL" : "POS disabled in settings";
-                    console.log(`🔍 [POS] Skipped: ${posStatus.reason}`);
-                }
-            } else {
-                posStatus.reason = "No integration settings found for this restaurant";
-                console.log(`🔍 [POS] Skipped: ${posStatus.reason}`);
-            }
-        } catch (posError) {
-            console.error('❌ [POS] Integration Error:', posError.message);
-            posStatus = { success: false, error: posError.message };
-        }
-
         return {
             statusCode: 201,
             headers,
@@ -245,7 +190,6 @@ export const handler = async (event, context) => {
                 success: true,
                 orderId: newOrder.id,
                 message: 'Order placed successfully',
-                pos_sync: posStatus,
                 checkoutUrl: checkoutUrl
             })
         };
