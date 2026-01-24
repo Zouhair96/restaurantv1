@@ -169,13 +169,13 @@
   @keyframes enterFromBottomRight {
     0% {
       opacity: 0;
-      transform: translate(50vw, 50vh) scale(0.2) rotate(45deg);
+      transform: translate(40vw, 40vh) scale(0.2) rotate(45deg);
     }
 
     60% {
       opacity: 1;
-      transform: translate(-10%, -10%) scale(1.1) rotate(-5deg);
-      /* Overshoot */
+      transform: translate(-5%, -5%) scale(1.1) rotate(-10deg);
+      /* Slight overshoot */
     }
 
     100% {
@@ -190,15 +190,16 @@
       transform: translate(0, 0) scale(1) rotate(0deg);
     }
 
-    40% {
+    30% {
       opacity: 1;
-      transform: translate(10%, 10%) scale(0.9);
+      transform: translate(5%, 5%) scale(0.95);
       /* Anticipation */
     }
 
     100% {
       opacity: 0;
-      transform: translate(-50vw, -50vh) scale(0.2) rotate(-45deg);
+      transform: translate(-40vw, -40vh) scale(0.5) rotate(-45deg);
+      /* Exit to corner */
     }
   }
 
@@ -209,23 +210,12 @@
     }
 
     50% {
-      opacity: 0.6;
+      opacity: 0.8;
     }
 
     100% {
       opacity: 0;
-      transform: translateY(-40px) scale(1.5);
-    }
-  }
-
-  @keyframes overlayFadeOut {
-    0% {
-      background-color: white;
-    }
-
-    100% {
-      background-color: transparent;
-      visibility: hidden;
+      transform: translateY(-50px) scale(1.5);
     }
   }
 }
