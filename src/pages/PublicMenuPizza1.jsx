@@ -172,7 +172,8 @@ const PublicMenuPizza1 = () => {
             `}>
                 <button
                     onClick={() => setShowAuthSidebar(true)}
-                    className="mb-6 p-4 rounded-[1.5rem] border border-gray-100 shadow-sm bg-white text-gray-600 hover:text-gray-900 hover:shadow-md transition-all active:scale-95"
+                    className="mb-6 p-4 rounded-[1.5rem] border border-gray-100 shadow-sm bg-white text-gray-600 hover-text-theme hover:border-theme hover:shadow-md transition-all active:scale-95"
+                    style={{ '--theme-color': config.themeColor }}
                 >
                     <HiBars3 className="w-6 h-6 block" />
                 </button>
