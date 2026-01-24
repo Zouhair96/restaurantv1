@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { HiOutlineUserCircle, HiOutlineX, HiOutlineShoppingBag, HiOutlineLogout, HiOutlineLogin, HiOutlineClipboardList, HiOutlineUserAdd, HiOutlineSun, HiOutlineMoon } from 'react-icons/hi';
 
 const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDarkMode, setIsDarkMode }) => {
-    const [view, setView] = useState('welcome'); // 'welcome', 'login', 'signup', 'profile'
+    const [view, setView] = useState('welcome'); // 'welcome', 'login', 'signup', 'profile', 'forgot-password'
+    const [language, setLanguage] = useState('FR'); // 'FR', 'EN'
     const [clientUser, setClientUser] = useState(null);
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -140,14 +141,13 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
                 </div>
                 <div className="flex items-center gap-2">
                     <button
-                        onClick={() => setIsDarkMode(!isDarkMode)}
-                        className={`p-2 rounded-xl transition-all border ${isDarkMode
-                            ? 'bg-white/5 border-white/10 text-gray-400 hover:text-white hover:bg-white/10'
-                            : 'bg-black/5 border-black/10 text-gray-500 hover:text-black hover:bg-black/10'
+                        onClick={() => setLanguage(language === 'FR' ? 'EN' : 'FR')}
+                        className={`p-2 rounded-xl transition-all border font-bold text-xs w-10 flex items-center justify-center ${isDarkMode
+                            ? 'bg-white/5 border-white/10 text-white hover:bg-white/10'
+                            : 'bg-black/5 border-black/10 text-gray-900 hover:bg-black/10'
                             }`}
-                        title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
                     >
-                        {isDarkMode ? <HiOutlineSun size={20} /> : <HiOutlineMoon size={20} />}
+                        {language}
                     </button>
                     <button onClick={onClose} className={`p-2 transition-colors ${isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-400 hover:text-gray-900'}`}>
                         <HiOutlineX size={24} />
@@ -202,9 +202,9 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
                         </div>
                         <form onSubmit={handleLogin} className="space-y-4">
                             <div>
-                                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Email Address</label>
+                                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Email or Phone</label>
                                 <input
-                                    type="email"
+                                    type="text"
                                     required
                                     className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:border-yum-primary transition-all ${isDarkMode
                                         ? 'bg-white/5 border-white/10 text-white'
@@ -233,7 +233,15 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
                                 {loading ? 'Logging in...' : <><HiOutlineLogin size={20} /> Login</>}
                             </button>
                         </form>
-                        <p className={`mt-8 text-center text-sm transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                        <div className="mt-6 text-center">
+                            <button
+                                onClick={() => setView('forgot-password')}
+                                className={`text-sm font-medium transition-colors ${isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'}`}
+                            >
+                                Forgot Password?
+                            </button>
+                        </div>
+                        <p className={`mt-4 text-center text-sm transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
                             Don't have an account?{' '}
                             <button onClick={() => setView('signup')} className="text-yum-primary font-bold hover:underline">Sign up</button>
                         </p>
@@ -260,9 +268,9 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
                                 />
                             </div>
                             <div>
-                                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Email Address</label>
+                                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Email or Phone Number</label>
                                 <input
-                                    type="email"
+                                    type="text"
                                     required
                                     className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:border-yum-primary transition-all ${isDarkMode
                                         ? 'bg-white/5 border-white/10 text-white'
@@ -295,6 +303,41 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
                             Already have an account?{' '}
                             <button onClick={() => setView('login')} className="text-yum-primary font-bold hover:underline">Login</button>
                         </p>
+                    </div>
+                )}
+
+                {view === 'forgot-password' && (
+                    <div className="animate-fade-in">
+                        <div className="text-center mb-8">
+                            <h3 className={`text-2xl font-black mb-2 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Reset Password</h3>
+                            <p className={isDarkMode ? 'text-gray-400 text-sm' : 'text-gray-500 text-sm'}>Enter your details to receive a reset link.</p>
+                        </div>
+                        <form onSubmit={(e) => { e.preventDefault(); /* Handle reset logic */ }} className="space-y-4">
+                            <div>
+                                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Email or Phone Number</label>
+                                <input
+                                    type="text"
+                                    required
+                                    className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:border-yum-primary transition-all ${isDarkMode
+                                        ? 'bg-white/5 border-white/10 text-white'
+                                        : 'bg-gray-50 border-gray-200 text-gray-900'}`}
+                                />
+                            </div>
+                            <button
+                                type="submit"
+                                className="w-full py-4 bg-yum-primary text-white font-black rounded-xl hover:bg-red-500 transition-all flex items-center justify-center gap-2 shadow-lg shadow-yum-primary/20"
+                            >
+                                Send Reset Link
+                            </button>
+                        </form>
+                        <div className="mt-6 text-center">
+                            <button
+                                onClick={() => setView('login')}
+                                className={`text-sm font-medium hover:underline transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                            >
+                                Back to Login
+                            </button>
+                        </div>
                     </div>
                 )}
 
