@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, HiBars3, HiBuildingStorefront, HiXMark } from 'react-icons/hi2';
+import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, HiBars3, HiBuildingStorefront, HiXMark, HiTrash } from 'react-icons/hi2';
 import { Link } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
 
 const PublicMenuPizza1 = () => {
     // Hardcoded Pizza Time Data
@@ -21,14 +22,33 @@ const PublicMenuPizza1 = () => {
     const [exitingItem, setExitingItem] = useState(null); // The item leaving
     const [quantity, setQuantity] = useState(1);
     const [liked, setLiked] = useState(false);
-    const [showCheckout, setShowCheckout] = useState(false);
-    const [showLeftSidebar, setShowLeftSidebar] = useState(false); // Can be removed later if unused
+    // const [showCheckout, setShowCheckout] = useState(false); // Replaced by CartContext
     const [activeCategory, setActiveCategory] = useState('Classic');
+
+    const {
+        cartItems,
+        addToCart,
+        removeFromCart,
+        updateQuantity,
+        isCartOpen,
+        setIsCartOpen,
+        getCartTotal
+    } = useCart();
 
     const handleCategorySelect = (category) => {
         setActiveCategory(category);
         const firstItem = menuItems.find(item => item.category === category);
         if (firstItem) handleItemSelect(firstItem);
+    };
+
+    const handleAddToCart = () => {
+        addToCart({
+            ...selectedItem,
+            quantity: quantity,
+            size: 'Standard' // Default size if not specified
+        });
+        setIsCartOpen(true);
+        setQuantity(1); // Reset quantity after adding
     };
 
     const handleItemSelect = (item) => {
@@ -102,10 +122,13 @@ const PublicMenuPizza1 = () => {
 
                         <div className="flex items-center gap-2 text-gray-400">
                             <button
-                                onClick={() => setShowCheckout(!showCheckout)}
-                                className="p-2 -mr-2 text-gray-400 hover:text-gray-900 transition-colors"
+                                onClick={() => setIsCartOpen(!isCartOpen)}
+                                className="p-2 -mr-2 text-gray-400 hover:text-gray-900 transition-colors relative"
                             >
                                 <HiShoppingBag className="w-6 h-6" />
+                                {cartItems.length > 0 && (
+                                    <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                                )}
                             </button>
                         </div>
                     </div>
@@ -220,35 +243,86 @@ const PublicMenuPizza1 = () => {
                         </div>
 
                         {/* Add Button (Right) */}
-                        <button className="bg-white border hover:border-orange-200 border-orange-100 text-orange-500 hover:text-orange-600 rounded-[1.2rem] py-2.5 px-6 font-bold text-sm shadow-sm flex items-center justify-center gap-2 transition-transform active:scale-95 h-10">
+                        <button
+                            onClick={handleAddToCart}
+                            className="bg-white border hover:border-orange-200 border-orange-100 text-orange-500 hover:text-orange-600 rounded-[1.2rem] py-2.5 px-6 font-bold text-sm shadow-sm flex items-center justify-center gap-2 transition-transform active:scale-95 h-10"
+                        >
                             <span>Add to</span>
                             <HiShoppingBag className="w-5 h-5" />
                         </button>
                     </div>
                 </div>
             </div>
-            {/* Right Sidebar / Checkout */}
-            <div className={`fixed inset-y-0 right-0 w-80 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50 ${showCheckout ? 'translate-x-0' : 'translate-x-full'}`}>
+
+            {/* Right Sidebar / Checkout - Z-Index Updated to 70 */}
+            <div className={`fixed inset-y-0 right-0 w-80 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-[70] ${isCartOpen ? 'translate-x-0' : 'translate-x-full'}`}>
                 <div className="flex flex-col h-full bg-white">
-                    <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+                    <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
                         <h2 className="text-xl font-bold text-gray-900">Your Order</h2>
-                        <button onClick={() => setShowCheckout(false)} className="text-gray-400 hover:text-gray-600">
-                            <HiMinus className="w-6 h-6 rotate-45" />
+                        <button onClick={() => setIsCartOpen(false)} className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-100 rounded-full transition-colors">
+                            <HiXMark className="w-6 h-6" />
                         </button>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto p-6 flex flex-col items-center justify-center text-gray-500">
-                        <HiShoppingBag className="w-12 h-12 mb-3 opacity-20" />
-                        <p>Your cart is empty</p>
-                        <p className="text-sm mt-1">Add some delicious pizza!</p>
+                    <div className="flex-1 overflow-y-auto p-4 flex flex-col">
+                        {cartItems.length === 0 ? (
+                            <div className="flex-1 flex flex-col items-center justify-center text-gray-500">
+                                <HiShoppingBag className="w-16 h-16 mb-4 opacity-10" />
+                                <p className="font-medium text-gray-400">Your cart is empty</p>
+                                <p className="text-sm mt-1 text-gray-400">Add some delicious pizza!</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                {cartItems.map((item, index) => (
+                                    <div key={`${item.id}-${index}`} className="flex gap-3 bg-white border border-gray-50 rounded-2xl p-3 shadow-sm">
+                                        <div className="w-16 h-16 shrink-0 bg-gray-50 rounded-xl overflow-hidden">
+                                            <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                                        </div>
+                                        <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                                            <div className="flex justify-between items-start gap-2">
+                                                <h3 className="font-bold text-gray-900 text-sm truncate">{item.name}</h3>
+                                                <button
+                                                    onClick={() => removeFromCart(item.id, item.size)}
+                                                    className="text-gray-300 hover:text-red-500 transition-colors"
+                                                >
+                                                    <HiTrash className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                            <div className="flex justify-between items-end">
+                                                <span className="font-bold text-orange-500 text-sm">${(item.price * item.quantity).toFixed(2)}</span>
+                                                <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-2 py-1">
+                                                    <button
+                                                        onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
+                                                        className="text-gray-400 hover:text-gray-900 active:scale-90 transition-transform"
+                                                    >
+                                                        <HiMinus className="w-3 h-3" />
+                                                    </button>
+                                                    <span className="text-xs font-bold text-gray-900 w-3 text-center">{item.quantity}</span>
+                                                    <button
+                                                        onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)}
+                                                        className="text-gray-400 hover:text-gray-900 active:scale-90 transition-transform"
+                                                    >
+                                                        <HiPlus className="w-3 h-3" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
-                    <div className="p-6 border-t border-gray-100 bg-gray-50">
-                        <div className="flex justify-between mb-4">
-                            <span className="text-gray-600">Total</span>
-                            <span className="font-bold text-2xl text-gray-900">$0.00</span>
+                    <div className="p-6 border-t border-gray-100 bg-gray-50/50">
+                        <div className="flex justify-between mb-2 text-sm text-gray-500">
+                            <span>Subtotal</span>
+                            <span>${getCartTotal().toFixed(2)}</span>
                         </div>
-                        <button className="w-full bg-gray-900 text-white font-bold py-3 rounded-xl hover:bg-gray-800 transition-colors">
+                        <div className="flex justify-between mb-6">
+                            <span className="text-gray-900 font-bold text-lg">Total</span>
+                            <span className="font-black text-2xl text-gray-900">${getCartTotal().toFixed(2)}</span>
+                        </div>
+                        <button className="w-full bg-gray-900 text-white font-bold py-4 rounded-xl hover:bg-gray-800 transition-transform active:scale-[0.98] shadow-lg shadow-gray-900/20">
                             Checkout
                         </button>
                     </div>
