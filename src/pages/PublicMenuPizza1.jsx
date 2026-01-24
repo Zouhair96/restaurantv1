@@ -55,7 +55,7 @@ const PublicMenuPizza1 = () => {
             <div className={`
                 relative shrink-0 z-40 bg-white/90 backdrop-blur-md md:bg-white/50 
                 w-24 md:w-32 lg:w-40 h-full flex flex-col items-center py-6 
-                overflow-y-auto no-scrollbar scroll-smooth transition-all duration-300
+                overflow-y-auto scroll-smooth transition-all duration-300
             `}>
                 <div className="mb-6 p-4 rounded-[1.5rem] border border-gray-100 shadow-sm bg-white text-gray-600 cursor-default">
                     <HiBars3 className="w-6 h-6 block" />
@@ -176,8 +176,8 @@ const PublicMenuPizza1 = () => {
                 </div>
 
                 {/* Details Card */}
-                <div className="px-6 pb-6 md:pb-12 mt-auto shrink-0 z-20 bg-white">
-                    <div className="flex justify-between items-start mb-1">
+                <div className="pb-6 md:pb-12 mt-auto shrink-0 z-20 bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.05)] border-t border-gray-50">
+                    <div className="px-6 pt-6 flex justify-between items-start mb-1">
                         <div className="flex-1 min-w-0 pr-4">
                             <h2 className="text-xl md:text-3xl font-black text-gray-900 mb-1 truncate h-8 flex items-center">{selectedItem.name}</h2>
                             <div className="flex items-start gap-2 mb-1 h-12 overflow-hidden">
