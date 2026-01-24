@@ -60,13 +60,18 @@ const ManageMenuPizza1 = () => {
                                     {item.description}
                                 </td>
                                 <td className="p-6">
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        value={item.price}
-                                        onChange={(e) => handlePriceChange(item.id, e.target.value)}
-                                        className="w-24 p-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-transparent font-mono font-bold"
-                                    />
+                                    <div className="relative w-32">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <span className="text-gray-500 font-bold">€</span>
+                                        </div>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            value={item.price}
+                                            onChange={(e) => handlePriceChange(item.id, e.target.value)}
+                                            className="w-full pl-8 pr-3 py-2 rounded-xl border-2 border-gray-100 hover:border-gray-300 focus:border-blue-500 dark:border-gray-700 dark:hover:border-gray-600 bg-gray-50 dark:bg-gray-700/50 font-mono font-bold text-gray-900 dark:text-white transition-all outline-none"
+                                        />
+                                    </div>
                                 </td>
                                 <td className="p-6 text-right">
                                     <button className="text-blue-500 hover:text-blue-600 font-bold text-sm">Edit Details</button>
