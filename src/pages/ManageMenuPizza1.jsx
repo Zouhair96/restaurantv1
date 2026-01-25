@@ -95,6 +95,7 @@ const ManageMenuPizza1 = ({ isAdminView = false }) => {
                     description_override: editingItem.description,
                     price_override: editingItem.price,
                     image_override: editingItem.image_url,
+                    category_override: editingItem.category,
                     is_hidden: editingItem.is_hidden
                 };
 
@@ -187,7 +188,7 @@ const ManageMenuPizza1 = ({ isAdminView = false }) => {
         try {
             if (isAdminView) {
                 // Admin: Save to Template Config
-                await fetch('/.netlify/functions/templates', {
+                const response = await fetch('/.netlify/functions/templates', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -198,20 +199,46 @@ const ManageMenuPizza1 = ({ isAdminView = false }) => {
                         config: menuConfig
                     })
                 });
+                if (response.ok) alert('Master Template Settings saved!');
             } else {
                 // Restaurant: Save to Menu Config
-                // We need the menu instance ID. In the loadData we didn't store it in a separate state yet.
-                // Let's modify loadData to store the menuId.
-                const menuId = template?.restaurant_menu_id; // I should add this to the API response
+                const menuId = template?.restaurant_menu_id;
                 if (menuId) {
-                    const { updateMenu } = await import('../utils/menus');
-                    await updateMenu(menuId, menuConfig.restaurantName, menuConfig);
+                    const response = await fetch('/.netlify/functions/menus', {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            id: menuId,
+                            name: menuConfig.restaurantName,
+                            config: menuConfig
+                        })
+                    });
+                    if (response.ok) alert('Your Menu Settings saved!');
+                } else {
+                    // Fallback create if missing (though it shouldn't be)
+                    const res = await fetch('/.netlify/functions/menus', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            name: menuConfig.restaurantName,
+                            templateType: templateKey,
+                            config: menuConfig
+                        })
+                    });
+                    if (res.ok) alert('Menu Settings created!');
                 }
             }
             setIsSettingsModalOpen(false);
-            alert('Settings saved successfully!');
+            await loadData();
         } catch (error) {
             console.error('Failed to save settings:', error);
+            alert('Error saving settings. Check console.');
         } finally {
             setIsSaving(false);
         }
@@ -274,10 +301,11 @@ const ManageMenuPizza1 = ({ isAdminView = false }) => {
                     )}
                     <button
                         onClick={() => {
-                            setEditingItem({ name: '', description: '', price: 0, category: 'Classic', image_url: '' });
+                            setEditingItem({ name: '', description: '', price: 0, category: 'Classic Pizzas', image_url: '', is_hidden: false });
                             setIsEditModalOpen(true);
                         }}
-                        className="flex-1 md:flex-none px-6 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl shadow-xl shadow-indigo-600/20 flex items-center justify-center gap-2 transition-all active:scale-95 text-xs uppercase tracking-widest"
+                        style={{ backgroundColor: menuConfig.themeColor }}
+                        className="flex-1 md:flex-none px-6 py-4 text-white font-black rounded-2xl shadow-xl flex items-center justify-center gap-2 transition-all active:scale-95 text-xs uppercase tracking-widest"
                     >
                         <HiPlus className="w-5 h-5" />
                         {isAdminView ? 'Add Master Item' : 'Add Custom Item'}
@@ -308,9 +336,10 @@ const ManageMenuPizza1 = ({ isAdminView = false }) => {
                         <button
                             key={cat}
                             onClick={() => setSelectedCategory(cat)}
+                            style={selectedCategory === cat ? { backgroundColor: menuConfig.themeColor, color: '#fff', boxShadow: `0 10px 15px -3px ${menuConfig.themeColor}40` } : {}}
                             className={`px-5 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all whitespace-nowrap border ${selectedCategory === cat
-                                ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-600/30'
-                                : 'bg-white dark:bg-white/5 text-gray-400 border-gray-100 dark:border-white/10 hover:border-indigo-500'
+                                ? 'border-transparent'
+                                : 'bg-white dark:bg-white/5 text-gray-400 border-gray-100 dark:border-white/10 hover:border-gray-300'
                                 }`}
                         >
                             {cat}
@@ -454,10 +483,14 @@ const ManageMenuPizza1 = ({ isAdminView = false }) => {
                                     <select
                                         value={editingItem.category}
                                         onChange={(e) => setEditingItem({ ...editingItem, category: e.target.value })}
-                                        className={`w-full px-5 py-4 rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-[#24262d] text-gray-900 dark:text-white font-bold focus:ring-2 focus:ring-indigo-500 outline-none transition-all ${!isAdminView ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                        disabled={!isAdminView}
+                                        className={`w-full px-5 py-4 rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-[#24262d] text-gray-900 dark:text-white font-bold focus:ring-2 focus:ring-indigo-500 outline-none transition-all ${!isAdminView ? 'opacity-70' : ''}`}
                                     >
-                                        <option>Classic</option><option>Premium</option><option>Special</option><option>Drinks</option><option>Desserts</option>
+                                        <option value="Classic Pizzas">Classic Pizzas</option>
+                                        <option value="Premium Pizzas">Premium Pizzas</option>
+                                        <option value="Desserts">Desserts</option>
+                                        <option value="Drinks">Drinks</option>
+                                        <option value="Starters">Starters</option>
+                                        <option value="Special">Special</option>
                                     </select>
                                 </div>
                             </div>
@@ -502,9 +535,10 @@ const ManageMenuPizza1 = ({ isAdminView = false }) => {
                             <button
                                 onClick={handleSaveItem}
                                 disabled={isSaving}
-                                className="flex-2 px-10 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl shadow-xl shadow-indigo-600/20 active:scale-95 transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-2"
+                                style={{ backgroundColor: menuConfig.themeColor }}
+                                className="flex-2 px-10 py-4 text-white font-black rounded-2xl shadow-xl active:scale-95 transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-2"
                             >
-                                {isSaving ? 'Saving...' : <><HiRocketLaunch className="w-5 h-5" /> {isAdminView ? 'Update Base' : 'Save Override'}</>}
+                                {isSaving ? 'Saving...' : <><HiRocketLaunch className="w-5 h-5" /> {isAdminView ? 'Update Base' : 'Save Item'}</>}
                             </button>
                         </div>
                     </div>
@@ -566,7 +600,8 @@ const ManageMenuPizza1 = ({ isAdminView = false }) => {
                             <button
                                 onClick={handleSaveSettings}
                                 disabled={isSaving}
-                                className="flex-2 px-10 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl shadow-xl shadow-indigo-600/20 active:scale-95 transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-2"
+                                style={{ backgroundColor: menuConfig.themeColor }}
+                                className="flex-2 px-10 py-4 text-white font-black rounded-2xl shadow-xl active:scale-95 transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-2"
                             >
                                 {isSaving ? 'Applying...' : <><HiRocketLaunch className="w-5 h-5" /> Save Changes</>}
                             </button>

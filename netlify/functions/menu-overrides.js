@@ -92,6 +92,23 @@ export const handler = async (event, context) => {
                 return { ...baseItem, has_override: false, is_hidden: false };
             });
 
+            // 7. Add purely custom items (overrides with no base item)
+            const customItems = overrides
+                .filter(o => !o.template_item_id)
+                .map(o => ({
+                    id: o.id, // Using override ID as the primary ID for custom items
+                    name: o.name_override,
+                    description: o.description_override,
+                    price: o.price_override,
+                    image_url: o.image_override,
+                    category: o.category_override || 'Special', // Need to make sure we save category too
+                    is_hidden: o.is_hidden,
+                    has_override: true,
+                    is_custom: true
+                }));
+
+            const finalItems = [...mergedItems, ...customItems];
+
             // 5.5 Get Restaurant Menu Settings (Branding)
             const menuSettingsRes = await query('SELECT id, name, config FROM menus WHERE user_id = $1 AND template_type = $2 LIMIT 1', [restaurantId, templateKey]);
             const menuSettings = menuSettingsRes.rows[0];
@@ -108,44 +125,59 @@ export const handler = async (event, context) => {
                         activation_status: rt.status,
                         subscription_tier: rt.subscription_tier
                     },
-                    items: mergedItems
+                    items: finalItems
                 })
             };
         }
 
         if (event.httpMethod === 'POST') {
-            const { template_item_id, name_override, description_override, price_override, image_override, is_hidden, restaurant_template_id } = JSON.parse(event.body);
-
-            // Verify user owns this restaurant_template or is admin
-            let rtId = restaurant_template_id;
-            if (!rtId) {
-                // Try to find it if not provided
-                const findRT = await query('SELECT id FROM restaurant_templates WHERE restaurant_id = $1 AND template_id = (SELECT template_id FROM template_items WHERE id = $2)', [restaurantId, template_item_id]);
-                if (findRT.rows.length === 0) return { statusCode: 403, headers, body: JSON.stringify({ error: 'Template record missing' }) };
-                rtId = findRT.rows[0].id;
-            }
+            const {
+                template_item_id,
+                name_override,
+                description_override,
+                price_override,
+                image_override,
+                category_override,
+                is_hidden,
+                restaurant_template_id
+            } = JSON.parse(event.body);
 
             // Gating: Only active templates can have overrides updated
-            const rtCheck = await query('SELECT status FROM restaurant_templates WHERE id = $1 AND restaurant_id = $2', [rtId, restaurantId]);
+            const rtCheck = await query('SELECT status FROM restaurant_templates WHERE id = $1 AND restaurant_id = $2', [restaurant_template_id, restaurantId]);
             if (rtCheck.rows.length === 0 || (rtCheck.rows[0].status !== 'active')) {
-                return { statusCode: 403, headers, body: JSON.stringify({ error: 'Cannot update overrides for inactive template' }) };
+                return { statusCode: 403, headers, body: JSON.stringify({ error: 'Cannot update overrides for inactive or unauthorized template' }) };
             }
 
-            const res = await query(
-                `INSERT INTO item_overrides (restaurant_template_id, restaurant_id, template_item_id, name_override, description_override, price_override, image_override, is_hidden, updated_at)
-                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
-                 ON CONFLICT (restaurant_id, template_item_id)
-                 DO UPDATE SET 
-                    name_override = EXCLUDED.name_override,
-                    description_override = EXCLUDED.description_override,
-                    price_override = EXCLUDED.price_override,
-                    image_override = EXCLUDED.image_override,
-                    is_hidden = EXCLUDED.is_hidden,
-                    restaurant_template_id = EXCLUDED.restaurant_template_id,
-                    updated_at = NOW()
-                 RETURNING *`,
-                [rtId, restaurantId, template_item_id, name_override, description_override, price_override, image_override, is_hidden]
-            );
+            // Persistence Logic: 
+            // 1. If template_item_id exists, it's an override (ON CONFLICT on template_item_id)
+            // 2. If template_item_id is null, it's a "Custom Item" for this restaurant.
+
+            let res;
+            if (template_item_id) {
+                res = await query(
+                    `INSERT INTO item_overrides (restaurant_template_id, restaurant_id, template_item_id, name_override, description_override, price_override, image_override, category_override, is_hidden, updated_at)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
+                     ON CONFLICT (restaurant_id, template_item_id)
+                     DO UPDATE SET 
+                        name_override = EXCLUDED.name_override,
+                        description_override = EXCLUDED.description_override,
+                        price_override = EXCLUDED.price_override,
+                        image_override = EXCLUDED.image_override,
+                        category_override = EXCLUDED.category_override,
+                        is_hidden = EXCLUDED.is_hidden,
+                        updated_at = NOW()
+                     RETURNING *`,
+                    [restaurant_template_id, restaurantId, template_item_id, name_override, description_override, price_override, image_override, category_override, is_hidden]
+                );
+            } else {
+                // Purely custom item (no base item)
+                res = await query(
+                    `INSERT INTO item_overrides (restaurant_template_id, restaurant_id, name_override, description_override, price_override, image_override, category_override, is_hidden, updated_at)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+                     RETURNING *`,
+                    [restaurant_template_id, restaurantId, name_override, description_override, price_override, image_override, category_override, is_hidden || false]
+                );
+            }
 
             return { statusCode: 200, headers, body: JSON.stringify(res.rows[0]) };
         }

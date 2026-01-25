@@ -119,7 +119,7 @@ const PublicMenuPizza1 = () => {
 
     const handleCategorySelect = (category) => {
         setActiveCategory(category);
-        const firstItem = menuItems.find(item => item.category === category);
+        const firstItem = menuItems.find(item => category === 'All' || item.category === category);
         if (firstItem) handleItemSelect(firstItem);
     };
 
@@ -127,13 +127,13 @@ const PublicMenuPizza1 = () => {
         addToCart({
             ...selectedItem,
             quantity: quantity,
-            size: 'Standard' // Default size if not specified
+            size: 'Standard'
         });
-        setQuantity(1); // Reset quantity after adding
+        setQuantity(1);
     };
 
     const handleItemSelect = (item) => {
-        if (selectedItem.id === item.id) return;
+        if (!item || selectedItem?.id === item.id) return;
 
         // Start transition
         setExitingItem(selectedItem);
@@ -173,7 +173,7 @@ const PublicMenuPizza1 = () => {
             `}>
                 <button
                     onClick={() => setShowAuthSidebar(true)}
-                    className="mb-6 p-4 rounded-[1.5rem] border shadow-sm transition-all active:scale-95"
+                    className="mb-6 p-4 rounded-[1.5rem] border shadow-sm transition-all active:scale-95 flex items-center justify-center"
                     style={{
                         color: config.themeColor,
                         borderColor: `${config.themeColor}40`,
@@ -181,11 +181,11 @@ const PublicMenuPizza1 = () => {
                         boxShadow: `0 4px 6px -1px ${config.themeColor}20`
                     }}
                 >
-                    <HiBars3 className="w-6 h-6 block" />
+                    <HiBars3 className="w-6 h-6" />
                 </button>
 
                 <div className="space-y-6 w-full px-3 flex flex-col items-center">
-                    {menuItems.filter(item => item && item.category === activeCategory).map((item) => (
+                    {menuItems.filter(item => item && (activeCategory === 'All' || item.category === activeCategory)).map((item) => (
                         <button
                             key={item.id}
                             onClick={() => handleItemSelect(item)}
@@ -246,14 +246,15 @@ const PublicMenuPizza1 = () => {
 
                     {/* Category Tabs */}
                     <div className="flex items-center justify-start gap-4 md:gap-8 text-sm md:text-base mb-2 overflow-x-auto no-scrollbar py-1">
-                        {['Classic', 'Premium', 'Special', 'Drinks', 'Desserts'].map((category) => (
+                        {['All', ...new Set(menuItems.map(i => i.category).filter(Boolean))].map((category) => (
                             <button
                                 key={category}
                                 onClick={() => handleCategorySelect(category)}
                                 className={`font-bold pb-1 whitespace-nowrap transition-colors ${activeCategory === category
-                                    ? 'text-gray-900 border-b-2 border-theme'
+                                    ? 'text-gray-900 border-b-2'
                                     : 'text-gray-400 hover-text-theme'
                                     }`}
+                                style={activeCategory === category ? { borderColor: config.themeColor } : {}}
                             >
                                 {category}
                             </button>
@@ -339,14 +340,14 @@ const PublicMenuPizza1 = () => {
                         {/* Quantity Control (Left) */}
                         <div className="flex items-center gap-3 bg-gray-100 rounded-full px-3 py-1.5 h-10">
                             <button
-                                onClick={() => Math.max(1, setQuantity(q => q > 1 ? q - 1 : 1))}
+                                onClick={() => setQuantity(q => Math.max(1, q - 1))}
                                 className="w-5 h-5 flex items-center justify-center text-gray-400 hover-text-theme transition-colors active:scale-95"
                             >
                                 <HiMinus className="w-4 h-4" />
                             </button>
                             <span className="w-4 text-center font-bold text-gray-900 text-sm">{quantity}</span>
                             <button
-                                onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)}
+                                onClick={() => setQuantity(q => q + 1)}
                                 className="w-5 h-5 flex items-center justify-center text-gray-400 hover-text-theme transition-colors active:scale-95"
                             >
                                 <HiPlus className="w-4 h-4" />

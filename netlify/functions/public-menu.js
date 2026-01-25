@@ -69,7 +69,7 @@ export const handler = async (event, context) => {
         const overrides = overridesRes.rows;
 
         // 5. Merge with Fallback Logic (Field-level)
-        const items = baseItems
+        const mergedItems = baseItems
             .map(baseItem => {
                 const override = overrides.find(o => o.template_item_id === baseItem.id);
                 if (override) {
@@ -79,12 +79,31 @@ export const handler = async (event, context) => {
                         name: override.name_override ?? baseItem.name,
                         description: override.description_override ?? baseItem.description,
                         price: override.price_override ?? baseItem.price,
-                        image_url: override.image_override ?? baseItem.image_url
+                        image_url: override.image_override ?? baseItem.image_url,
+                        category: override.category_override ?? baseItem.category
                     };
                 }
                 return baseItem;
             })
             .filter(Boolean);
+
+        // 5.5 Add Custom Items
+        const customItems = overrides
+            .filter(o => !o.template_item_id)
+            .map(o => ({
+                id: o.id,
+                name: o.name_override,
+                description: o.description_override,
+                price: o.price_override,
+                image_url: o.image_override,
+                category: o.category_override || 'Special',
+                is_custom: true
+            }));
+
+        const items = [...mergedItems, ...customItems].map(item => ({
+            ...item,
+            image: item.image_url // Unified for frontend
+        }));
 
         // 6. Construct Final Response
         const finalConfig = {
