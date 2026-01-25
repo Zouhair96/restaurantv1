@@ -74,8 +74,9 @@ const PublicMenu = () => {
                         restaurant: 'Master Preview',
                         menu: {
                             template_type: templateKey,
+                            base_layout: result.base_layout || 'grid',
                             config: {
-                                ...result,
+                                ...result.config,
                                 items: result.items || []
                             }
                         }
