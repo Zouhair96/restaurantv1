@@ -146,9 +146,25 @@ export const handler = async (event, context) => {
             } = JSON.parse(event.body);
 
             // Gating: Only active templates can have overrides updated
-            const rtCheck = await query('SELECT status FROM restaurant_templates WHERE id = $1 AND restaurant_id = $2', [restaurant_template_id, restaurantId]);
+            const rtCheck = await query(`
+                SELECT rt.status, t.allowed_plans 
+                FROM restaurant_templates rt
+                JOIN templates t ON rt.template_id = t.id
+                WHERE rt.id = $1 AND rt.restaurant_id = $2
+            `, [restaurant_template_id, restaurantId]);
+
             if (rtCheck.rows.length === 0 || (rtCheck.rows[0].status !== 'active')) {
                 return { statusCode: 403, headers, body: JSON.stringify({ error: 'Cannot update overrides for inactive or unauthorized template' }) };
+            }
+
+            // Plan-specific check (Prevention of legacy customization after plan downgrade)
+            const userRes = await query('SELECT role, subscription_plan FROM users WHERE id = $1', [restaurantId]);
+            const dbUser = userRes.rows[0];
+            const plan = dbUser.subscription_plan?.toLowerCase() || 'starter';
+            const allowedPlans = rtCheck.rows[0].allowed_plans || [];
+
+            if (dbUser.role !== 'admin' && !allowedPlans.includes(plan)) {
+                return { statusCode: 403, headers, body: JSON.stringify({ error: 'Upgrade required: Your current plan does not support this template.' }) };
             }
 
             // Persistence Logic: 

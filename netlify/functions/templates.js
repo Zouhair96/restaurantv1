@@ -72,9 +72,6 @@ export const handler = async (event, context) => {
                 // we allow it for the "Public Master Preview" regardless of session.
                 if (templateKey) {
                     // Allowed publicly for preview
-                } else if (!isActivated && user?.role !== 'admin') {
-                    // Listing mode: Only show if activated or admin
-                    continue;
                 }
 
                 const itemsResult = await query(

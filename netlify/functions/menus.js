@@ -34,11 +34,21 @@ export const handler = async (event, context) => {
     const { httpMethod } = event;
 
     try {
-        // --- GET: List all menus for user ---
+        // --- GET: List all menus for user (Filtered by current plan permissions) ---
         if (httpMethod === 'GET') {
+            // First get latest plan from DB (token might be stale)
+            const userRes = await query('SELECT role, subscription_plan FROM users WHERE id = $1', [user.id]);
+            const dbUser = userRes.rows[0];
+            const plan = dbUser.subscription_plan?.toLowerCase() || 'starter';
+
             const result = await query(
-                'SELECT * FROM menus WHERE user_id = $1 ORDER BY updated_at DESC',
-                [user.id]
+                `SELECT m.* 
+                 FROM menus m
+                 JOIN templates t ON m.template_type = t.template_key
+                 WHERE m.user_id = $1 
+                 AND (t.allowed_plans ? $2 OR $3 = 'admin')
+                 ORDER BY m.updated_at DESC`,
+                [user.id, plan, dbUser.role]
             );
             return {
                 statusCode: 200,
