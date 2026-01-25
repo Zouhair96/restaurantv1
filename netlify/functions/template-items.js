@@ -49,8 +49,9 @@ export const handler = async (event, context) => {
 
         if (event.httpMethod === 'DELETE') {
             const { id } = JSON.parse(event.body);
-            await query('DELETE FROM template_items WHERE id = $1', [id]);
-            return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };
+            // Soft Delete Policy: Mark as is_deleted instead of physical removal
+            await query('UPDATE template_items SET is_deleted = true, updated_at = NOW() WHERE id = $1', [id]);
+            return { statusCode: 200, headers, body: JSON.stringify({ success: true, message: 'Item soft-deleted' }) };
         }
 
     } catch (error) {

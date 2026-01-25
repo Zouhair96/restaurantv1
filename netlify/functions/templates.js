@@ -36,6 +36,7 @@ export const handler = async (event, context) => {
         if (event.httpMethod === 'GET') {
             const plan = event.queryStringParameters?.plan || '';
             const templateKey = event.queryStringParameters?.templateKey || '';
+            const restaurantId = user?.id;
 
             let sql = 'SELECT * FROM templates WHERE status = $1';
             let params = ['active'];
@@ -54,17 +55,38 @@ export const handler = async (event, context) => {
 
             const templatesResult = await query(sql, params);
 
-            // For each template, fetch its items
+            // Fetch activation status if user is a restaurant
+            let restaurantTemplates = [];
+            if (user && user.role !== 'admin') {
+                const rtRes = await query('SELECT * FROM restaurant_templates WHERE restaurant_id = $1 AND status = $2', [user.id, 'active']);
+                restaurantTemplates = rtRes.rows;
+            }
+
+            // For each template, fetch its items (respecting soft-delete)
             const templates = [];
             for (const template of templatesResult.rows) {
+                // Subscription check for specific template if requested
+                const isActivated = user?.role === 'admin' || restaurantTemplates.some(rt => rt.template_id === template.id);
+
+                // If fetching a single template, check if it's allowed for this user
+                if (templateKey && !isActivated && user?.role !== 'admin') {
+                    continue; // Skip or handle error
+                }
+
                 const itemsResult = await query(
-                    'SELECT * FROM template_items WHERE template_id = $1 ORDER BY sort_order, id',
+                    'SELECT * FROM template_items WHERE template_id = $1 AND is_deleted = false ORDER BY sort_order, id',
                     [template.id]
                 );
+
                 templates.push({
                     ...template,
+                    is_activated: isActivated,
                     items: itemsResult.rows
                 });
+            }
+
+            if (templateKey && templates.length === 0) {
+                return { statusCode: 403, headers, body: JSON.stringify({ error: 'Access Denied: Template not activated or tier too low' }) };
             }
 
             return {

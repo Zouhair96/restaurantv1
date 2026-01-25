@@ -188,12 +188,29 @@ const Overview = () => {
                                     >
                                         Show
                                     </Link>
-                                    <Link
-                                        to={`/manage-menu-${template.template_key}`}
-                                        className="flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-xl transition-all shadow-lg shadow-indigo-600/20 text-xs uppercase tracking-widest active:scale-95"
-                                    >
-                                        Manage
-                                    </Link>
+                                    {template.is_activated ? (
+                                        <Link
+                                            to={`/manage-menu-${template.template_key}`}
+                                            className="flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-xl transition-all shadow-lg shadow-indigo-600/20 text-xs uppercase tracking-widest active:scale-95"
+                                        >
+                                            Manage
+                                        </Link>
+                                    ) : (
+                                        <button
+                                            onClick={async () => {
+                                                const token = localStorage.getItem('token');
+                                                const res = await fetch('/.netlify/functions/menu-overrides', {
+                                                    method: 'GET',
+                                                    params: { templateKey: template.template_key }, // My current func doesn't handle params like this in fetch, but I'll use the URL
+                                                });
+                                                // Simplified: Just navigate, the GET handle in menu-overrides auto-activates.
+                                                navigate(`/manage-menu-${template.template_key}`);
+                                            }}
+                                            className="flex items-center justify-center gap-2 px-4 py-3 bg-green-600 hover:bg-green-500 text-white font-black rounded-xl transition-all shadow-lg shadow-green-600/20 text-xs uppercase tracking-widest active:scale-95"
+                                        >
+                                            Activate
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         ))

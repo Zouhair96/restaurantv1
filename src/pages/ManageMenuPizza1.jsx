@@ -89,6 +89,7 @@ const ManageMenuPizza1 = ({ isAdminView = false }) => {
             } else {
                 // Restaurant: Update Override
                 const payload = {
+                    restaurant_template_id: template.restaurant_template_id,
                     template_item_id: editingItem.id,
                     name_override: editingItem.name,
                     description_override: editingItem.description,
@@ -216,116 +217,181 @@ const ManageMenuPizza1 = ({ isAdminView = false }) => {
         }
     };
 
+    const [selectedCategory, setSelectedCategory] = useState('All');
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const categories = ['All', ...new Set(items.map(i => i.category).filter(Boolean))];
+
+    const filteredItems = items.filter(item => {
+        const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
+        const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            item.description.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesCategory && matchesSearch;
+    });
+
     return (
-        <div className="p-8 max-w-7xl mx-auto animate-fade-in">
-            <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
+        <div className="p-4 md:p-8 max-w-7xl mx-auto animate-fade-in pb-20">
+            <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6">
                 <div className="space-y-1">
                     <button
                         onClick={() => navigate(isAdminView ? '/admin' : '/dashboard/menu')}
-                        className="flex items-center gap-2 text-gray-400 hover:text-indigo-600 mb-4 font-black transition-all uppercase text-xs tracking-widest group"
+                        className="flex items-center gap-2 text-gray-400 hover:text-indigo-600 mb-4 font-black transition-all uppercase text-[10px] tracking-widest group"
                     >
-                        <HiArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back
+                        <HiArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back to Dashboard
                     </button>
-                    <div className="flex items-center gap-3">
-                        <span className="text-3xl">{template?.icon || '🍽️'}</span>
-                        <h1 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tight">
-                            {isAdminView ? `Manage Base: ${template?.name}` : 'Menu Overrides'}
-                        </h1>
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-3xl border border-indigo-500/20 shadow-inner">
+                            {template?.icon || '🍕'}
+                        </div>
+                        <div>
+                            <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tight leading-none">
+                                {isAdminView ? `Master Blueprint: ${template?.name}` : 'Menu Personalization'}
+                            </h1>
+                            <div className="flex items-center gap-2 mt-2">
+                                <span className="px-2 py-0.5 rounded-full bg-indigo-500 text-white text-[9px] font-black uppercase tracking-widest">
+                                    {isAdminView ? 'Admin Mode' : 'Restaurant Mode'}
+                                </span>
+                                <span className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">
+                                    {templateKey} template
+                                </span>
+                            </div>
+                        </div>
                     </div>
-                    <p className="text-gray-500 font-medium max-w-2xl">
-                        {isAdminView
-                            ? "Configure the global master items for this template. Changes here affect all restaurants."
-                            : `Personalize the "${template?.name}" template for your restaurant. Your changes are private.`}
-                    </p>
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex items-center gap-3 w-full md:w-auto">
                     {isAdminView && (
                         <button
                             onClick={() => {
                                 setEditingItem({ name: '', description: '', price: 0, category: 'Classic', image_url: '' });
                                 setIsEditModalOpen(true);
                             }}
-                            className="px-6 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl shadow-xl shadow-indigo-600/20 flex items-center gap-2 transition-all active:scale-95 text-xs uppercase tracking-widest"
+                            className="flex-1 md:flex-none px-6 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl shadow-xl shadow-indigo-600/20 flex items-center justify-center gap-2 transition-all active:scale-95 text-xs uppercase tracking-widest"
                         >
-                            <HiPlus className="w-5 h-5" /> Add Base Item
+                            <HiPlus className="w-5 h-5" /> Add Master Item
                         </button>
                     )}
                     <button
                         onClick={() => setIsSettingsModalOpen(true)}
-                        className="p-4 bg-white dark:bg-white/5 text-gray-600 dark:text-white font-black rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm hover:border-indigo-500 transition-all"
-                        title="Theme & Logo Settings"
+                        className="p-4 bg-white dark:bg-white/5 text-gray-600 dark:text-white font-black rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm hover:border-indigo-500 transition-all active:rotate-45"
+                        title="Display Settings"
                     >
                         <HiCog6Tooth className="w-6 h-6" />
                     </button>
                 </div>
             </header>
 
-            <div className="grid grid-cols-1 gap-6">
-                {items.length > 0 ? (
-                    <div className="bg-white dark:bg-white/5 rounded-[2.5rem] border border-gray-100 dark:border-white/5 overflow-hidden shadow-sm">
-                        <table className="w-full text-left">
-                            <thead className="bg-gray-50/50 dark:bg-white/5 border-b border-gray-100 dark:border-white/5">
-                                <tr>
-                                    <th className="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Item</th>
-                                    <th className="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Description</th>
-                                    <th className="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest w-32">Price</th>
-                                    <th className="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-50 dark:divide-white/5">
-                                {items.map((item) => (
-                                    <tr key={item.id} className={`hover:bg-indigo-50/30 dark:hover:bg-indigo-500/5 transition-colors ${item.is_hidden ? 'opacity-50 grayscale' : ''}`}>
-                                        <td className="p-6">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-14 h-14 rounded-2xl overflow-hidden bg-gray-100 dark:bg-white/5 border border-gray-100 dark:border-white/10 shrink-0">
-                                                    {item.image_url ? <img src={item.image_url} className="w-full h-full object-cover" /> : <HiPhoto className="w-full h-full p-3 text-gray-300" />}
-                                                </div>
-                                                <div>
-                                                    <span className="font-black text-gray-900 dark:text-white block">{item.name}</span>
-                                                    <span className="text-[10px] font-black text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 px-2 py-0.5 rounded-full uppercase tracking-tighter border border-indigo-100 dark:border-indigo-500/20">{item.category}</span>
-                                                    {!isAdminView && item.has_override && <span className="ml-2 text-[9px] font-black text-green-500 uppercase italic">Modified</span>}
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="p-6 text-sm text-gray-500 font-medium italic">{item.description}</td>
-                                        <td className="p-6 font-mono font-black text-gray-900 dark:text-white">€{parseFloat(item.price).toFixed(2)}</td>
-                                        <td className="p-6 text-right">
-                                            <div className="flex items-center justify-end gap-2">
-                                                {!isAdminView && (
-                                                    <button
-                                                        onClick={() => toggleVisibility(item)}
-                                                        className={`p-3 rounded-xl transition-all ${item.is_hidden ? 'text-red-500 bg-red-50 dark:bg-red-500/10' : 'text-gray-400 hover:text-indigo-600'}`}
-                                                        title={item.is_hidden ? "Show in Menu" : "Hide from Menu"}
-                                                    >
-                                                        {item.is_hidden ? <HiEyeSlash className="w-5 h-5" /> : <HiEye className="w-5 h-5" />}
-                                                    </button>
-                                                )}
-                                                <button
-                                                    onClick={() => { setEditingItem({ ...item }); setIsEditModalOpen(true); }}
-                                                    className="p-3 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-xl transition-all"
-                                                >
-                                                    <HiPencil className="w-5 h-5" />
-                                                </button>
-                                                {isAdminView && (
-                                                    <button
-                                                        onClick={() => handleDeleteItem(item.id)}
-                                                        className="p-3 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-600/10 rounded-xl transition-all"
-                                                    >
-                                                        <HiTrash className="w-5 h-5" />
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+            {/* Filters & Search */}
+            <div className="flex flex-col md:flex-row gap-4 mb-8">
+                <div className="flex-1 relative">
+                    <input
+                        type="text"
+                        placeholder="Search items..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full pl-6 pr-12 py-4 rounded-2xl bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 text-gray-800 dark:text-white font-bold focus:ring-2 focus:ring-indigo-500 outline-none transition-all shadow-sm"
+                    />
+                </div>
+                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide no-scrollbar">
+                    {categories.map(cat => (
+                        <button
+                            key={cat}
+                            onClick={() => setSelectedCategory(cat)}
+                            className={`px-5 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all whitespace-nowrap border ${selectedCategory === cat
+                                ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-600/30'
+                                : 'bg-white dark:bg-white/5 text-gray-400 border-gray-100 dark:border-white/10 hover:border-indigo-500'
+                                }`}
+                        >
+                            {cat}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {filteredItems.length > 0 ? (
+                    filteredItems.map((item, index) => (
+                        <div
+                            key={item.id}
+                            className={`group relative bg-white dark:bg-[#1a1c23] rounded-[2rem] border border-gray-100 dark:border-white/10 overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 ${item.is_hidden ? 'opacity-40 grayscale' : ''}`}
+                        >
+                            {/* Image Container */}
+                            <div className="relative h-48 overflow-hidden">
+                                {item.image_url ? (
+                                    <img src={item.image_url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={item.name} />
+                                ) : (
+                                    <div className="w-full h-full bg-indigo-50 dark:bg-indigo-500/5 flex items-center justify-center text-indigo-300">
+                                        <HiPhoto className="w-16 h-16 opacity-20" />
+                                    </div>
+                                )}
+                                <div className="absolute top-4 left-4 flex gap-2">
+                                    <span className="bg-black/40 backdrop-blur-md text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest border border-white/10">
+                                        {item.category}
+                                    </span>
+                                    {!isAdminView && item.has_override && (
+                                        <span className="bg-green-500/80 backdrop-blur-md text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest">
+                                            Customized
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="absolute bottom-4 right-4 bg-indigo-600 text-white font-black px-4 py-1.5 rounded-xl shadow-lg border border-white/20 text-sm">
+                                    €{parseFloat(item.price).toFixed(2)}
+                                </div>
+                            </div>
+
+                            {/* Content */}
+                            <div className="p-6">
+                                <h3 className="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight mb-2 group-hover:text-indigo-600 transition-colors">
+                                    {item.name}
+                                </h3>
+                                <p className="text-gray-400 text-xs font-medium italic line-clamp-2 min-h-[2.5rem]">
+                                    {item.description}
+                                </p>
+
+                                {/* Action Buttons */}
+                                <div className="mt-6 flex items-center gap-2">
+                                    <button
+                                        onClick={() => { setEditingItem({ ...item }); setIsEditModalOpen(true); }}
+                                        className="flex-1 flex items-center justify-center gap-2 py-3 bg-gray-50 dark:bg-white/5 hover:bg-indigo-600 hover:text-white text-gray-600 dark:text-gray-300 font-black rounded-xl text-[10px] uppercase tracking-widest transition-all"
+                                    >
+                                        <HiPencil className="w-4 h-4" /> {isAdminView ? 'Edit Master' : 'Customize'}
+                                    </button>
+
+                                    {!isAdminView ? (
+                                        <button
+                                            onClick={() => toggleVisibility(item)}
+                                            className={`p-3 rounded-xl transition-all ${item.is_hidden ? 'bg-red-500 text-white' : 'bg-gray-50 dark:bg-white/5 text-gray-400 hover:bg-red-50 hover:text-red-500'}`}
+                                            title={item.is_hidden ? "Show in Menu" : "Hide from Menu"}
+                                        >
+                                            {item.is_hidden ? <HiEyeSlash className="w-5 h-5" /> : <HiEye className="w-5 h-5" />}
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={() => handleDeleteItem(item.id)}
+                                            className="p-3 bg-gray-50 dark:bg-white/5 text-gray-400 hover:bg-red-500 hover:text-white rounded-xl transition-all"
+                                            title="Delete Master Item"
+                                        >
+                                            <HiTrash className="w-5 h-5" />
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Status Overlay */}
+                            {item.is_hidden && (
+                                <div className="absolute inset-0 bg-red-900/5 backdrop-blur-[1px] pointer-events-none flex items-center justify-center">
+                                    <span className="rotate-12 border-2 border-red-500 text-red-500 px-6 py-2 rounded-xl text-xl font-black uppercase opacity-60 tracking-widest">
+                                        Hidden
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+                    ))
                 ) : (
-                    <div className="bg-white/30 dark:bg-white/5 border-4 border-dashed border-gray-100 dark:border-white/5 rounded-[3rem] p-20 text-center animate-pulse">
-                        <div className="text-6xl mb-6 opacity-20">📭</div>
-                        <h3 className="text-2xl font-black text-gray-300 dark:text-gray-600 uppercase tracking-tight">No Items Found</h3>
+                    <div className="col-span-full py-20 bg-white/30 dark:bg-white/5 border-4 border-dashed border-gray-100 dark:border-white/5 rounded-[3rem] text-center">
+                        <div className="text-7xl mb-6 grayscale opacity-20">🍕</div>
+                        <h3 className="text-2xl font-black text-gray-300 dark:text-gray-600 uppercase tracking-tight">No Items Matching Search</h3>
+                        <p className="text-gray-400 text-sm mt-2">Try adjusting your filters or search query.</p>
                     </div>
                 )}
             </div>

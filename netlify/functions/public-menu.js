@@ -23,14 +23,16 @@ export const handler = async (event, context) => {
             };
         }
 
-        // 1. Find the user ID by restaurant_name
-        // We join with menus to prioritize users who actually have a menu if duplicates exist
+        // 1. Find the User and their Active Template Instance
         const result = await query(`
-            SELECT u.id, u.restaurant_name, u.stripe_onboarding_complete, m.id as menu_id
+            SELECT u.id as user_id, u.restaurant_name, u.stripe_onboarding_complete, 
+                   rt.id as rt_id, rt.template_id, rt.status as rt_status,
+                   t.template_key, t.config as template_config
             FROM users u
-            LEFT JOIN menus m ON u.id = m.user_id
-            WHERE u.restaurant_name = $1
-            ORDER BY m.updated_at DESC NULLS LAST
+            JOIN restaurant_templates rt ON u.id = rt.restaurant_id
+            JOIN templates t ON rt.template_id = t.id
+            WHERE u.restaurant_name = $1 AND rt.status = 'active' AND t.status = 'active'
+            ORDER BY rt.created_at DESC
             LIMIT 1
         `, [restaurantName]);
 
@@ -38,64 +40,35 @@ export const handler = async (event, context) => {
             return {
                 statusCode: 404,
                 headers,
-                body: JSON.stringify({ error: 'Restaurant not found' })
+                body: JSON.stringify({ error: 'No active menu found for this restaurant' })
             };
         }
 
-        const user = result.rows[0];
+        const data = result.rows[0];
 
-        if (!user.menu_id) {
-            return {
-                statusCode: 404,
-                headers,
-                body: JSON.stringify({
-                    error: 'No menus published yet.',
-                    restaurant: user.restaurant_name
-                })
-            };
-        }
-
-        // 2. Fetch the restaurant's menu instance
+        // 2. Fetch the "Menu" record for settings (Theme, Logo, etc.)
+        // We still use the menus table for configuration persistence
         const menuResult = await query(
-            'SELECT * FROM menus WHERE id = $1',
-            [user.menu_id]
+            'SELECT * FROM menus WHERE user_id = $1 AND template_type = $2 LIMIT 1',
+            [data.user_id, data.template_key]
         );
-        const menuInstance = menuResult.rows[0];
+        const menuInstance = menuResult.rows[0] || { config: {} };
 
-        // 3. Fetch Base Template items
-        const templateRes = await query(
-            'SELECT * FROM templates WHERE template_key = $1',
-            [menuInstance.template_type]
-        );
-
-        if (templateRes.rows.length === 0) {
-            // Fallback for legacy menus that don't use templates correctly
-            return {
-                statusCode: 200,
-                headers,
-                body: JSON.stringify({
-                    restaurant: user.restaurant_name,
-                    stripe_enabled: user.stripe_onboarding_complete,
-                    menu: menuInstance
-                })
-            };
-        }
-
-        const template = templateRes.rows[0];
+        // 3. Fetch Base Template items (respecting soft-delete)
         const baseItemsRes = await query(
-            'SELECT * FROM template_items WHERE template_id = $1 ORDER BY sort_order, id',
-            [template.id]
+            'SELECT * FROM template_items WHERE template_id = $1 AND is_deleted = false ORDER BY sort_order, id',
+            [data.template_id]
         );
         const baseItems = baseItemsRes.rows;
 
-        // 4. Fetch Restaurant Overrides
+        // 4. Fetch Restaurant Overrides for THIS activation
         const overridesRes = await query(
-            'SELECT * FROM item_overrides WHERE restaurant_id = $1 AND template_item_id IN (SELECT id FROM template_items WHERE template_id = $2)',
-            [user.id, template.id]
+            'SELECT * FROM item_overrides WHERE restaurant_template_id = $1',
+            [data.rt_id]
         );
         const overrides = overridesRes.rows;
 
-        // 5. Merge with Fallback Logic
+        // 5. Merge with Fallback Logic (Field-level)
         const items = baseItems
             .map(baseItem => {
                 const override = overrides.find(o => o.template_item_id === baseItem.id);
@@ -103,32 +76,33 @@ export const handler = async (event, context) => {
                     if (override.is_hidden) return null;
                     return {
                         ...baseItem,
-                        name: override.name_override || baseItem.name,
-                        description: override.description_override || baseItem.description,
-                        price: override.price_override || baseItem.price,
-                        image_url: override.image_override || baseItem.image_url,
-                        has_override: true
+                        name: override.name_override ?? baseItem.name,
+                        description: override.description_override ?? baseItem.description,
+                        price: override.price_override ?? baseItem.price,
+                        image_url: override.image_override ?? baseItem.image_url
                     };
                 }
-                return { ...baseItem, has_override: false };
+                return baseItem;
             })
             .filter(Boolean);
 
-        // Construct response matching expected format
+        // 6. Construct Final Response
         const finalConfig = {
+            ...data.template_config,
             ...menuInstance.config,
             items: items,
-            restaurantName: menuInstance.config?.restaurantName || user.restaurant_name
+            restaurantName: menuInstance.config?.restaurantName || data.restaurant_name
         };
 
         return {
             statusCode: 200,
             headers,
             body: JSON.stringify({
-                restaurant: user.restaurant_name,
-                stripe_enabled: user.stripe_onboarding_complete,
+                restaurant: data.restaurant_name,
+                stripe_enabled: data.stripe_onboarding_complete,
                 menu: {
-                    ...menuInstance,
+                    id: menuInstance.id,
+                    template_type: data.template_key,
                     config: finalConfig
                 }
             })
