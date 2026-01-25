@@ -34,8 +34,8 @@ const Overview = () => {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
             if (templatesRes.ok) {
-                const templatesData = await templatesRes.json()
-                setTemplates(templatesData || [])
+                const templatesData = await templatesRes.json();
+                setTemplates(Array.isArray(templatesData) ? templatesData : []);
             }
         } catch (error) {
             console.error('Error loading dashboard data:', error)

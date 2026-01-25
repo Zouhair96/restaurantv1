@@ -39,9 +39,9 @@ const ManageMenuPizza1 = ({ isAdminView = false }) => {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await response.json();
-                if (data) {
+                if (data && !data.error) {
                     setTemplate(data);
-                    setItems(data.items || []);
+                    setItems(Array.isArray(data.items) ? data.items : []);
                     setMenuConfig(prev => ({ ...prev, ...data.config, restaurantName: 'Template Base' }));
                 }
             } else {
@@ -50,14 +50,14 @@ const ManageMenuPizza1 = ({ isAdminView = false }) => {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await response.json();
-                if (data) {
+                if (data && !data.error) {
                     setTemplate(data.template);
-                    setItems(data.items || []);
+                    setItems(Array.isArray(data.items) ? data.items : []);
                     setMenuConfig(prev => ({
                         ...prev,
-                        ...data.template.config,
-                        ...data.template.restaurant_config,
-                        restaurantName: data.template.restaurant_config?.restaurantName || data.template.config?.restaurantName || currentUser?.restaurant_name
+                        ...data.template?.config,
+                        ...data.template?.restaurant_config,
+                        restaurantName: data.template?.restaurant_config?.restaurantName || data.template?.config?.restaurantName || currentUser?.restaurant_name
                     }));
                 }
             }
