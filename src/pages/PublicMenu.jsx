@@ -68,7 +68,21 @@ const PublicMenu = () => {
                     throw new Error(result.error || 'Failed to load menu')
                 }
 
-                setData(result)
+                // NORMALIZE DATA: If we got a direct template (Master Preview), wrap it to look like a Menu payload
+                if (templateKey && result && !result.menu) {
+                    setData({
+                        restaurant: 'Master Preview',
+                        menu: {
+                            template_type: templateKey,
+                            config: {
+                                ...result,
+                                items: result.items || []
+                            }
+                        }
+                    });
+                } else {
+                    setData(result);
+                }
             } catch (err) {
                 console.error(err)
                 setError(err.message)

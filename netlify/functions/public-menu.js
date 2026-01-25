@@ -27,7 +27,7 @@ export const handler = async (event, context) => {
         const result = await query(`
             SELECT u.id as user_id, u.restaurant_name, u.stripe_onboarding_complete, 
                    rt.id as rt_id, rt.template_id, rt.status as rt_status,
-                   t.template_key, t.config as template_config
+                   t.template_key, t.config as template_config, t.base_layout
             FROM users u
             JOIN restaurant_templates rt ON u.id = rt.restaurant_id
             JOIN templates t ON rt.template_id = t.id
@@ -122,7 +122,8 @@ export const handler = async (event, context) => {
                 menu: {
                     id: menuInstance.id,
                     template_type: data.template_key,
-                    config: finalConfig
+                    config: finalConfig,
+                    base_layout: data.base_layout
                 }
             })
         };
