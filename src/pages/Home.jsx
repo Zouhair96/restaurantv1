@@ -18,6 +18,14 @@ import SocialSidebar from '../components/SocialSidebar'
 
 import ParallaxBackground from '../components/ParallaxBackground'
 
+// Import assets for robust Vite bundling
+import tacosImg from '../assets/tacos_bowl.png'
+import saladImg from '../assets/salad_bowl.png'
+import meatImg from '../assets/meat_bowl.png'
+import phoneMenuV2 from '../assets/phone_menu_v2.png'
+import qrStandV2 from '../assets/qr_table_stand_v2.png'
+import handPhoneV2 from '../assets/hand_holding_phone_v2.png'
+
 const Home = () => {
     const { user, loading } = useAuth()
     const { t } = useLanguage()
@@ -40,7 +48,7 @@ const Home = () => {
             className: 'w-40 sm:w-56 md:w-64 lg:w-72 top-10 left-4 sm:left-10 md:top-20 md:left-20 animate-float',
         },
         {
-            src: '/phone_menu_v2.png',
+            src: phoneMenuV2,
             alt: 'Smartphone displaying restaurant menu',
             className: 'w-32 sm:w-40 md:w-52 lg:w-60 top-1/4 right-8 sm:right-12 md:right-20 animate-float mix-blend-multiply',
         },
@@ -50,7 +58,7 @@ const Home = () => {
             className: 'w-28 sm:w-36 md:w-48 top-10 right-4 sm:right-10 md:top-16 md:right-16 animate-float',
         },
         {
-            src: '/qr_table_stand_v2.png',
+            src: qrStandV2,
             alt: 'QR code table stand',
             className: 'w-24 sm:w-32 md:w-40 bottom-1/4 left-8 sm:left-16 md:left-24 animate-float mix-blend-multiply',
         },
@@ -60,7 +68,7 @@ const Home = () => {
             className: 'w-32 sm:w-40 md:w-56 bottom-8 right-5 sm:right-10 md:bottom-16 md:right-20 animate-float',
         },
         {
-            src: '/hand_holding_phone_v2.png',
+            src: handPhoneV2,
             alt: 'Hand holding phone with menu',
             className: 'w-36 sm:w-44 md:w-56 lg:w-64 bottom-12 left-12 sm:left-20 md:bottom-20 md:left-28 animate-float mix-blend-multiply',
         },
