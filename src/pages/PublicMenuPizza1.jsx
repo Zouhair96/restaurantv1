@@ -327,7 +327,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                 <div className="px-5 pb-4 flex items-center justify-between mt-1">
                     <div className="flex items-baseline gap-1">
                         <span className="text-base font-bold text-theme">$</span>
-                        <span className="text-2xl font-black text-gray-900">{selectedItem.price.toFixed(2)}</span>
+                        <span className="text-2xl font-black text-gray-900">{parseFloat(selectedItem.price || 0).toFixed(2)}</span>
                     </div>
 
                     <div className="flex items-center gap-4">
@@ -396,7 +396,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                                 </button>
                                             </div>
                                             <div className="flex justify-between items-end">
-                                                <span className="font-bold text-theme text-sm" style={{ color: config.themeColor }}>${(item.price * item.quantity).toFixed(2)}</span>
+                                                <span className="font-bold text-theme text-sm" style={{ color: config.themeColor }}>${(parseFloat(item.price || 0) * item.quantity).toFixed(2)}</span>
                                                 <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-2 py-1">
                                                     <button
                                                         onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
@@ -423,11 +423,11 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                     <div className="p-6 border-t border-gray-100 bg-gray-50/50">
                         <div className="flex justify-between mb-2 text-sm text-gray-500">
                             <span>Subtotal</span>
-                            <span>${getCartTotal().toFixed(2)}</span>
+                            <span>${parseFloat(getCartTotal() || 0).toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between mb-6">
                             <span className="text-gray-900 font-bold text-lg">Total</span>
-                            <span className="font-black text-2xl text-gray-900">${getCartTotal().toFixed(2)}</span>
+                            <span className="font-black text-2xl text-gray-900">${parseFloat(getCartTotal() || 0).toFixed(2)}</span>
                         </div>
                         <button className="w-full bg-gray-900 text-white font-bold py-4 rounded-xl hover:bg-gray-800 transition-transform active:scale-[0.98] shadow-lg shadow-gray-900/20">
                             Checkout
