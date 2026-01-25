@@ -28,6 +28,7 @@ export const translations = {
         floatingHero: {
             title: "Votre Restaurant, Délicieusement Digital",
             description: "Transformez votre menu en une expérience numérique magnifique. Gérez les commandes, suivez vos clients et développez votre restaurant—le tout depuis une seule plateforme puissante.",
+            buttonText: "Voir une démo",
         },
         howItWorks: {
             title: "Comment ça marche ?",
@@ -247,6 +248,7 @@ export const translations = {
         floatingHero: {
             title: "Your Restaurant, Digitally Delicious",
             description: "Transform your menu into a stunning digital experience. Manage orders, track customers, and grow your restaurant—all from one powerful platform.",
+            buttonText: "See a Demo",
         },
         howItWorks: {
             title: "How it works?",

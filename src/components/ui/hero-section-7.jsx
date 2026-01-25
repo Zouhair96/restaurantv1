@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 /**
@@ -48,12 +49,14 @@ const Swirls = () => (
  * @param {string} props.title - The main heading text
  * @param {string} props.description - The paragraph text below the heading
  * @param {Array} props.images - An array of image objects to be displayed
+ * @param {string} [props.buttonText] - Optional demo button text
  * @param {string} [props.className] - Optional additional classes for the section container
  */
 export function FloatingFoodHero({
     title,
     description,
     images,
+    buttonText,
     className,
 }) {
     return (
@@ -88,6 +91,16 @@ export function FloatingFoodHero({
                 <p className="mt-6 text-lg leading-8 text-muted-foreground">
                     {description}
                 </p>
+                {buttonText && (
+                    <div className="mt-10 flex justify-center">
+                        <Link
+                            to="/demo"
+                            className="px-8 py-4 bg-yum-primary text-white font-bold text-lg rounded-xl shadow-xl transition-all hover:scale-105 active:scale-95 hover:shadow-2xl"
+                        >
+                            {buttonText}
+                        </Link>
+                    </div>
+                )}
             </div>
         </section>
     );

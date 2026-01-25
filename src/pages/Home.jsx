@@ -89,6 +89,7 @@ const Home = () => {
                     <FloatingFoodHero
                         title={t('floatingHero.title')}
                         description={t('floatingHero.description')}
+                        buttonText={t('floatingHero.buttonText')}
                         images={heroImages}
                     />
                     <HowItWorks />
