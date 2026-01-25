@@ -52,16 +52,34 @@ export const handler = async (event, context) => {
 
         return {
             statusCode: 200,
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
             body: JSON.stringify(result.rows)
         };
 
     } catch (error) {
-        console.error('Admin Fetch Error:', error.message);
+        console.error('Admin Fetch Error:', error);
+
+        if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+            return {
+                statusCode: 401,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                body: JSON.stringify({ error: 'Unauthorized: Invalid or expired token' })
+            };
+        }
+
         return {
-            statusCode: 500, // Return server error so frontend doesn't think it's just a logout
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ error: 'Internal Server Error' })
+            statusCode: 500,
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({ error: 'Internal Server Error', details: error.message })
         };
     }
 };

@@ -70,9 +70,9 @@ export const handler = async (event, context) => {
         `;
 
         const result = await query(statsQuery);
-        const stats = result.rows[0];
+        const stats = result && result.rows && result.rows.length > 0 ? result.rows[0] : {};
 
-        // Format for frontend
+        // Format for frontend with fallbacks
         const responseData = {
             total_revenue: parseFloat(stats.total_revenue || 0).toFixed(2),
             total_orders: parseInt(stats.total_orders || 0),
@@ -82,16 +82,37 @@ export const handler = async (event, context) => {
 
         return {
             statusCode: 200,
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
             body: JSON.stringify(responseData)
         };
 
     } catch (error) {
-        console.error('Admin Stats Error:', error.message);
+        console.error('Admin Stats Error:', error);
+
+        if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+            return {
+                statusCode: 401,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                body: JSON.stringify({ error: 'Unauthorized: Invalid or expired token' })
+            };
+        }
+
         return {
-            statusCode: 500, // Detailed server error for debugging fetch issues
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ error: 'Failed to fetch dashboard stats' })
+            statusCode: 500,
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                error: 'Failed to fetch dashboard stats',
+                details: error.message
+            })
         };
     }
 };
