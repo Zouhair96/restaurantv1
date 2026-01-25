@@ -92,6 +92,10 @@ export const handler = async (event, context) => {
                 return { ...baseItem, has_override: false, is_hidden: false };
             });
 
+            // 5.5 Get Restaurant Menu Settings (Branding)
+            const menuSettingsRes = await query('SELECT id, name, config FROM menus WHERE user_id = $1 AND template_type = $2 LIMIT 1', [restaurantId, templateKey]);
+            const menuSettings = menuSettingsRes.rows[0];
+
             return {
                 statusCode: 200,
                 headers,
@@ -99,6 +103,8 @@ export const handler = async (event, context) => {
                     template: {
                         ...template,
                         restaurant_template_id: rt.id,
+                        restaurant_menu_id: menuSettings?.id,
+                        restaurant_config: menuSettings?.config || {},
                         activation_status: rt.status,
                         subscription_tier: rt.subscription_tier
                     },

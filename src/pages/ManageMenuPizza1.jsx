@@ -260,23 +260,34 @@ const ManageMenuPizza1 = ({ isAdminView = false }) => {
                 </div>
 
                 <div className="flex items-center gap-3 w-full md:w-auto">
-                    {isAdminView && (
-                        <button
-                            onClick={() => {
-                                setEditingItem({ name: '', description: '', price: 0, category: 'Classic', image_url: '' });
-                                setIsEditModalOpen(true);
-                            }}
-                            className="flex-1 md:flex-none px-6 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl shadow-xl shadow-indigo-600/20 flex items-center justify-center gap-2 transition-all active:scale-95 text-xs uppercase tracking-widest"
+                    {!isAdminView && (
+                        <a
+                            href={`/${currentUser?.restaurant_name}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-4 bg-blue-600 text-white font-black rounded-2xl shadow-lg shadow-blue-600/20 hover:bg-blue-500 transition-all flex items-center justify-center gap-2"
+                            title="View Public Menu"
                         >
-                            <HiPlus className="w-5 h-5" /> Add Master Item
-                        </button>
+                            <HiEye className="w-6 h-6" />
+                            <span className="hidden lg:inline text-xs uppercase tracking-widest">View Live Menu</span>
+                        </a>
                     )}
                     <button
+                        onClick={() => {
+                            setEditingItem({ name: '', description: '', price: 0, category: 'Classic', image_url: '' });
+                            setIsEditModalOpen(true);
+                        }}
+                        className="flex-1 md:flex-none px-6 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl shadow-xl shadow-indigo-600/20 flex items-center justify-center gap-2 transition-all active:scale-95 text-xs uppercase tracking-widest"
+                    >
+                        <HiPlus className="w-5 h-5" />
+                        {isAdminView ? 'Add Master Item' : 'Add Custom Item'}
+                    </button>
+                    <button
                         onClick={() => setIsSettingsModalOpen(true)}
-                        className="p-4 bg-white dark:bg-white/5 text-gray-600 dark:text-white font-black rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm hover:border-indigo-500 transition-all active:rotate-45"
+                        className="p-4 bg-gray-100 dark:bg-white/5 text-gray-800 dark:text-white font-black rounded-2xl border border-gray-200 dark:border-white/10 shadow-sm hover:border-indigo-500 transition-all active:rotate-45"
                         title="Display Settings"
                     >
-                        <HiCog6Tooth className="w-6 h-6" />
+                        <HiCog6Tooth className="w-6 h-6 border-transparent" />
                     </button>
                 </div>
             </header>
@@ -354,16 +365,19 @@ const ManageMenuPizza1 = ({ isAdminView = false }) => {
                                         onClick={() => { setEditingItem({ ...item }); setIsEditModalOpen(true); }}
                                         className="flex-1 flex items-center justify-center gap-2 py-3 bg-gray-50 dark:bg-white/5 hover:bg-indigo-600 hover:text-white text-gray-600 dark:text-gray-300 font-black rounded-xl text-[10px] uppercase tracking-widest transition-all"
                                     >
-                                        <HiPencil className="w-4 h-4" /> {isAdminView ? 'Edit Master' : 'Customize'}
+                                        <HiPencil className="w-4 h-4" /> {isAdminView ? 'Edit Master' : 'Edit Item'}
                                     </button>
 
                                     {!isAdminView ? (
                                         <button
                                             onClick={() => toggleVisibility(item)}
-                                            className={`p-3 rounded-xl transition-all ${item.is_hidden ? 'bg-red-500 text-white' : 'bg-gray-50 dark:bg-white/5 text-gray-400 hover:bg-red-50 hover:text-red-500'}`}
-                                            title={item.is_hidden ? "Show in Menu" : "Hide from Menu"}
+                                            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${item.is_hidden
+                                                ? 'bg-green-600 text-white shadow-lg shadow-green-600/20'
+                                                : 'bg-white dark:bg-white/5 text-gray-400 border border-gray-100 dark:border-white/10 hover:text-red-500'
+                                                }`}
+                                            title={item.is_hidden ? "Add to Menu" : "Hide from Menu"}
                                         >
-                                            {item.is_hidden ? <HiEyeSlash className="w-5 h-5" /> : <HiEye className="w-5 h-5" />}
+                                            {item.is_hidden ? <><HiPlus className="w-4 h-4" /> Add</> : <><HiEyeSlash className="w-4 h-4" /> Hide</>}
                                         </button>
                                     ) : (
                                         <button
@@ -491,6 +505,70 @@ const ManageMenuPizza1 = ({ isAdminView = false }) => {
                                 className="flex-2 px-10 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl shadow-xl shadow-indigo-600/20 active:scale-95 transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-2"
                             >
                                 {isSaving ? 'Saving...' : <><HiRocketLaunch className="w-5 h-5" /> {isAdminView ? 'Update Base' : 'Save Override'}</>}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Display Settings Modal */}
+            {isSettingsModalOpen && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-md p-4 animate-fade-in">
+                    <div className="bg-white dark:bg-[#1a1c23] rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden border border-white dark:border-white/10">
+                        <div className="p-8 bg-gray-50/50 dark:bg-white/5 border-b border-gray-100 dark:border-white/5 flex justify-between items-center">
+                            <div>
+                                <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Display Settings</h3>
+                                <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mt-1">Branding & Theme</p>
+                            </div>
+                            <button onClick={() => setIsSettingsModalOpen(false)} className="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/5">
+                                <HiXMark className="w-6 h-6" />
+                            </button>
+                        </div>
+                        <div className="p-8 space-y-8">
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Restaurant Display Name</label>
+                                <input
+                                    type="text"
+                                    value={menuConfig.restaurantName}
+                                    onChange={(e) => setMenuConfig({ ...menuConfig, restaurantName: e.target.value })}
+                                    className="w-full px-5 py-4 rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-[#24262d] text-gray-900 dark:text-white font-bold outline-none ring-indigo-500 focus:ring-2"
+                                />
+                            </div>
+                            <div className="flex items-center justify-between p-5 bg-gray-50 dark:bg-white/5 rounded-3xl border border-gray-100 dark:border-white/5">
+                                <div className="space-y-1">
+                                    <h4 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-tight">Theme Color</h4>
+                                    <p className="text-[10px] text-gray-400 font-bold uppercase">Accent for buttons & filters</p>
+                                </div>
+                                <input
+                                    type="color"
+                                    value={menuConfig.themeColor}
+                                    onChange={(e) => setMenuConfig({ ...menuConfig, themeColor: e.target.value })}
+                                    className="w-12 h-12 rounded-xl border-none cursor-pointer bg-transparent"
+                                />
+                            </div>
+                            <div className="flex items-center justify-between p-5 bg-gray-50 dark:bg-white/5 rounded-3xl border border-gray-100 dark:border-white/5">
+                                <div className="space-y-1">
+                                    <h4 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-tight">Show Logo</h4>
+                                    <p className="text-[10px] text-gray-400 font-bold uppercase">Display in public menu header</p>
+                                </div>
+                                <button
+                                    onClick={() => setMenuConfig({ ...menuConfig, useLogo: !menuConfig.useLogo })}
+                                    className={`w-14 h-8 rounded-full transition-all relative ${menuConfig.useLogo ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-gray-700'}`}
+                                >
+                                    <div className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow-md transition-all ${menuConfig.useLogo ? 'left-7' : 'left-1'}`} />
+                                </button>
+                            </div>
+                        </div>
+                        <div className="p-8 bg-gray-50/50 dark:bg-white/5 border-t border-gray-100 dark:border-white/5 flex gap-3">
+                            <button onClick={() => setIsSettingsModalOpen(false)} className="flex-1 px-6 py-4 bg-white dark:bg-white/10 text-gray-500 dark:text-white font-black rounded-2xl border border-gray-100 dark:border-white/10 uppercase tracking-widest text-xs">
+                                Back
+                            </button>
+                            <button
+                                onClick={handleSaveSettings}
+                                disabled={isSaving}
+                                className="flex-2 px-10 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl shadow-xl shadow-indigo-600/20 active:scale-95 transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-2"
+                            >
+                                {isSaving ? 'Applying...' : <><HiRocketLaunch className="w-5 h-5" /> Save Changes</>}
                             </button>
                         </div>
                     </div>

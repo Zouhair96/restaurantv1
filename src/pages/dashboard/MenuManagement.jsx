@@ -91,7 +91,7 @@ const MenuManagement = () => {
 
     const handleEditMenu = (menu) => {
         if (menu.template_type === 'pizza1') {
-            navigate('/manage_menu_pizza1');
+            navigate('/manage-menu-pizza1');
             return;
         }
         setEditingMenu(menu)
@@ -196,7 +196,7 @@ const MenuManagement = () => {
                                 if (hasMenu && isActive) return; // Already created, use widget at top
 
                                 if (template.template_key === 'pizza1') {
-                                    navigate('/manage_menu_pizza1');
+                                    navigate('/manage-menu-pizza1');
                                     return;
                                 }
 
