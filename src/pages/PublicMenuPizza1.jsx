@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, HiBars3, HiBuildingStorefront, HiXMark, HiTrash } from 'react-icons/hi2';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
 
