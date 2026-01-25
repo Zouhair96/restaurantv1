@@ -4,7 +4,10 @@ import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
 
-const PublicMenuPizza1 = () => {
+const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
+    const { restaurantName: urlRestaurantName } = useParams();
+    const restaurantName = propRestaurantName || urlRestaurantName;
+    const isMasterView = !restaurantName;
     // Hardcoded Pizza Time Data (Fallback)
     const hardcodedMenuItems = [
         { id: 1, name: 'Sicilienne', description: 'Sauce tomate, fromage, poivron, oignons, olives, anchois', price: 11.90, image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?q=80&w=1000&auto=format&fit=crop', category: 'Classic' },
@@ -34,62 +37,53 @@ const PublicMenuPizza1 = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Fetch Public Menu Data
+    // Fetch Menu Data
     useEffect(() => {
-        const fetchPublicMenu = async () => {
+        const fetchData = async () => {
             setIsLoading(true);
             try {
-                // Determine restaurant name from URL query or default
-                // Ideally this page is served like /:restaurantName/menu, but for now we fallback or use query
-                const params = new URLSearchParams(window.location.search);
-                const targetRestaurant = params.get('restaurant') || 'Pizza Time';
+                if (isMasterView) {
+                    // MODE: MASTER PREVIEW (/menu-pizza1)
+                    // Fetch the absolute base items directly from the template
+                    const response = await fetch('/.netlify/functions/templates?templateKey=pizza1');
+                    const data = await response.json();
 
-                const response = await fetch(`/.netlify/functions/public-menu?restaurantName=${encodeURIComponent(targetRestaurant)}`);
-
-                if (!response.ok) {
-                    if (response.status === 404) {
-                        // Try fallback to localStorage if API fails (e.g. during dev/transition)
-                        // OR just stay empty. Let's try to be robust.
-                        console.warn("Public API not found or error, checking local storage as fallback.");
-                        throw new Error("API_FAIL");
+                    if (data && data.items) {
+                        setMenuItems(data.items.map(item => ({
+                            ...item,
+                            image: item.image_url
+                        })));
+                        setConfig({
+                            restaurantName: 'MASTER BLUEPRINT',
+                            themeColor: data.config?.designConfig?.accentColor || data.config?.themeColor || '#f97316',
+                            logoImage: null,
+                            useLogo: false
+                        });
                     }
-                    throw new Error('Failed to load menu');
+                } else {
+                    // MODE: RESTAURANT LIVE (/:restaurant_name)
+                    const response = await fetch(`/.netlify/functions/public-menu?restaurantName=${encodeURIComponent(restaurantName)}`);
+                    if (!response.ok) throw new Error('Failed to load menu');
+
+                    const data = await response.json();
+                    if (data.menu && data.menu.config) {
+                        setMenuItems(data.menu.config.items || []);
+                        setConfig({
+                            ...data.menu.config,
+                            restaurantName: data.menu.config.restaurantName || data.restaurant || restaurantName
+                        });
+                    }
                 }
-
-                const data = await response.json();
-
-                if (data.menu && data.menu.config && data.menu.config.items) {
-                    setMenuItems(data.menu.config.items);
-                    setConfig(prev => ({
-                        ...prev,
-                        ...data.menu.config,
-                        restaurantName: data.menu.config.restaurantName || data.restaurant || targetRestaurant
-                    }));
-                } else if (data.menu && Array.isArray(data.menu)) {
-                    // Handle legacy array format if exists
-                    setMenuItems(data.menu);
-                }
-
             } catch (err) {
-                console.error("Public menu fetch error:", err);
-
-                // Fallback to LocalStorage if API fails (Backward Compatibility during migration)
-                const storedItems = localStorage.getItem('pizza_time_menu_items');
-                if (storedItems) {
-                    try {
-                        const parsedItems = JSON.parse(storedItems);
-                        if (Array.isArray(parsedItems)) {
-                            setMenuItems(parsedItems.filter(item => item && item.id));
-                        }
-                    } catch (e) { console.error("Local fallback failed", e); }
-                }
+                console.error("Fetch error:", err);
+                setError(err.message);
             } finally {
                 setIsLoading(false);
             }
         };
 
-        fetchPublicMenu();
-    }, []);
+        fetchData();
+    }, [restaurantName, isMasterView]);
 
     const [selectedItem, setSelectedItem] = useState(null); // Init as null to wait for data? Or safe default?
 
@@ -105,7 +99,7 @@ const PublicMenuPizza1 = () => {
     const [liked, setLiked] = useState(false);
     // const [showCheckout, setShowCheckout] = useState(false); // Replaced by CartContext
     const [showAuthSidebar, setShowAuthSidebar] = useState(false);
-    const [activeCategory, setActiveCategory] = useState('Classic');
+    const [activeCategory, setActiveCategory] = useState('All');
 
     const {
         cartItems,

@@ -189,7 +189,7 @@ const PublicMenu = () => {
 
     // Branch to specialized templates
     if (data.menu.template_type === 'pizza1') {
-        return <PublicMenuPizza1 />
+        return <PublicMenuPizza1 restaurantName={restaurantName} />
     }
 
 
