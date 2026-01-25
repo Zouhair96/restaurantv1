@@ -70,8 +70,8 @@ const Home = () => {
             <main>
                 <ParallaxBackground>
                     <FloatingFoodHero
-                        title="Better food for more people"
-                        description="For over a decade, we've enabled our customers to discover new tastes, delivered right to their doorstep."
+                        title="Your Restaurant, Digitally Delicious"
+                        description="Transform your menu into a stunning digital experience. Manage orders, track customers, and grow your restaurant—all from one powerful platform."
                         images={heroImages}
                     />
                     <HowItWorks />
