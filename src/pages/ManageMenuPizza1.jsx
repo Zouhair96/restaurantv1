@@ -327,7 +327,7 @@ const ManageMenuPizza1 = ({ isAdminView = false }) => {
                     </button>
                     <button
                         onClick={() => setIsSettingsModalOpen(true)}
-                        className="p-4 bg-white dark:bg-white/10 text-gray-800 dark:text-white font-black rounded-2xl border-2 border-indigo-500/20 shadow-md hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-all active:rotate-45"
+                        className="p-4 bg-indigo-50 dark:bg-white/10 text-indigo-600 dark:text-white font-black rounded-2xl border-2 border-indigo-200 shadow-md hover:border-indigo-500 hover:bg-white transition-all active:rotate-45"
                         title="Display Settings"
                     >
                         <HiCog6Tooth className="w-6 h-6" />

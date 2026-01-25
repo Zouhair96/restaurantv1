@@ -66,11 +66,15 @@ export const handler = async (event, context) => {
             const templates = [];
             for (const template of templatesResult.rows) {
                 // Subscription check for specific template if requested
-                const isActivated = user?.role === 'admin' || restaurantTemplates.some(rt => rt.template_id === template.id);
+                const isActivated = user?.role === 'admin' || (user && restaurantTemplates.some(rt => rt.template_id === template.id));
 
-                // If fetching a single template, check if it's allowed for this user
-                if (templateKey && !isActivated && user?.role !== 'admin') {
-                    continue; // Skip or handle error
+                // If fetching a single template specifically (usually by templateKey), 
+                // we allow it for the "Public Master Preview" regardless of session.
+                if (templateKey) {
+                    // Allowed publicly for preview
+                } else if (!isActivated && user?.role !== 'admin') {
+                    // Listing mode: Only show if activated or admin
+                    continue;
                 }
 
                 const itemsResult = await query(
