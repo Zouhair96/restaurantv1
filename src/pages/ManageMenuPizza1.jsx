@@ -1,731 +1,436 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { HiPencil, HiTrash, HiXMark, HiCloudArrowUp, HiPhoto, HiPlus, HiArrowRightOnRectangle, HiCog6Tooth, HiArrowLeft } from 'react-icons/hi2';
-import { useNavigate } from 'react-router-dom';
-import { fetchMenus, createMenu, updateMenu } from '../utils/menus';
+import { HiPencil, HiTrash, HiXMark, HiCloudArrowUp, HiPhoto, HiPlus, HiCog6Tooth, HiArrowLeft, HiRocketLaunch, HiEye, HiEyeSlash } from 'react-icons/hi2';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
-const ManageMenuPizza1 = () => {
+const ManageMenuPizza1 = ({ isAdminView = false }) => {
+    const { user: currentUser } = useAuth();
     const navigate = useNavigate();
-    // Initial State mimicking DB
-    const [items, setItems] = useState([
-        { id: 1, name: 'Sicilienne', description: 'Sauce tomate, fromage, poivron, oignons, olives, anchois', price: 11.90, category: 'Classic', categoryColor: 'bg-blue-100 text-blue-800', image: '/pizzas/sicilienne.png' },
-        { id: 2, name: 'Calzone', description: 'Sauce tomate, fromage, jambon, champignons, olives, œuf', price: 11.90, category: 'Classic', categoryColor: 'bg-blue-100 text-blue-800', image: '/pizzas/calzone.png' },
-        { id: 3, name: 'Pêcheur', description: 'Sauce tomate, fromage, thon, saumon, olives, oignon', price: 12.90, category: 'Classic', categoryColor: 'bg-blue-100 text-blue-800', image: '/pizzas/pecheur.png' },
-        { id: 4, name: '4 Fromages', description: 'Sauce tomate, mozzarella, emmental, chèvre, roquefort', price: 12.90, category: 'Classic', categoryColor: 'bg-blue-100 text-blue-800', image: '/pizzas/4fromages.png' },
-        { id: 5, name: 'Mexicaine', description: 'Sauce tomate, fromage, bœuf haché, poivron, olives, oignon', price: 14.90, category: 'Classic', categoryColor: 'bg-blue-100 text-blue-800', image: '/pizzas/mexicaine.png' },
-        { id: 6, name: 'Chèvre', description: 'Crème fraîche, fromage, chèvre, olives, oignon', price: 13.90, category: 'Premium', categoryColor: 'bg-purple-100 text-purple-800', image: '/pizzas/chevre.png' },
-        { id: 7, name: 'Chicken', description: 'Crème fraîche, fromage, poulet fumé, champignons', price: 13.90, category: 'Premium', categoryColor: 'bg-purple-100 text-purple-800', image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?q=80&w=1000' },
-        { id: 8, name: 'Bolognaise', description: 'Sauce chili BBQ, fromage, sauce bolognaise, pepperoni', price: 17.90, category: 'Special', categoryColor: 'bg-orange-100 text-orange-800', image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?q=80&w=1000' },
-    ]);
+    const { templateKey: urlTemplateKey } = useParams();
+    const templateKey = urlTemplateKey || 'pizza1';
 
-    // Menu Configuration State
+    const [items, setItems] = useState([]);
+    const [template, setTemplate] = useState(null);
     const [menuConfig, setMenuConfig] = useState({
-        restaurantName: 'Pizza Time',
-        themeColor: '#f97316', // Orange-500 default
+        restaurantName: '',
+        themeColor: '#f97316',
         logoImage: null,
         useLogo: false
     });
-    const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
-    const [menuId, setMenuId] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-
-    // Initial Load & Migration Logic
-    useEffect(() => {
-        const loadData = async () => {
-            setIsLoading(true);
-            try {
-                // 1. Fetch from server
-                const serverMenus = await fetchMenus();
-                const pizzaMenu = serverMenus.find(m => m.template_type === 'pizza1' || m.name === 'Pizza Menu');
-
-                if (pizzaMenu) {
-                    // Found on server, use it
-                    setMenuId(pizzaMenu.id);
-                    if (pizzaMenu.config) {
-                        setItems(pizzaMenu.config.items || []);
-                        setMenuConfig(prev => ({ ...prev, ...pizzaMenu.config }));
-                    }
-                } else {
-                    // Not found on server, check local storage for migration
-                    const storedManagerItems = localStorage.getItem('pizza_time_manager_items');
-                    if (storedManagerItems) {
-                        try {
-                            const parsedItems = JSON.parse(storedManagerItems);
-                            const validItems = Array.isArray(parsedItems) ? parsedItems.filter(i => i && i.id) : [];
-
-                            if (validItems.length > 0) {
-                                // Migrate to Server
-                                console.log('Migrating local menu to server...');
-                                const newMenu = await createMenu('Pizza Menu', 'pizza1', { items: validItems });
-                                setMenuId(newMenu.id);
-                                setItems(validItems);
-                                // Optional: Clear local storage after successful migration
-                                // localStorage.removeItem('pizza_time_manager_items'); 
-                            } else {
-                                // No valid local items, create empty menu
-                                const newMenu = await createMenu('Pizza Menu', 'pizza1', { items: [] });
-                                setMenuId(newMenu.id);
-                                setItems([]);
-                            }
-                        } catch (e) {
-                            console.error('Migration failed:', e);
-                        }
-                    } else {
-                        // Nothing anywhere, create new empty menu
-                        const newMenu = await createMenu('Pizza Menu', 'pizza1', { items: [] });
-                        setMenuId(newMenu.id);
-                        // Convert default fallback items to real items if desired, or start empty?
-                        // For now, let's keep the hardcoded initial state as default if creating new
-                        // setItems(initialStateItems); // Assuming we want to keep defaults
-                    }
-                }
-            } catch (error) {
-                console.error('Failed to load menu data:', error);
-                alert("Failed to connect to server. Changes may not save.");
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        loadData();
-    }, []);
-
-    // Save to Server whenever items change (Debounced or explicit?)
-    // For this simple implementation, we'll save on every change but we need to reference menuId
-    // Note: React effects run after render, so menuId should be set if loaded.
-    const isFirstRun = useRef(true);
-    useEffect(() => {
-        if (isFirstRun.current) {
-            isFirstRun.current = false;
-            return;
-        }
-        if (menuId) {
-            const saveToServer = async () => {
-                try {
-                    await updateMenu(menuId, 'Pizza Menu', { items, ...menuConfig });
-                    console.log('Saved to server');
-                } catch (error) {
-                    console.error('Save failed:', error);
-                }
-            };
-            // Debounce slightly to avoid too many requests
-            const timeoutId = setTimeout(saveToServer, 1000);
-            return () => clearTimeout(timeoutId);
-        }
-    }, [items, menuId, menuConfig]);
-
-    const [categories, setCategories] = useState(['Classic', 'Premium', 'Special', 'Drinks', 'Desserts']);
-    const [newCategory, setNewCategory] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
-    const handleEditClick = (item) => {
-        setEditingItem({ ...item });
-        setIsEditModalOpen(true);
-    };
+    const token = localStorage.getItem('token');
 
-    const handleAddItem = () => {
-        setEditingItem({ id: null, name: '', description: '', price: 0, category: categories[0], image: '' });
-        setIsEditModalOpen(true);
-    };
+    useEffect(() => {
+        loadData();
+    }, [isAdminView, templateKey]);
 
-    const handleSaveEdit = () => {
-        let updatedItems;
-        if (editingItem.id) {
-            // Update existing
-            updatedItems = items.map(i => i.id === editingItem.id ? editingItem : i);
-
-            // Sync with Public Menu if it exists there
-            const publicMenuData = localStorage.getItem('pizza_time_menu_items');
-            if (publicMenuData) {
-                let publicMenu = JSON.parse(publicMenuData);
-                const publicIndex = publicMenu.findIndex(i => i.id === editingItem.id || i.name === editingItem.name);
-                if (publicIndex >= 0) {
-                    publicMenu[publicIndex] = editingItem;
-                    localStorage.setItem('pizza_time_menu_items', JSON.stringify(publicMenu));
+    const loadData = async () => {
+        setIsLoading(true);
+        try {
+            if (isAdminView) {
+                // Admin View: Fetch Base Template and its Items
+                const response = await fetch(`/.netlify/functions/templates?templateKey=${templateKey}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (data) {
+                    setTemplate(data);
+                    setItems(data.items || []);
+                    setMenuConfig(prev => ({ ...prev, ...data.config, restaurantName: 'Template Base' }));
+                }
+            } else {
+                // Restaurant View: Fetch Merged Items (Base + Overrides)
+                const response = await fetch(`/.netlify/functions/menu-overrides?templateKey=${templateKey}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (data) {
+                    setTemplate(data.template);
+                    setItems(data.items || []);
+                    setMenuConfig(prev => ({
+                        ...prev,
+                        ...data.template.config,
+                        ...data.template.restaurant_config,
+                        restaurantName: data.template.restaurant_config?.restaurantName || data.template.config?.restaurantName || currentUser?.restaurant_name
+                    }));
                 }
             }
-        } else {
-            // Create new
-            const newId = Math.max(...items.map(i => i.id), 0) + 1;
-            updatedItems = [...items, { ...editingItem, id: newId }];
+        } catch (error) {
+            console.error('Failed to load data:', error);
+        } finally {
+            setIsLoading(false);
         }
-        setItems(updatedItems);
-        setIsEditModalOpen(false);
-        setEditingItem(null);
     };
 
-    const handleDeleteClick = (id) => {
-        if (window.confirm('Are you sure you want to delete this item?')) {
-            const itemToDelete = items.find(i => i.id === id);
-            setItems(items.filter(i => i.id !== id));
+    const handleSaveItem = async () => {
+        setIsSaving(true);
+        try {
+            if (isAdminView) {
+                // Admin: Update Base Item
+                const method = editingItem.id ? 'PATCH' : 'POST';
+                const payload = { ...editingItem };
+                if (!editingItem.id) payload.template_id = template.id;
 
-            // Sync Delete with Public Menu
-            if (itemToDelete) {
-                const publicMenuData = localStorage.getItem('pizza_time_menu_items');
-                if (publicMenuData) {
-                    let publicMenu = JSON.parse(publicMenuData);
-                    const newPublicMenu = publicMenu.filter(i => i.id !== id && i.name !== itemToDelete.name);
-                    localStorage.setItem('pizza_time_menu_items', JSON.stringify(newPublicMenu));
-                }
+                const response = await fetch('/.netlify/functions/template-items', {
+                    method,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                if (response.ok) await loadData();
+            } else {
+                // Restaurant: Update Override
+                const payload = {
+                    template_item_id: editingItem.id,
+                    name_override: editingItem.name,
+                    description_override: editingItem.description,
+                    price_override: editingItem.price,
+                    image_override: editingItem.image_url,
+                    is_hidden: editingItem.is_hidden
+                };
+
+                const response = await fetch('/.netlify/functions/menu-overrides', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                if (response.ok) await loadData();
             }
+            setIsEditModalOpen(false);
+        } catch (error) {
+            console.error('Failed to save item:', error);
+        } finally {
+            setIsSaving(false);
         }
     };
 
+    const handleDeleteItem = async (id) => {
+        if (!isAdminView) return; // Only admin can delete base items
+        if (!window.confirm('Delete this base item? This will affect ALL restaurants.')) return;
 
-
-    const handleAddToMenu = async (item) => {
-        // In the new DB-first approach, the "Manage" list IS the source of truth.
-        // We can optionally have a "published" flag, but for now, since we synced "items" to the DB,
-        // and the PublicMenu will fetch this same DB entry, we just need to ensure the Public API serves it.
-        // The Public API (public-menu.js) fetches the menu by user_id linked to restaurant_name.
-        // So simply saving here (which happens automatically via useEffect) updates the public menu.
-
-        alert(`"${item.name}" is saved to the cloud and available on the public menu.`);
-    };
-
-    // Swipe Logic
-    const [swipedItemId, setSwipedItemId] = useState(null);
-    const touchStart = useRef(null);
-    const touchEnd = useRef(null);
-
-    const handleTouchStart = (e) => {
-        touchEnd.current = null;
-        touchStart.current = e.targetTouches[0].clientX;
-    };
-
-    const handleTouchMove = (e) => {
-        touchEnd.current = e.targetTouches[0].clientX;
-    };
-
-    const handleTouchEnd = (id) => {
-        if (!touchStart.current || !touchEnd.current) return;
-        const distance = touchStart.current - touchEnd.current;
-        const isLeftSwipe = distance > 50;
-        const isRightSwipe = distance < -50;
-
-        if (isLeftSwipe) {
-            setSwipedItemId(id);
-        }
-        if (isRightSwipe && swipedItemId === id) {
-            setSwipedItemId(null);
+        try {
+            await fetch('/.netlify/functions/template-items', {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id })
+            });
+            await loadData();
+        } catch (error) {
+            console.error('Failed to delete item:', error);
         }
     };
 
-    // Helper: Compress Image to avoid LocalStorage Quota limits
+    const toggleVisibility = async (item) => {
+        if (isAdminView) return;
+        setIsSaving(true);
+        try {
+            const payload = {
+                template_item_id: item.id,
+                is_hidden: !item.is_hidden
+            };
+            await fetch('/.netlify/functions/menu-overrides', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+            await loadData();
+        } catch (error) {
+            console.error('Failed to toggle visibility:', error);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    // UI Helpers
     const compressImage = async (file) => {
         return new Promise((resolve) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
-            reader.onload = (event) => {
+            reader.onload = (e) => {
                 const img = new Image();
-                img.src = event.target.result;
+                img.src = e.target.result;
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    // Resize to manageable dimensions (e.g. max 600px width)
                     const MAX_WIDTH = 600;
-                    const scaleSize = MAX_WIDTH / img.width;
-                    const width = (img.width > MAX_WIDTH) ? MAX_WIDTH : img.width;
-                    const height = (img.width > MAX_WIDTH) ? img.height * scaleSize : img.height;
-
-                    canvas.width = width;
-                    canvas.height = height;
-
+                    const scale = MAX_WIDTH / img.width;
+                    const width = img.width > MAX_WIDTH ? MAX_WIDTH : img.width;
+                    const height = img.width > MAX_WIDTH ? img.height * scale : img.height;
+                    canvas.width = width; canvas.height = height;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
-
-                    // Compress as JPEG with 0.7 quality
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-                    resolve(dataUrl);
+                    resolve(canvas.toDataURL('image/jpeg', 0.7));
                 };
             };
         });
     };
 
-    const handleImageDrop = async (e) => {
-        e.preventDefault();
-        const file = e.dataTransfer.files[0];
-        if (file && file.type.startsWith('image/')) {
-            try {
-                const compressedImage = await compressImage(file);
-                setEditingItem({ ...editingItem, image: compressedImage });
-            } catch (error) {
-                console.error("Image compression failed", error);
-                alert("Failed to process image. Please try a smaller file.");
+    const handleSaveSettings = async () => {
+        setIsSaving(true);
+        try {
+            if (isAdminView) {
+                // Admin: Save to Template Config
+                await fetch('/.netlify/functions/templates', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id: template.id,
+                        config: menuConfig
+                    })
+                });
+            } else {
+                // Restaurant: Save to Menu Config
+                // We need the menu instance ID. In the loadData we didn't store it in a separate state yet.
+                // Let's modify loadData to store the menuId.
+                const menuId = template?.restaurant_menu_id; // I should add this to the API response
+                if (menuId) {
+                    const { updateMenu } = await import('../utils/menus');
+                    await updateMenu(menuId, menuConfig.restaurantName, menuConfig);
+                }
             }
+            setIsSettingsModalOpen(false);
+            alert('Settings saved successfully!');
+        } catch (error) {
+            console.error('Failed to save settings:', error);
+        } finally {
+            setIsSaving(false);
         }
-    };
-
-    const handleImageSelect = async (e) => {
-        const file = e.target.files[0];
-        if (file && file.type.startsWith('image/')) {
-            try {
-                const compressedImage = await compressImage(file);
-                setEditingItem({ ...editingItem, image: compressedImage });
-            } catch (error) {
-                console.error("Image compression failed", error);
-                alert("Failed to process image. Please try a smaller file.");
-            }
-        }
-    };
-
-    const handleLogoDrop = async (e) => {
-        e.preventDefault();
-        const file = e.dataTransfer.files[0];
-        if (file && file.type.startsWith('image/')) {
-            try {
-                const compressedImage = await compressImage(file);
-                setMenuConfig({ ...menuConfig, logoImage: compressedImage });
-            } catch (error) {
-                console.error("Image compression failed", error);
-                alert("Failed to process image.");
-            }
-        }
-    };
-
-    const handleLogoSelect = async (e) => {
-        const file = e.target.files[0];
-        if (file && file.type.startsWith('image/')) {
-            try {
-                const compressedImage = await compressImage(file);
-                setMenuConfig({ ...menuConfig, logoImage: compressedImage });
-            } catch (error) {
-                console.error("Image compression failed", error);
-                alert("Failed to process image.");
-            }
-        }
-    };
-
-    const handleAddCategory = () => {
-        if (newCategory.trim() && !categories.includes(newCategory.trim())) {
-            setCategories([...categories, newCategory.trim()]);
-            setNewCategory('');
-        }
-    };
-
-    const handleCategoryChange = (id, newCategory) => {
-        setItems(items.map(i => i.id === id ? { ...i, category: newCategory } : i));
-    };
-
-    const handlePriceChange = (id, newPrice) => {
-        setItems(items.map(i => i.id === id ? { ...i, price: parseFloat(newPrice) || 0 } : i));
-    };
-
-    const handleSave = () => {
-        alert('Changes saved! (Mock Action)');
     };
 
     return (
-        <div className="p-8 max-w-7xl mx-auto">
-            <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                <div>
+        <div className="p-8 max-w-7xl mx-auto animate-fade-in">
+            <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
+                <div className="space-y-1">
                     <button
-                        onClick={() => navigate('/dashboard/menu')}
-                        className="flex items-center gap-2 text-gray-500 hover:text-gray-900 mb-4 font-bold transition-colors"
+                        onClick={() => navigate(isAdminView ? '/admin' : '/dashboard/menu')}
+                        className="flex items-center gap-2 text-gray-400 hover:text-indigo-600 mb-4 font-black transition-all uppercase text-xs tracking-widest group"
                     >
-                        <HiArrowLeft className="w-5 h-5" /> Back to Dashboard
+                        <HiArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back
                     </button>
-                    <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white">Menu Management</h1>
-                    <p className="text-gray-500 text-sm md:text-base">Manage your restaurant's menu items. Update descriptions, categories, and adjust unit prices.</p>
+                    <div className="flex items-center gap-3">
+                        <span className="text-3xl">{template?.icon || '🍽️'}</span>
+                        <h1 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tight">
+                            {isAdminView ? `Manage Base: ${template?.name}` : 'Menu Overrides'}
+                        </h1>
+                    </div>
+                    <p className="text-gray-500 font-medium max-w-2xl">
+                        {isAdminView
+                            ? "Configure the global master items for this template. Changes here affect all restaurants."
+                            : `Personalize the "${template?.name}" template for your restaurant. Your changes are private.`}
+                    </p>
                 </div>
-                <div className="flex gap-2 w-full md:w-auto">
+
+                <div className="flex gap-3">
+                    {isAdminView && (
+                        <button
+                            onClick={() => {
+                                setEditingItem({ name: '', description: '', price: 0, category: 'Classic', image_url: '' });
+                                setIsEditModalOpen(true);
+                            }}
+                            className="px-6 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl shadow-xl shadow-indigo-600/20 flex items-center gap-2 transition-all active:scale-95 text-xs uppercase tracking-widest"
+                        >
+                            <HiPlus className="w-5 h-5" /> Add Base Item
+                        </button>
+                    )}
                     <button
                         onClick={() => setIsSettingsModalOpen(true)}
-                        className="p-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl shadow-sm transition-all flex items-center gap-2"
-                        title="Menu Settings"
+                        className="p-4 bg-white dark:bg-white/5 text-gray-600 dark:text-white font-black rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm hover:border-indigo-500 transition-all"
+                        title="Theme & Logo Settings"
                     >
-                        <HiCog6Tooth className="w-5 h-5" /> Settings
-                    </button>
-                    <div className="flex gap-2 w-full md:w-auto">
-                        <input
-                            type="text"
-                            placeholder="New category..."
-                            value={newCategory}
-                            onChange={(e) => setNewCategory(e.target.value)}
-                            className="flex-1 px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white min-w-0"
-                        />
-                        <button
-                            onClick={handleAddCategory}
-                            className="px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl shadow-lg transition-all"
-                        >
-                            Add
-                        </button>
-                    </div>
-                </div>
-                <div className="flex gap-2 w-full md:w-auto">
-                    <button
-                        onClick={handleAddItem}
-                        className="flex-1 md:flex-none px-6 py-3 bg-yum-primary text-white font-bold rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 hover:bg-red-500 whitespace-nowrap"
-                    >
-                        <HiPlus className="w-5 h-5" /> Add Item
-                    </button>
-                    <button
-                        onClick={handleSave}
-                        className="flex-1 md:flex-none px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl shadow-lg transition-all whitespace-nowrap"
-                    >
-                        Save
+                        <HiCog6Tooth className="w-6 h-6" />
                     </button>
                 </div>
             </header>
 
-
-
-            {/* Mobile Card View (Visible on small screens) */}
-            {/* Mobile Card View (Visible on small screens) */}
-            <div className="flex flex-col gap-4 md:hidden overflow-hidden">
-                <p className="text-xs text-center text-gray-400 mb-2">Tip: Swipe item left to edit, duplicate or delete</p>
-                {items.map((item) => (
-                    <div
-                        key={item.id}
-                        className="relative h-28 w-full rounded-2xl overflow-hidden"
-                        onTouchStart={handleTouchStart}
-                        onTouchMove={handleTouchMove}
-                        onTouchEnd={() => handleTouchEnd(item.id)}
-                    >
-                        {/* Actions Background Layer */}
-                        <div className="absolute inset-0 flex justify-end">
-                            <button onClick={() => handleAddToMenu(item)} className="h-full w-20 bg-green-500 text-white flex items-center justify-center" title="Add to Public Menu">
-                                <HiArrowRightOnRectangle size={24} />
-                            </button>
-                            <button onClick={() => handleEditClick(item)} className="h-full w-20 bg-blue-500 text-white flex items-center justify-center">
-                                <HiPencil size={24} />
-                            </button>
-                            <button onClick={() => handleDeleteClick(item.id)} className="h-full w-20 bg-red-500 text-white flex items-center justify-center">
-                                <HiTrash size={24} />
-                            </button>
-                        </div>
-
-                        {/* Foreground Content Layer */}
-                        <div
-                            className={`absolute inset-0 bg-white dark:bg-gray-800 p-4 border border-gray-100 dark:border-gray-700 flex gap-4 items-center transition-transform duration-300 ease-out ${swipedItemId === item.id ? '-translate-x-60' : 'translate-x-0'}`}
-                            onClick={() => swipedItemId === item.id && setSwipedItemId(null)} // Click to close swipe
-                        >
-                            {/* Image */}
-                            <div className="shrink-0 w-20 h-20 bg-gray-100 rounded-xl overflow-hidden relative group">
-                                {item.image ? (
-                                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                        <HiPhoto className="w-8 h-8" />
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Content */}
-                            <div className="flex-1 min-w-0">
-                                <div className="flex justify-between items-start">
-                                    <h3 className="font-black text-gray-900 dark:text-white truncate">{item.name}</h3>
-                                    <span className="font-bold text-lg text-blue-600 dark:text-blue-400">€{item.price.toFixed(2)}</span>
-                                </div>
-                                <p className="text-xs text-gray-500 mb-1 truncate">{item.category}</p>
-                                <p className="text-sm text-gray-500 line-clamp-2">{item.description}</p>
-                            </div>
-
-                            {/* Chevon/Hint */}
-                            {swipedItemId !== item.id && (
-                                <div className="h-8 w-1 bg-gray-200 dark:bg-gray-700 rounded-full shrink-0" />
-                            )}
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            {/* Desktop Table View (Hidden on small screens) */}
-            <div className="hidden md:block bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden overflow-x-auto">
-                <table className="w-full text-left min-w-[800px]">
-                    <thead className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-700">
-                        <tr>
-                            <th className="p-6 text-sm font-black text-gray-500 uppercase tracking-widest">Item Name</th>
-                            <th className="p-6 text-sm font-black text-gray-500 uppercase tracking-widest">Category</th>
-                            <th className="p-6 text-sm font-black text-gray-500 uppercase tracking-widest">Description</th>
-                            <th className="p-6 text-sm font-black text-gray-500 uppercase tracking-widest w-32">Unit Price (€)</th>
-                            <th className="p-6 text-sm font-black text-gray-500 uppercase tracking-widest text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-                        {items.map((item) => (
-                            <tr key={item.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/20 transition-colors">
-                                <td className="p-6">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-100 shrink-0 border border-gray-100 dark:border-gray-600 relative group">
-                                            {item.image ? (
-                                                <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                                    <HiPhoto className="w-6 h-6" />
+            <div className="grid grid-cols-1 gap-6">
+                {items.length > 0 ? (
+                    <div className="bg-white dark:bg-white/5 rounded-[2.5rem] border border-gray-100 dark:border-white/5 overflow-hidden shadow-sm">
+                        <table className="w-full text-left">
+                            <thead className="bg-gray-50/50 dark:bg-white/5 border-b border-gray-100 dark:border-white/5">
+                                <tr>
+                                    <th className="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Item</th>
+                                    <th className="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Description</th>
+                                    <th className="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest w-32">Price</th>
+                                    <th className="p-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-50 dark:divide-white/5">
+                                {items.map((item) => (
+                                    <tr key={item.id} className={`hover:bg-indigo-50/30 dark:hover:bg-indigo-500/5 transition-colors ${item.is_hidden ? 'opacity-50 grayscale' : ''}`}>
+                                        <td className="p-6">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-14 h-14 rounded-2xl overflow-hidden bg-gray-100 dark:bg-white/5 border border-gray-100 dark:border-white/10 shrink-0">
+                                                    {item.image_url ? <img src={item.image_url} className="w-full h-full object-cover" /> : <HiPhoto className="w-full h-full p-3 text-gray-300" />}
                                                 </div>
-                                            )}
-                                        </div>
-                                        <span className="font-bold text-gray-900 dark:text-white">{item.name}</span>
-                                    </div>
-                                </td>
-                                <td className="p-6">
-                                    <select
-                                        value={item.category}
-                                        onChange={(e) => handleCategoryChange(item.id, e.target.value)}
-                                        className="px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white font-bold text-sm outline-none focus:ring-2 focus:ring-blue-500"
-                                    >
-                                        {categories.map((cat) => (
-                                            <option key={cat} value={cat}>{cat}</option>
-                                        ))}
-                                    </select>
-                                </td>
-                                <td className="p-6 text-sm text-gray-500 max-w-md truncate" title={item.description}>
-                                    {item.description}
-                                </td>
-                                <td className="p-6">
-                                    <div className="relative w-32">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <span className="text-gray-500 font-bold">€</span>
-                                        </div>
-                                        <input
-                                            type="number"
-                                            step="0.01"
-                                            value={item.price}
-                                            onChange={(e) => handlePriceChange(item.id, e.target.value)}
-                                            className="w-full pl-8 pr-3 py-2 rounded-xl border-2 border-gray-100 hover:border-gray-300 focus:border-blue-500 dark:border-gray-700 dark:hover:border-gray-600 bg-gray-50 dark:bg-gray-700/50 font-mono font-bold text-gray-900 dark:text-white transition-all outline-none"
-                                        />
-                                    </div>
-                                </td>
-                                <td className="p-6 text-right">
-                                    <div className="flex items-center justify-end gap-2">
-                                        <button
-                                            onClick={() => handleAddToMenu(item)}
-                                            className="p-2 text-green-500 hover:bg-green-50 rounded-lg transition-colors"
-                                            title="Add to Public Menu"
-                                        >
-                                            <HiArrowRightOnRectangle className="w-5 h-5" />
-                                        </button>
-                                        <button
-                                            onClick={() => handleEditClick(item)}
-                                            className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
-                                            title="Edit Details"
-                                        >
-                                            <HiPencil className="w-5 h-5" />
-                                        </button>
-                                        <button
-                                            onClick={() => handleDeleteClick(item.id)}
-                                            className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                                            title="Delete Item"
-                                        >
-                                            <HiTrash className="w-5 h-5" />
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                                                <div>
+                                                    <span className="font-black text-gray-900 dark:text-white block">{item.name}</span>
+                                                    <span className="text-[10px] font-black text-indigo-500 bg-indigo-50 dark:bg-indigo-500/10 px-2 py-0.5 rounded-full uppercase tracking-tighter border border-indigo-100 dark:border-indigo-500/20">{item.category}</span>
+                                                    {!isAdminView && item.has_override && <span className="ml-2 text-[9px] font-black text-green-500 uppercase italic">Modified</span>}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="p-6 text-sm text-gray-500 font-medium italic">{item.description}</td>
+                                        <td className="p-6 font-mono font-black text-gray-900 dark:text-white">€{parseFloat(item.price).toFixed(2)}</td>
+                                        <td className="p-6 text-right">
+                                            <div className="flex items-center justify-end gap-2">
+                                                {!isAdminView && (
+                                                    <button
+                                                        onClick={() => toggleVisibility(item)}
+                                                        className={`p-3 rounded-xl transition-all ${item.is_hidden ? 'text-red-500 bg-red-50 dark:bg-red-500/10' : 'text-gray-400 hover:text-indigo-600'}`}
+                                                        title={item.is_hidden ? "Show in Menu" : "Hide from Menu"}
+                                                    >
+                                                        {item.is_hidden ? <HiEyeSlash className="w-5 h-5" /> : <HiEye className="w-5 h-5" />}
+                                                    </button>
+                                                )}
+                                                <button
+                                                    onClick={() => { setEditingItem({ ...item }); setIsEditModalOpen(true); }}
+                                                    className="p-3 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-xl transition-all"
+                                                >
+                                                    <HiPencil className="w-5 h-5" />
+                                                </button>
+                                                {isAdminView && (
+                                                    <button
+                                                        onClick={() => handleDeleteItem(item.id)}
+                                                        className="p-3 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-600/10 rounded-xl transition-all"
+                                                    >
+                                                        <HiTrash className="w-5 h-5" />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                ) : (
+                    <div className="bg-white/30 dark:bg-white/5 border-4 border-dashed border-gray-100 dark:border-white/5 rounded-[3rem] p-20 text-center animate-pulse">
+                        <div className="text-6xl mb-6 opacity-20">📭</div>
+                        <h3 className="text-2xl font-black text-gray-300 dark:text-gray-600 uppercase tracking-tight">No Items Found</h3>
+                    </div>
+                )}
             </div>
 
             {/* Edit Modal */}
-            {
-                isEditModalOpen && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-                        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-fade-in">
-                            <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-700/50">
-                                <h3 className="text-xl font-black text-gray-900 dark:text-white">Edit Item Details</h3>
-                                <button onClick={() => setIsEditModalOpen(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-                                    <HiXMark className="w-6 h-6" />
-                                </button>
+            {isEditModalOpen && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-md p-4 animate-fade-in">
+                    <div className="bg-white dark:bg-[#1a1c23] rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden border border-white dark:border-white/10">
+                        <div className="p-8 bg-gray-50/50 dark:bg-white/5 border-b border-gray-100 dark:border-white/5 flex justify-between items-center">
+                            <div>
+                                <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">
+                                    {isAdminView ? 'Edit Master Item' : 'Override Item'}
+                                </h3>
+                                <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mt-1">
+                                    {isAdminView ? 'Global Definition' : 'Personal Customization'}
+                                </p>
                             </div>
-                            <div className="p-6 space-y-4">
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Item Name</label>
+                            <button onClick={() => setIsEditModalOpen(false)} className="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/5">
+                                <HiXMark className="w-6 h-6" />
+                            </button>
+                        </div>
+                        <div className="p-8 space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="md:col-span-2">
+                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Item Name</label>
                                     <input
                                         type="text"
                                         value={editingItem.name}
                                         onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })}
-                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                        className="w-full px-5 py-4 rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-[#24262d] text-gray-900 dark:text-white font-bold focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                        placeholder="e.g. Master Margherita"
                                     />
                                 </div>
-
-                                {!editingItem.id && (
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Category</label>
-                                        <select
-                                            value={editingItem.category}
-                                            onChange={(e) => setEditingItem({ ...editingItem, category: e.target.value })}
-                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
-                                        >
-                                            {categories.map(cat => (
-                                                <option key={cat} value={cat}>{cat}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                )}
-
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Initial Price (€)</label>
+                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Price (€)</label>
                                     <input
                                         type="number"
                                         step="0.01"
                                         value={editingItem.price}
                                         onChange={(e) => setEditingItem({ ...editingItem, price: parseFloat(e.target.value) || 0 })}
-                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none font-mono"
+                                        className="w-full px-5 py-4 rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-[#24262d] text-gray-900 dark:text-white font-mono font-bold focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Item Photo</label>
-                                    <div
-                                        className="relative w-full h-40 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl flex flex-col items-center justify-center text-gray-500 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-gray-700/50 transition-all cursor-pointer overflow-hidden group"
-                                        onDrop={handleImageDrop}
-                                        onDragOver={(e) => e.preventDefault()}
-                                        onClick={() => document.getElementById('photo-upload').click()}
+                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Category</label>
+                                    <select
+                                        value={editingItem.category}
+                                        onChange={(e) => setEditingItem({ ...editingItem, category: e.target.value })}
+                                        className={`w-full px-5 py-4 rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-[#24262d] text-gray-900 dark:text-white font-bold focus:ring-2 focus:ring-indigo-500 outline-none transition-all ${!isAdminView ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        disabled={!isAdminView}
                                     >
-                                        {editingItem.image ? (
-                                            <>
-                                                <img src={editingItem.image} alt="Preview" className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-30 transition-opacity" />
-                                                <div className="z-10 flex flex-col items-center">
-                                                    <HiCloudArrowUp className="w-8 h-8 mb-2 text-blue-500" />
-                                                    <span className="text-sm font-bold text-gray-900 dark:text-white">Click or Drop to Replace</span>
-                                                </div>
-                                            </>
-                                        ) : (
-                                            <div className="flex flex-col items-center">
-                                                <HiCloudArrowUp className="w-8 h-8 mb-2" />
-                                                <span className="text-sm font-medium">Click to upload or drag & drop</span>
-                                                <span className="text-xs mt-1">PNG, JPG up to 5MB</span>
-                                            </div>
-                                        )}
-                                        <input
-                                            type="file"
-                                            id="photo-upload"
-                                            className="hidden"
-                                            accept="image/*"
-                                            onChange={handleImageSelect}
-                                        />
-                                    </div>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Description</label>
-                                    <textarea
-                                        rows="4"
-                                        value={editingItem.description}
-                                        onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
-                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none resize-none"
-                                    />
+                                        <option>Classic</option><option>Premium</option><option>Special</option><option>Drinks</option><option>Desserts</option>
+                                    </select>
                                 </div>
                             </div>
-                            <div className="p-6 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-3">
-                                <button
-                                    onClick={() => setIsEditModalOpen(false)}
-                                    className="px-6 py-2.5 font-bold text-gray-500 hover:text-gray-700 transition-colors"
+
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Item Photo</label>
+                                <div
+                                    className="relative w-full h-40 border-2 border-dashed border-gray-100 dark:border-white/10 rounded-3xl flex flex-col items-center justify-center text-gray-400 hover:border-indigo-500 hover:bg-indigo-50/30 transition-all cursor-pointer overflow-hidden group"
+                                    onClick={() => document.getElementById('photo-upload').click()}
                                 >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={handleSaveEdit}
-                                    className="px-6 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl shadow-lg transition-all"
-                                >
-                                    Save Changes
-                                </button>
+                                    {editingItem.image_url ? (
+                                        <img src={editingItem.image_url} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity" />
+                                    ) : (
+                                        <HiCloudArrowUp className="w-10 h-10 mb-2 opacity-30" />
+                                    )}
+                                    <span className="text-xs font-black uppercase tracking-widest relative z-10 text-gray-500">Update Photo</span>
+                                    <input type="file" id="photo-upload" className="hidden" accept="image/*" onChange={async (e) => {
+                                        const file = e.target.files[0];
+                                        if (file) {
+                                            const compressed = await compressImage(file);
+                                            setEditingItem({ ...editingItem, image_url: compressed });
+                                        }
+                                    }} />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Description</label>
+                                <textarea
+                                    rows="3"
+                                    value={editingItem.description}
+                                    onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
+                                    className="w-full px-5 py-4 rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-[#24262d] text-gray-900 dark:text-white font-medium italic focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none"
+                                    placeholder="Enter item description..."
+                                />
                             </div>
                         </div>
-                    </div>
-                )
-            }
-            {/* Settings Modal */}
-            {
-                isSettingsModalOpen && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-                        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-fade-in">
-                            <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-700/50">
-                                <h3 className="text-xl font-black text-gray-900 dark:text-white">Menu Settings</h3>
-                                <button onClick={() => setIsSettingsModalOpen(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-                                    <HiXMark className="w-6 h-6" />
-                                </button>
-                            </div>
-                            <div className="p-6 space-y-6">
-                                {/* Restaurant Name */}
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Restaurant Name</label>
-                                    <input
-                                        type="text"
-                                        value={menuConfig.restaurantName}
-                                        onChange={(e) => setMenuConfig({ ...menuConfig, restaurantName: e.target.value })}
-                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
-                                    />
-                                </div>
-
-                                {/* Theme Color */}
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Theme Color</label>
-                                    <div className="flex gap-2">
-                                        <input
-                                            type="color"
-                                            value={menuConfig.themeColor}
-                                            onChange={(e) => setMenuConfig({ ...menuConfig, themeColor: e.target.value })}
-                                            className="h-12 w-16 p-1 rounded-xl border border-gray-200 cursor-pointer"
-                                        />
-                                        <input
-                                            type="text"
-                                            value={menuConfig.themeColor}
-                                            onChange={(e) => setMenuConfig({ ...menuConfig, themeColor: e.target.value })}
-                                            className="flex-1 px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Logo Upload */}
-                                <div>
-                                    <div className="flex justify-between items-center mb-2">
-                                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300">Logo Image</label>
-                                        <div className="flex items-center gap-2">
-                                            <input
-                                                type="checkbox"
-                                                id="useLogo"
-                                                checked={menuConfig.useLogo}
-                                                onChange={(e) => setMenuConfig({ ...menuConfig, useLogo: e.target.checked })}
-                                                className="w-4 h-4 rounded text-blue-500 focus:ring-blue-500"
-                                            />
-                                            <label htmlFor="useLogo" className="text-sm text-gray-600 dark:text-gray-400">Use Logo instead of Text</label>
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        className="relative w-full h-32 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl flex flex-col items-center justify-center text-gray-500 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-gray-700/50 transition-all cursor-pointer overflow-hidden group"
-                                        onDrop={handleLogoDrop}
-                                        onDragOver={(e) => e.preventDefault()}
-                                        onClick={() => document.getElementById('logo-upload').click()}
-                                    >
-                                        {menuConfig.logoImage ? (
-                                            <>
-                                                <img src={menuConfig.logoImage} alt="Logo" className="absolute inset-0 w-full h-full object-contain p-2 opacity-50 group-hover:opacity-30 transition-opacity" />
-                                                <div className="z-10 flex flex-col items-center">
-                                                    <HiCloudArrowUp className="w-8 h-8 mb-2 text-blue-500" />
-                                                    <span className="text-sm font-bold text-gray-900 dark:text-white">Click or Drop to Replace</span>
-                                                </div>
-                                            </>
-                                        ) : (
-                                            <div className="flex flex-col items-center">
-                                                <HiCloudArrowUp className="w-8 h-8 mb-2" />
-                                                <span className="text-sm font-medium">Click to upload logo</span>
-                                            </div>
-                                        )}
-                                        <input
-                                            type="file"
-                                            id="logo-upload"
-                                            className="hidden"
-                                            accept="image/*"
-                                            onChange={handleLogoSelect}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="p-6 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-100 dark:border-gray-700 flex justify-end">
-                                <button
-                                    onClick={() => setIsSettingsModalOpen(false)}
-                                    className="px-6 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl shadow-lg transition-all"
-                                >
-                                    Done
-                                </button>
-                            </div>
+                        <div className="p-8 bg-gray-50/50 dark:bg-white/5 border-t border-gray-100 dark:border-white/5 flex gap-3">
+                            <button onClick={() => setIsEditModalOpen(false)} className="flex-1 px-6 py-4 bg-white dark:bg-white/10 text-gray-500 dark:text-white font-black rounded-2xl border border-gray-100 dark:border-white/10 uppercase tracking-widest text-xs">
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSaveItem}
+                                disabled={isSaving}
+                                className="flex-2 px-10 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl shadow-xl shadow-indigo-600/20 active:scale-95 transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-2"
+                            >
+                                {isSaving ? 'Saving...' : <><HiRocketLaunch className="w-5 h-5" /> {isAdminView ? 'Update Base' : 'Save Override'}</>}
+                            </button>
                         </div>
                     </div>
-                )
-            }
-        </div >
+                </div>
+            )}
+        </div>
     );
 };
 

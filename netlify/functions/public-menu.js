@@ -55,22 +55,71 @@ export const handler = async (event, context) => {
             };
         }
 
-        // 2. Fetch the actual menu details
+        // 2. Fetch the restaurant's menu instance
         const menuResult = await query(
             'SELECT * FROM menus WHERE id = $1',
             [user.menu_id]
         );
+        const menuInstance = menuResult.rows[0];
 
-        if (menuResult.rows.length === 0) {
+        // 3. Fetch Base Template items
+        const templateRes = await query(
+            'SELECT * FROM templates WHERE template_key = $1',
+            [menuInstance.template_type]
+        );
+
+        if (templateRes.rows.length === 0) {
+            // Fallback for legacy menus that don't use templates correctly
             return {
-                statusCode: 404,
+                statusCode: 200,
                 headers,
                 body: JSON.stringify({
-                    error: 'No menus published yet.',
-                    restaurant: user.restaurant_name
+                    restaurant: user.restaurant_name,
+                    stripe_enabled: user.stripe_onboarding_complete,
+                    menu: menuInstance
                 })
             };
         }
+
+        const template = templateRes.rows[0];
+        const baseItemsRes = await query(
+            'SELECT * FROM template_items WHERE template_id = $1 ORDER BY sort_order, id',
+            [template.id]
+        );
+        const baseItems = baseItemsRes.rows;
+
+        // 4. Fetch Restaurant Overrides
+        const overridesRes = await query(
+            'SELECT * FROM item_overrides WHERE restaurant_id = $1 AND template_item_id IN (SELECT id FROM template_items WHERE template_id = $2)',
+            [user.id, template.id]
+        );
+        const overrides = overridesRes.rows;
+
+        // 5. Merge with Fallback Logic
+        const items = baseItems
+            .map(baseItem => {
+                const override = overrides.find(o => o.template_item_id === baseItem.id);
+                if (override) {
+                    if (override.is_hidden) return null;
+                    return {
+                        ...baseItem,
+                        name: override.name_override || baseItem.name,
+                        description: override.description_override || baseItem.description,
+                        price: override.price_override || baseItem.price,
+                        image_url: override.image_override || baseItem.image_url,
+                        has_override: true
+                    };
+                }
+                return { ...baseItem, has_override: false };
+            })
+            .filter(Boolean);
+
+        // Construct response matching expected format
+        const finalConfig = {
+            ...menuInstance.config,
+            items: items,
+            restaurantName: menuInstance.config?.restaurantName || user.restaurant_name
+        };
 
         return {
             statusCode: 200,
@@ -78,7 +127,10 @@ export const handler = async (event, context) => {
             body: JSON.stringify({
                 restaurant: user.restaurant_name,
                 stripe_enabled: user.stripe_onboarding_complete,
-                menu: menuResult.rows[0]
+                menu: {
+                    ...menuInstance,
+                    config: finalConfig
+                }
             })
         };
 

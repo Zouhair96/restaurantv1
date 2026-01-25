@@ -144,14 +144,14 @@ const Templates = () => {
                         <div className="space-y-3">
                             <div className="grid grid-cols-2 gap-3">
                                 <Link
-                                    to={`/menu_${template.template_key}`}
+                                    to={`/menu-${template.template_key}`}
                                     target="_blank"
                                     className="flex items-center justify-center gap-2 px-4 py-3 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-gray-700 dark:text-white font-bold rounded-xl transition-all border border-gray-100 dark:border-white/10 shadow-sm"
                                 >
                                     <HiEye className="w-4 h-4" /> Show
                                 </Link>
                                 <Link
-                                    to={`/manage_menu_${template.template_key}`}
+                                    to={`/manage-template/${template.template_key}`}
                                     className="flex items-center justify-center gap-2 px-4 py-3 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-gray-700 dark:text-white font-bold rounded-xl transition-all border border-gray-100 dark:border-white/10 shadow-sm"
                                 >
                                     <HiCog6Tooth className="w-4 h-4" /> Manage
@@ -161,7 +161,7 @@ const Templates = () => {
                                 onClick={() => handleDeployClick(template)}
                                 className="w-full px-4 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 active:scale-95 uppercase tracking-widest text-xs"
                             >
-                                <HiRocketLaunch className="w-5 h-5" /> Deploy Template
+                                <HiRocketLaunch className="w-5 h-5" /> Deploy
                             </button>
                             <button
                                 onClick={() => handleDeleteTemplate(template.id)}

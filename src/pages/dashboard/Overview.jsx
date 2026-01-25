@@ -9,6 +9,7 @@ import { fetchMenus, deleteMenu } from '../../utils/menus'
 const Overview = () => {
     const { user } = useAuth()
     const [savedMenus, setSavedMenus] = useState([])
+    const [templates, setTemplates] = useState([])
     const [selectedOrder, setSelectedOrder] = useState(null)
     const [modalHandlers, setModalHandlers] = useState({
         onStatusUpdate: null,
@@ -24,9 +25,20 @@ const Overview = () => {
     const loadMenus = async () => {
         try {
             const data = await fetchMenus()
-            setSavedMenus(data)
+            setSavedMenus(data || [])
+
+            // Also fetch available templates for this plan
+            const token = localStorage.getItem('token')
+            const plan = user?.subscription_plan?.toLowerCase() || 'starter'
+            const templatesRes = await fetch(`/.netlify/functions/templates?plan=${plan}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            if (templatesRes.ok) {
+                const templatesData = await templatesRes.json()
+                setTemplates(templatesData || [])
+            }
         } catch (error) {
-            console.error('Error loading menus:', error)
+            console.error('Error loading dashboard data:', error)
         }
     }
 
@@ -141,6 +153,59 @@ const Overview = () => {
                     </div>
                 </div>
             )}
+            {/* Menu Templates Section */}
+            <div className="animate-fade-in">
+                <div className="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 className="text-2xl font-black text-gray-800 dark:text-white uppercase tracking-tight">Menu Templates</h2>
+                        <p className="text-gray-400 text-sm font-medium">Ready-to-use layouts deployed by platform admins.</p>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {templates.length > 0 ? (
+                        templates.map((template) => (
+                            <div key={template.id} className="bg-white dark:bg-gray-800 rounded-[2rem] p-6 border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-xl transition-all group overflow-hidden relative">
+                                <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-700"></div>
+
+                                <div className="flex items-center gap-4 mb-6">
+                                    <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center text-3xl border border-indigo-100 dark:border-indigo-500/20">
+                                        {template.icon || '🍽️'}
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-black text-gray-800 dark:text-white uppercase tracking-tight">{template.name}</h3>
+                                        <span className="text-[10px] font-black text-indigo-500 bg-indigo-100 dark:bg-indigo-500/10 px-2 py-0.5 rounded-full uppercase tracking-widest border border-indigo-200 dark:border-indigo-500/20">
+                                            {template.template_key}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3 relative z-10">
+                                    <Link
+                                        to={`/menu-${template.template_key}`}
+                                        target="_blank"
+                                        className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-white font-bold rounded-xl transition-all border border-gray-100 dark:border-white/10 text-xs uppercase tracking-widest"
+                                    >
+                                        Show
+                                    </Link>
+                                    <Link
+                                        to={`/manage-menu-${template.template_key}`}
+                                        className="flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-xl transition-all shadow-lg shadow-indigo-600/20 text-xs uppercase tracking-widest active:scale-95"
+                                    >
+                                        Manage
+                                    </Link>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="lg:col-span-3 bg-white/50 dark:bg-gray-800/30 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-[2rem] p-12 text-center">
+                            <div className="text-5xl mb-4 opacity-30">📦</div>
+                            <h3 className="text-xl font-black text-gray-400 dark:text-gray-500 uppercase tracking-tight">Nothing to show</h3>
+                            <p className="text-gray-400 dark:text-gray-600 text-sm max-w-xs mx-auto mt-2">No templates are currently deployed to your subscription tier.</p>
+                        </div>
+                    )}
+                </div>
+            </div>
 
             {/* Live Orders Section */}
             <LiveOrders onSelectOrder={(order, handler, getter) => {

@@ -97,8 +97,9 @@ function App() {
                   <Route path="/pricing/:planId" element={<PlanDetails />} />
                   <Route path="/order/:orderId" element={<OrderConfirmation />} />
                   <Route path="/testme" element={<TestMenu />} />
-                  <Route path="/menu_pizza1" element={<PublicMenuPizza1 />} />
-                  <Route path="/manage_menu_pizza1" element={<ManageMenuPizza1 />} />
+                  <Route path="/menu-pizza1" element={<PublicMenuPizza1 />} />
+                  <Route path="/manage-menu-pizza1" element={<ManageMenuPizza1 />} />
+                  <Route path="/manage-template/:templateKey" element={<ManageMenuPizza1 isAdminView={true} />} />
 
                   {/* Public Menu Route - Must be last to avoid conflicts */}
                   <Route path="/:restaurantName" element={<PublicMenu />} />

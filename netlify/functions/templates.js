@@ -35,21 +35,42 @@ export const handler = async (event, context) => {
     try {
         if (event.httpMethod === 'GET') {
             const plan = event.queryStringParameters?.plan || '';
+            const templateKey = event.queryStringParameters?.templateKey || '';
 
             let sql = 'SELECT * FROM templates WHERE status = $1';
             let params = ['active'];
+            let paramIndex = 2;
+
+            if (templateKey) {
+                sql += ` AND template_key = $${paramIndex++}`;
+                params.push(templateKey);
+            }
 
             // Filter if plan is provided AND user is not admin
             if (plan && (!user || user.role !== 'admin')) {
-                sql += ' AND allowed_plans ? $2';
+                sql += ` AND allowed_plans ? $${paramIndex++}`;
                 params.push(plan.toLowerCase());
             }
 
-            const result = await query(sql, params);
+            const templatesResult = await query(sql, params);
+
+            // For each template, fetch its items
+            const templates = [];
+            for (const template of templatesResult.rows) {
+                const itemsResult = await query(
+                    'SELECT * FROM template_items WHERE template_id = $1 ORDER BY sort_order, id',
+                    [template.id]
+                );
+                templates.push({
+                    ...template,
+                    items: itemsResult.rows
+                });
+            }
+
             return {
                 statusCode: 200,
                 headers,
-                body: JSON.stringify(result.rows)
+                body: JSON.stringify(templateKey ? (templates[0] || null) : templates)
             };
         }
 
@@ -69,9 +90,9 @@ export const handler = async (event, context) => {
                 return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid JSON body' }) };
             }
 
-            const { id, allowed_plans } = payload;
-            if (id === undefined || !allowed_plans) {
-                return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing id or allowed_plans' }) };
+            const { id, allowed_plans, config, name, icon } = payload;
+            if (id === undefined) {
+                return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing id' }) };
             }
 
             const targetId = parseInt(id);
@@ -79,8 +100,35 @@ export const handler = async (event, context) => {
                 return { statusCode: 400, headers, body: JSON.stringify({ error: 'ID must be an integer' }) };
             }
 
-            const q = 'UPDATE templates SET allowed_plans = $1::jsonb, updated_at = NOW() WHERE id = $2 RETURNING *';
-            const result = await query(q, [JSON.stringify(allowed_plans), targetId]);
+            // Build update query dynamically
+            const updates = [];
+            const params = [];
+            let paramIndex = 1;
+
+            if (allowed_plans !== undefined) {
+                updates.push(`allowed_plans = $${paramIndex++}::jsonb`);
+                params.push(JSON.stringify(allowed_plans));
+            }
+            if (config !== undefined) {
+                updates.push(`config = $${paramIndex++}::jsonb`);
+                params.push(JSON.stringify(config));
+            }
+            if (name !== undefined) {
+                updates.push(`name = $${paramIndex++}`);
+                params.push(name);
+            }
+            if (icon !== undefined) {
+                updates.push(`icon = $${paramIndex++}`);
+                params.push(icon);
+            }
+
+            if (updates.length === 0) {
+                return { statusCode: 400, headers, body: JSON.stringify({ error: 'No fields to update' }) };
+            }
+
+            params.push(targetId);
+            const q = `UPDATE templates SET ${updates.join(', ')}, updated_at = NOW() WHERE id = $${paramIndex} RETURNING *`;
+            const result = await query(q, params);
 
             if (result.rowCount === 0) {
                 return { statusCode: 404, headers, body: JSON.stringify({ error: 'Template not found' }) };
