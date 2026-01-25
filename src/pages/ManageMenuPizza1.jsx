@@ -294,7 +294,7 @@ const ManageMenuPizza1 = ({ isAdminView = false }) => {
                 <div className="flex items-center gap-3 w-full md:w-auto">
                     {isAdminView ? (
                         <a
-                            href={`/menu-${templateKey}`}
+                            href={`/menu/${templateKey}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="p-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg shadow-indigo-600/20 hover:bg-indigo-500 transition-all flex items-center justify-center gap-2"

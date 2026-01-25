@@ -182,7 +182,7 @@ const Overview = () => {
 
                                 <div className="grid grid-cols-2 gap-3 relative z-10">
                                     <Link
-                                        to={`/menu-${template.template_key}`}
+                                        to={`/menu/${template.template_key}`}
                                         target="_blank"
                                         className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-white font-bold rounded-xl transition-all border border-gray-100 dark:border-white/10 text-xs uppercase tracking-widest"
                                     >
