@@ -153,7 +153,7 @@ export const handler = async (event, context) => {
             }
 
             params.push(targetId);
-            const q = `UPDATE templates SET ${updates.join(', ')}, updated_at = NOW() WHERE id = $${paramIndex} RETURNING *`;
+            const q = `UPDATE templates SET ${updates.join(', ')}, "updated_at" = NOW() WHERE "id" = $${paramIndex} RETURNING *`;
             const result = await query(q, params);
 
             if (result.rowCount === 0) {
