@@ -14,7 +14,15 @@ export default {
                     accent: '#FFE66D',     // Yolk yellow
                     dark: '#2d3436',       // Soft black
                     light: '#f9f9f9',      // Off-white background
-                }
+                },
+                // shadcn-compatible colors
+                background: '#f9f9f9',
+                foreground: '#2d3436',
+                primary: {
+                    DEFAULT: '#FF6B6B',
+                    foreground: '#ffffff',
+                },
+                'muted-foreground': '#6b7280',
             },
             fontFamily: {
                 sans: ['Inter', 'sans-serif'],
