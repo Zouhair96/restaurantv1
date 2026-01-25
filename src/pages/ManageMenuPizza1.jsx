@@ -87,10 +87,10 @@ const ManageMenuPizza1 = ({ isAdminView = false }) => {
                 });
                 if (response.ok) await loadData();
             } else {
-                // Restaurant: Update Override
+                // Restaurant: Update Override or Custom Item
                 const payload = {
                     restaurant_template_id: template.restaurant_template_id,
-                    template_item_id: editingItem.id,
+                    template_item_id: editingItem.is_custom ? null : (editingItem.template_item_id || editingItem.id),
                     name_override: editingItem.name,
                     description_override: editingItem.description,
                     price_override: editingItem.price,
@@ -98,6 +98,11 @@ const ManageMenuPizza1 = ({ isAdminView = false }) => {
                     category_override: editingItem.category,
                     is_hidden: editingItem.is_hidden
                 };
+
+                // If editing a custom item that already exists, use its override ID
+                if (editingItem.is_custom && editingItem.id) {
+                    payload.id = editingItem.id; // Backend needs special handling for update vs insert custom
+                }
 
                 const response = await fetch('/.netlify/functions/menu-overrides', {
                     method: 'POST',
@@ -287,7 +292,17 @@ const ManageMenuPizza1 = ({ isAdminView = false }) => {
                 </div>
 
                 <div className="flex items-center gap-3 w-full md:w-auto">
-                    {!isAdminView && (
+                    {isAdminView ? (
+                        <a
+                            href={`/menu-${templateKey}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg shadow-indigo-600/20 hover:bg-indigo-500 transition-all flex items-center justify-center gap-2"
+                        >
+                            <HiEye className="w-6 h-6" />
+                            <span className="hidden lg:inline text-xs uppercase tracking-widest">Master Preview</span>
+                        </a>
+                    ) : (
                         <a
                             href={`/${currentUser?.restaurant_name}`}
                             target="_blank"
@@ -301,7 +316,7 @@ const ManageMenuPizza1 = ({ isAdminView = false }) => {
                     )}
                     <button
                         onClick={() => {
-                            setEditingItem({ name: '', description: '', price: 0, category: 'Classic Pizzas', image_url: '', is_hidden: false });
+                            setEditingItem({ name: '', description: '', price: 0, category: 'Classic', image_url: '', is_hidden: false, is_custom: true });
                             setIsEditModalOpen(true);
                         }}
                         style={{ backgroundColor: menuConfig.themeColor }}
@@ -312,10 +327,10 @@ const ManageMenuPizza1 = ({ isAdminView = false }) => {
                     </button>
                     <button
                         onClick={() => setIsSettingsModalOpen(true)}
-                        className="p-4 bg-gray-100 dark:bg-white/5 text-gray-800 dark:text-white font-black rounded-2xl border border-gray-200 dark:border-white/10 shadow-sm hover:border-indigo-500 transition-all active:rotate-45"
+                        className="p-4 bg-white dark:bg-white/10 text-gray-800 dark:text-white font-black rounded-2xl border-2 border-indigo-500/20 shadow-md hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-all active:rotate-45"
                         title="Display Settings"
                     >
-                        <HiCog6Tooth className="w-6 h-6 border-transparent" />
+                        <HiCog6Tooth className="w-6 h-6" />
                     </button>
                 </div>
             </header>
@@ -485,8 +500,8 @@ const ManageMenuPizza1 = ({ isAdminView = false }) => {
                                         onChange={(e) => setEditingItem({ ...editingItem, category: e.target.value })}
                                         className={`w-full px-5 py-4 rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-[#24262d] text-gray-900 dark:text-white font-bold focus:ring-2 focus:ring-indigo-500 outline-none transition-all ${!isAdminView ? 'opacity-70' : ''}`}
                                     >
-                                        <option value="Classic Pizzas">Classic Pizzas</option>
-                                        <option value="Premium Pizzas">Premium Pizzas</option>
+                                        <option value="Classic">Classic</option>
+                                        <option value="Premium">Premium</option>
                                         <option value="Desserts">Desserts</option>
                                         <option value="Drinks">Drinks</option>
                                         <option value="Starters">Starters</option>

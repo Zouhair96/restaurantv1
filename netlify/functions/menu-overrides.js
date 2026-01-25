@@ -84,12 +84,14 @@ export const handler = async (event, context) => {
                         description: override.description_override ?? baseItem.description,
                         price: override.price_override ?? baseItem.price,
                         image_url: override.image_override ?? baseItem.image_url,
+                        image: override.image_override ?? baseItem.image_url, // Unified for UI
+                        category: override.category_override ?? baseItem.category,
                         is_hidden: override.is_hidden ?? false,
                         has_override: true,
                         override_id: override.id
                     };
                 }
-                return { ...baseItem, has_override: false, is_hidden: false };
+                return { ...baseItem, has_override: false, is_hidden: false, image: baseItem.image_url };
             });
 
             // 7. Add purely custom items (overrides with no base item)
@@ -132,6 +134,7 @@ export const handler = async (event, context) => {
 
         if (event.httpMethod === 'POST') {
             const {
+                id,
                 template_item_id,
                 name_override,
                 description_override,
@@ -154,6 +157,7 @@ export const handler = async (event, context) => {
 
             let res;
             if (template_item_id) {
+                // ... (Override logic stays same)
                 res = await query(
                     `INSERT INTO item_overrides (restaurant_template_id, restaurant_id, template_item_id, name_override, description_override, price_override, image_override, category_override, is_hidden, updated_at)
                      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
@@ -169,8 +173,23 @@ export const handler = async (event, context) => {
                      RETURNING *`,
                     [restaurant_template_id, restaurantId, template_item_id, name_override, description_override, price_override, image_override, category_override, is_hidden]
                 );
+            } else if (id) {
+                // Update existing custom item
+                res = await query(
+                    `UPDATE item_overrides SET
+                        name_override = $1,
+                        description_override = $2,
+                        price_override = $3,
+                        image_override = $4,
+                        category_override = $5,
+                        is_hidden = $6,
+                        updated_at = NOW()
+                     WHERE id = $7 AND restaurant_id = $8
+                     RETURNING *`,
+                    [name_override, description_override, price_override, image_override, category_override, is_hidden, id, restaurantId]
+                );
             } else {
-                // Purely custom item (no base item)
+                // Purely custom item (no base item) - INSERT NEW
                 res = await query(
                     `INSERT INTO item_overrides (restaurant_template_id, restaurant_id, name_override, description_override, price_override, image_override, category_override, is_hidden, updated_at)
                      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
