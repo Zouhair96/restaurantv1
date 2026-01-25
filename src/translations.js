@@ -25,6 +25,10 @@ export const translations = {
             ctaSecondary: "Voir une démo",
             badgeText: "Déjà utilisé par 500+ restaurants",
         },
+        floatingHero: {
+            title: "Votre Restaurant, Délicieusement Digital",
+            description: "Transformez votre menu en une expérience numérique magnifique. Gérez les commandes, suivez vos clients et développez votre restaurant—le tout depuis une seule plateforme puissante.",
+        },
         howItWorks: {
             title: "Comment ça marche ?",
             step1Title: "QR Code",
@@ -239,6 +243,10 @@ export const translations = {
             ctaPrimary: "Get Started with YumYum",
             ctaSecondary: "See a Demo",
             badgeText: "Trusted by 500+ restaurants",
+        },
+        floatingHero: {
+            title: "Your Restaurant, Digitally Delicious",
+            description: "Transform your menu into a stunning digital experience. Manage orders, track customers, and grow your restaurant—all from one powerful platform.",
         },
         howItWorks: {
             title: "How it works?",

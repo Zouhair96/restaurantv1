@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useLanguage } from '../context/LanguageContext'
 import Header from '../components/Header'
 import { FloatingFoodHero } from '../components/ui/hero-section-7'
 import HowItWorks from '../components/HowItWorks'
@@ -19,6 +20,7 @@ import ParallaxBackground from '../components/ParallaxBackground'
 
 const Home = () => {
     const { user, loading } = useAuth()
+    const { t } = useLanguage()
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -85,8 +87,8 @@ const Home = () => {
             <main>
                 <ParallaxBackground>
                     <FloatingFoodHero
-                        title="Your Restaurant, Digitally Delicious"
-                        description="Transform your menu into a stunning digital experience. Manage orders, track customers, and grow your restaurant—all from one powerful platform."
+                        title={t('floatingHero.title')}
+                        description={t('floatingHero.description')}
                         images={heroImages}
                     />
                     <HowItWorks />
