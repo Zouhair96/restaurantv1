@@ -40,8 +40,8 @@ const Home = () => {
             className: 'w-40 sm:w-56 md:w-64 lg:w-72 top-10 left-4 sm:left-10 md:top-20 md:left-20 animate-float',
         },
         {
-            src: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=400',
-            alt: 'Smartphone displaying restaurant menu',
+            src: 'https://b.zmtcdn.com/data/o2_assets/8dc39742916ddc369ebeb91928391b931632716660.png',
+            alt: 'Ice cream dessert',
             className: 'w-32 sm:w-40 md:w-52 lg:w-60 top-1/4 right-8 sm:right-12 md:right-20 animate-float',
         },
         {
@@ -50,8 +50,8 @@ const Home = () => {
             className: 'w-28 sm:w-36 md:w-48 top-10 right-4 sm:right-10 md:top-16 md:right-16 animate-float',
         },
         {
-            src: 'https://cdn-icons-png.flaticon.com/512/4436/4436481.png',
-            alt: 'QR code for restaurant menu',
+            src: 'https://b.zmtcdn.com/data/o2_assets/0b07ef18234c6fdf9365ad1c274ae0631612687510.png',
+            alt: 'Biryani bowl',
             className: 'w-24 sm:w-32 md:w-40 bottom-1/4 left-8 sm:left-16 md:left-24 animate-float',
         },
         {
@@ -60,8 +60,8 @@ const Home = () => {
             className: 'w-32 sm:w-40 md:w-56 bottom-8 right-5 sm:right-10 md:bottom-16 md:right-20 animate-float',
         },
         {
-            src: 'https://images.unsplash.com/photo-1556742044-3c52d6e88c62?w=400',
-            alt: 'Hand holding phone with menu',
+            src: 'https://b.zmtcdn.com/data/o2_assets/52eb9796bb9bcf0eba64c643349e97211634401116.png',
+            alt: 'Sandwich',
             className: 'w-36 sm:w-44 md:w-56 lg:w-64 bottom-12 left-12 sm:left-20 md:bottom-20 md:left-28 animate-float',
         },
         {
