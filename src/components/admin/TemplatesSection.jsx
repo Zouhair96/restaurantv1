@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { HiCheck, HiXMark, HiRocketLaunch, HiEye, HiCog6Tooth, HiTrash } from 'react-icons/hi2';
+import { HiCheck, HiXMark, HiRocketLaunch, HiEye, HiCog6Tooth, HiTrash, HiDevicePhoneMobile, HiViewColumns, HiQueueList, HiRectangleGroup, HiSparkles } from 'react-icons/hi2';
+import CreateTemplateModal from './CreateTemplateModal';
 
 const Templates = () => {
     const [templates, setTemplates] = useState([]);
@@ -10,6 +11,7 @@ const Templates = () => {
     const [plans, setPlans] = useState(['starter', 'pro', 'enterprise']);
     const [selectedPlans, setSelectedPlans] = useState([]);
     const [isSaving, setIsSaving] = useState(false);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
     useEffect(() => {
         fetchTemplates();
@@ -174,13 +176,27 @@ const Templates = () => {
                 ))}
 
                 {/* Placeholder for Add New */}
-                <button className="bg-white/30 dark:bg-white/5 border-4 border-dashed border-gray-200 dark:border-white/5 rounded-[2.5rem] p-6 flex flex-col items-center justify-center text-gray-400 hover:text-indigo-500 hover:border-indigo-500/50 hover:bg-indigo-500/5 transition-all min-h-[300px] group">
+                <button
+                    onClick={() => setIsCreateModalOpen(true)}
+                    className="bg-white/30 dark:bg-white/5 border-4 border-dashed border-gray-200 dark:border-white/5 rounded-[2.5rem] p-6 flex flex-col items-center justify-center text-gray-400 hover:text-indigo-500 hover:border-indigo-500/50 hover:bg-indigo-500/5 transition-all min-h-[300px] group"
+                >
                     <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform">
                         +
                     </div>
                     <span className="font-black text-lg uppercase tracking-tight">Create New Template</span>
                 </button>
             </div>
+
+            {/* Create Template Modal */}
+            {isCreateModalOpen && (
+                <CreateTemplateModal
+                    onClose={() => setIsCreateModalOpen(false)}
+                    onSuccess={() => {
+                        setIsCreateModalOpen(false);
+                        fetchTemplates();
+                    }}
+                />
+            )}
 
             {/* Deploy Modal */}
             {isDeployModalOpen && (

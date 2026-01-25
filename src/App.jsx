@@ -98,6 +98,7 @@ function App() {
                   <Route path="/order/:orderId" element={<OrderConfirmation />} />
                   <Route path="/testme" element={<TestMenu />} />
                   <Route path="/menu-pizza1" element={<PublicMenuPizza1 />} />
+                  <Route path="/menu/:templateKey" element={<PublicMenu />} />
                   <Route path="/manage-menu-pizza1" element={<ManageMenuPizza1 />} />
                   <Route path="/manage-template/:templateKey" element={<ManageMenuPizza1 isAdminView={true} />} />
 

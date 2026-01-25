@@ -2,10 +2,15 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar'
 import PublicMenuPizza1 from './PublicMenuPizza1'
+import PublicMenuGrid from './PublicMenuGrid'
+import PublicMenuList from './PublicMenuList'
+import PublicMenuMagazine from './PublicMenuMagazine'
+import PublicMenuMinimal from './PublicMenuMinimal'
+import PublicMenuSwipe from './PublicMenuSwipe'
 import { HiOutlineUserCircle, HiOutlineMenuAlt2, HiOutlineSun, HiOutlineMoon, HiOutlineX } from 'react-icons/hi'
 
 const PublicMenu = () => {
-    const { restaurantName } = useParams()
+    const { restaurantName, templateKey } = useParams()
     const navigate = useNavigate()
     const [data, setData] = useState(null)
     const [loading, setLoading] = useState(true)
@@ -46,9 +51,17 @@ const PublicMenu = () => {
     useEffect(() => {
         const fetchMenu = async () => {
             try {
-                // Decode assuming the URL param might be encoded
-                const decodedName = decodeURIComponent(restaurantName)
-                const response = await fetch(`/.netlify/functions/public-menu?restaurantName=${encodeURIComponent(decodedName)}`)
+                let response;
+                if (templateKey) {
+                    // MODE: Master Template Preview
+                    response = await fetch(`/.netlify/functions/templates?templateKey=${templateKey}`)
+                } else if (restaurantName) {
+                    // MODE: Restaurant Public Menu
+                    const decodedName = decodeURIComponent(restaurantName)
+                    response = await fetch(`/.netlify/functions/public-menu?restaurantName=${encodeURIComponent(decodedName)}`)
+                }
+
+                if (!response) return;
                 const result = await response.json()
 
                 if (!response.ok) {
@@ -188,8 +201,20 @@ const PublicMenu = () => {
     }
 
     // Branch to specialized templates
-    if (data.menu.template_type === 'pizza1') {
+    if (data.menu.template_type === 'pizza1' || templateKey === 'pizza1') {
         return <PublicMenuPizza1 restaurantName={restaurantName} />
+    }
+
+    // Dynamic Multi-Layout Selection
+    const baseLayout = data.menu.base_layout || 'grid';
+
+    switch (baseLayout) {
+        case 'grid': return <PublicMenuGrid restaurantName={restaurantName} templateKey={templateKey} />;
+        case 'list': return <PublicMenuList restaurantName={restaurantName} templateKey={templateKey} />;
+        case 'magazine': return <PublicMenuMagazine restaurantName={restaurantName} templateKey={templateKey} />;
+        case 'minimal': return <PublicMenuMinimal restaurantName={restaurantName} templateKey={templateKey} />;
+        case 'swipe': return <PublicMenuSwipe restaurantName={restaurantName} templateKey={templateKey} />;
+        default: return <PublicMenuGrid restaurantName={restaurantName} templateKey={templateKey} />;
     }
 
 

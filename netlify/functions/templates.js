@@ -113,11 +113,22 @@ export const handler = async (event, context) => {
                 return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid JSON body' }) };
             }
 
-            const { id, allowed_plans, config, name, icon } = payload;
-            if (id === undefined) {
-                return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing id' }) };
+            const { id, allowed_plans, config, name, icon, template_key, base_layout, status } = payload;
+
+            // IF NO ID, IT'S AN INSERT (CREATE NEW)
+            if (!id) {
+                if (!name || !template_key) {
+                    return { statusCode: 400, headers, body: JSON.stringify({ error: 'Name and template_key are required for new templates' }) };
+                }
+                const res = await query(
+                    `INSERT INTO templates (name, template_key, icon, allowed_plans, config, base_layout, status, created_at, updated_at) 
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW()) RETURNING *`,
+                    [name, template_key, icon || '🍽️', JSON.stringify(allowed_plans || []), JSON.stringify(config || {}), base_layout || 'grid', status || 'active']
+                );
+                return { statusCode: 201, headers, body: JSON.stringify(res.rows[0]) };
             }
 
+            // OTHERWISE, IT'S AN UPDATE
             const targetId = parseInt(id);
             if (isNaN(targetId)) {
                 return { statusCode: 400, headers, body: JSON.stringify({ error: 'ID must be an integer' }) };
@@ -129,20 +140,32 @@ export const handler = async (event, context) => {
             let paramIndex = 1;
 
             if (allowed_plans !== undefined) {
-                updates.push(`allowed_plans = $${paramIndex++}::jsonb`);
+                updates.push(`"allowed_plans" = $${paramIndex++}::jsonb`);
                 params.push(JSON.stringify(allowed_plans));
             }
             if (config !== undefined) {
-                updates.push(`config = $${paramIndex++}::jsonb`);
+                updates.push(`"config" = $${paramIndex++}::jsonb`);
                 params.push(JSON.stringify(config));
             }
             if (name !== undefined) {
-                updates.push(`name = $${paramIndex++}`);
+                updates.push(`"name" = $${paramIndex++}`);
                 params.push(name);
             }
             if (icon !== undefined) {
-                updates.push(`icon = $${paramIndex++}`);
+                updates.push(`"icon" = $${paramIndex++}`);
                 params.push(icon);
+            }
+            if (template_key !== undefined) {
+                updates.push(`"template_key" = $${paramIndex++}`);
+                params.push(template_key);
+            }
+            if (base_layout !== undefined) {
+                updates.push(`"base_layout" = $${paramIndex++}`);
+                params.push(base_layout);
+            }
+            if (status !== undefined) {
+                updates.push(`"status" = $${paramIndex++}`);
+                params.push(status);
             }
 
             if (updates.length === 0) {
