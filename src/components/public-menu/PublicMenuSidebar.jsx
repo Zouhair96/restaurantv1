@@ -385,21 +385,6 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
 
                         {/* Order History Section */}
                         <div className="relative">
-                            {/* Ongoing Order Bar - STICKY TOP */}
-                            {activeOrder && activeOrder.status !== 'completed' && activeOrder.status !== 'cancelled' && (
-                                <div className="sticky top-0 z-30 mb-6 -mx-2 bg-white dark:bg-[#0f1115] pb-2">
-                                    <div className="rounded-2xl overflow-hidden shadow-xl border border-gray-100 dark:border-white/5 bg-white dark:bg-gray-800">
-                                        <PersistentOrderTracker
-                                            order={activeOrder}
-                                            onClose={handleCloseTracker}
-                                            themeColor={themeColor}
-                                            inline={true}
-                                        />
-                                    </div>
-                                    <div className="h-4 bg-gradient-to-b from-white to-transparent dark:from-[#0f1115] pointer-events-none" />
-                                </div>
-                            )}
-
                             {/* History Toggle Button */}
                             <button
                                 onClick={() => setShowHistory(!showHistory)}

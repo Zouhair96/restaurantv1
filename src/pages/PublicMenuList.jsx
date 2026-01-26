@@ -73,15 +73,6 @@ const PublicMenuList = ({ restaurantName: propRestaurantName, templateKey: propT
             {/* Header */}
             <header className="bg-white px-6 py-8 border-b border-gray-100 flex items-center justify-between sticky top-0 z-50">
                 <div className="flex items-center gap-4">
-                    <button
-                        onClick={() => setShowAuthSidebar(true)}
-                        className="p-2 -ml-2 text-gray-400 hover:text-gray-900 transition-colors relative"
-                    >
-                        <HiOutlineClipboardDocumentList className="w-8 h-8" />
-                        {activeOrderId && (
-                            <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full animate-pulse shadow-sm" style={{ backgroundColor: config.themeColor }}></span>
-                        )}
-                    </button>
                     <h1 className="text-3xl font-black text-gray-900 uppercase tracking-tight">{isMasterView ? 'Master List' : config.restaurantName || restaurantName}</h1>
                 </div>
                 <div className="flex gap-2">

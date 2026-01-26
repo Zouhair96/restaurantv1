@@ -249,17 +249,6 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
 
                         <div className="flex items-center gap-1">
                             <button
-                                onClick={() => setShowAuthSidebar(true)}
-                                className="p-2 text-gray-400 hover:text-gray-900 transition-colors relative"
-                                title="My Orders"
-                            >
-                                <HiOutlineClipboardDocumentList className="w-6 h-6" />
-                                {activeOrderId && (
-                                    <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: config.themeColor }}></span>
-                                )}
-                            </button>
-
-                            <button
                                 onClick={() => setIsCartOpen(!isCartOpen)}
                                 className="p-2 -mr-2 text-gray-400 hover:text-gray-900 transition-colors relative"
                             >

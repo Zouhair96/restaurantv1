@@ -160,15 +160,6 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
                         ))}
                     </div>
 
-                    <button
-                        onClick={() => setShowAuthSidebar(true)}
-                        className="p-2 ml-4 text-gray-400 hover:text-gray-900 transition-colors relative"
-                    >
-                        <HiOutlineClipboardDocumentList className="w-6 h-6" />
-                        {activeOrderId && (
-                            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: config.themeColor }}></span>
-                        )}
-                    </button>
                 </div>
 
                 {/* Content */}
