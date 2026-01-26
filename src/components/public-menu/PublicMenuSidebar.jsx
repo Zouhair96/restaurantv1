@@ -4,7 +4,7 @@ import { HiXMark, HiUser, HiEnvelope, HiLockClosed, HiArrowRightOnRectangle, HiA
 import { useClientAuth } from '../../context/ClientAuthContext';
 import { translations } from '../../translations';
 
-const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDarkMode, setIsDarkMode, themeColor = '#f97316' }) => {
+const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, designConfig, isDarkMode, setIsDarkMode, themeColor = '#f97316' }) => {
     const [view, setView] = useState('welcome'); // 'welcome', 'login', 'signup', 'profile', 'forgot-password'
     const [language, setLanguage] = useState('FR'); // 'FR', 'EN'
     const [clientUser, setClientUser] = useState(null);
@@ -143,7 +143,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, designConfig, isDa
                     </div>
                     <div>
                         <h2 className={`font-black text-lg transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{headerT.profile}</h2>
-                        <p className={`text-xs uppercase tracking-widest font-bold transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{restaurantName}</p>
+                        <p className={`text-xs uppercase tracking-widest font-bold transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{displayName || restaurantName}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">

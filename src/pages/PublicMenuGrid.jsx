@@ -197,7 +197,8 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
             <PublicMenuSidebar
                 isOpen={showAuthSidebar}
                 onClose={() => setShowAuthSidebar(false)}
-                restaurantName={config.restaurantName}
+                restaurantName={restaurantName}
+                displayName={config.restaurantName}
                 themeColor={config.themeColor}
             />
         </div>

@@ -74,7 +74,8 @@ const PublicMenuMagazine = ({ restaurantName: propRestaurantName, templateKey: p
             <PublicMenuSidebar
                 isOpen={showAuthSidebar}
                 onClose={() => setShowAuthSidebar(false)}
-                restaurantName={isMasterView ? 'Magazine' : restaurantName}
+                restaurantName={restaurantName}
+                displayName={isMasterView ? 'Magazine' : config.restaurantName || restaurantName}
                 themeColor={config.themeColor}
             />
         </div>

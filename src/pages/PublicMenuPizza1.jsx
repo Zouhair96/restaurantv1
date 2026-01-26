@@ -436,11 +436,11 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                 </div>
             </div>
 
-            {/* Auth Sidebar */}
             <PublicMenuSidebar
                 isOpen={showAuthSidebar}
                 onClose={() => setShowAuthSidebar(false)}
-                restaurantName={config.restaurantName}
+                restaurantName={restaurantName}
+                displayName={config.restaurantName}
                 themeColor={config.themeColor}
             />
         </div>

@@ -79,7 +79,8 @@ const PublicMenuMinimal = ({ restaurantName: propRestaurantName, templateKey: pr
             <PublicMenuSidebar
                 isOpen={showAuthSidebar}
                 onClose={() => setShowAuthSidebar(false)}
-                restaurantName={isMasterView ? 'Minimal' : restaurantName}
+                restaurantName={restaurantName}
+                displayName={isMasterView ? 'Minimal' : config.restaurantName || restaurantName}
                 themeColor={config.themeColor}
             />
         </div>

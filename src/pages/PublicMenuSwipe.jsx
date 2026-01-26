@@ -97,7 +97,8 @@ const PublicMenuSwipe = ({ restaurantName: propRestaurantName, templateKey: prop
             <PublicMenuSidebar
                 isOpen={showAuthSidebar}
                 onClose={() => setShowAuthSidebar(false)}
-                restaurantName={isMasterView ? 'Swipe Mode' : restaurantName}
+                restaurantName={restaurantName}
+                displayName={isMasterView ? 'Swipe Mode' : config.restaurantName || restaurantName}
                 themeColor="#ffffff"
             />
         </div>
