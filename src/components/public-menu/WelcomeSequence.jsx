@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HiXMark, HiGift, HiStar } from 'react-icons/hi2';
+import { HiXMark, HiStar, HiSparkles } from 'react-icons/hi2';
 import { translations } from '../../translations';
 
 const WelcomeSequence = ({ restaurantName, themeColor = '#f97316', language = 'fr' }) => {
@@ -10,21 +10,21 @@ const WelcomeSequence = ({ restaurantName, themeColor = '#f97316', language = 'f
     const t = translations[lang]?.auth?.checkout || translations['fr']?.auth?.checkout;
 
     useEffect(() => {
-        // Initial Loading Phase (2.5 seconds)
+        // Initial Loading Phase (5 seconds as requested)
         const loadingTimer = setTimeout(() => {
             setPhase('popup');
             setIsVisible(true);
-        }, 2500);
+        }, 5000);
 
         return () => clearTimeout(loadingTimer);
     }, []);
 
     useEffect(() => {
         if (phase === 'popup') {
-            // Auto-hide popup after 5 seconds
+            // Auto-hide popup after 15 seconds as requested
             const popupTimer = setTimeout(() => {
                 handleClose();
-            }, 5000);
+            }, 15000);
             return () => clearTimeout(popupTimer);
         }
     }, [phase]);
@@ -38,73 +38,107 @@ const WelcomeSequence = ({ restaurantName, themeColor = '#f97316', language = 'f
 
     return (
         <div className="fixed inset-0 z-[200] pointer-events-none">
-            {/* Phase 1: Premium Loading Page */}
+            {/* Phase 1: Cinematic Loading Page (5s) */}
             {phase === 'loading' && (
-                <div className="absolute inset-0 bg-white dark:bg-[#0a0a0b] flex flex-col items-center justify-center pointer-events-auto z-[210] animate-fade-in">
-                    <div className="relative">
-                        {/* Orbiting rings */}
-                        <div className="absolute inset-0 -m-8 border-4 border-gray-100 dark:border-white/5 rounded-full"></div>
-                        <div className="absolute inset-0 -m-8 border-4 border-transparent rounded-full animate-spin-slow" style={{ borderTopColor: themeColor }}></div>
-
-                        <div
-                            className="w-24 h-24 rounded-3xl shadow-2xl flex items-center justify-center relative bg-white dark:bg-white/5 overflow-hidden"
-                            style={{ boxShadow: `0 20px 40px -10px ${themeColor}40` }}
-                        >
-                            <HiStar className="w-12 h-12 animate-pulse" style={{ color: themeColor }} />
+                <div className="absolute inset-0 bg-black flex flex-col items-center justify-center pointer-events-auto z-[210] overflow-hidden">
+                    {/* Background "Pizza Cave" Atmosphere */}
+                    <div className="absolute inset-0 opacity-40">
+                        <div className="absolute inset-0 bg-gradient-to-t from-orange-950 via-black to-black"></div>
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200%] h-[200%] animate-slow-zoom pointer-events-none opacity-20">
+                            <div className="w-full h-full border-[40px] border-orange-500/10 rounded-full blur-3xl"></div>
+                            <div className="absolute top-1/4 left-1/3 w-32 h-32 bg-yellow-500/20 rounded-full blur-3xl animate-pulse"></div>
+                            <div className="absolute bottom-1/4 right-1/3 w-48 h-48 bg-red-500/20 rounded-full blur-3xl animate-pulse"></div>
                         </div>
                     </div>
 
-                    <div className="mt-12 text-center space-y-3">
-                        <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter opacity-0 animate-slide-up-fade" style={{ animationDelay: '0.2s' }}>
-                            {restaurantName}
-                        </h2>
-                        <div className="flex gap-1 justify-center opacity-0 animate-slide-up-fade" style={{ animationDelay: '0.4s' }}>
-                            {[0, 1, 2].map(i => (
-                                <div key={i} className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ backgroundColor: themeColor, animationDelay: `${i * 0.1}s` }}></div>
-                            ))}
+                    <div className="relative z-10 flex flex-col items-center max-w-2xl px-8 text-center">
+                        <div className="mb-12 relative">
+                            <div className="w-32 h-32 rounded-[2.5rem] bg-white/5 backdrop-blur-xl border border-white/10 flex items-center justify-center relative overflow-hidden group">
+                                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-transparent"></div>
+                                <HiStar className="w-16 h-16 text-orange-500 animate-spin-slow" />
+                                <div className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full"></div>
+                            </div>
+                            <HiSparkles className="absolute -top-4 -right-4 w-8 h-8 text-yellow-500 animate-pulse" />
+                        </div>
+
+                        <div className="space-y-6">
+                            <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter leading-none animate-reveal-text">
+                                {restaurantName}
+                            </h2>
+                            <div className="h-1 w-24 bg-orange-500 mx-auto rounded-full animate-stretch"></div>
+
+                            {/* Cinematic Storyline (Brief mentions of the requested theme) */}
+                            <p className="text-orange-200/60 font-medium tracking-[0.2em] text-xs uppercase animate-fade-in-delayed">
+                                L'aventure Culinaire Commence...
+                            </p>
+                        </div>
+
+                        {/* Loading Bar */}
+                        <div className="mt-16 w-64 h-1 bg-white/10 rounded-full overflow-hidden">
+                            <div
+                                className="h-full bg-orange-500 transition-all duration-[5000ms] ease-linear"
+                                style={{ width: '100%' }}
+                            ></div>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* Phase 2: Promotional Popup (Centered Toast) */}
+            {/* Phase 2: Promotional Popup (15s) */}
             {phase === 'popup' && (
                 <div className="absolute inset-0 flex items-center justify-center p-6 pointer-events-none">
                     <div
                         className={`
-                            max-w-md w-full bg-white dark:bg-[#1a1c1e] rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] 
-                            border border-white/10 p-8 pointer-events-auto relative overflow-hidden transition-all duration-700
-                            ${isVisible ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-12 opacity-0 scale-95'}
+                            max-w-md w-full bg-white dark:bg-[#0f1115] rounded-[3rem] shadow-[0_32px_128px_-16px_rgba(0,0,0,0.5)] 
+                            border border-white/5 p-10 pointer-events-auto relative overflow-hidden transition-all duration-1000
+                            ${isVisible ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-24 opacity-0 scale-90'}
                         `}
                     >
-                        {/* Background Decoration */}
-                        <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full blur-3xl opacity-20" style={{ backgroundColor: themeColor }}></div>
+                        {/* Branded Accent */}
+                        <div className="absolute top-0 left-0 w-full h-2" style={{ backgroundColor: themeColor }}></div>
+                        <div className="absolute -top-24 -left-24 w-64 h-64 rounded-full blur-[100px] opacity-20" style={{ backgroundColor: themeColor }}></div>
 
-                        <div className="flex items-start gap-6 relative z-10">
-                            <div className="shrink-0 w-16 h-16 rounded-2xl flex items-center justify-center bg-gray-50 dark:bg-white/5 text-3xl">
-                                🎁
+                        <div className="space-y-8 relative z-10">
+                            <div className="flex items-center gap-6">
+                                <div className="w-20 h-20 rounded-[2rem] flex items-center justify-center bg-gray-50 dark:bg-white/5 text-4xl shadow-inner">
+                                    🎁
+                                </div>
+                                <div>
+                                    <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">
+                                        Offre Spéciale
+                                    </h3>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
+                                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Actif Maintenant</span>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div className="flex-1 space-y-2">
-                                <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">
-                                    Special Offer
-                                </h3>
-                                <p className="text-gray-500 dark:text-gray-400 font-bold leading-relaxed text-sm">
-                                    {t.welcomePromo}
-                                </p>
-                            </div>
+                            <p className="text-gray-600 dark:text-gray-300 font-bold leading-relaxed text-lg tracking-tight">
+                                {t.welcomePromo}
+                            </p>
+
+                            <button
+                                onClick={handleClose}
+                                className="w-full py-5 rounded-[1.5rem] bg-gray-900 dark:bg-white text-white dark:text-black font-black uppercase tracking-widest text-xs hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl"
+                            >
+                                Commencer l'Exploration
+                            </button>
                         </div>
 
-                        {/* Close Button */}
+                        {/* Manual Close Icon */}
                         <button
                             onClick={handleClose}
-                            className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-xl bg-gray-50 dark:bg-white/5 text-gray-400 hover:text-red-500 transition-all active:scale-90"
+                            className="absolute top-6 right-6 w-12 h-12 flex items-center justify-center rounded-2xl bg-gray-50 dark:bg-white/5 text-gray-400 hover:text-red-500 transition-all active:scale-90"
                         >
-                            <HiXMark size={20} />
+                            <HiXMark size={24} />
                         </button>
 
-                        {/* Progress Bar (Visual indicator of auto-close) */}
-                        <div className="absolute bottom-0 left-0 h-1 bg-current transition-all duration-[5000ms] ease-linear" style={{ width: isVisible ? '0%' : '100%', color: themeColor }}></div>
+                        {/* Progress Indicator (15s) */}
+                        <div
+                            className="absolute bottom-0 left-0 h-1.5 transition-all duration-[15000ms] ease-linear"
+                            style={{ width: isVisible ? '0%' : '100%', backgroundColor: themeColor, opacity: 0.5 }}
+                        ></div>
                     </div>
                 </div>
             )}
@@ -113,17 +147,32 @@ const WelcomeSequence = ({ restaurantName, themeColor = '#f97316', language = 'f
                 @keyframes spin-slow {
                     to { transform: rotate(360deg); }
                 }
+                @keyframes slow-zoom {
+                    0% { transform: translate(-50%, -50%) scale(1); }
+                    100% { transform: translate(-50%, -50%) scale(1.2); }
+                }
+                @keyframes reveal-text {
+                    from { transform: translateY(40px); opacity: 0; filter: blur(10px); }
+                    to { transform: translateY(0); opacity: 1; filter: blur(0); }
+                }
+                @keyframes stretch {
+                    from { width: 0; opacity: 0; }
+                    to { width: 6rem; opacity: 1; }
+                }
+                @keyframes shimmer {
+                    to { transform: translateX(200%); }
+                }
+                .animate-spin-slow { animation: spin-slow 8s linear infinite; }
+                .animate-slow-zoom { animation: slow-zoom 10s ease-out forwards; }
+                .animate-reveal-text { animation: reveal-text 1.2s cubic-bezier(0.19, 1, 0.22, 1) forwards; }
+                .animate-stretch { animation: stretch 1.5s cubic-bezier(0.19, 1, 0.22, 1) 0.5s forwards; }
+                .animate-fade-in-delayed { animation: fade-in 1s ease-out 1.5s forwards; opacity: 0; }
+                .animate-shimmer { animation: shimmer 2.5s infinite; }
+                
                 @keyframes fade-in {
                     from { opacity: 0; }
                     to { opacity: 1; }
                 }
-                @keyframes slide-up-fade {
-                    from { transform: translateY(20px); opacity: 0; }
-                    to { transform: translateY(0); opacity: 1; }
-                }
-                .animate-spin-slow { animation: spin-slow 2s linear infinite; }
-                .animate-fade-in { animation: fade-in 0.5s ease-out forwards; }
-                .animate-slide-up-fade { animation: slide-up-fade 0.5s ease-out forwards; }
             `}</style>
         </div>
     );
