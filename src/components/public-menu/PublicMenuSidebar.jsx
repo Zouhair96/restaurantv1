@@ -3,9 +3,11 @@ import { HiOutlineUserCircle, HiOutlineX, HiOutlineShoppingBag, HiOutlineLogout,
 import { HiXMark, HiUser, HiEnvelope, HiLockClosed, HiArrowRightOnRectangle, HiArchiveBox, HiChevronRight } from 'react-icons/hi2';
 import { useClientAuth } from '../../context/ClientAuthContext';
 import { translations } from '../../translations';
+import PersistentOrderTracker from '../PersistentOrderTracker';
 
 const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, designConfig, isDarkMode, setIsDarkMode, themeColor = '#f97316' }) => {
-    const [view, setView] = useState('welcome'); // 'welcome', 'login', 'signup', 'profile', 'forgot-password'
+    const { user: authUser, logout: authLogout, activeOrderId, handleCloseTracker } = useClientAuth();
+    const [view, setView] = useState('welcome');
     const [language, setLanguage] = useState('FR'); // 'FR', 'EN'
     const [clientUser, setClientUser] = useState(null);
     const [orders, setOrders] = useState([]);
@@ -142,7 +144,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                         <HiOutlineUserCircle size={24} />
                     </div>
                     <div>
-                        <h2 className={`font-black text-lg transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{headerT.profile}</h2>
+                        <h2 className={`font-black text-lg transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{headerT.myOrders}</h2>
                         <p className={`text-xs uppercase tracking-widest font-bold transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{displayName || restaurantName}</p>
                     </div>
                 </div>
@@ -376,6 +378,18 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                 <HiOutlineClipboardList style={{ color: themeColor }} size={20} />
                                 <h3 className={`font-black uppercase tracking-widest text-sm transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{t.orderHistory}</h3>
                             </div>
+
+                            {/* Ongoing Order Bar */}
+                            {activeOrderId && (
+                                <div className="mb-6 rounded-2xl overflow-hidden shadow-lg border border-gray-100 dark:border-white/5">
+                                    <PersistentOrderTracker
+                                        orderId={activeOrderId}
+                                        onClose={handleCloseTracker}
+                                        themeColor={themeColor}
+                                        inline={true}
+                                    />
+                                </div>
+                            )}
 
                             <div className="space-y-4">
                                 {orders.length > 0 ? orders.map(order => (

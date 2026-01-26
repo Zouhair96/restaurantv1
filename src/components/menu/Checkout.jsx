@@ -56,6 +56,12 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', lan
             if (!response.ok) throw new Error(result.error || t.error);
 
             setIsSubmitted(true);
+
+            // Trigger tracking
+            window.dispatchEvent(new CustomEvent('orderPlaced', {
+                detail: { orderId: result.orderId }
+            }));
+
             setTimeout(() => {
                 clearCart();
                 setIsSubmitted(false);

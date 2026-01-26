@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-const PersistentOrderTracker = ({ orderId, onClose }) => {
+const PersistentOrderTracker = ({ orderId, onClose, themeColor = '#6c5ce7', inline = false }) => {
     const [orderStatus, setOrderStatus] = useState(null)
     const [isMinimized, setIsMinimized] = useState(false)
     const [loading, setLoading] = useState(true)
@@ -104,12 +104,12 @@ const PersistentOrderTracker = ({ orderId, onClose }) => {
     return (
         <AnimatePresence>
             <motion.div
-                initial={{ y: -100, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: -100, opacity: 0 }}
-                className="fixed top-0 left-0 right-0 z-50 pointer-events-none"
+                initial={inline ? { opacity: 0 } : { y: -100, opacity: 0 }}
+                animate={inline ? { opacity: 1 } : { y: 0, opacity: 1 }}
+                exit={inline ? { opacity: 0 } : { y: -100, opacity: 0 }}
+                className={`${inline ? 'relative' : 'fixed top-0 left-0 right-0 z-50 pointer-events-none'}`}
             >
-                <div className="pointer-events-auto">
+                <div className={`${inline ? '' : 'pointer-events-auto'}`}>
                     {isMinimized ? (
                         // Minimized pill
                         <motion.div
@@ -129,8 +129,8 @@ const PersistentOrderTracker = ({ orderId, onClose }) => {
                         </motion.div>
                     ) : (
                         // Full tracker
-                        <div className="bg-white dark:bg-gray-800 shadow-2xl border-b-4 border-yum-primary">
-                            <div className="max-w-4xl mx-auto px-4 py-4">
+                        <div className={`bg-white dark:bg-gray-800 shadow-2xl ${inline ? 'border-b-2 shadow-none' : 'border-b-4 shadow-xl'}`} style={{ borderBottom: `4px solid ${themeColor}` }}>
+                            <div className={`${inline ? 'px-2 py-3' : 'max-w-4xl mx-auto px-4 py-4'}`}>
                                 {/* Header */}
                                 <div className="flex items-center justify-between mb-3">
                                     <div className="flex items-center gap-3">
@@ -175,7 +175,8 @@ const PersistentOrderTracker = ({ orderId, onClose }) => {
                                             initial={{ width: 0 }}
                                             animate={{ width: `${statusInfo.progress}%` }}
                                             transition={{ duration: 0.5, ease: 'easeOut' }}
-                                            className={`h-full ${statusInfo.color}`}
+                                            className="h-full"
+                                            style={{ backgroundColor: themeColor }}
                                         />
                                     </div>
                                     <div className="flex justify-between mt-2 text-xs font-bold text-gray-500 dark:text-gray-400">
@@ -197,7 +198,7 @@ const PersistentOrderTracker = ({ orderId, onClose }) => {
                                 {/* Total */}
                                 <div className="mt-3 flex justify-between items-center">
                                     <span className="text-sm text-gray-600 dark:text-gray-400">Total</span>
-                                    <span className="text-xl font-black text-yum-primary">${orderStatus.total_price}</span>
+                                    <span className="text-xl font-black" style={{ color: themeColor }}>${orderStatus.total_price}</span>
                                 </div>
                             </div>
                         </div>

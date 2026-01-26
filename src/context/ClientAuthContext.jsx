@@ -5,6 +5,27 @@ const ClientAuthContext = createContext(null);
 export const ClientAuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [activeOrderId, setActiveOrderId] = useState(() => {
+        return localStorage.getItem('activeOrderId') || null;
+    });
+
+    useEffect(() => {
+        const handleNewOrder = (event) => {
+            const orderId = event.detail?.orderId;
+            if (orderId) {
+                setActiveOrderId(orderId);
+                localStorage.setItem('activeOrderId', orderId);
+            }
+        };
+
+        window.addEventListener('orderPlaced', handleNewOrder);
+        return () => window.removeEventListener('orderPlaced', handleNewOrder);
+    }, []);
+
+    const handleCloseTracker = () => {
+        setActiveOrderId(null);
+        localStorage.removeItem('activeOrderId');
+    };
 
     useEffect(() => {
         const storedUser = localStorage.getItem('client_user');
@@ -66,7 +87,7 @@ export const ClientAuthProvider = ({ children }) => {
     };
 
     return (
-        <ClientAuthContext.Provider value={{ user, login, signup, logout, loading }}>
+        <ClientAuthContext.Provider value={{ user, login, signup, logout, loading, activeOrderId, setActiveOrderId, handleCloseTracker }}>
             {children}
         </ClientAuthContext.Provider>
     );

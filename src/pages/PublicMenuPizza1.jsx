@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, HiBars3, HiBuildingStorefront, HiXMark, HiTrash } from 'react-icons/hi2';
+import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, HiBars3, HiBuildingStorefront, HiXMark, HiTrash, HiOutlineClipboardList, HiUser } from 'react-icons/hi2';
 import { Link, useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
 import Checkout from '../components/menu/Checkout';
 import WelcomeSequence from '../components/public-menu/WelcomeSequence';
+import { useClientAuth } from '../context/ClientAuthContext';
 
 const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
+    const { user: clientUser, activeOrderId, handleCloseTracker } = useClientAuth();
     const { restaurantName: urlRestaurantName } = useParams();
     const restaurantName = propRestaurantName || urlRestaurantName;
     const isMasterView = !restaurantName;
@@ -150,6 +152,13 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
 
     return (
         <div className="flex h-screen bg-white text-gray-900 font-sans overflow-hidden relative" style={{ '--theme-color': config.themeColor }}>
+            {activeOrderId && (
+                <PersistentOrderTracker
+                    orderId={activeOrderId}
+                    onClose={handleCloseTracker}
+                    themeColor={config.themeColor}
+                />
+            )}
             <style>{`
                 .text-theme { color: var(--theme-color) !important; }
                 .bg-theme { background-color: var(--theme-color) !important; }
@@ -228,7 +237,18 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                             <h1 className="text-xl md:text-2xl font-black text-gray-900 mx-auto tracking-tight uppercase">{config.restaurantName}</h1>
                         )}
 
-                        <div className="flex items-center gap-2 text-gray-400">
+                        <div className="flex items-center gap-1">
+                            <button
+                                onClick={() => setShowAuthSidebar(true)}
+                                className="p-2 text-gray-400 hover:text-gray-900 transition-colors relative"
+                                title="My Orders"
+                            >
+                                <HiOutlineClipboardList className="w-6 h-6" />
+                                {activeOrderId && (
+                                    <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: config.themeColor }}></span>
+                                )}
+                            </button>
+
                             <button
                                 onClick={() => setIsCartOpen(!isCartOpen)}
                                 className="p-2 -mr-2 text-gray-400 hover:text-gray-900 transition-colors relative"

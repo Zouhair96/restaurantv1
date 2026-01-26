@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, HiBars3, HiBuildingStorefront, HiXMark, HiTrash } from 'react-icons/hi2';
+import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, HiBars3, HiBuildingStorefront, HiXMark, HiTrash, HiOutlineClipboardList } from 'react-icons/hi2';
 import { Link, useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
 import Checkout from '../components/menu/Checkout';
 import Cart from '../components/menu/Cart';
 import WelcomeSequence from '../components/public-menu/WelcomeSequence';
+import { useClientAuth } from '../context/ClientAuthContext';
+import PersistentOrderTracker from '../components/PersistentOrderTracker';
 
 const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propTemplateKey }) => {
+    const { user: clientUser, activeOrderId, handleCloseTracker } = useClientAuth();
     const { restaurantName: urlRestaurantName, templateKey: urlTemplateKey } = useParams();
     const restaurantName = propRestaurantName || urlRestaurantName;
     const templateKey = propTemplateKey || urlTemplateKey || 'pizza1';
@@ -93,7 +96,14 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
     if (isLoading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent"></div></div>;
 
     return (
-        <div className="min-h-screen bg-[#f8fafc] font-sans text-gray-900 flex flex-col md:flex-row overflow-hidden">
+        <div className="min-h-screen bg-[#f8fafc] font-sans text-gray-900 flex flex-col md:flex-row overflow-hidden relative">
+            {activeOrderId && (
+                <PersistentOrderTracker
+                    orderId={activeOrderId}
+                    onClose={handleCloseTracker}
+                    themeColor={config.themeColor}
+                />
+            )}
             <style>{`
                 :root { --theme-color: ${config.themeColor}; }
                 .text-theme { color: var(--theme-color); }
@@ -128,16 +138,28 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col h-full bg-white relative overflow-hidden shadow-2xl z-30">
                 {/* Dynamic Category Bar */}
-                <div className="px-6 py-4 flex items-center gap-2 overflow-x-auto no-scrollbar border-b border-gray-100">
-                    {categories.map(cat => (
-                        <button
-                            key={cat}
-                            onClick={() => setActiveCategory(cat)}
-                            className={`px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeCategory === cat ? 'bg-theme text-white shadow-lg' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
-                        >
-                            {cat}
-                        </button>
-                    ))}
+                <div className="px-6 py-4 flex items-center justify-between border-b border-gray-100">
+                    <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+                        {categories.map(cat => (
+                            <button
+                                key={cat}
+                                onClick={() => setActiveCategory(cat)}
+                                className={`px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeCategory === cat ? 'bg-theme text-white shadow-lg' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
+                            >
+                                {cat}
+                            </button>
+                        ))}
+                    </div>
+
+                    <button
+                        onClick={() => setShowAuthSidebar(true)}
+                        className="p-2 ml-4 text-gray-400 hover:text-gray-900 transition-colors relative"
+                    >
+                        <HiOutlineClipboardList className="w-6 h-6" />
+                        {activeOrderId && (
+                            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: config.themeColor }}></span>
+                        )}
+                    </button>
                 </div>
 
                 {/* Content */}
