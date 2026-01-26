@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { HiXMark, HiCheckCircle, HiArrowRight, HiBuildingStorefront, HiUserGroup, HiCreditCard, HiBanknotes } from 'react-icons/hi2';
+import { HiXMark, HiCheckCircle, HiArrowRight, HiBuildingStorefront, HiBanknotes } from 'react-icons/hi2';
 import { useCart } from '../../context/CartContext';
 import { translations } from '../../translations';
 
@@ -9,12 +9,11 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', lan
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    // Translation setup
     const lang = language.toLowerCase();
     const t = translations[lang]?.auth?.checkout || translations['fr']?.auth?.checkout;
 
     const [formData, setFormData] = useState({
-        tableSelection: 'take_out', // 'take_out' or '1', '2', etc.
+        tableSelection: 'take_out',
         paymentMethod: 'cash',
     });
 
@@ -38,7 +37,7 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', lan
                 restaurantName,
                 orderType,
                 tableNumber,
-                paymentMethod: formData.paymentMethod === 'card' ? 'credit_card' : 'cash',
+                paymentMethod: 'cash',
                 items: cartItems,
                 totalPrice: getCartTotal()
             };
@@ -54,15 +53,7 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', lan
             });
 
             const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(result.error || t.error);
-            }
-
-            if (result.checkoutUrl) {
-                window.location.href = result.checkoutUrl;
-                return;
-            }
+            if (!response.ok) throw new Error(result.error || t.error);
 
             setIsSubmitted(true);
             setTimeout(() => {
@@ -84,50 +75,34 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', lan
 
     return (
         <div className="fixed inset-0 z-[101] flex items-center justify-center p-4">
-            {/* Overlay with subtle blur */}
-            <div
-                className="absolute inset-0 bg-black/40 backdrop-blur-md animate-fade-in"
-                onClick={onClose}
-            />
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-md animate-fade-in" onClick={onClose} />
 
-            {/* Modal - Ultra Modern Design */}
             <div className="relative bg-white dark:bg-[#0a0a0b] rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] w-full max-w-lg max-h-[90vh] overflow-hidden border border-white/5 animate-premium-pop">
 
                 {isSubmitted ? (
                     <div className="p-16 text-center">
-                        <div className="w-28 h-28 rounded-[2rem] flex items-center justify-center mx-auto mb-10 overflow-hidden relative group">
+                        <div className="w-28 h-28 rounded-[2rem] flex items-center justify-center mx-auto mb-10 overflow-hidden relative">
                             <div className="absolute inset-0 bg-theme/20 animate-pulse" style={{ backgroundColor: `${themeColor}20` }}></div>
-                            <HiCheckCircle size={72} className="relative z-10 transition-transform group-hover:scale-110 duration-500" style={{ color: themeColor }} />
+                            <HiCheckCircle size={72} className="relative z-10" style={{ color: themeColor }} />
                         </div>
-                        <h2 className="text-4xl font-black text-gray-900 dark:text-white mb-4 tracking-tighter">
-                            {t.success}
-                        </h2>
-                        <p className="text-gray-500 dark:text-gray-400 font-medium text-lg leading-relaxed">
-                            {t.thanks}
-                        </p>
+                        <h2 className="text-4xl font-black text-gray-900 dark:text-white mb-4 tracking-tighter">{t.success}</h2>
+                        <p className="text-gray-500 dark:text-gray-400 font-medium text-lg leading-relaxed">{t.thanks}</p>
                     </div>
                 ) : (
                     <>
-                        {/* Elegant Header */}
                         <div className="px-10 pt-10 pb-6 flex items-center justify-between">
                             <div className="space-y-1">
-                                <h2 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter leading-none">
-                                    {t.title}
-                                </h2>
+                                <h2 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter leading-none">{t.title}</h2>
                                 <div className="flex items-center gap-2">
                                     <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: themeColor }}></div>
                                     <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{restaurantName}</span>
                                 </div>
                             </div>
-                            <button
-                                onClick={onClose}
-                                className="w-14 h-14 flex items-center justify-center rounded-3xl bg-gray-50 dark:bg-white/5 text-gray-400 hover:text-red-500 hover:bg-red-500/5 transition-all active:scale-90"
-                            >
+                            <button onClick={onClose} className="w-14 h-14 flex items-center justify-center rounded-3xl bg-gray-50 dark:bg-white/5 text-gray-400 hover:text-red-500 transition-all">
                                 <HiXMark size={28} />
                             </button>
                         </div>
 
-                        {/* Sophisticated Form Body */}
                         <div className="px-10 pb-10 overflow-y-auto no-scrollbar" style={{ maxHeight: 'calc(90vh - 160px)' }}>
                             {error && (
                                 <div className="mb-8 p-5 bg-red-500/5 border-l-4 border-red-500 rounded-2xl text-red-500 text-sm font-bold flex items-center gap-3">
@@ -137,20 +112,18 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', lan
                             )}
 
                             <form onSubmit={handleSubmit} className="space-y-10">
-
-                                {/* Order context selection */}
-                                <div className="space-y-6">
+                                <div className="space-y-6 text-center">
                                     <div className="relative group">
-                                        <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 ml-1">
+                                        <label className="flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 ml-1">
                                             <HiBuildingStorefront className="w-4 h-4" />
                                             {t.orderType}
                                         </label>
-                                        <div className="relative">
+                                        <div className="relative max-w-xs mx-auto">
                                             <select
                                                 name="tableSelection"
                                                 value={formData.tableSelection}
                                                 onChange={handleChange}
-                                                className="w-full pl-6 pr-12 py-5 rounded-[2rem] border-2 border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 text-gray-900 dark:text-white focus:outline-none focus:border-theme appearance-none cursor-pointer font-black text-lg transition-all hover:bg-white dark:hover:bg-white/10"
+                                                className="w-full pl-6 pr-12 py-5 rounded-[2rem] border-2 border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 text-gray-900 dark:text-white focus:outline-none focus:border-theme appearance-none cursor-pointer font-black text-lg transition-all"
                                                 style={{ '--theme-color': themeColor }}
                                             >
                                                 <option value="take_out" className="dark:bg-black">🛍️ {t.takeOut}</option>
@@ -165,53 +138,9 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', lan
                                             </div>
                                         </div>
                                     </div>
-
-                                    {/* Payment Method - High End Toggles */}
-                                    <div className="space-y-4">
-                                        <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 ml-1">
-                                            <HiCreditCard className="w-4 h-4" />
-                                            {t.paymentMethod}
-                                        </label>
-                                        <div className="grid grid-cols-2 gap-5">
-                                            <button
-                                                type="button"
-                                                onClick={() => setFormData({ ...formData, paymentMethod: 'cash' })}
-                                                className={`group relative p-6 rounded-[2rem] border-2 transition-all duration-300 text-left overflow-hidden ${formData.paymentMethod === 'cash'
-                                                    ? 'border-theme bg-theme text-white shadow-[0_20px_40px_rgba(0,0,0,0.1)]'
-                                                    : 'border-gray-100 dark:border-white/5 text-gray-400 hover:border-gray-200 dark:hover:border-white/10 hover:translate-y-[-2px]'
-                                                    }`}
-                                                style={formData.paymentMethod === 'cash' ? { backgroundColor: themeColor, borderColor: themeColor } : { '--theme-color': themeColor }}
-                                            >
-                                                <div className="relative z-10">
-                                                    <HiBanknotes className={`w-8 h-8 mb-3 transition-transform duration-500 ${formData.paymentMethod === 'cash' ? 'scale-110' : 'group-hover:scale-110'}`} />
-                                                    <span className="block font-black uppercase tracking-widest text-[10px] opacity-70 mb-1">Pay with</span>
-                                                    <span className="block font-black text-sm">{t.cash}</span>
-                                                </div>
-                                                {formData.paymentMethod === 'cash' && <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>}
-                                            </button>
-
-                                            <button
-                                                type="button"
-                                                onClick={() => setFormData({ ...formData, paymentMethod: 'card' })}
-                                                className={`group relative p-6 rounded-[2rem] border-2 transition-all duration-300 text-left overflow-hidden ${formData.paymentMethod === 'card'
-                                                    ? 'border-theme bg-theme text-white shadow-[0_20px_40px_rgba(0,0,0,0.1)]'
-                                                    : 'border-gray-100 dark:border-white/5 text-gray-400 hover:border-gray-200 dark:hover:border-white/10 hover:translate-y-[-2px]'
-                                                    }`}
-                                                style={formData.paymentMethod === 'card' ? { backgroundColor: themeColor, borderColor: themeColor } : { '--theme-color': themeColor }}
-                                            >
-                                                <div className="relative z-10">
-                                                    <HiCreditCard className={`w-8 h-8 mb-3 transition-transform duration-500 ${formData.paymentMethod === 'card' ? 'scale-110' : 'group-hover:scale-110'}`} />
-                                                    <span className="block font-black uppercase tracking-widest text-[10px] opacity-70 mb-1">Pay with</span>
-                                                    <span className="block font-black text-sm">{t.card}</span>
-                                                </div>
-                                                {formData.paymentMethod === 'card' && <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>}
-                                            </button>
-                                        </div>
-                                    </div>
                                 </div>
 
-                                {/* Order Summary Visuals */}
-                                <div className="p-8 rounded-[2.5rem] bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 relative overflow-hidden group">
+                                <div className="p-8 rounded-[2.5rem] bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 relative group">
                                     <div className="flex justify-between items-center mb-6">
                                         <div className="flex -space-x-3">
                                             {cartItems.slice(0, 3).map((item, i) => (
@@ -219,11 +148,6 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', lan
                                                     {item.category?.toLowerCase() === 'drinks' ? '🥤' : '🍕'}
                                                 </div>
                                             ))}
-                                            {cartItems.length > 3 && (
-                                                <div className="w-10 h-10 rounded-full border-4 border-gray-50 dark:border-[#1a1c1e] bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-[10px] font-black text-gray-500">
-                                                    +{cartItems.length - 3}
-                                                </div>
-                                            )}
                                         </div>
                                         <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">{cartItems.length} Items</span>
                                     </div>
@@ -235,34 +159,32 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', lan
                                                 {getCartTotal().toFixed(2)}€
                                             </span>
                                         </div>
-                                        <div className={`p-4 rounded-2xl bg-white dark:bg-white/10 shadow-sm transition-transform duration-700 group-hover:rotate-12`}>
-                                            <HiArrowRight size={24} style={{ color: themeColor }} />
+                                        <div className="p-4 rounded-2xl bg-white dark:bg-white/10 shadow-sm">
+                                            <HiBanknotes size={24} style={{ color: themeColor }} />
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Final Confirm Button - Premium Look */}
                                 <button
                                     type="submit"
                                     disabled={loading || cartItems.length === 0}
-                                    className="w-full py-7 rounded-[2rem] text-white font-black uppercase tracking-[0.2em] text-sm shadow-[0_24px_48px_-12px_rgba(0,0,0,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-4 disabled:opacity-50 disabled:cursor-not-allowed group relative overflow-hidden"
-                                    style={{
-                                        backgroundColor: themeColor,
-                                        boxShadow: `0 24px 48px -12px ${themeColor}40`
-                                    }}
+                                    className="w-full py-7 rounded-[2rem] text-white font-black uppercase tracking-[0.2em] text-sm shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-4 disabled:opacity-50 group relative overflow-hidden"
+                                    style={{ backgroundColor: themeColor, boxShadow: `0 24px 48px -12px ${themeColor}40` }}
                                 >
                                     {loading ? (
-                                        <div className="w-7 h-7 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+                                        <div className="w-7 h-7 border-4 border-white border-t-transparent rounded-full animate-spin" />
                                     ) : (
                                         <>
-                                            <span className="relative z-10">{t.confirm}</span>
-                                            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center relative z-10 group-hover:translate-x-2 transition-transform duration-500">
-                                                <HiArrowRight className="w-5 h-5" />
+                                            <div className="flex flex-col items-center gap-1">
+                                                <span className="relative z-10">{t.confirm}</span>
+                                                <span className="text-[10px] opacity-70 tracking-[0.3em] font-black">{t.cash}</span>
+                                            </div>
+                                            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center relative z-10 group-hover:translate-x-2 transition-transform duration-500">
+                                                <HiBanknotes className="w-6 h-6" />
                                             </div>
                                         </>
                                     )}
-                                    {/* Subtle shine effect */}
-                                    <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg]"></div>
+                                    <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg]" />
                                 </button>
                             </form>
                         </div>
@@ -273,18 +195,12 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', lan
             <style jsx>{`
                 .no-scrollbar::-webkit-scrollbar { display: none; }
                 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-                
                 @keyframes premium-pop {
                     0% { transform: scale(0.9) translateY(20px); opacity: 0; }
                     100% { transform: scale(1) translateY(0); opacity: 1; }
                 }
                 .animate-premium-pop { animation: premium-pop 0.6s cubic-bezier(0.19, 1, 0.22, 1) forwards; }
                 .animate-fade-in { animation: fade-in 0.4s ease-out; }
-                
-                @keyframes fade-in {
-                    from { opacity: 0; }
-                    to { opacity: 1; }
-                }
             `}</style>
         </div>
     );
