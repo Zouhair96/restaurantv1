@@ -142,6 +142,46 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
         setView('login');
     };
 
+    const MiniStepper = ({ status, themeColor }) => {
+        const steps = ['pending', 'preparing', 'ready', 'completed'];
+        const currentStepIndex = steps.indexOf(status);
+
+        return (
+            <div className="flex items-center justify-between mb-4 mt-2 px-1">
+                {steps.map((step, idx) => (
+                    <React.Fragment key={step}>
+                        <div className="flex flex-col items-center gap-1.5 relative">
+                            <motion.div
+                                animate={idx <= currentStepIndex ? { scale: [1, 1.2, 1], opacity: 1 } : { scale: 1, opacity: 0.3 }}
+                                className={`w-2 h-2 rounded-full shadow-sm ${idx <= currentStepIndex ? '' : 'bg-gray-300 dark:bg-gray-600'}`}
+                                style={idx <= currentStepIndex ? { backgroundColor: themeColor } : {}}
+                            />
+                            {idx === currentStepIndex && (
+                                <motion.div
+                                    layoutId="mini-active-glow"
+                                    className="absolute -inset-1 rounded-full opacity-30 blur-sm"
+                                    style={{ backgroundColor: themeColor }}
+                                    animate={{ scale: [1, 1.5, 1] }}
+                                    transition={{ repeat: Infinity, duration: 2 }}
+                                />
+                            )}
+                        </div>
+                        {idx < steps.length - 1 && (
+                            <div className="flex-1 h-[2px] mx-1 rounded-full overflow-hidden bg-gray-100 dark:bg-white/5">
+                                <motion.div
+                                    initial={{ width: 0 }}
+                                    animate={{ width: idx < currentStepIndex ? '100%' : '0%' }}
+                                    className="h-full"
+                                    style={{ backgroundColor: themeColor }}
+                                />
+                            </div>
+                        )}
+                    </React.Fragment>
+                ))}
+            </div>
+        );
+    };
+
     return (
         <div className={`fixed inset-y-0 left-0 z-[100] w-full sm:w-96 border-r shadow-2xl transition-all duration-300 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} ${isDarkMode
             ? 'bg-[#0f1115] border-white/10'
@@ -412,31 +452,45 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                         exit={{ height: 0, opacity: 0 }}
                                         className="overflow-hidden space-y-4 px-1 pb-10"
                                     >
-                                        {orders.length > 0 ? orders.map(order => (
-                                            <div key={order.id} className={`border rounded-2xl p-4 transition-all group ${isDarkMode
-                                                ? 'bg-white/5 border-white/10 hover:border-white/20'
-                                                : 'bg-white border-gray-100 hover:border-gray-200 hover:shadow-md'}`}>
-                                                <div className="flex justify-between items-start mb-2">
-                                                    <div>
-                                                        <span className={`font-bold block transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Order #{String(order.id).slice(0, 8)}</span>
-                                                        <span className={`text-xs transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{new Date(order.created_at).toLocaleDateString()}</span>
-                                                    </div>
-                                                    <span
-                                                        className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter`}
-                                                        style={order.status === 'completed' ? { backgroundColor: '#22c55e33', color: '#22c55e' } :
-                                                            order.status === 'cancelled' ? { backgroundColor: '#ef444433', color: '#ef4444' } :
-                                                                { backgroundColor: `${themeColor}33`, color: themeColor }}
+                                        {orders.length > 0 ? (
+                                            orders.map(order => {
+                                                const isActive = activeOrderId && String(order.id) === String(activeOrderId);
+                                                return (
+                                                    <div
+                                                        key={order.id}
+                                                        className={`border rounded-2xl p-4 transition-all group ${isDarkMode
+                                                            ? 'bg-white/5 border-white/10 hover:border-white/20'
+                                                            : 'bg-white border-gray-100 hover:border-gray-200 hover:shadow-md'
+                                                            } ${isActive ? 'ring-2 ring-offset-2 ring-offset-transparent' : ''}`}
+                                                        style={isActive ? { ringColor: themeColor, borderColor: themeColor } : {}}
                                                     >
-                                                        {order.status}
-                                                    </span>
-                                                </div>
+                                                        {isActive && (
+                                                            <MiniStepper status={activeOrder?.status || order.status} themeColor={themeColor} />
+                                                        )}
 
-                                                <div className="flex justify-between items-center mt-4">
-                                                    <span className={`text-sm transition-colors ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{order.order_type === 'dine_in' ? `🍽️ ${t.dineIn}` : `🥡 ${t.takeOut}`}</span>
-                                                    <span className={`font-black text-lg transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>${Number(order.total_price).toFixed(2)}</span>
-                                                </div>
-                                            </div>
-                                        )) : (
+                                                        <div className="flex justify-between items-start mb-2">
+                                                            <div>
+                                                                <span className={`font-bold block transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Order #{String(order.id).slice(0, 8)}</span>
+                                                                <span className={`text-xs transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{new Date(order.created_at).toLocaleDateString()}</span>
+                                                            </div>
+                                                            <span
+                                                                className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter`}
+                                                                style={order.status === 'completed' ? { backgroundColor: '#22c55e33', color: '#22c55e' } :
+                                                                    order.status === 'cancelled' ? { backgroundColor: '#ef444433', color: '#ef4444' } :
+                                                                        { backgroundColor: `${themeColor}33`, color: themeColor }}
+                                                            >
+                                                                {order.status}
+                                                            </span>
+                                                        </div>
+
+                                                        <div className="flex justify-between items-center mt-4">
+                                                            <span className={`text-sm transition-colors ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{order.order_type === 'dine_in' ? `🍽️ ${t.dineIn}` : `🥡 ${t.takeOut}`}</span>
+                                                            <span className={`font-black text-lg transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>${Number(order.total_price).toFixed(2)}</span>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })
+                                        ) : (
                                             <div className={`text-center py-12 rounded-2xl border border-dashed transition-colors ${isDarkMode
                                                 ? 'bg-white/5 border-white/10'
                                                 : 'bg-gray-50 border-gray-200'}`}>
@@ -452,7 +506,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                     </div>
                 )}
             </div>
-        </div >
+        </div>
     );
 };
 
