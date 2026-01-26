@@ -2,10 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, HiChevronRight } from 'react-icons/hi2';
 import { useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
 import Checkout from '../components/menu/Checkout';
 import Cart from '../components/menu/Cart';
 import WelcomeSequence from '../components/public-menu/WelcomeSequence';
+import OrdersDropdown from '../components/public-menu/OrdersDropdown';
+import PersistentOrderTracker from '../components/PersistentOrderTracker';
+import { useClientAuth } from '../context/ClientAuthContext';
+import { motion, AnimatePresence } from 'framer-motion';
+import { HiOutlineUserCircle, HiOutlineLogout, HiOutlineLogin, HiOutlineClipboardList, HiOutlineUserAdd, HiOutlineShoppingBag, HiOutlineClipboard } from 'react-icons/hi';
+import { HiXMark, HiOutlineClipboardDocumentList } from 'react-icons/hi2';
 
 const PublicMenuList = ({ restaurantName: propRestaurantName, templateKey: propTemplateKey }) => {
     const { restaurantName: urlRestaurantName, templateKey: urlTemplateKey } = useParams();
@@ -18,8 +23,20 @@ const PublicMenuList = ({ restaurantName: propRestaurantName, templateKey: propT
     const [isLoading, setIsLoading] = useState(true);
     const [activeCategory, setActiveCategory] = useState('All');
     const [showAuthSidebar, setShowAuthSidebar] = useState(false);
+    const [isOrdersDropdownOpen, setIsOrdersDropdownOpen] = useState(false);
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+    const [trackerStatus, setTrackerStatus] = useState(null);
     const { addToCart, setIsCartOpen } = useCart();
+    const { user: clientUser, activeOrderId, handleCloseTracker } = useClientAuth();
+
+    useEffect(() => {
+        const handleOpenAuth = () => {
+            setIsOrdersDropdownOpen(false);
+            setShowAuthSidebar(true);
+        };
+        window.addEventListener('openClientAuth', handleOpenAuth);
+        return () => window.removeEventListener('openClientAuth', handleOpenAuth);
+    }, []);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -49,16 +66,41 @@ const PublicMenuList = ({ restaurantName: propRestaurantName, templateKey: propT
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">
+            {activeOrderId && trackerStatus !== 'completed' && trackerStatus !== 'cancelled' && (
+                <PersistentOrderTracker
+                    orderId={activeOrderId}
+                    onClose={handleCloseTracker}
+                    themeColor={config.themeColor}
+                    onStatusChange={setTrackerStatus}
+                />
+            )}
             {/* Header */}
             <header className="bg-white px-6 py-8 border-b border-gray-100 flex items-center justify-between sticky top-0 z-50">
                 <div className="flex items-center gap-4">
-                    <button
-                        onClick={() => setShowAuthSidebar(true)}
-                        className="p-2 -ml-2 text-gray-400 hover:text-gray-900 transition-colors"
-                    >
-                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
-                    </button>
-                    <h1 className="text-3xl font-black text-gray-900 uppercase tracking-tight">{isMasterView ? 'Master List' : restaurantName}</h1>
+                    <div className="relative">
+                        <button
+                            onClick={() => setIsOrdersDropdownOpen(!isOrdersDropdownOpen)}
+                            className="p-2 -ml-2 text-gray-400 hover:text-gray-900 transition-colors relative"
+                        >
+                            <HiOutlineClipboardDocumentList className="w-8 h-8" />
+                            {activeOrderId && (
+                                <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full animate-pulse shadow-sm" style={{ backgroundColor: config.themeColor }}></span>
+                            )}
+                        </button>
+
+                        <AnimatePresence>
+                            {isOrdersDropdownOpen && (
+                                <OrdersDropdown
+                                    isOpen={isOrdersDropdownOpen}
+                                    onClose={() => setIsOrdersDropdownOpen(false)}
+                                    restaurantName={restaurantName}
+                                    displayName={config.restaurantName || restaurantName}
+                                    themeColor={config.themeColor}
+                                />
+                            )}
+                        </AnimatePresence>
+                    </div>
+                    <h1 className="text-3xl font-black text-gray-900 uppercase tracking-tight">{isMasterView ? 'Master List' : config.restaurantName || restaurantName}</h1>
                 </div>
                 <div className="flex gap-2">
                     {categories.map(cat => (
@@ -104,6 +146,7 @@ const PublicMenuList = ({ restaurantName: propRestaurantName, templateKey: propT
                 ))}
             </div>
 
+            {/* Sidebar preserved for Auth triggers */}
             <PublicMenuSidebar
                 isOpen={showAuthSidebar}
                 onClose={() => setShowAuthSidebar(false)}
@@ -126,7 +169,7 @@ const PublicMenuList = ({ restaurantName: propRestaurantName, templateKey: propT
                 themeColor={config.themeColor}
                 promoConfig={config}
             />
-        </div>
+        </div >
     );
 };
 
