@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import OrdersDropdown from '../components/public-menu/OrdersDropdown';
+import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
 import Checkout from '../components/menu/Checkout';
 import Cart from '../components/menu/Cart';
 import WelcomeSequence from '../components/public-menu/WelcomeSequence';

@@ -3,6 +3,7 @@ import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, H
 import { Link, useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import OrdersDropdown from '../components/public-menu/OrdersDropdown';
+import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
 import Checkout from '../components/menu/Checkout';
 import WelcomeSequence from '../components/public-menu/WelcomeSequence';
 import { useClientAuth } from '../context/ClientAuthContext';

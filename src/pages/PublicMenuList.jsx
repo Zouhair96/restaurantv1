@@ -6,6 +6,7 @@ import Checkout from '../components/menu/Checkout';
 import Cart from '../components/menu/Cart';
 import WelcomeSequence from '../components/public-menu/WelcomeSequence';
 import OrdersDropdown from '../components/public-menu/OrdersDropdown';
+import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
 import PersistentOrderTracker from '../components/PersistentOrderTracker';
 import { useClientAuth } from '../context/ClientAuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
