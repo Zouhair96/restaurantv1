@@ -3,6 +3,8 @@ import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, H
 import { Link, useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
+import Checkout from '../components/menu/Checkout';
+import Cart from '../components/menu/Cart';
 
 const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propTemplateKey }) => {
     const { restaurantName: urlRestaurantName, templateKey: urlTemplateKey } = useParams();
@@ -22,6 +24,7 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showAuthSidebar, setShowAuthSidebar] = useState(false);
+    const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
     // Fetch Menu Data
     useEffect(() => {
@@ -201,6 +204,15 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
                 displayName={config.restaurantName}
                 themeColor={config.themeColor}
             />
+
+            <Checkout
+                isOpen={isCheckoutOpen}
+                onClose={() => setIsCheckoutOpen(false)}
+                restaurantName={restaurantName}
+                themeColor={config.themeColor}
+            />
+
+            <Cart onCheckout={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }} />
         </div>
     );
 };

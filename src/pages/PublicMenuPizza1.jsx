@@ -3,6 +3,7 @@ import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, H
 import { Link, useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
+import Checkout from '../components/menu/Checkout';
 
 const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
     const { restaurantName: urlRestaurantName } = useParams();
@@ -99,6 +100,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
     const [liked, setLiked] = useState(false);
     // const [showCheckout, setShowCheckout] = useState(false); // Replaced by CartContext
     const [showAuthSidebar, setShowAuthSidebar] = useState(false);
+    const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
     const [activeCategory, setActiveCategory] = useState('All');
 
     const {
@@ -429,7 +431,10 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                             <span className="text-gray-900 font-bold text-lg">Total</span>
                             <span className="font-black text-2xl text-gray-900">${parseFloat(getCartTotal() || 0).toFixed(2)}</span>
                         </div>
-                        <button className="w-full bg-gray-900 text-white font-bold py-4 rounded-xl hover:bg-gray-800 transition-transform active:scale-[0.98] shadow-lg shadow-gray-900/20">
+                        <button
+                            onClick={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }}
+                            className="w-full bg-gray-900 text-white font-bold py-4 rounded-xl hover:bg-gray-800 transition-transform active:scale-[0.98] shadow-lg shadow-gray-900/20"
+                        >
                             Checkout
                         </button>
                     </div>
@@ -441,6 +446,13 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                 onClose={() => setShowAuthSidebar(false)}
                 restaurantName={restaurantName}
                 displayName={config.restaurantName}
+                themeColor={config.themeColor}
+            />
+
+            <Checkout
+                isOpen={isCheckoutOpen}
+                onClose={() => setIsCheckoutOpen(false)}
+                restaurantName={restaurantName}
                 themeColor={config.themeColor}
             />
         </div>

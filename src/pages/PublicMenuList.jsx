@@ -3,6 +3,8 @@ import { HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, HiChevronRight
 import { useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
+import Checkout from '../components/menu/Checkout';
+import Cart from '../components/menu/Cart';
 
 const PublicMenuList = ({ restaurantName: propRestaurantName, templateKey: propTemplateKey }) => {
     const { restaurantName: urlRestaurantName, templateKey: urlTemplateKey } = useParams();
@@ -15,6 +17,7 @@ const PublicMenuList = ({ restaurantName: propRestaurantName, templateKey: propT
     const [isLoading, setIsLoading] = useState(true);
     const [activeCategory, setActiveCategory] = useState('All');
     const [showAuthSidebar, setShowAuthSidebar] = useState(false);
+    const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
     const { addToCart, setIsCartOpen } = useCart();
 
     useEffect(() => {
@@ -107,6 +110,15 @@ const PublicMenuList = ({ restaurantName: propRestaurantName, templateKey: propT
                 displayName={isMasterView ? 'Master List' : config.restaurantName || restaurantName}
                 themeColor={config.themeColor}
             />
+
+            <Checkout
+                isOpen={isCheckoutOpen}
+                onClose={() => setIsCheckoutOpen(false)}
+                restaurantName={restaurantName}
+                themeColor={config.themeColor}
+            />
+
+            <Cart onCheckout={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }} />
         </div>
     );
 };

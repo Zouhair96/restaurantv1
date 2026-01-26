@@ -216,7 +216,26 @@ export const translations = {
             noOrders: "Pas encore de commande",
             noOrdersDesc: "Vos délicieux plats apparaîtront ici !",
             dineIn: "Sur place",
-            takeOut: "À emporter"
+            takeOut: "À emporter",
+            checkout: {
+                title: "Finaliser la commande",
+                customerInfo: "Vos informations",
+                fullName: "Nom complet",
+                phone: "Téléphone",
+                orderType: "Type de commande / Table",
+                takeOut: "À emporter",
+                table: "Table",
+                paymentMethod: "Mode de paiement",
+                cash: "Espèces (au comptoir)",
+                card: "Carte bancaire",
+                summary: "Résumé de la commande",
+                total: "Total",
+                confirm: "Confirmer la commande",
+                success: "Commande confirmée !",
+                thanks: "Merci pour votre commande !",
+                preparing: "Nous préparons vos délicieux plats...",
+                error: "Une erreur est survenue lors de l'envoi de la commande."
+            }
         }
     },
     en: {
@@ -436,7 +455,26 @@ export const translations = {
             noOrders: "No orders yet",
             noOrdersDesc: "Your delicious meals will appear here!",
             dineIn: "Dine In",
-            takeOut: "Take Out"
+            takeOut: "Take Out",
+            checkout: {
+                title: "Finalize Order",
+                customerInfo: "Your Information",
+                fullName: "Full Name",
+                phone: "Phone Number",
+                orderType: "Order Type / Table",
+                takeOut: "Take Out",
+                table: "Table",
+                paymentMethod: "Payment Method",
+                cash: "Cash (at counter)",
+                card: "Credit Card",
+                summary: "Order Summary",
+                total: "Total",
+                confirm: "Confirm Order",
+                success: "Order Confirmed!",
+                thanks: "Thank you for your order!",
+                preparing: "We are preparing your delicious meal...",
+                error: "An error occurred while submitting your order."
+            }
         }
     }
 }

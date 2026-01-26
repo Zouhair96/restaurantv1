@@ -3,6 +3,8 @@ import { HiShoppingBag, HiHeart, HiXMark, HiCheck } from 'react-icons/hi2';
 import { useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
+import Checkout from '../components/menu/Checkout';
+import Cart from '../components/menu/Cart';
 
 const PublicMenuSwipe = ({ restaurantName: propRestaurantName, templateKey: propTemplateKey }) => {
     const { restaurantName: urlRestaurantName, templateKey: urlTemplateKey } = useParams();
@@ -10,10 +12,9 @@ const PublicMenuSwipe = ({ restaurantName: propRestaurantName, templateKey: prop
     const templateKey = propTemplateKey || urlTemplateKey || 'pizza1';
     const isMasterView = !restaurantName;
 
-    const [menuItems, setMenuItems] = useState([]);
-    const [currentIndex, setCurrentIndex] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [showAuthSidebar, setShowAuthSidebar] = useState(false);
+    const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
     const { addToCart, setIsCartOpen } = useCart();
 
     useEffect(() => {
@@ -101,6 +102,15 @@ const PublicMenuSwipe = ({ restaurantName: propRestaurantName, templateKey: prop
                 displayName={isMasterView ? 'Swipe Mode' : config.restaurantName || restaurantName}
                 themeColor="#ffffff"
             />
+
+            <Checkout
+                isOpen={isCheckoutOpen}
+                onClose={() => setIsCheckoutOpen(false)}
+                restaurantName={restaurantName}
+                themeColor="#ffffff"
+            />
+
+            <Cart onCheckout={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }} />
         </div>
     );
 };
