@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { HiPencil, HiTrash, HiXMark, HiCloudArrowUp, HiPhoto, HiPlus, HiCog6Tooth, HiArrowLeft, HiRocketLaunch, HiEye, HiEyeSlash } from 'react-icons/hi2';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 const ManageMenuPizza1 = ({ isAdminView = false }) => {
     const { user: currentUser } = useAuth();
@@ -633,13 +635,24 @@ const ManageMenuPizza1 = ({ isAdminView = false }) => {
                                         <div className="space-y-6 animate-fade-in">
                                             <div>
                                                 <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Promotion Message</label>
-                                                <textarea
-                                                    rows="4"
-                                                    value={menuConfig.welcomePromoText}
-                                                    onChange={(e) => setMenuConfig({ ...menuConfig, welcomePromoText: e.target.value })}
-                                                    className="w-full px-5 py-4 rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-[#24262d] text-sm text-gray-900 dark:text-gray-200 font-medium focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none"
-                                                    placeholder="Enter your welcoming message..."
-                                                />
+                                                <div className="quill-container bg-white dark:bg-white rounded-2xl overflow-hidden border border-gray-100 dark:border-white/10">
+                                                    <ReactQuill
+                                                        theme="snow"
+                                                        value={menuConfig.welcomePromoText}
+                                                        onChange={(content) => setMenuConfig({ ...menuConfig, welcomePromoText: content })}
+                                                        modules={{
+                                                            toolbar: [
+                                                                ['bold', 'italic', 'underline'],
+                                                                [{ 'color': [] }, { 'background': [] }],
+                                                                [{ 'size': ['small', false, 'large', 'huge'] }],
+                                                                [{ 'align': [] }],
+                                                                ['clean']
+                                                            ]
+                                                        }}
+                                                        className="text-gray-900"
+                                                    />
+                                                </div>
+                                                <p className="text-[9px] text-gray-400 mt-2 font-bold uppercase tracking-widest">Select text to style individual words</p>
                                             </div>
 
                                             <div className="grid grid-cols-2 gap-4">

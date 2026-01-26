@@ -125,9 +125,10 @@ const WelcomeSequence = ({
                                 </div>
                             </div>
 
-                            <p className="text-gray-600 dark:text-gray-300 font-bold leading-relaxed text-lg tracking-tight">
-                                {welcomePromoText}
-                            </p>
+                            <div
+                                className="text-gray-600 dark:text-gray-300 font-bold leading-relaxed text-lg tracking-tight ql-editor !p-0 !overflow-visible"
+                                dangerouslySetInnerHTML={{ __html: welcomePromoText }}
+                            />
 
                             <button
                                 onClick={handleClose}
@@ -170,6 +171,15 @@ const WelcomeSequence = ({
                 .animate-stretch { animation: stretch 1.5s cubic-bezier(0.19, 1, 0.22, 1) 0.5s forwards; }
                 .animate-fade-in-delayed { animation: fade-in 1s ease-out 1.5s forwards; opacity: 0; }
                 .animate-shimmer { animation: shimmer 2.5s infinite; }
+
+                /* Quill Content Support */
+                .ql-align-center { text-align: center; }
+                .ql-align-right { text-align: right; }
+                .ql-align-justify { text-align: justify; }
+                .ql-size-small { font-size: 0.75em; }
+                .ql-size-large { font-size: 1.5em; }
+                .ql-size-huge { font-size: 2.5em; }
+                .ql-editor p { margin-bottom: 0.5em; }
             `}</style>
         </div>
     );

@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
 import { useLanguage } from '../../context/LanguageContext'
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSave, restaurantName }) => {
     const { t } = useLanguage()
@@ -759,13 +761,24 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
                     <div className="space-y-6 animate-fade-in">
                         <div>
                             <label className="block text-gray-500 dark:text-gray-400 text-sm font-medium mb-2">Pop-up Message</label>
-                            <textarea
-                                rows="4"
-                                value={promoConfig.welcomePromoText}
-                                onChange={(e) => setPromoConfig({ ...promoConfig, welcomePromoText: e.target.value })}
-                                className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-gray-800 dark:text-gray-200 focus:outline-none focus:border-indigo-500 transition-all text-sm font-medium resize-none shadow-inner"
-                                placeholder="Write your welcoming discount message here..."
-                            />
+                            <div className="bg-white rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
+                                <ReactQuill
+                                    theme="snow"
+                                    value={promoConfig.welcomePromoText}
+                                    onChange={(content) => setPromoConfig({ ...promoConfig, welcomePromoText: content })}
+                                    modules={{
+                                        toolbar: [
+                                            ['bold', 'italic', 'underline'],
+                                            [{ 'color': [] }, { 'background': [] }],
+                                            [{ 'size': ['small', false, 'large', 'huge'] }],
+                                            [{ 'align': [] }],
+                                            ['clean']
+                                        ]
+                                    }}
+                                    className="text-gray-900"
+                                />
+                            </div>
+                            <p className="text-[10px] text-gray-400 mt-2 font-bold uppercase tracking-widest">Select text to apply colors and styles</p>
                         </div>
 
                         <div className="grid grid-cols-2 gap-6">
