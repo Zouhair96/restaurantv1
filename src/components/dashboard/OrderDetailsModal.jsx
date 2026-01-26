@@ -217,6 +217,20 @@ const OrderDetailsModal = ({ order, isOpen, onClose, onStatusUpdate, getStatusCo
                         </button>
                     )}
 
+                    {!showDriverForm && order.status !== 'completed' && order.status !== 'cancelled' && (
+                        <button
+                            onClick={() => {
+                                if (window.confirm('Are you sure you want to CANCEL this order? This action cannot be undone.')) {
+                                    onStatusUpdate(order.id, 'cancelled');
+                                }
+                            }}
+                            className="flex-1 md:flex-none px-8 py-3 bg-red-50 dark:bg-red-900/10 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/20 rounded-2xl font-black hover:bg-red-600 hover:text-white dark:hover:bg-red-600 dark:hover:text-white transition-all hover:scale-105 active:scale-95"
+                        >
+                            <HiOutlineBan className="inline-block mr-2 text-lg" />
+                            Cancel Order
+                        </button>
+                    )}
+
                     <button
                         onClick={onClose}
                         className="px-8 py-3 bg-white dark:bg-gray-700 text-gray-800 dark:text-white rounded-2xl font-black shadow-lg hover:bg-gray-50 transition-all border border-gray-200 dark:border-gray-600"
