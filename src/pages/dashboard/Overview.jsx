@@ -54,6 +54,30 @@ const Overview = () => {
         }
     }
 
+    const handleClearOrders = async () => {
+        if (!window.confirm('WARNING: This will permanently delete ALL orders and reset your sales history to zero. This cannot be undone. Are you sure you want to empty your history?')) {
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch('/.netlify/functions/clear-orders', {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                alert('All orders have been cleared. Starting with a fresh history! 🚀');
+                window.dispatchEvent(new CustomEvent('dashboardRefresh'));
+            } else {
+                throw new Error('Failed to clear orders');
+            }
+        } catch (error) {
+            console.error('Error clearing orders:', error);
+            alert('Failed to clear orders. Please try again.');
+        }
+    }
+
     const hasMenu = savedMenus.length > 0
 
     return (
@@ -90,6 +114,19 @@ const Overview = () => {
                     </div>
                     <h3 className="text-gray-800 dark:text-white font-bold text-lg">Emergency Mode</h3>
                     <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Activate for Rush Hour 2x</p>
+                </div>
+
+                <div
+                    onClick={handleClearOrders}
+                    className="bg-white dark:bg-gray-800 rounded-[2rem] p-6 flex flex-col justify-center items-center text-center cursor-pointer hover:shadow-xl dark:shadow-none hover:-translate-y-1 transition-all duration-300 border border-gray-100 dark:border-gray-700 group border-dashed"
+                >
+                    <div className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-full mb-3 group-hover:bg-orange-100 dark:group-hover:bg-orange-900/40 transition-colors">
+                        <svg className="w-8 h-8 text-orange-500 dark:text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </div>
+                    <h3 className="text-gray-800 dark:text-white font-bold text-lg">Empty Cash</h3>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Reset All Order History</p>
                 </div>
             </div>
 
