@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { HiOutlineUserCircle, HiOutlineX, HiOutlineShoppingBag, HiOutlineLogout, HiOutlineLogin, HiOutlineClipboardList, HiOutlineUserAdd, HiOutlineSun, HiOutlineMoon } from 'react-icons/hi';
 import { HiXMark, HiUser, HiEnvelope, HiLockClosed, HiArrowRightOnRectangle, HiArchiveBox, HiChevronRight } from 'react-icons/hi2';
 import { useClientAuth } from '../../context/ClientAuthContext';
@@ -59,6 +60,10 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
     }, [view]);
 
     const fetchOrders = async (token) => {
+        if (!restaurantName) {
+            console.warn('Cannot fetch orders: restaurantName is undefined');
+            return;
+        }
         try {
             const response = await fetch(`/.netlify/functions/get-client-orders?restaurantName=${encodeURIComponent(restaurantName)}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
