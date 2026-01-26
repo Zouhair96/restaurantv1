@@ -18,6 +18,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
         email: '',
         password: ''
     });
+    const [showHistory, setShowHistory] = useState(false);
 
     const lang = language.toLowerCase();
     const t = translations[lang]?.auth || translations['fr'].auth;
@@ -377,60 +378,86 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                             </button>
                         </div>
 
-                        {/* Order History */}
-                        <div>
-                            <div className="flex items-center gap-2 mb-4">
-                                <HiOutlineClipboardList style={{ color: themeColor }} size={20} />
-                                <h3 className={`font-black uppercase tracking-widest text-sm transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{t.orderHistory}</h3>
-                            </div>
-
-                            {/* Ongoing Order Bar */}
+                        {/* Order History Section */}
+                        <div className="relative">
+                            {/* Ongoing Order Bar - STICKY TOP */}
                             {activeOrder && activeOrder.status !== 'completed' && activeOrder.status !== 'cancelled' && (
-                                <div className="mb-6 rounded-2xl overflow-hidden shadow-lg border border-gray-100 dark:border-white/5">
-                                    <PersistentOrderTracker
-                                        order={activeOrder}
-                                        onClose={handleCloseTracker}
-                                        themeColor={themeColor}
-                                        inline={true}
-                                    />
+                                <div className="sticky top-0 z-30 mb-6 -mx-2 bg-white dark:bg-[#0f1115] pb-2">
+                                    <div className="rounded-2xl overflow-hidden shadow-xl border border-gray-100 dark:border-white/5 bg-white dark:bg-gray-800">
+                                        <PersistentOrderTracker
+                                            order={activeOrder}
+                                            onClose={handleCloseTracker}
+                                            themeColor={themeColor}
+                                            inline={true}
+                                        />
+                                    </div>
+                                    <div className="h-4 bg-gradient-to-b from-white to-transparent dark:from-[#0f1115] pointer-events-none" />
                                 </div>
                             )}
 
-                            <div className="space-y-4">
-                                {orders.length > 0 ? orders.map(order => (
-                                    <div key={order.id} className={`border rounded-2xl p-4 transition-all group ${isDarkMode
-                                        ? 'bg-white/5 border-white/10 hover:border-white/20'
-                                        : 'bg-white border-gray-100 hover:border-gray-200 hover:shadow-md'}`}>
-                                        <div className="flex justify-between items-start mb-2">
-                                            <div>
-                                                <span className={`font-bold block transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Order #{order.id}</span>
-                                                <span className={`text-xs transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{new Date(order.created_at).toLocaleDateString()}</span>
-                                            </div>
-                                            <span
-                                                className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter`}
-                                                style={order.status === 'completed' ? { backgroundColor: '#22c55e33', color: '#22c55e' } :
-                                                    order.status === 'cancelled' ? { backgroundColor: '#ef444433', color: '#ef4444' } :
-                                                        { backgroundColor: `${themeColor}33`, color: themeColor }}
-                                            >
-                                                {order.status}
-                                            </span>
-                                        </div>
+                            {/* History Toggle Button */}
+                            <button
+                                onClick={() => setShowHistory(!showHistory)}
+                                className={`w-full flex items-center justify-between p-4 mb-4 rounded-2xl border transition-all ${isDarkMode ? 'bg-white/5 border-white/10 text-white hover:bg-white/10' : 'bg-gray-50 border-gray-100 text-gray-900 hover:bg-gray-100'
+                                    }`}
+                            >
+                                <div className="flex items-center gap-2">
+                                    <HiOutlineClipboardList style={{ color: themeColor }} size={20} />
+                                    <span className="font-black uppercase tracking-widest text-xs">{t.orderHistory}</span>
+                                    {orders.length > 0 && (
+                                        <span className="px-2 py-0.5 rounded-full text-[10px] bg-white/10 dark:bg-white/5 font-black">{orders.length}</span>
+                                    )}
+                                </div>
+                                <motion.div animate={{ rotate: showHistory ? 180 : 0 }}>
+                                    <HiChevronRight size={18} className="text-gray-400" />
+                                </motion.div>
+                            </button>
 
-                                        <div className="flex justify-between items-center mt-4">
-                                            <span className={`text-sm transition-colors ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{order.order_type === 'dine_in' ? `🍽️ ${t.dineIn}` : `🥡 ${t.takeOut}`}</span>
-                                            <span className={`font-black text-lg transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>${Number(order.total_price).toFixed(2)}</span>
-                                        </div>
-                                    </div>
-                                )) : (
-                                    <div className={`text-center py-12 rounded-2xl border border-dashed transition-colors ${isDarkMode
-                                        ? 'bg-white/5 border-white/10'
-                                        : 'bg-gray-50 border-gray-200'}`}>
-                                        <HiOutlineShoppingBag size={48} className={`mx-auto mb-4 transition-colors ${isDarkMode ? 'text-gray-700' : 'text-gray-300'}`} />
-                                        <p className={`font-bold transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{t.noOrders}</p>
-                                        <p className={`text-xs mt-1 transition-colors ${isDarkMode ? 'text-gray-600' : 'text-gray-500'}`}>{t.noOrdersDesc}</p>
-                                    </div>
+                            {/* Dropdown Historical Orders */}
+                            <AnimatePresence>
+                                {showHistory && (
+                                    <motion.div
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: 'auto', opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        className="overflow-hidden space-y-4 px-1 pb-10"
+                                    >
+                                        {orders.length > 0 ? orders.map(order => (
+                                            <div key={order.id} className={`border rounded-2xl p-4 transition-all group ${isDarkMode
+                                                ? 'bg-white/5 border-white/10 hover:border-white/20'
+                                                : 'bg-white border-gray-100 hover:border-gray-200 hover:shadow-md'}`}>
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <div>
+                                                        <span className={`font-bold block transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Order #{String(order.id).slice(0, 8)}</span>
+                                                        <span className={`text-xs transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{new Date(order.created_at).toLocaleDateString()}</span>
+                                                    </div>
+                                                    <span
+                                                        className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter`}
+                                                        style={order.status === 'completed' ? { backgroundColor: '#22c55e33', color: '#22c55e' } :
+                                                            order.status === 'cancelled' ? { backgroundColor: '#ef444433', color: '#ef4444' } :
+                                                                { backgroundColor: `${themeColor}33`, color: themeColor }}
+                                                    >
+                                                        {order.status}
+                                                    </span>
+                                                </div>
+
+                                                <div className="flex justify-between items-center mt-4">
+                                                    <span className={`text-sm transition-colors ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{order.order_type === 'dine_in' ? `🍽️ ${t.dineIn}` : `🥡 ${t.takeOut}`}</span>
+                                                    <span className={`font-black text-lg transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>${Number(order.total_price).toFixed(2)}</span>
+                                                </div>
+                                            </div>
+                                        )) : (
+                                            <div className={`text-center py-12 rounded-2xl border border-dashed transition-colors ${isDarkMode
+                                                ? 'bg-white/5 border-white/10'
+                                                : 'bg-gray-50 border-gray-200'}`}>
+                                                <HiOutlineShoppingBag size={48} className={`mx-auto mb-4 transition-colors ${isDarkMode ? 'text-gray-700' : 'text-gray-300'}`} />
+                                                <p className={`font-bold transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{t.noOrders}</p>
+                                                <p className={`text-xs mt-1 transition-colors ${isDarkMode ? 'text-gray-600' : 'text-gray-500'}`}>{t.noOrdersDesc}</p>
+                                            </div>
+                                        )}
+                                    </motion.div>
                                 )}
-                            </div>
+                            </AnimatePresence>
                         </div>
                     </div>
                 )}
