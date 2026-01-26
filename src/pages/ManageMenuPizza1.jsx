@@ -577,7 +577,7 @@ const ManageMenuPizza1 = ({ isAdminView = false }) => {
                                 <HiXMark className="w-6 h-6" />
                             </button>
                         </div>
-                        <div className="p-8 space-y-8">
+                        <div className="p-8 space-y-8 max-h-[60vh] overflow-y-auto no-scrollbar">
                             <div>
                                 <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Restaurant Display Name</label>
                                 <input
@@ -683,6 +683,10 @@ const ManageMenuPizza1 = ({ isAdminView = false }) => {
                     </div>
                 </div>
             )}
+            <style jsx>{`
+                .no-scrollbar::-webkit-scrollbar { display: none; }
+                .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+            `}</style>
         </div>
     );
 };
