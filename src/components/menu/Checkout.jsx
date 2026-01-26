@@ -11,7 +11,7 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', lan
 
     // Translation setup
     const lang = language.toLowerCase();
-    const t = translations[lang]?.checkout || translations['fr'].checkout;
+    const t = translations[lang]?.auth?.checkout || translations['fr']?.auth?.checkout;
 
     const [formData, setFormData] = useState({
         name: '',
