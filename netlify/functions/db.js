@@ -18,6 +18,9 @@ const isLocal = (process.env.DATABASE_URL || '').includes('localhost') || (proce
 
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL || FALLBACK_DB_URL,
+    max: 2, // Limit connections per serverless instance to prevent exhausting Neon DB limits
+    idleTimeoutMillis: 1000, // Close idle clients after 1 second
+    connectionTimeoutMillis: 2000, // Return an error after 2 seconds if a connection cannot be established
     ssl: isLocal ? false : {
         rejectUnauthorized: false
     }
