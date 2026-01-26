@@ -25,7 +25,7 @@ const PublicMenuList = ({ restaurantName: propRestaurantName, templateKey: propT
     const [showAuthSidebar, setShowAuthSidebar] = useState(false);
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
     const { addToCart, setIsCartOpen } = useCart();
-    const { user: clientUser, activeOrderId, activeOrder, handleCloseTracker } = useClientAuth();
+    const { user: clientUser, activeOrderId, activeOrder, handleCloseTracker, isTopTrackerHidden } = useClientAuth();
 
     useEffect(() => {
         const handleOpenAuth = () => {
@@ -63,7 +63,7 @@ const PublicMenuList = ({ restaurantName: propRestaurantName, templateKey: propT
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">
-            {activeOrder && activeOrder.status !== 'completed' && activeOrder.status !== 'cancelled' && (
+            {activeOrder && !isTopTrackerHidden && activeOrder.status !== 'completed' && activeOrder.status !== 'cancelled' && (
                 <PersistentOrderTracker
                     order={activeOrder}
                     onClose={handleCloseTracker}

@@ -11,7 +11,7 @@ import { useClientAuth } from '../context/ClientAuthContext';
 import PersistentOrderTracker from '../components/PersistentOrderTracker';
 
 const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propTemplateKey }) => {
-    const { user: clientUser, activeOrderId, activeOrder, handleCloseTracker } = useClientAuth();
+    const { user: clientUser, activeOrderId, activeOrder, handleCloseTracker, isTopTrackerHidden } = useClientAuth();
     const { restaurantName: urlRestaurantName, templateKey: urlTemplateKey } = useParams();
     const restaurantName = propRestaurantName || urlRestaurantName;
     const templateKey = propTemplateKey || urlTemplateKey || 'pizza1';
@@ -106,7 +106,7 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
 
     return (
         <div className="min-h-screen bg-[#f8fafc] font-sans text-gray-900 flex flex-col md:flex-row overflow-hidden relative">
-            {activeOrder && activeOrder.status !== 'completed' && activeOrder.status !== 'cancelled' && (
+            {activeOrder && !isTopTrackerHidden && activeOrder.status !== 'completed' && activeOrder.status !== 'cancelled' && (
                 <PersistentOrderTracker
                     order={activeOrder}
                     onClose={handleCloseTracker}
