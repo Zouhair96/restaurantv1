@@ -5,6 +5,7 @@ import { useCart } from '../context/CartContext';
 import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
 import Checkout from '../components/menu/Checkout';
 import Cart from '../components/menu/Cart';
+import WelcomeSequence from '../components/public-menu/WelcomeSequence';
 
 const PublicMenuList = ({ restaurantName: propRestaurantName, templateKey: propTemplateKey }) => {
     const { restaurantName: urlRestaurantName, templateKey: urlTemplateKey } = useParams();
@@ -119,6 +120,12 @@ const PublicMenuList = ({ restaurantName: propRestaurantName, templateKey: propT
             />
 
             <Cart onCheckout={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }} />
+
+            <WelcomeSequence
+                restaurantName={isMasterView ? 'Master List' : config.restaurantName || restaurantName}
+                themeColor={config.themeColor}
+                language="fr"
+            />
         </div>
     );
 };

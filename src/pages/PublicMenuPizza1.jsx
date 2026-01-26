@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
 import Checkout from '../components/menu/Checkout';
+import WelcomeSequence from '../components/public-menu/WelcomeSequence';
 
 const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
     const { restaurantName: urlRestaurantName } = useParams();
@@ -454,6 +455,12 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                 onClose={() => setIsCheckoutOpen(false)}
                 restaurantName={restaurantName}
                 themeColor={config.themeColor}
+            />
+
+            <WelcomeSequence
+                restaurantName={config.restaurantName}
+                themeColor={config.themeColor}
+                language="fr"
             />
         </div>
     );

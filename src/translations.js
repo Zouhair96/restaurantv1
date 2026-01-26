@@ -234,7 +234,8 @@ export const translations = {
                 success: "Commande confirmée !",
                 thanks: "Merci pour votre commande !",
                 preparing: "Nous préparons vos délicieux plats...",
-                error: "Une erreur est survenue lors de l'envoi de la commande."
+                error: "Une erreur est survenue lors de l'envoi de la commande.",
+                welcomePromo: "Bienvenue sur notre plateforme ! Profitez d’une réduction de 10% sur votre première commande, et pour nos clients fidèles, recevez un repas gratuit après chaque dix commandes !"
             }
         }
     },
@@ -473,7 +474,8 @@ export const translations = {
                 success: "Order Confirmed!",
                 thanks: "Thank you for your order!",
                 preparing: "We are preparing your delicious meal...",
-                error: "An error occurred while submitting your order."
+                error: "An error occurred while submitting your order.",
+                welcomePromo: "Welcome to our platform! Enjoy a 10% discount on your first order, and for our loyal customers, receive a free meal after every ten orders!"
             }
         }
     }

@@ -5,6 +5,7 @@ import { useCart } from '../context/CartContext';
 import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
 import Checkout from '../components/menu/Checkout';
 import Cart from '../components/menu/Cart';
+import WelcomeSequence from '../components/public-menu/WelcomeSequence';
 
 const PublicMenuSwipe = ({ restaurantName: propRestaurantName, templateKey: propTemplateKey }) => {
     const { restaurantName: urlRestaurantName, templateKey: urlTemplateKey } = useParams();
@@ -111,6 +112,12 @@ const PublicMenuSwipe = ({ restaurantName: propRestaurantName, templateKey: prop
             />
 
             <Cart onCheckout={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }} />
+
+            <WelcomeSequence
+                restaurantName={isMasterView ? 'Swipe Mode' : config.restaurantName || restaurantName}
+                themeColor="#f97316"
+                language="fr"
+            />
         </div>
     );
 };
