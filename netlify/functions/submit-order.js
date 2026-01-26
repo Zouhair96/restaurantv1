@@ -25,7 +25,6 @@ export const handler = async (event, context) => {
     }
 
     try {
-        const stripe = await getStripe();
         const { restaurantName, orderType, tableNumber, deliveryAddress, paymentMethod, items, totalPrice } = JSON.parse(event.body);
 
         // Optional: Get customer ID from token if present
@@ -76,13 +75,7 @@ export const handler = async (event, context) => {
             };
         }
 
-        if (orderType === 'take_out' && !deliveryAddress) {
-            return {
-                statusCode: 400,
-                headers,
-                body: JSON.stringify({ error: 'Delivery address required for take-out orders' })
-            };
-        }
+        // Relaxed validation: deliveryAddress is optional for take_out (collection at counter)
 
         // Find restaurant by name - robust lookup to handle duplicates
         const restaurantResult = await query(`
@@ -112,12 +105,23 @@ export const handler = async (event, context) => {
         const currency = stripeConfig.currency || 'eur';
         const commissionAmount = parseFloat(totalPrice) * commissionRate;
 
-        // Insert order
+        // Insert order with null-safe parameters
         const orderResult = await query(
             `INSERT INTO orders (restaurant_id, order_type, table_number, delivery_address, payment_method, items, total_price, status, customer_id, commission_amount, payment_status)
              VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending', $8, $9, $10)
              RETURNING id, created_at`,
-            [restaurantId, orderType, tableNumber, deliveryAddress, paymentMethod, JSON.stringify(items), totalPrice, customerId, commissionAmount, paymentMethod === 'cash' ? 'pending_cash' : 'pending']
+            [
+                restaurantId,
+                orderType,
+                tableNumber || null,
+                deliveryAddress || null,
+                paymentMethod,
+                JSON.stringify(items),
+                totalPrice,
+                customerId,
+                commissionAmount,
+                paymentMethod === 'cash' ? 'pending_cash' : 'pending'
+            ]
         );
 
         const newOrder = {
@@ -138,6 +142,7 @@ export const handler = async (event, context) => {
         let checkoutUrl = null;
         if (paymentMethod === 'credit_card') {
             try {
+                const stripe = await getStripe(); // LAZY LOAD STRIPE ONLY IF NEEDED
                 // Get restaurant's Stripe Account ID
                 const userResult = await query('SELECT stripe_account_id, stripe_onboarding_complete FROM users WHERE id = $1', [restaurantId]);
                 const restaurantUser = userResult.rows[0];
