@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
 import { useLanguage } from '../../context/LanguageContext'
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 
 const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSave, restaurantName }) => {
     const { t } = useLanguage()
