@@ -13,6 +13,7 @@ const PublicMenuSwipe = ({ restaurantName: propRestaurantName, templateKey: prop
     const [menuItems, setMenuItems] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
+    const [showAuthSidebar, setShowAuthSidebar] = useState(false);
     const { addToCart, setIsCartOpen } = useCart();
 
     useEffect(() => {
@@ -50,6 +51,12 @@ const PublicMenuSwipe = ({ restaurantName: propRestaurantName, templateKey: prop
     return (
         <div className="min-h-screen bg-[#0f1115] overflow-hidden flex flex-col p-4 md:p-10 font-sans">
             <header className="py-4 px-2 flex justify-between items-center z-50">
+                <button
+                    onClick={() => setShowAuthSidebar(true)}
+                    className="p-2 text-white/50 hover:text-white transition-colors"
+                >
+                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
+                </button>
                 <h1 className="text-white font-black text-xl tracking-tighter uppercase italic">{isMasterView ? 'Swipe Mode' : restaurantName}</h1>
                 <div className="text-gray-500 font-black text-sm">{currentIndex + 1} / {menuItems.length}</div>
             </header>
@@ -87,7 +94,12 @@ const PublicMenuSwipe = ({ restaurantName: propRestaurantName, templateKey: prop
                 </button>
             </div>
 
-            <PublicMenuSidebar />
+            <PublicMenuSidebar
+                isOpen={showAuthSidebar}
+                onClose={() => setShowAuthSidebar(false)}
+                restaurantName={isMasterView ? 'Swipe Mode' : restaurantName}
+                themeColor="#ffffff"
+            />
         </div>
     );
 };

@@ -13,6 +13,7 @@ const PublicMenuMinimal = ({ restaurantName: propRestaurantName, templateKey: pr
     const [menuItems, setMenuItems] = useState([]);
     const [config, setConfig] = useState({ themeColor: '#374151' });
     const [isLoading, setIsLoading] = useState(true);
+    const [showAuthSidebar, setShowAuthSidebar] = useState(false);
     const { addToCart, setIsCartOpen } = useCart();
 
     useEffect(() => {
@@ -39,7 +40,13 @@ const PublicMenuMinimal = ({ restaurantName: propRestaurantName, templateKey: pr
 
     return (
         <div className="min-h-screen bg-[#fafaf9] text-[#1c1917] font-serif selection:bg-stone-200">
-            <header className="py-24 px-6 text-center max-w-2xl mx-auto border-b border-stone-200">
+            <header className="py-24 px-6 text-center max-w-2xl mx-auto border-b border-stone-200 relative">
+                <button
+                    onClick={() => setShowAuthSidebar(true)}
+                    className="absolute left-0 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-900 transition-colors uppercase text-[10px] tracking-[0.2em]"
+                >
+                    Menu
+                </button>
                 <h1 className="text-5xl font-light tracking-[0.2em] uppercase leading-relaxed">{isMasterView ? 'Minimal' : restaurantName}</h1>
                 <div className="w-12 h-[1px] bg-stone-400 mx-auto mt-8"></div>
             </header>
@@ -69,7 +76,12 @@ const PublicMenuMinimal = ({ restaurantName: propRestaurantName, templateKey: pr
                 <p className="text-[10px] uppercase tracking-[0.5em] text-stone-300 italic">Established MMXXIV</p>
             </footer>
 
-            <PublicMenuSidebar />
+            <PublicMenuSidebar
+                isOpen={showAuthSidebar}
+                onClose={() => setShowAuthSidebar(false)}
+                restaurantName={isMasterView ? 'Minimal' : restaurantName}
+                themeColor={config.themeColor}
+            />
         </div>
     );
 };

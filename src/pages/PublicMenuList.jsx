@@ -14,6 +14,7 @@ const PublicMenuList = ({ restaurantName: propRestaurantName, templateKey: propT
     const [config, setConfig] = useState({ themeColor: '#10b981' });
     const [isLoading, setIsLoading] = useState(true);
     const [activeCategory, setActiveCategory] = useState('All');
+    const [showAuthSidebar, setShowAuthSidebar] = useState(false);
     const { addToCart, setIsCartOpen } = useCart();
 
     useEffect(() => {
@@ -46,7 +47,15 @@ const PublicMenuList = ({ restaurantName: propRestaurantName, templateKey: propT
         <div className="min-h-screen bg-gray-50 flex flex-col">
             {/* Header */}
             <header className="bg-white px-6 py-8 border-b border-gray-100 flex items-center justify-between sticky top-0 z-50">
-                <h1 className="text-3xl font-black text-gray-900 uppercase tracking-tight">{isMasterView ? 'Master List' : restaurantName}</h1>
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={() => setShowAuthSidebar(true)}
+                        className="p-2 -ml-2 text-gray-400 hover:text-gray-900 transition-colors"
+                    >
+                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
+                    </button>
+                    <h1 className="text-3xl font-black text-gray-900 uppercase tracking-tight">{isMasterView ? 'Master List' : restaurantName}</h1>
+                </div>
                 <div className="flex gap-2">
                     {categories.map(cat => (
                         <button
@@ -91,7 +100,12 @@ const PublicMenuList = ({ restaurantName: propRestaurantName, templateKey: propT
                 ))}
             </div>
 
-            <PublicMenuSidebar />
+            <PublicMenuSidebar
+                isOpen={showAuthSidebar}
+                onClose={() => setShowAuthSidebar(false)}
+                restaurantName={isMasterView ? 'Master List' : restaurantName}
+                themeColor={config.themeColor}
+            />
         </div>
     );
 };

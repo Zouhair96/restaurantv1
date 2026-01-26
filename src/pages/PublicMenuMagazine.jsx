@@ -13,6 +13,7 @@ const PublicMenuMagazine = ({ restaurantName: propRestaurantName, templateKey: p
     const [menuItems, setMenuItems] = useState([]);
     const [config, setConfig] = useState({ themeColor: '#ec4899' });
     const [isLoading, setIsLoading] = useState(true);
+    const [showAuthSidebar, setShowAuthSidebar] = useState(false);
     const { addToCart, setIsCartOpen } = useCart();
 
     useEffect(() => {
@@ -39,7 +40,13 @@ const PublicMenuMagazine = ({ restaurantName: propRestaurantName, templateKey: p
 
     return (
         <div className="min-h-screen bg-white text-black p-4 md:p-10 font-serif">
-            <header className="mb-12 border-b-4 border-black pb-8">
+            <header className="mb-12 border-b-4 border-black pb-8 relative">
+                <button
+                    onClick={() => setShowAuthSidebar(true)}
+                    className="absolute right-0 top-0 p-2 text-black hover:bg-black hover:text-white transition-all border-2 border-black"
+                >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                </button>
                 <h1 className="text-6xl md:text-8xl font-black uppercase italic leading-none">{isMasterView ? 'Magazine' : restaurantName}</h1>
                 <p className="mt-4 text-xl font-bold uppercase tracking-[0.3em]">The Daily Menu / Issue 01</p>
             </header>
@@ -64,7 +71,12 @@ const PublicMenuMagazine = ({ restaurantName: propRestaurantName, templateKey: p
                     </div>
                 ))}
             </div>
-            <PublicMenuSidebar />
+            <PublicMenuSidebar
+                isOpen={showAuthSidebar}
+                onClose={() => setShowAuthSidebar(false)}
+                restaurantName={isMasterView ? 'Magazine' : restaurantName}
+                themeColor={config.themeColor}
+            />
         </div>
     );
 };

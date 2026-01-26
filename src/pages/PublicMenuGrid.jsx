@@ -21,6 +21,7 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
     const [isAuthHovered, setIsAuthHovered] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [showAuthSidebar, setShowAuthSidebar] = useState(false);
 
     // Fetch Menu Data
     useEffect(() => {
@@ -110,6 +111,14 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
                         </button>
                     ))}
                 </div>
+
+                {/* Profile Button */}
+                <button
+                    onClick={() => setShowAuthSidebar(true)}
+                    className="mt-auto mb-6 p-4 rounded-2xl bg-white shadow-lg border border-gray-100 hover:scale-110 active:scale-95 transition-all text-gray-500 hover:text-theme"
+                >
+                    <HiBars3 className="w-6 h-6" />
+                </button>
             </div>
 
             {/* Main Content Area */}
@@ -185,7 +194,12 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
             </button>
 
             {/* Sidebars */}
-            <PublicMenuSidebar />
+            <PublicMenuSidebar
+                isOpen={showAuthSidebar}
+                onClose={() => setShowAuthSidebar(false)}
+                restaurantName={config.restaurantName}
+                themeColor={config.themeColor}
+            />
         </div>
     );
 };

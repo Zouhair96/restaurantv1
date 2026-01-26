@@ -44,10 +44,30 @@ export const handler = async (event, context) => {
         // 2. Check if user exists
         const checkUser = await query('SELECT * FROM users WHERE email = $1', [email]);
         if (checkUser.rows.length > 0) {
+            const user = checkUser.rows[0];
+
+            // Verify password for existing user
+            const isMatch = await bcrypt.compare(password, user.password_hash);
+            if (!isMatch) {
+                return {
+                    statusCode: 409,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ error: 'User already exists with this email' })
+                };
+            }
+
+            // User exists and password matches - return token as if they just registered
+            const secret = process.env.JWT_SECRET;
+            const token = jwt.sign(
+                { id: user.id, email: user.email, role: user.role, restaurantId: restaurantId },
+                secret,
+                { expiresIn: '7d' }
+            );
+
             return {
-                statusCode: 409,
+                statusCode: 200, // Success (Login proxy)
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ error: 'User already exists' })
+                body: JSON.stringify({ token, user }),
             };
         }
 
