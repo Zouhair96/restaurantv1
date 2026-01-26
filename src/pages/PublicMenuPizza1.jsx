@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, HiBars3, HiBuildingStorefront, HiXMark, HiTrash, HiOutlineClipboardDocumentList, HiUser } from 'react-icons/hi2';
 import { Link, useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import OrdersDropdown from '../components/public-menu/OrdersDropdown';
 import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
 import Checkout from '../components/menu/Checkout';
 import WelcomeSequence from '../components/public-menu/WelcomeSequence';
@@ -106,11 +105,9 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
     const [liked, setLiked] = useState(false);
     // const [showCheckout, setShowCheckout] = useState(false); // Replaced by CartContext
     const [showAuthSidebar, setShowAuthSidebar] = useState(false);
-    const [isOrdersDropdownOpen, setIsOrdersDropdownOpen] = useState(false);
 
     useEffect(() => {
         const handleOpenAuth = () => {
-            setIsOrdersDropdownOpen(false);
             setShowAuthSidebar(true);
         };
         window.addEventListener('openClientAuth', handleOpenAuth);
@@ -191,8 +188,8 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                 overflow-y-auto scroll-smooth transition-all duration-300
             `}>
                 <button
-                    onClick={() => setIsOrdersDropdownOpen(!isOrdersDropdownOpen)}
-                    className="mb-6 p-4 rounded-[1.5rem] border shadow-sm transition-all active:scale-95 flex items-center justify-center relative"
+                    onClick={() => setShowAuthSidebar(true)}
+                    className="mb-6 p-4 rounded-[1.5rem] border shadow-sm transition-all active:scale-95 flex items-center justify-center"
                     style={{
                         color: config.themeColor,
                         borderColor: `${config.themeColor}40`,
@@ -250,9 +247,9 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                             <h1 className="text-xl md:text-2xl font-black text-gray-900 mx-auto tracking-tight uppercase">{config.restaurantName}</h1>
                         )}
 
-                        <div className="flex items-center gap-1 relative">
+                        <div className="flex items-center gap-1">
                             <button
-                                onClick={() => setIsOrdersDropdownOpen(!isOrdersDropdownOpen)}
+                                onClick={() => setShowAuthSidebar(true)}
                                 className="p-2 text-gray-400 hover:text-gray-900 transition-colors relative"
                                 title="My Orders"
                             >
@@ -261,18 +258,6 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                     <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: config.themeColor }}></span>
                                 )}
                             </button>
-
-                            <AnimatePresence>
-                                {isOrdersDropdownOpen && (
-                                    <OrdersDropdown
-                                        isOpen={isOrdersDropdownOpen}
-                                        onClose={() => setIsOrdersDropdownOpen(false)}
-                                        restaurantName={restaurantName}
-                                        displayName={config.restaurantName}
-                                        themeColor={config.themeColor}
-                                    />
-                                )}
-                            </AnimatePresence>
 
                             <button
                                 onClick={() => setIsCartOpen(!isCartOpen)}

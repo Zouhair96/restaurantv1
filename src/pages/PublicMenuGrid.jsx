@@ -3,7 +3,6 @@ import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, H
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import OrdersDropdown from '../components/public-menu/OrdersDropdown';
 import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
 import Checkout from '../components/menu/Checkout';
 import Cart from '../components/menu/Cart';
@@ -30,11 +29,9 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showAuthSidebar, setShowAuthSidebar] = useState(false);
-    const [isOrdersDropdownOpen, setIsOrdersDropdownOpen] = useState(false);
 
     useEffect(() => {
         const handleOpenAuth = () => {
-            setIsOrdersDropdownOpen(false);
             setShowAuthSidebar(true);
         };
         window.addEventListener('openClientAuth', handleOpenAuth);
@@ -140,8 +137,8 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
 
                 {/* Profile Button */}
                 <button
-                    onClick={() => setIsOrdersDropdownOpen(!isOrdersDropdownOpen)}
-                    className="mt-auto mb-6 p-4 rounded-2xl bg-white shadow-lg border border-gray-100 hover:scale-110 active:scale-95 transition-all text-gray-500 hover:text-theme relative"
+                    onClick={() => setShowAuthSidebar(true)}
+                    className="mt-auto mb-6 p-4 rounded-2xl bg-white shadow-lg border border-gray-100 hover:scale-110 active:scale-95 transition-all text-gray-500 hover:text-theme"
                 >
                     <HiBars3 className="w-6 h-6" />
                 </button>
@@ -163,29 +160,15 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
                         ))}
                     </div>
 
-                    <div className="relative">
-                        <button
-                            onClick={() => setIsOrdersDropdownOpen(!isOrdersDropdownOpen)}
-                            className="p-2 ml-4 text-gray-400 hover:text-gray-900 transition-colors relative"
-                        >
-                            <HiOutlineClipboardDocumentList className="w-6 h-6" />
-                            {activeOrderId && (
-                                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: config.themeColor }}></span>
-                            )}
-                        </button>
-
-                        <AnimatePresence>
-                            {isOrdersDropdownOpen && (
-                                <OrdersDropdown
-                                    isOpen={isOrdersDropdownOpen}
-                                    onClose={() => setIsOrdersDropdownOpen(false)}
-                                    restaurantName={restaurantName}
-                                    displayName={config.restaurantName}
-                                    themeColor={config.themeColor}
-                                />
-                            )}
-                        </AnimatePresence>
-                    </div>
+                    <button
+                        onClick={() => setShowAuthSidebar(true)}
+                        className="p-2 ml-4 text-gray-400 hover:text-gray-900 transition-colors relative"
+                    >
+                        <HiOutlineClipboardDocumentList className="w-6 h-6" />
+                        {activeOrderId && (
+                            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: config.themeColor }}></span>
+                        )}
+                    </button>
                 </div>
 
                 {/* Content */}

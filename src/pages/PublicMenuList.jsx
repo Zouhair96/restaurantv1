@@ -5,7 +5,6 @@ import { useCart } from '../context/CartContext';
 import Checkout from '../components/menu/Checkout';
 import Cart from '../components/menu/Cart';
 import WelcomeSequence from '../components/public-menu/WelcomeSequence';
-import OrdersDropdown from '../components/public-menu/OrdersDropdown';
 import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
 import PersistentOrderTracker from '../components/PersistentOrderTracker';
 import { useClientAuth } from '../context/ClientAuthContext';
@@ -24,14 +23,12 @@ const PublicMenuList = ({ restaurantName: propRestaurantName, templateKey: propT
     const [isLoading, setIsLoading] = useState(true);
     const [activeCategory, setActiveCategory] = useState('All');
     const [showAuthSidebar, setShowAuthSidebar] = useState(false);
-    const [isOrdersDropdownOpen, setIsOrdersDropdownOpen] = useState(false);
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
     const { addToCart, setIsCartOpen } = useCart();
     const { user: clientUser, activeOrderId, activeOrder, handleCloseTracker } = useClientAuth();
 
     useEffect(() => {
         const handleOpenAuth = () => {
-            setIsOrdersDropdownOpen(false);
             setShowAuthSidebar(true);
         };
         window.addEventListener('openClientAuth', handleOpenAuth);
@@ -76,29 +73,15 @@ const PublicMenuList = ({ restaurantName: propRestaurantName, templateKey: propT
             {/* Header */}
             <header className="bg-white px-6 py-8 border-b border-gray-100 flex items-center justify-between sticky top-0 z-50">
                 <div className="flex items-center gap-4">
-                    <div className="relative">
-                        <button
-                            onClick={() => setIsOrdersDropdownOpen(!isOrdersDropdownOpen)}
-                            className="p-2 -ml-2 text-gray-400 hover:text-gray-900 transition-colors relative"
-                        >
-                            <HiOutlineClipboardDocumentList className="w-8 h-8" />
-                            {activeOrderId && (
-                                <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full animate-pulse shadow-sm" style={{ backgroundColor: config.themeColor }}></span>
-                            )}
-                        </button>
-
-                        <AnimatePresence>
-                            {isOrdersDropdownOpen && (
-                                <OrdersDropdown
-                                    isOpen={isOrdersDropdownOpen}
-                                    onClose={() => setIsOrdersDropdownOpen(false)}
-                                    restaurantName={restaurantName}
-                                    displayName={config.restaurantName || restaurantName}
-                                    themeColor={config.themeColor}
-                                />
-                            )}
-                        </AnimatePresence>
-                    </div>
+                    <button
+                        onClick={() => setShowAuthSidebar(true)}
+                        className="p-2 -ml-2 text-gray-400 hover:text-gray-900 transition-colors relative"
+                    >
+                        <HiOutlineClipboardDocumentList className="w-8 h-8" />
+                        {activeOrderId && (
+                            <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full animate-pulse shadow-sm" style={{ backgroundColor: config.themeColor }}></span>
+                        )}
+                    </button>
                     <h1 className="text-3xl font-black text-gray-900 uppercase tracking-tight">{isMasterView ? 'Master List' : config.restaurantName || restaurantName}</h1>
                 </div>
                 <div className="flex gap-2">
