@@ -1,47 +1,26 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-const PersistentOrderTracker = ({ orderId, onClose, themeColor = '#6c5ce7', inline = false, noHeader = false, onStatusChange }) => {
-    const [orderStatus, setOrderStatus] = useState(null)
+const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline = false, noHeader = false }) => {
     const [isMinimized, setIsMinimized] = useState(false)
-    const [loading, setLoading] = useState(true)
+    const prevStatusRef = React.useRef(order?.status);
 
+    // Watch for status changes to trigger notifications
     useEffect(() => {
-        if (!orderId) return
+        if (!order) return;
 
-        const fetchOrderStatus = async () => {
-            try {
-                const response = await fetch(`/.netlify/functions/get-public-order?orderId=${orderId}`)
-                const data = await response.json()
-
-                if (response.ok) {
-                    const prevStatus = orderStatus?.status
-                    setOrderStatus(data)
-
-                    // Play sound and show notification when order is ready/completed
-                    if (prevStatus && prevStatus !== 'completed' && data.status === 'completed') {
-                        playCompletionSound()
-                        showNotification('Your order is ready! 🎉')
-                    }
-
-                    if (onStatusChange && data.status !== prevStatus) {
-                        onStatusChange(data.status)
-                    }
+        const prevStatus = prevStatusRef.current;
+        if (prevStatus && prevStatus !== order.status) {
+            // Play sound and show notification when order is ready/completed
+            if (order.status === 'completed' || order.status === 'ready') {
+                if (prevStatus !== 'completed' && prevStatus !== 'ready') {
+                    playCompletionSound();
+                    showNotification(order.status === 'ready' ? 'Your order is ready! 🎉' : 'Your order is completed! Enjoy! 🍽️');
                 }
-            } catch (error) {
-                console.error('Failed to fetch order status:', error)
-            } finally {
-                setLoading(false)
             }
         }
-
-        // Initial fetch
-        fetchOrderStatus()
-
-        // Poll every 10 seconds
-        const interval = setInterval(fetchOrderStatus, 10000)
-        return () => clearInterval(interval)
-    }, [orderId, orderStatus?.status])
+        prevStatusRef.current = order.status;
+    }, [order?.status]);
 
     const playCompletionSound = () => {
         try {
@@ -101,9 +80,9 @@ const PersistentOrderTracker = ({ orderId, onClose, themeColor = '#6c5ce7', inli
         return statusMap[status] || statusMap.pending
     }
 
-    if (!orderId || !orderStatus) return null
+    if (!order) return null
 
-    const statusInfo = getStatusInfo(orderStatus.status)
+    const statusInfo = getStatusInfo(order.status)
 
     return (
         <AnimatePresence>
@@ -144,7 +123,7 @@ const PersistentOrderTracker = ({ orderId, onClose, themeColor = '#6c5ce7', inli
                                             </div>
                                             <div>
                                                 <h3 className="font-black text-gray-900 dark:text-white text-lg">
-                                                    Order #{String(orderId).slice(0, 8)}
+                                                    Order #{String(order.id).slice(0, 8)}
                                                 </h3>
                                                 <p className="text-sm text-gray-500 dark:text-gray-400 font-bold">
                                                     {statusInfo.label}
@@ -186,16 +165,16 @@ const PersistentOrderTracker = ({ orderId, onClose, themeColor = '#6c5ce7', inli
                                         />
                                     </div>
                                     <div className="flex justify-between mt-2 text-xs font-bold text-gray-500 dark:text-gray-400">
-                                        <span className={orderStatus.status === 'pending' || orderStatus.status === 'preparing' || orderStatus.status === 'ready' || orderStatus.status === 'completed' ? 'text-gray-900 dark:text-white' : ''}>
+                                        <span className={order.status === 'pending' || order.status === 'preparing' || order.status === 'ready' || order.status === 'completed' ? 'text-gray-900 dark:text-white' : ''}>
                                             Received
                                         </span>
-                                        <span className={orderStatus.status === 'preparing' || orderStatus.status === 'ready' || orderStatus.status === 'completed' ? 'text-gray-900 dark:text-white' : ''}>
+                                        <span className={order.status === 'preparing' || order.status === 'ready' || order.status === 'completed' ? 'text-gray-900 dark:text-white' : ''}>
                                             Preparing
                                         </span>
-                                        <span className={orderStatus.status === 'ready' || orderStatus.status === 'completed' ? 'text-gray-900 dark:text-white' : ''}>
+                                        <span className={order.status === 'ready' || order.status === 'completed' ? 'text-gray-900 dark:text-white' : ''}>
                                             Ready
                                         </span>
-                                        <span className={orderStatus.status === 'completed' ? 'text-gray-900 dark:text-white' : ''}>
+                                        <span className={order.status === 'completed' ? 'text-gray-900 dark:text-white' : ''}>
                                             Done
                                         </span>
                                     </div>
@@ -204,7 +183,7 @@ const PersistentOrderTracker = ({ orderId, onClose, themeColor = '#6c5ce7', inli
                                 {/* Total */}
                                 <div className="mt-3 flex justify-between items-center">
                                     <span className="text-sm text-gray-600 dark:text-gray-400">Total</span>
-                                    <span className="text-xl font-black" style={{ color: themeColor }}>${orderStatus.total_price}</span>
+                                    <span className="text-xl font-black" style={{ color: themeColor }}>${order.total_price}</span>
                                 </div>
                             </div>
                         </div>

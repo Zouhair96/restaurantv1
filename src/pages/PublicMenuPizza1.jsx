@@ -11,7 +11,7 @@ import PersistentOrderTracker from '../components/PersistentOrderTracker';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
-    const { user: clientUser, activeOrderId, handleCloseTracker } = useClientAuth();
+    const { user: clientUser, activeOrderId, activeOrder, handleCloseTracker } = useClientAuth();
     const { restaurantName: urlRestaurantName } = useParams();
     const restaurantName = propRestaurantName || urlRestaurantName;
     const isMasterView = !restaurantName;
@@ -117,7 +117,6 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
         return () => window.removeEventListener('openClientAuth', handleOpenAuth);
     }, []);
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-    const [trackerStatus, setTrackerStatus] = useState(null);
     const [activeCategory, setActiveCategory] = useState('All');
 
     const {
@@ -166,12 +165,11 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
 
     return (
         <div className="flex h-screen bg-white text-gray-900 font-sans overflow-hidden relative" style={{ '--theme-color': config.themeColor }}>
-            {activeOrderId && trackerStatus !== 'completed' && trackerStatus !== 'cancelled' && (
+            {activeOrder && activeOrder.status !== 'completed' && activeOrder.status !== 'cancelled' && (
                 <PersistentOrderTracker
-                    orderId={activeOrderId}
+                    order={activeOrder}
                     onClose={handleCloseTracker}
                     themeColor={config.themeColor}
-                    onStatusChange={setTrackerStatus}
                 />
             )}
             <style>{`

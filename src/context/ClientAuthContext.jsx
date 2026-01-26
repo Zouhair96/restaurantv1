@@ -8,6 +8,7 @@ export const ClientAuthProvider = ({ children }) => {
     const [activeOrderId, setActiveOrderId] = useState(() => {
         return localStorage.getItem('activeOrderId') || null;
     });
+    const [activeOrder, setActiveOrder] = useState(null);
 
     useEffect(() => {
         const handleNewOrder = (event) => {
@@ -24,8 +25,33 @@ export const ClientAuthProvider = ({ children }) => {
 
     const handleCloseTracker = () => {
         setActiveOrderId(null);
+        setActiveOrder(null);
         localStorage.removeItem('activeOrderId');
     };
+
+    // Poll for active order status
+    useEffect(() => {
+        if (!activeOrderId) {
+            setActiveOrder(null);
+            return;
+        }
+
+        const fetchOrder = async () => {
+            try {
+                const response = await fetch(`/.netlify/functions/get-public-order?orderId=${activeOrderId}`);
+                const data = await response.json();
+                if (response.ok) {
+                    setActiveOrder(data);
+                }
+            } catch (err) {
+                console.error("Error fetching order in context", err);
+            }
+        };
+
+        fetchOrder();
+        const interval = setInterval(fetchOrder, 10000);
+        return () => clearInterval(interval);
+    }, [activeOrderId]);
 
     useEffect(() => {
         const storedUser = localStorage.getItem('client_user');
@@ -87,7 +113,7 @@ export const ClientAuthProvider = ({ children }) => {
     };
 
     return (
-        <ClientAuthContext.Provider value={{ user, login, signup, logout, loading, activeOrderId, setActiveOrderId, handleCloseTracker }}>
+        <ClientAuthContext.Provider value={{ user, login, signup, logout, loading, activeOrderId, setActiveOrderId, activeOrder, setActiveOrder, handleCloseTracker }}>
             {children}
         </ClientAuthContext.Provider>
     );

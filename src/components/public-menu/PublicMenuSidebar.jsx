@@ -6,7 +6,7 @@ import { translations } from '../../translations';
 import PersistentOrderTracker from '../PersistentOrderTracker';
 
 const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, designConfig, isDarkMode, setIsDarkMode, themeColor = '#f97316' }) => {
-    const { user: authUser, logout: authLogout, activeOrderId, handleCloseTracker } = useClientAuth();
+    const { user: authUser, logout: authLogout, activeOrderId, activeOrder, handleCloseTracker } = useClientAuth();
     const [view, setView] = useState('welcome');
     const [language, setLanguage] = useState('FR'); // 'FR', 'EN'
     const [clientUser, setClientUser] = useState(null);
@@ -385,10 +385,10 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                             </div>
 
                             {/* Ongoing Order Bar */}
-                            {activeOrderId && (
+                            {activeOrder && activeOrder.status !== 'completed' && activeOrder.status !== 'cancelled' && (
                                 <div className="mb-6 rounded-2xl overflow-hidden shadow-lg border border-gray-100 dark:border-white/5">
                                     <PersistentOrderTracker
-                                        orderId={activeOrderId}
+                                        order={activeOrder}
                                         onClose={handleCloseTracker}
                                         themeColor={themeColor}
                                         inline={true}

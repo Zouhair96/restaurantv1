@@ -12,7 +12,7 @@ import { useClientAuth } from '../context/ClientAuthContext';
 import PersistentOrderTracker from '../components/PersistentOrderTracker';
 
 const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propTemplateKey }) => {
-    const { user: clientUser, activeOrderId, handleCloseTracker } = useClientAuth();
+    const { user: clientUser, activeOrderId, activeOrder, handleCloseTracker } = useClientAuth();
     const { restaurantName: urlRestaurantName, templateKey: urlTemplateKey } = useParams();
     const restaurantName = propRestaurantName || urlRestaurantName;
     const templateKey = propTemplateKey || urlTemplateKey || 'pizza1';
@@ -41,7 +41,6 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
         return () => window.removeEventListener('openClientAuth', handleOpenAuth);
     }, []);
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-    const [trackerStatus, setTrackerStatus] = useState(null);
 
     // Fetch Menu Data
     useEffect(() => {
@@ -110,12 +109,11 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
 
     return (
         <div className="min-h-screen bg-[#f8fafc] font-sans text-gray-900 flex flex-col md:flex-row overflow-hidden relative">
-            {activeOrderId && trackerStatus !== 'completed' && trackerStatus !== 'cancelled' && (
+            {activeOrder && activeOrder.status !== 'completed' && activeOrder.status !== 'cancelled' && (
                 <PersistentOrderTracker
-                    orderId={activeOrderId}
+                    order={activeOrder}
                     onClose={handleCloseTracker}
                     themeColor={config.themeColor}
-                    onStatusChange={setTrackerStatus}
                 />
             )}
             <style>{`

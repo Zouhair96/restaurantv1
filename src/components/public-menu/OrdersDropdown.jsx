@@ -7,10 +7,9 @@ import { translations } from '../../translations';
 import PersistentOrderTracker from '../PersistentOrderTracker';
 
 const OrdersDropdown = ({ isOpen, onClose, restaurantName, displayName, themeColor = '#f97316' }) => {
-    const { user: clientUser, activeOrderId, handleCloseTracker, logout } = useClientAuth();
+    const { user: clientUser, activeOrderId, activeOrder, handleCloseTracker, logout } = useClientAuth();
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [currentStatus, setCurrentStatus] = useState(null)
     const [language] = useState('fr'); // Default to French as in sidebar
     const dropdownRef = useRef(null);
 
@@ -87,20 +86,14 @@ const OrdersDropdown = ({ isOpen, onClose, restaurantName, displayName, themeCol
 
                 <div className="max-h-[70vh] overflow-y-auto no-scrollbar">
                     {/* Ongoing Order - STICKY TOP */}
-                    {activeOrderId && currentStatus !== 'completed' && currentStatus !== 'cancelled' && (
+                    {activeOrder && activeOrder.status !== 'completed' && activeOrder.status !== 'cancelled' && (
                         <div className="sticky top-0 z-20 shadow-md">
                             <PersistentOrderTracker
-                                orderId={activeOrderId}
+                                order={activeOrder}
                                 onClose={handleCloseTracker}
                                 themeColor={themeColor}
                                 inline={true}
                                 noHeader={true}
-                                onStatusChange={(s) => {
-                                    setCurrentStatus(s);
-                                    if (s === 'completed' || s === 'cancelled') {
-                                        fetchOrders(); // Refresh history when order finishes
-                                    }
-                                }}
                             />
                         </div>
                     )}
