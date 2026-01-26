@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-const PersistentOrderTracker = ({ orderId, onClose, themeColor = '#6c5ce7', inline = false }) => {
+const PersistentOrderTracker = ({ orderId, onClose, themeColor = '#6c5ce7', inline = false, noHeader = false, onStatusChange }) => {
     const [orderStatus, setOrderStatus] = useState(null)
     const [isMinimized, setIsMinimized] = useState(false)
     const [loading, setLoading] = useState(true)
@@ -22,6 +22,10 @@ const PersistentOrderTracker = ({ orderId, onClose, themeColor = '#6c5ce7', inli
                     if (prevStatus && prevStatus !== 'completed' && data.status === 'completed') {
                         playCompletionSound()
                         showNotification('Your order is ready! 🎉')
+                    }
+
+                    if (onStatusChange && data.status !== prevStatus) {
+                        onStatusChange(data.status)
                     }
                 }
             } catch (error) {
@@ -132,41 +136,43 @@ const PersistentOrderTracker = ({ orderId, onClose, themeColor = '#6c5ce7', inli
                         <div className={`bg-white dark:bg-gray-800 shadow-2xl ${inline ? 'border-b-2 shadow-none' : 'border-b-4 shadow-xl'}`} style={{ borderBottom: `4px solid ${themeColor}` }}>
                             <div className={`${inline ? 'px-2 py-3' : 'max-w-4xl mx-auto px-4 py-4'}`}>
                                 {/* Header */}
-                                <div className="flex items-center justify-between mb-3">
-                                    <div className="flex items-center gap-3">
-                                        <div className={`w-10 h-10 rounded-full ${statusInfo.color} flex items-center justify-center text-white text-xl`}>
-                                            {statusInfo.emoji}
+                                {!noHeader && (
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className="flex items-center gap-3">
+                                            <div className={`w-10 h-10 rounded-full ${statusInfo.color} flex items-center justify-center text-white text-xl`}>
+                                                {statusInfo.emoji}
+                                            </div>
+                                            <div>
+                                                <h3 className="font-black text-gray-900 dark:text-white text-lg">
+                                                    Order #{String(orderId).slice(0, 8)}
+                                                </h3>
+                                                <p className="text-sm text-gray-500 dark:text-gray-400 font-bold">
+                                                    {statusInfo.label}
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h3 className="font-black text-gray-900 dark:text-white text-lg">
-                                                Order #{String(orderId).slice(0, 8)}
-                                            </h3>
-                                            <p className="text-sm text-gray-500 dark:text-gray-400 font-bold">
-                                                {statusInfo.label}
-                                            </p>
+                                        <div className="flex items-center gap-2">
+                                            <button
+                                                onClick={() => setIsMinimized(true)}
+                                                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                                                title="Minimize"
+                                            >
+                                                <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </button>
+                                            <button
+                                                onClick={onClose}
+                                                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                                                title="Close"
+                                            >
+                                                <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <button
-                                            onClick={() => setIsMinimized(true)}
-                                            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
-                                            title="Minimize"
-                                        >
-                                            <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                            </svg>
-                                        </button>
-                                        <button
-                                            onClick={onClose}
-                                            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
-                                            title="Close"
-                                        >
-                                            <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </div>
+                                )}
 
                                 {/* Progress Bar */}
                                 <div className="relative">

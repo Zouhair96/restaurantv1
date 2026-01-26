@@ -39,6 +39,11 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
         };
 
         window.addEventListener('clientOrderPlaced', handleRefresh);
+        window.addEventListener('openClientAuth', () => {
+            setView('login');
+            onClose(); // In case it's used elsewhere, but mainly for the sidebar to reset
+            // We need a way to open it, but the parent manages isOpen.
+        });
 
         // Polling for status updates from restaurant
         const interval = setInterval(() => {

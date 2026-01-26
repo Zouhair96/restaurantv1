@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, HiBars3, HiBuildingStorefront, HiXMark, HiTrash, HiOutlineClipboardDocumentList } from 'react-icons/hi2';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
+import OrdersDropdown from '../components/public-menu/OrdersDropdown';
 import Checkout from '../components/menu/Checkout';
 import Cart from '../components/menu/Cart';
 import WelcomeSequence from '../components/public-menu/WelcomeSequence';
@@ -28,7 +29,18 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showAuthSidebar, setShowAuthSidebar] = useState(false);
+    const [isOrdersDropdownOpen, setIsOrdersDropdownOpen] = useState(false);
+
+    useEffect(() => {
+        const handleOpenAuth = () => {
+            setIsOrdersDropdownOpen(false);
+            setShowAuthSidebar(true);
+        };
+        window.addEventListener('openClientAuth', handleOpenAuth);
+        return () => window.removeEventListener('openClientAuth', handleOpenAuth);
+    }, []);
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+    const [trackerStatus, setTrackerStatus] = useState(null);
 
     // Fetch Menu Data
     useEffect(() => {
@@ -97,11 +109,12 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
 
     return (
         <div className="min-h-screen bg-[#f8fafc] font-sans text-gray-900 flex flex-col md:flex-row overflow-hidden relative">
-            {activeOrderId && (
+            {activeOrderId && trackerStatus !== 'completed' && trackerStatus !== 'cancelled' && (
                 <PersistentOrderTracker
                     orderId={activeOrderId}
                     onClose={handleCloseTracker}
                     themeColor={config.themeColor}
+                    onStatusChange={setTrackerStatus}
                 />
             )}
             <style>{`
@@ -128,8 +141,8 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
 
                 {/* Profile Button */}
                 <button
-                    onClick={() => setShowAuthSidebar(true)}
-                    className="mt-auto mb-6 p-4 rounded-2xl bg-white shadow-lg border border-gray-100 hover:scale-110 active:scale-95 transition-all text-gray-500 hover:text-theme"
+                    onClick={() => setIsOrdersDropdownOpen(!isOrdersDropdownOpen)}
+                    className="mt-auto mb-6 p-4 rounded-2xl bg-white shadow-lg border border-gray-100 hover:scale-110 active:scale-95 transition-all text-gray-500 hover:text-theme relative"
                 >
                     <HiBars3 className="w-6 h-6" />
                 </button>
@@ -151,15 +164,29 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
                         ))}
                     </div>
 
-                    <button
-                        onClick={() => setShowAuthSidebar(true)}
-                        className="p-2 ml-4 text-gray-400 hover:text-gray-900 transition-colors relative"
-                    >
-                        <HiOutlineClipboardDocumentList className="w-6 h-6" />
-                        {activeOrderId && (
-                            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: config.themeColor }}></span>
-                        )}
-                    </button>
+                    <div className="relative">
+                        <button
+                            onClick={() => setIsOrdersDropdownOpen(!isOrdersDropdownOpen)}
+                            className="p-2 ml-4 text-gray-400 hover:text-gray-900 transition-colors relative"
+                        >
+                            <HiOutlineClipboardDocumentList className="w-6 h-6" />
+                            {activeOrderId && (
+                                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: config.themeColor }}></span>
+                            )}
+                        </button>
+
+                        <AnimatePresence>
+                            {isOrdersDropdownOpen && (
+                                <OrdersDropdown
+                                    isOpen={isOrdersDropdownOpen}
+                                    onClose={() => setIsOrdersDropdownOpen(false)}
+                                    restaurantName={restaurantName}
+                                    displayName={config.restaurantName}
+                                    themeColor={config.themeColor}
+                                />
+                            )}
+                        </AnimatePresence>
+                    </div>
                 </div>
 
                 {/* Content */}
