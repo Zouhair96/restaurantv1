@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, HiBars3, HiBuildingStorefront, HiXMark, HiTrash, HiOutlineClipboardList } from 'react-icons/hi2';
+import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, HiBars3, HiBuildingStorefront, HiXMark, HiTrash, HiOutlineClipboardDocumentList } from 'react-icons/hi2';
 import { Link, useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
@@ -155,7 +155,7 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
                         onClick={() => setShowAuthSidebar(true)}
                         className="p-2 ml-4 text-gray-400 hover:text-gray-900 transition-colors relative"
                     >
-                        <HiOutlineClipboardList className="w-6 h-6" />
+                        <HiOutlineClipboardDocumentList className="w-6 h-6" />
                         {activeOrderId && (
                             <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: config.themeColor }}></span>
                         )}
