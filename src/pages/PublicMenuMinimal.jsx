@@ -98,7 +98,7 @@ const PublicMenuMinimal = ({ restaurantName: propRestaurantName, templateKey: pr
             <WelcomeSequence
                 restaurantName={isMasterView ? 'Minimal' : config.restaurantName || restaurantName}
                 themeColor={config.themeColor}
-                language="fr"
+                promoConfig={config}
             />
         </div>
     );

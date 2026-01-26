@@ -35,7 +35,6 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
     // Step 6 State: Extras (Gratinage)
     const [extrasOption, setExtrasOption] = useState(initialData?.config?.extrasOption || [])
 
-    // Step 7 State: Design & Text
     const [designConfig, setDesignConfig] = useState(initialData?.config?.designConfig || {
         mainTitle: 'Tacos Festival',
         subtitle: 'Fresh & Spicy - Limited Time',
@@ -43,7 +42,14 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
         fontTheme: 'modern'
     })
 
-    const stepsCount = 8;
+    const [promoConfig, setPromoConfig] = useState(initialData?.config?.promoConfig || {
+        showWelcomePromo: true,
+        welcomePromoText: "Bienvenue sur notre plateforme ! Profitez d’une réduction de 10% sur votre première commande, et pour nos clients fidèles, recevez un repas gratuit après chaque dix commandes !",
+        loadingDuration: 5,
+        promoDuration: 15
+    })
+
+    const stepsCount = 9;
 
     // --- Handlers for Step 1 ---
     const handleInputChange = (e) => {
@@ -105,7 +111,13 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
             saucesOption,
             drinksOption,
             extrasOption,
-            designConfig
+            designConfig,
+            promoConfig,
+            // Mirror promoConfig to top level for simpler access in some templates
+            showWelcomePromo: promoConfig.showWelcomePromo,
+            welcomePromoText: promoConfig.welcomePromoText,
+            loadingDuration: promoConfig.loadingDuration,
+            promoDuration: promoConfig.promoDuration
         }
 
 
@@ -722,6 +734,66 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
         </div>
     )
 
+    const renderStepPromo = () => (
+        <div className="animate-fade-in max-w-4xl mx-auto space-y-8">
+            <h3 className="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                <span className="bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 w-8 h-8 rounded-full flex items-center justify-center text-sm">📣</span>
+                Welcome Promotion
+            </h3>
+
+            <div className="space-y-6">
+                <div className="flex items-center justify-between p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700">
+                    <div>
+                        <h4 className="font-bold text-gray-800 dark:text-white">Enable Sequence</h4>
+                        <p className="text-sm text-gray-400">Loading screen + Welcome pop-up</p>
+                    </div>
+                    <button
+                        onClick={() => setPromoConfig({ ...promoConfig, showWelcomePromo: !promoConfig.showWelcomePromo })}
+                        className={`w-14 h-8 rounded-full transition-all relative ${promoConfig.showWelcomePromo ? 'bg-indigo-600 shadow-lg shadow-indigo-600/30' : 'bg-gray-200 dark:bg-gray-700'}`}
+                    >
+                        <div className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow-md transition-all ${promoConfig.showWelcomePromo ? 'left-7' : 'left-1'}`} />
+                    </button>
+                </div>
+
+                {promoConfig.showWelcomePromo && (
+                    <div className="space-y-6 animate-fade-in">
+                        <div>
+                            <label className="block text-gray-500 dark:text-gray-400 text-sm font-medium mb-2">Pop-up Message</label>
+                            <textarea
+                                rows="4"
+                                value={promoConfig.welcomePromoText}
+                                onChange={(e) => setPromoConfig({ ...promoConfig, welcomePromoText: e.target.value })}
+                                className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-gray-800 dark:text-gray-200 focus:outline-none focus:border-indigo-500 transition-all text-sm font-medium resize-none shadow-inner"
+                                placeholder="Write your welcoming discount message here..."
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-gray-500 dark:text-gray-400 text-sm font-medium mb-2">Loading Page (s)</label>
+                                <input
+                                    type="number"
+                                    value={promoConfig.loadingDuration}
+                                    onChange={(e) => setPromoConfig({ ...promoConfig, loadingDuration: parseInt(e.target.value) || 0 })}
+                                    className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-gray-800 dark:text-white focus:outline-none focus:border-indigo-500"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-gray-500 dark:text-gray-400 text-sm font-medium mb-2">Pop-up Duration (s)</label>
+                                <input
+                                    type="number"
+                                    value={promoConfig.promoDuration}
+                                    onChange={(e) => setPromoConfig({ ...promoConfig, promoDuration: parseInt(e.target.value) || 0 })}
+                                    className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-gray-800 dark:text-white focus:outline-none focus:border-indigo-500"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    )
+
     const renderContent = () => {
         switch (currentStep) {
             case 1: return renderStep1()
@@ -731,7 +803,8 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
             case 5: return renderStepDrinks()
             case 6: return renderStepExtras()
             case 7: return renderStep2()
-            case 8: return renderStepPreview()
+            case 8: return renderStepPromo()
+            case 9: return renderStepPreview()
             default: return renderStep1()
         }
     }
@@ -798,7 +871,8 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
                                             currentStep === 4 ? 'Sauce Options' :
                                                 currentStep === 5 ? 'Drink Options' :
                                                     currentStep === 6 ? 'Extra Options' :
-                                                        currentStep === 7 ? 'Customize Design' : 'Preview'
+                                                        currentStep === 7 ? 'Customize Design' :
+                                                            currentStep === 8 ? 'Welcome Promo' : 'Preview'
                                 }`
                             }
                         </p>
@@ -812,16 +886,16 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
                 {!isComingSoon && (
                     <div className="bg-gray-50 dark:bg-gray-900/30 py-3 border-b border-gray-100 dark:border-gray-800">
                         <div className="flex justify-center items-center gap-2">
-                            {[1, 2, 3, 4, 5, 6, 7, 8].map(step => (
+                            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(step => (
                                 <div key={step} className="flex items-center gap-2">
                                     <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${currentStep >= step ? 'bg-[#6c5ce7] text-white shadow-lg shadow-purple-500/30' : 'bg-gray-200 dark:bg-gray-800 text-gray-500'
                                         }`}>
                                         {step}
                                     </div>
-                                    <span className={`text-[10px] font-medium ${currentStep >= step ? 'text-white' : 'text-gray-600'} hidden md:block`}>
-                                        {step === 1 ? 'Sizes' : step === 2 ? 'Fries' : step === 3 ? 'Meals' : step === 4 ? 'Sauces' : step === 5 ? 'Drinks' : step === 6 ? 'Extras' : step === 7 ? 'Design' : 'Preview'}
+                                    <span className={`text-[10px] font-medium ${currentStep >= step ? 'text-white' : 'text-gray-600'} hidden lg:block`}>
+                                        {step === 1 ? 'Sizes' : step === 2 ? 'Fries' : step === 3 ? 'Meals' : step === 4 ? 'Sauces' : step === 5 ? 'Drinks' : step === 6 ? 'Extras' : step === 7 ? 'Design' : step === 8 ? 'Promo' : 'Preview'}
                                     </span>
-                                    {step < 8 && <div className="w-4 lg:w-8 h-0.5 bg-gray-800"></div>}
+                                    {step < 9 && <div className="w-2 h-0.5 bg-gray-800"></div>}
                                 </div>
                             ))}
                         </div>
@@ -871,14 +945,14 @@ const TemplateEditorModal = ({ isOpen, onClose, templateType, initialData, onSav
                         </button>
 
                         <button
-                            onClick={currentStep === 8 ? handlePublish : handleNext}
+                            onClick={currentStep === 9 ? handlePublish : handleNext}
                             disabled={currentStep === 1 && sizes.length === 0}
                             className={`px-8 py-3 rounded-xl font-bold text-lg transition-all transform hover:scale-105 flex items-center gap-2 ${(currentStep === 1 && sizes.length > 0) || currentStep > 1
                                 ? 'bg-gradient-to-r from-[#6c5ce7] to-[#8e44ad] text-white shadow-lg hover:shadow-purple-500/30'
                                 : 'bg-gray-200 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed'
                                 }`}
                         >
-                            {currentStep === 8 ? 'Publish Menu 🚀' : 'Next Step →'}
+                            {currentStep === 9 ? 'Publish Menu 🚀' : 'Next Step →'}
                         </button>
                     </div>
                 )}

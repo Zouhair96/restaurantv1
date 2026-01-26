@@ -93,7 +93,7 @@ const PublicMenuMagazine = ({ restaurantName: propRestaurantName, templateKey: p
             <WelcomeSequence
                 restaurantName={isMasterView ? 'Magazine' : config.restaurantName || restaurantName}
                 themeColor={config.themeColor}
-                language="fr"
+                promoConfig={config}
             />
         </div>
     );

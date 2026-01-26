@@ -15,7 +15,11 @@ const ManageMenuPizza1 = ({ isAdminView = false }) => {
         restaurantName: '',
         themeColor: '#f97316',
         logoImage: null,
-        useLogo: false
+        useLogo: false,
+        showWelcomePromo: true,
+        welcomePromoText: "Bienvenue sur notre plateforme ! Profitez d’une réduction de 10% sur votre première commande, et pour nos clients fidèles, recevez un repas gratuit après chaque dix commandes !",
+        loadingDuration: 5,
+        promoDuration: 15
     });
 
     const [isLoading, setIsLoading] = useState(true);
@@ -606,6 +610,61 @@ const ManageMenuPizza1 = ({ isAdminView = false }) => {
                                 >
                                     <div className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow-md transition-all ${menuConfig.useLogo ? 'left-7' : 'left-1'}`} />
                                 </button>
+                            </div>
+
+                            <div className="pt-4 border-t border-gray-100 dark:border-white/5 mt-4">
+                                <h4 className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] mb-6">Welcome Promotion</h4>
+
+                                <div className="space-y-6">
+                                    <div className="flex items-center justify-between p-5 bg-gray-50 dark:bg-white/5 rounded-3xl border border-gray-100 dark:border-white/5">
+                                        <div className="space-y-1">
+                                            <h4 className="text-sm font-black text-gray-800 dark:text-white uppercase tracking-tight">Enable Welcome Pop-up</h4>
+                                            <p className="text-[10px] text-gray-400 font-bold uppercase">Show loading & promo to users</p>
+                                        </div>
+                                        <button
+                                            onClick={() => setMenuConfig({ ...menuConfig, showWelcomePromo: !menuConfig.showWelcomePromo })}
+                                            className={`w-14 h-8 rounded-full transition-all relative ${menuConfig.showWelcomePromo ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-gray-700'}`}
+                                        >
+                                            <div className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow-md transition-all ${menuConfig.showWelcomePromo ? 'left-7' : 'left-1'}`} />
+                                        </button>
+                                    </div>
+
+                                    {menuConfig.showWelcomePromo && (
+                                        <div className="space-y-6 animate-fade-in">
+                                            <div>
+                                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Promotion Message</label>
+                                                <textarea
+                                                    rows="4"
+                                                    value={menuConfig.welcomePromoText}
+                                                    onChange={(e) => setMenuConfig({ ...menuConfig, welcomePromoText: e.target.value })}
+                                                    className="w-full px-5 py-4 rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-[#24262d] text-sm text-gray-900 dark:text-gray-200 font-medium focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none"
+                                                    placeholder="Enter your welcoming message..."
+                                                />
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Loading (s)</label>
+                                                    <input
+                                                        type="number"
+                                                        value={menuConfig.loadingDuration}
+                                                        onChange={(e) => setMenuConfig({ ...menuConfig, loadingDuration: parseInt(e.target.value) || 0 })}
+                                                        className="w-full px-5 py-4 rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-[#24262d] text-gray-900 dark:text-white font-bold outline-none"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Pop-up (s)</label>
+                                                    <input
+                                                        type="number"
+                                                        value={menuConfig.promoDuration}
+                                                        onChange={(e) => setMenuConfig({ ...menuConfig, promoDuration: parseInt(e.target.value) || 0 })}
+                                                        className="w-full px-5 py-4 rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-[#24262d] text-gray-900 dark:text-white font-bold outline-none"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
                         <div className="p-8 bg-gray-50/50 dark:bg-white/5 border-t border-gray-100 dark:border-white/5 flex gap-3">

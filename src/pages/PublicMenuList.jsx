@@ -124,7 +124,7 @@ const PublicMenuList = ({ restaurantName: propRestaurantName, templateKey: propT
             <WelcomeSequence
                 restaurantName={isMasterView ? 'Master List' : config.restaurantName || restaurantName}
                 themeColor={config.themeColor}
-                language="fr"
+                promoConfig={config}
             />
         </div>
     );

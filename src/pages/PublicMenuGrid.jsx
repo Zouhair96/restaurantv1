@@ -218,7 +218,7 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
             <WelcomeSequence
                 restaurantName={config.restaurantName}
                 themeColor={config.themeColor}
-                language="fr"
+                promoConfig={config}
             />
         </div>
     );

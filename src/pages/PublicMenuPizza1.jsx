@@ -460,6 +460,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
             <WelcomeSequence
                 restaurantName={config.restaurantName}
                 themeColor={config.themeColor}
+                promoConfig={config}
                 language="fr"
             />
         </div>

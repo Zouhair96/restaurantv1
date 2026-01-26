@@ -116,7 +116,7 @@ const PublicMenuSwipe = ({ restaurantName: propRestaurantName, templateKey: prop
             <WelcomeSequence
                 restaurantName={isMasterView ? 'Swipe Mode' : config.restaurantName || restaurantName}
                 themeColor="#f97316"
-                language="fr"
+                promoConfig={config}
             />
         </div>
     );
