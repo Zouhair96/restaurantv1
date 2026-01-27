@@ -267,21 +267,6 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                     ref={scrollContainerRef}
                     onScroll={handleScroll}
                 >
-                    <div className="px-6 mt-8 flex justify-between items-center mb-6">
-                        <div className="flex items-center gap-3">
-                            <div className="p-3 bg-gray-50 rounded-2xl">
-                                <HiMapPin className="w-5 h-5 text-gray-400" />
-                            </div>
-                            <div>
-                                <p className="text-xs text-gray-400 font-medium">{t('auth.menu.deliverTo')}</p>
-                                <h4 className="text-sm font-bold text-gray-900">{config.location || t('auth.menu.yourTable')}</h4>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="px-6 mt-8">
-                        <h2 className="text-3xl font-black text-gray-900 leading-tight" dangerouslySetInnerHTML={{ __html: t('auth.menu.searchPrompt').replace('?', '? <br />') }} />
-                    </div>
 
                     {/* Search Bar */}
                     <div className="px-6 mt-6 flex gap-4">
