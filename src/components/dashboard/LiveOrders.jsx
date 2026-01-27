@@ -120,7 +120,9 @@ const LiveOrders = ({ onSelectOrder }) => {
 
     // Filter by both status and order type
     const filteredOrders = orders.filter(order => {
-        const statusMatch = filter === 'all' || order.status === filter
+        let statusMatch = filter === 'all' || order.status === filter
+        // Treat delivery as an extension of preparing for filter purposes
+        if (filter === 'preparing' && order.status === 'out_for_delivery') statusMatch = true
         const typeMatch = orderTypeFilter === 'all' || order.order_type === orderTypeFilter
         return statusMatch && typeMatch
     })
@@ -159,7 +161,7 @@ const LiveOrders = ({ onSelectOrder }) => {
                 <div className="flex flex-col gap-3">
                     {/* Status Filters */}
                     <div className="flex flex-wrap gap-2">
-                        {['pending', 'preparing', 'out_for_delivery', 'completed', 'cancelled'].map(status => (
+                        {['pending', 'preparing', 'completed'].map(status => (
                             <button
                                 key={status}
                                 onClick={() => setFilter(status)}
