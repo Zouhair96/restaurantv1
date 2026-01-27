@@ -9,9 +9,9 @@ const LiveOrders = ({ onSelectOrder }) => {
 
     const playNewOrderSound = () => {
         try {
-            // Kitchen Printer Sound - feels like a real restaurant order coming in
-            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/1126/1126-preview.mp3');
-            audio.volume = 0.6;
+            // Service Bell Ding - clean and professional
+            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2216/2216-preview.mp3');
+            audio.volume = 0.5;
             audio.play().catch(e => console.warn('Dashboard sound blocked:', e));
         } catch (err) {
             console.error('Audio error:', err);

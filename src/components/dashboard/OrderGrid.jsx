@@ -31,8 +31,8 @@ const OrderGrid = () => {
                     const oldPendingCount = (orders || []).filter(o => o.status === 'pending').length;
                     if (newPendingCount > oldPendingCount) {
                         try {
-                            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/1126/1126-preview.mp3'); // Kitchen Printer
-                            audio.volume = 0.6;
+                            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2216/2216-preview.mp3'); // Service Bell
+                            audio.volume = 0.5;
                             audio.play().catch(e => console.warn('Dashboard sound blocked:', e));
                         } catch (e) { }
                     }
