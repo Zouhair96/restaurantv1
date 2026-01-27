@@ -9,6 +9,7 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', lan
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [isShaking, setIsShaking] = useState(false);
 
     const lang = language.toLowerCase();
     const t = translations[lang]?.auth?.checkout || translations['fr']?.auth?.checkout;
@@ -27,6 +28,13 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', lan
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (cartItems.length === 0) {
+            setIsShaking(true);
+            setTimeout(() => setIsShaking(false), 500);
+            return;
+        }
+
         setLoading(true);
         setError('');
 
@@ -84,10 +92,10 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', lan
         <AnimatePresence>
             {isOpen && (
                 <motion.div
-                    initial={{ x: '100%' }}
-                    animate={{ x: 0 }}
-                    exit={{ x: '100%' }}
-                    transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                    initial={{ y: '100%' }}
+                    animate={{ y: 0 }}
+                    exit={{ y: '100%' }}
+                    transition={{ type: 'spring', damping: 30, stiffness: 300 }}
                     className="fixed inset-0 z-[110] bg-[#f8f9fa] flex flex-col"
                 >
                     {/* Header */}
@@ -131,10 +139,16 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', lan
                                 </h1>
 
                                 {cartItems.length === 0 ? (
-                                    <div className="flex flex-col items-center justify-center py-20 opacity-40">
+                                    <motion.div
+                                        animate={isShaking ? {
+                                            x: [0, -10, 10, -10, 10, 0],
+                                            transition: { duration: 0.4 }
+                                        } : {}}
+                                        className="flex flex-col items-center justify-center py-20 opacity-40"
+                                    >
                                         <HiTrash size={64} />
-                                        <p className="font-bold mt-4">Your cart is empty</p>
-                                    </div>
+                                        <p className="font-bold mt-4 uppercase tracking-widest text-xs">Your cart is empty</p>
+                                    </motion.div>
                                 ) : (
                                     <div className="space-y-6">
                                         {cartItems.map((item, index) => (
@@ -219,7 +233,7 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', lan
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
                                     onClick={handleSubmit}
-                                    disabled={loading || cartItems.length === 0}
+                                    disabled={loading}
                                     className="w-full py-4 rounded-2xl text-gray-900 font-black flex flex-col items-center justify-center relative overflow-hidden transition-all active:scale-[0.98]"
                                     style={{
                                         backgroundColor: themeColor,
