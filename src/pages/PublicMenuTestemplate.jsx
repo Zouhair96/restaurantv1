@@ -385,12 +385,12 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                             <div className="relative">
                                 <motion.div
                                     layoutId={`item-image-${selectedItem.id}`}
-                                    className="w-64 h-64 z-10 relative"
+                                    className="w-64 h-64 rounded-full border-8 border-white/10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] overflow-hidden z-10 relative"
                                 >
                                     <img
                                         src={selectedItem.image}
                                         alt={selectedItem.name}
-                                        className="w-full h-full object-contain"
+                                        className="w-full h-full object-cover"
                                     />
                                 </motion.div>
                             </div>
