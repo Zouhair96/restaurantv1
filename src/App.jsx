@@ -21,6 +21,7 @@ import PlanDetails from './pages/PlanDetails'
 import TestMenu from './pages/TestMenu'
 
 import PublicMenuPizza1 from './pages/PublicMenuPizza1'
+import PublicMenuTestemplate from './pages/PublicMenuTestemplate'
 import ManageMenu from './pages/ManageMenu'
 import PublicMenuTestemplate2 from './pages/PublicMenuTestemplate2'
 
