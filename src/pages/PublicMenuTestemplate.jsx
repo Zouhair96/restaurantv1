@@ -28,6 +28,8 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
     const [isLiked, setIsLiked] = useState(false);
     const [showAuthSidebar, setShowAuthSidebar] = useState(false);
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false); // State for checkout
+    const [animatingItems, setAnimatingItems] = useState([]); // For fly-to-cart effect
+    const cartControls = motion.useAnimation(); // For vibration effect
 
     // Derived state for categories
     const categories = ['All', ...new Set(menuItems.map(i => i.category).filter(Boolean))];
@@ -102,10 +104,34 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
         setSelectedItem(null);
     };
 
-    const handleAddToCart = () => {
+    const triggerCartAnimation = async (item, event) => {
+        // Trigger vibration
+        cartControls.start({
+            scale: [1, 1.2, 0.9, 1.1, 1],
+            rotate: [0, -10, 10, -10, 10, 0],
+            transition: { duration: 0.4 }
+        });
+
+        // Add to animating items
+        const id = Date.now();
+        const startPos = event ? { x: event.clientX, y: event.clientY } : { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+
+        // Target is the cart icon - roughly top right
+        // In a real app we'd use a ref to get exact coords, but let's approximate for now
+        const targetPos = { x: window.innerWidth - 60, y: 32 };
+
+        setAnimatingItems(prev => [...prev, { id, image: item.image, startPos, targetPos }]);
+
+        // Remove after animation finishes
+        setTimeout(() => {
+            setAnimatingItems(prev => prev.filter(a => a.id !== id));
+        }, 800);
+    };
+
+    const handleAddToCart = (e) => {
         if (selectedItem) {
             addToCart({ ...selectedItem, quantity });
-            // Close modal with simple animation or delay if preferred, but instant close is standard for this flow
+            triggerCartAnimation(selectedItem, e);
             setSelectedItem(null);
         }
     };
@@ -164,7 +190,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
             `}</style>
 
             {/* --- FIXED HEADER --- */}
-            <div className="h-16 bg-gray-50/90 backdrop-blur-md z-40 flex items-center justify-between px-6 shrink-0 shadow-sm relative transition-all duration-300">
+            <div className="h-16 bg-white/95 backdrop-blur-md z-[60] flex items-center justify-between px-6 shrink-0 shadow-sm relative transition-all duration-300">
                 {/* Menu Toggle */}
                 <button
                     onClick={() => setShowAuthSidebar(true)}
@@ -181,7 +207,8 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                 <h1 className="text-xl font-bold text-gray-900 text-center flex-1 mx-4 truncate">{config.restaurantName}</h1>
 
                 {/* Cart Icon */}
-                <button
+                <motion.button
+                    animate={cartControls}
                     onClick={() => setIsCheckoutOpen(true)}
                     className="relative p-3 rounded-[1rem] border shadow-sm active:scale-95 flex items-center justify-center bg-white text-gray-700 hover:text-theme transition-colors"
                     style={{
@@ -194,7 +221,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                             {cartItems.length}
                         </span>
                     )}
-                </button>
+                </motion.button>
             </div>
 
             {/* --- MAIN CONTENT AREA --- */}
@@ -274,6 +301,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                                     onClick={(e) => {
                                         e.stopPropagation(); // Prevent opening modal
                                         addToCart({ ...item, quantity: 1 });
+                                        triggerCartAnimation(item, e);
                                     }}
                                 >
                                     <HiPlus className="w-5 h-5" />
@@ -308,15 +336,15 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: '100%' }}
                         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                        className="fixed inset-0 z-50 flex flex-col bg-theme"
+                        className="fixed inset-0 top-16 z-50 flex flex-col bg-theme overflow-hidden"
                         style={{ backgroundColor: config.themeColor }}
                     >
-                        {/* Detail Header */}
-                        <div className="px-6 pt-6 flex justify-between items-center text-white mb-2">
+                        {/* Detail Header - Simplified since main header is visible */}
+                        <div className="px-6 pt-4 flex justify-between items-center text-white mb-2">
                             <button onClick={handleCloseDetail} className="p-2 border border-white/20 rounded-xl hover:bg-white/10 transition-colors">
                                 <HiArrowLeft className="w-6 h-6" />
                             </button>
-                            <span className="font-semibold text-lg">Details food</span>
+                            <span className="font-semibold text-lg">Product Details</span>
                             <button onClick={() => setIsLiked(!isLiked)} className="p-2 border border-white/20 rounded-xl hover:bg-white/10 transition-colors">
                                 {isLiked ? <HiHeart className="w-6 h-6" /> : <HiOutlineHeart className="w-6 h-6" />}
                             </button>
@@ -363,7 +391,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                                 <div className="text-gray-500 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: selectedItem.description }} />
                             </div>
 
-                            <button onClick={handleAddToCart} className="w-full bg-theme text-white font-bold py-4 rounded-2xl shadow-lg shadow-green-200 hover:opacity-90 transition-opacity active:scale-95" style={{ backgroundColor: config.themeColor }}>
+                            <button onClick={(e) => handleAddToCart(e)} className="w-full bg-theme text-white font-bold py-4 rounded-2xl shadow-lg shadow-green-200 hover:opacity-90 transition-opacity active:scale-95" style={{ backgroundColor: config.themeColor }}>
                                 Add to cart
                             </button>
                         </motion.div>
@@ -373,6 +401,36 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
 
             <PublicMenuSidebar isOpen={showAuthSidebar} onClose={() => setShowAuthSidebar(false)} restaurantName={restaurantName} displayName={config.restaurantName} themeColor={config.themeColor} />
             <Checkout isOpen={isCheckoutOpen} onClose={() => setIsCheckoutOpen(false)} restaurantName={restaurantName} themeColor={config.themeColor} />
+
+            {/* Float to Cart Animation Overlay */}
+            <div className="fixed inset-0 pointer-events-none z-[100]">
+                {animatingItems.map((anim) => (
+                    <motion.div
+                        key={anim.id}
+                        initial={{
+                            x: anim.startPos.x - 20,
+                            y: anim.startPos.y - 20,
+                            scale: 1,
+                            opacity: 1
+                        }}
+                        animate={{
+                            x: anim.targetPos.x,
+                            y: anim.targetPos.y,
+                            scale: 0.2,
+                            opacity: 0,
+                            rotate: 360
+                        }}
+                        transition={{
+                            duration: 0.8,
+                            ease: [0.16, 1, 0.3, 1]
+                        }}
+                        className="fixed w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-lg bg-white"
+                        style={{ left: 0, top: 0 }}
+                    >
+                        <img src={anim.image} alt="" className="w-full h-full object-cover" />
+                    </motion.div>
+                ))}
+            </div>
         </div>
     );
 };
