@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, HiBars3, HiMapPin, HiMagnifyingGlass, HiAdjustmentsHorizontal, HiHome, HiChatBubbleLeftRight, HiBell, HiUserGroup, HiXMark } from 'react-icons/hi2';
 import { Link, useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useAnimation } from 'framer-motion';
 import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
 import Checkout from '../components/menu/Checkout'; // Import Checkout
 
@@ -29,7 +29,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
     const [showAuthSidebar, setShowAuthSidebar] = useState(false);
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false); // State for checkout
     const [animatingItems, setAnimatingItems] = useState([]); // For fly-to-cart effect
-    const cartControls = motion.useAnimation(); // For vibration effect
+    const cartControls = useAnimation(); // For vibration effect
 
     // Derived state for categories
     const categories = ['All', ...new Set(menuItems.map(i => i.category).filter(Boolean))];
@@ -274,6 +274,8 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                             <motion.div
                                 key={item.id}
                                 variants={itemVariants}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.95 }}
                                 layoutId={`item-card-${item.id}`}
                                 onClick={() => handleItemClick(item)}
                                 className="bg-white rounded-[1.5rem] p-3 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-shadow cursor-pointer flex flex-col items-center text-center relative overflow-hidden group"
