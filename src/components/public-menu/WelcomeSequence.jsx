@@ -84,9 +84,6 @@ const WelcomeSequence = ({
                                 {restaurantName}
                             </h2>
                             <div className="h-1 w-24 bg-orange-500 mx-auto rounded-full animate-stretch"></div>
-                            <p className="text-orange-200/60 font-medium tracking-[0.2em] text-xs uppercase animate-fade-in-delayed">
-                                {t('auth.menu.culinaryAdventure')}
-                            </p>
                         </div>
 
                         <div className="mt-16 w-64 h-1 bg-white/10 rounded-full overflow-hidden">
