@@ -1,8 +1,12 @@
+
 import React, { useState, useEffect } from 'react';
 import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, HiBars3, HiMapPin, HiMagnifyingGlass, HiAdjustmentsHorizontal, HiHome, HiChatBubbleLeftRight, HiBell, HiUserGroup, HiXMark } from 'react-icons/hi2';
 import { Link, useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar'; // Ensure this component exists or remove if not needed? Pizza1 uses it.
+// Pizza1 imports:
+import { useClientAuth } from '../context/ClientAuthContext';
 
 const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
     const { restaurantName: urlRestaurantName } = useParams();
@@ -23,11 +27,14 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
     const [quantity, setQuantity] = useState(1);
     const [activeCategory, setActiveCategory] = useState('All');
     const [isLiked, setIsLiked] = useState(false);
+    const [showAuthSidebar, setShowAuthSidebar] = useState(false); // Added for sidebar
 
-    // Derived state for categories to ensure we only show categories that exist
+    // Derived state for categories
     const categories = ['All', ...new Set(menuItems.map(i => i.category).filter(Boolean))];
 
     const { addToCart, cartItems } = useCart();
+    // Pizza1 uses useClientAuth for tracker? Not critical for sidebar port but good for consistency.
+    // const { user: clientUser } = useClientAuth(); 
 
     useEffect(() => {
         const fetchData = async () => {
@@ -40,9 +47,6 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                         setMenuItems(data.items.map(item => ({
                             ...item,
                             image: item.image_url,
-                            // Default rating/time/calories if not in DB for demo purposes, 
-                            // or ideally these should be in the DB schema if the template strictly requires them.
-                            // For now we mock them if missing to match the design.
                             rating: item.rating || (4.0 + Math.random()).toFixed(1),
                             time: item.time || '20min',
                             calories: item.calories || '150 Kcal'
@@ -82,11 +86,9 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
         fetchData();
     }, [restaurantName, isMasterView]);
 
-    // Update active category if 'All' is empty but other categories exist (optional polish)
     useEffect(() => {
-        if (categories.length > 1 && activeCategory === 'All' && !menuItems.length) {
-            // keep All
-        } else if (categories.length > 0 && !categories.includes(activeCategory)) {
+        // Auto-select first category logic if needed
+        if (categories.length > 0 && !categories.includes(activeCategory)) {
             setActiveCategory(categories[0]);
         }
     }, [categories, activeCategory]);
@@ -104,8 +106,6 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
     const handleAddToCart = () => {
         if (selectedItem) {
             addToCart({ ...selectedItem, quantity });
-            // In a real app, maybe show a toast instead of alert
-            // window.alert(`${quantity} ${selectedItem.name} added to cart!`);
             setSelectedItem(null);
         }
     };
@@ -114,100 +114,150 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
     if (error) return <div className="min-h-screen flex items-center justify-center text-red-500">{error}</div>;
 
     return (
-        <div className="min-h-screen bg-gray-50 font-sans text-gray-800 relative overflow-hidden" style={{ '--theme-color': config.themeColor }}>
+        <div className="flex h-screen bg-gray-50 font-sans text-gray-800 relative overflow-hidden" style={{ '--theme-color': config.themeColor }}>
             <style>{`
                 .text-theme { color: var(--theme-color) !important; }
                 .bg-theme { background-color: var(--theme-color) !important; }
                 .border-theme { border-color: var(--theme-color) !important; }
+                .no-scrollbar::-webkit-scrollbar { display: none; }
+                .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
             `}</style>
 
-            {/* Screen 1: Home View */}
-            <div className={`transition-all duration-300 ${selectedItem ? 'opacity-0 pointer-events-none scale-95' : 'opacity-100 scale-100'}`}>
-                {/* Header */}
-                <div className="px-6 pt-6 flex justify-between items-center">
-                    <button className="p-2 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow">
-                        <HiBars3 className="w-6 h-6 text-gray-600" />
-                    </button>
-                    <div className="flex items-center gap-1 text-gray-500 text-sm font-medium">
-                        <HiMapPin className="w-4 h-4 text-theme" />
-                        <span>{config.location || 'Location'}</span>
-                    </div>
-                    <div className="w-10 h-10 rounded-xl bg-gray-200 overflow-hidden">
-                        {/* Placeholder Avatar or User Image */}
-                        <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500 text-xs">User</div>
-                    </div>
-                </div>
+            {/* --- PORTED SIDEBAR START --- */}
+            <div className="relative shrink-0 z-40 bg-white/90 backdrop-blur-md md:bg-white/50 w-24 md:w-32 lg:w-40 h-full flex flex-col items-center py-6 pb-48 overflow-y-auto scroll-smooth no-scrollbar border-r border-gray-100">
+                <button
+                    onClick={() => setShowAuthSidebar(true)}
+                    className="mb-6 p-4 rounded-[1.5rem] border shadow-sm transition-all active:scale-95 flex items-center justify-center"
+                    style={{
+                        color: config.themeColor,
+                        borderColor: `${config.themeColor}40`,
+                        backgroundColor: `${config.themeColor}08`,
+                        boxShadow: `0 4px 6px -1px ${config.themeColor}20`
+                    }}
+                >
+                    <HiBars3 className="w-6 h-6" />
+                </button>
 
-                <div className="px-6 mt-6">
-                    <h2 className="text-gray-500 font-medium">Welcome</h2>
-                    <h1 className="text-3xl font-bold text-gray-900 mt-1">{config.restaurantName}</h1>
-                </div>
-
-                {/* Search Bar */}
-                <div className="px-6 mt-6 flex gap-4">
-                    <div className="flex-1 bg-white rounded-2xl flex items-center px-4 py-3 shadow-sm">
-                        <HiMagnifyingGlass className="w-6 h-6 text-gray-400 mr-2" />
-                        <input type="text" placeholder="Search Food" className="flex-1 bg-transparent outline-none text-gray-700 placeholder-gray-400" />
-                    </div>
-                    <button className="w-14 h-14 bg-theme rounded-2xl flex items-center justify-center text-white shadow-lg shadow-green-200 hover:opacity-90 transition-opacity" style={{ backgroundColor: config.themeColor }}>
-                        <HiAdjustmentsHorizontal className="w-6 h-6" />
-                    </button>
-                </div>
-
-                {/* Categories */}
-                <div className="px-6 mt-8 flex gap-6 overflow-x-auto no-scrollbar pb-2">
-                    {categories.map((cat, index) => (
-                        <button
-                            key={index}
-                            onClick={() => setActiveCategory(cat)}
-                            className={`whitespace-nowrap font-medium transition-colors ${activeCategory === cat ? 'text-theme scale-105' : 'text-gray-400 hover:text-gray-600'}`}
-                            style={activeCategory === cat ? { color: config.themeColor } : {}}
-                        >
-                            {cat}
-                        </button>
-                    ))}
-                </div>
-
-                {/* Items Grid */}
-                <div className="px-6 mt-6 grid grid-cols-2 gap-4 pb-24">
-                    {menuItems.filter(item => activeCategory === 'All' || item.category === activeCategory).map((item) => (
-                        <motion.div
+                <motion.div
+                    initial="hidden"
+                    animate="visible"
+                    variants={{ visible: { transition: { staggerChildren: 0.05 } } }}
+                    className="space-y-6 w-full px-3 flex flex-col items-center"
+                >
+                    {menuItems.filter(item => item && (activeCategory === 'All' || item.category === activeCategory)).map((item) => (
+                        <motion.button
                             key={item.id}
-                            layoutId={`item-card-${item.id}`}
+                            variants={{ hidden: { opacity: 0, x: -20 }, visible: { opacity: 1, x: 0 } }}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
                             onClick={() => handleItemClick(item)}
-                            className="bg-white rounded-3xl p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer flex flex-col items-center text-center relative"
+                            className="relative group w-full flex flex-col items-center justify-center transition-all duration-300"
                         >
-                            <button className="absolute top-3 right-3 text-red-500 hover:scale-110 transition-transform">
-                                <HiHeart className="w-5 h-5" />
-                            </button>
-                            <motion.div layoutId={`item-image-${item.id}`} className="w-24 h-24 rounded-full overflow-hidden mb-3 shadow-lg mt-2">
-                                <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                            </motion.div>
-                            <h3 className="font-bold text-gray-900 text-sm line-clamp-1">{item.name}</h3>
-                            <div className="flex items-center gap-4 text-xs text-gray-400 mt-1 mb-3">
-                                <span>{item.time}</span>
-                                <span className="flex items-center gap-1 text-yellow-400 font-bold"><span className="text-yellow-400">★</span> {item.rating}</span>
+                            <div
+                                className={`w-16 h-16 md:w-20 md:h-20 flex items-center justify-center transition-all duration-300 ${selectedItem?.id === item.id ? 'rounded-[1.8rem] p-1.5' : 'rounded-full p-0 scale-90 opacity-70 hover:opacity-100 hover:scale-100'}`}
+                                style={selectedItem?.id === item.id ? { backgroundColor: `${config.themeColor}20`, color: config.themeColor } : {}}
+                            >
+                                <img
+                                    src={item.image}
+                                    alt={item.name}
+                                    className="w-full h-full object-cover rounded-full shadow-md"
+                                    style={selectedItem?.id === item.id ? { boxShadow: `0 4px 14px 0 ${config.themeColor}40` } : {}}
+                                />
                             </div>
-                            <div className="w-full flex items-end justify-between mt-auto">
-                                <span className="text-lg font-bold text-gray-900">${parseFloat(item.price).toFixed(2)}</span>
-                                <button className="w-8 h-8 bg-theme rounded-xl flex items-center justify-center text-white shadow-md hover:opacity-90 transition-opacity" style={{ backgroundColor: config.themeColor }}>
-                                    <HiPlus className="w-5 h-5" />
-                                </button>
-                            </div>
-                        </motion.div>
+                        </motion.button>
                     ))}
+                </motion.div>
+            </div>
+            {/* --- PORTED SIDEBAR END --- */}
+
+            {/* --- MAIN CONTENT AREA (Existing Layout Wrapped) --- */}
+            <div className="flex-1 flex flex-col h-full overflow-hidden relative z-0">
+                <div className="flex-1 overflow-y-auto pb-24">
+                    {/* Header */}
+                    <div className="px-6 pt-6 flex justify-between items-center">
+                        {/* Hidden mobile menu button since we have sidebar now? Or keep for consistency? */}
+                        {/* The Sidebar is visible on mobile in Pizza1 design, so this button is redundant for sidebar toggle.
+                             But maybe for "Auth Sidebar" or "Menu"? Pizza1 sidebar button toggles AuthSidebar.
+                         */}
+                        <div className="flex items-center gap-1 text-gray-500 text-sm font-medium">
+                            <HiMapPin className="w-4 h-4 text-theme" />
+                            <span>{config.location || 'Location'}</span>
+                        </div>
+                        <div className="w-10 h-10 rounded-xl bg-gray-200 overflow-hidden">
+                            <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500 text-xs">User</div>
+                        </div>
+                    </div>
+
+                    <div className="px-6 mt-6">
+                        <h2 className="text-gray-500 font-medium">Welcome</h2>
+                        <h1 className="text-3xl font-bold text-gray-900 mt-1">{config.restaurantName}</h1>
+                    </div>
+
+                    {/* Search Bar */}
+                    <div className="px-6 mt-6 flex gap-4">
+                        <div className="flex-1 bg-white rounded-2xl flex items-center px-4 py-3 shadow-sm">
+                            <HiMagnifyingGlass className="w-6 h-6 text-gray-400 mr-2" />
+                            <input type="text" placeholder="Search Food" className="flex-1 bg-transparent outline-none text-gray-700 placeholder-gray-400" />
+                        </div>
+                        <button className="w-14 h-14 bg-theme rounded-2xl flex items-center justify-center text-white shadow-lg shadow-green-200 hover:opacity-90 transition-opacity" style={{ backgroundColor: config.themeColor }}>
+                            <HiAdjustmentsHorizontal className="w-6 h-6" />
+                        </button>
+                    </div>
+
+                    {/* Categories - keeping existing logic */}
+                    <div className="px-6 mt-8 flex gap-6 overflow-x-auto no-scrollbar pb-2">
+                        {categories.map((cat, index) => (
+                            <button
+                                key={index}
+                                onClick={() => setActiveCategory(cat)}
+                                className={`whitespace-nowrap font-medium transition-colors ${activeCategory === cat ? 'text-theme scale-105' : 'text-gray-400 hover:text-gray-600'}`}
+                                style={activeCategory === cat ? { color: config.themeColor } : {}}
+                            >
+                                {cat}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Items Grid */}
+                    <div className="px-6 mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-24">
+                        {menuItems.filter(item => activeCategory === 'All' || item.category === activeCategory).map((item) => (
+                            <motion.div
+                                key={item.id}
+                                layoutId={`item-card-${item.id}`}
+                                onClick={() => handleItemClick(item)}
+                                className="bg-white rounded-3xl p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer flex flex-col items-center text-center relative"
+                            >
+                                <button className="absolute top-3 right-3 text-red-500 hover:scale-110 transition-transform">
+                                    <HiHeart className="w-5 h-5" />
+                                </button>
+                                <motion.div layoutId={`item-image-${item.id}`} className="w-24 h-24 rounded-full overflow-hidden mb-3 shadow-lg mt-2">
+                                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                                </motion.div>
+                                <h3 className="font-bold text-gray-900 text-sm line-clamp-1">{item.name}</h3>
+                                <div className="flex items-center gap-4 text-xs text-gray-400 mt-1 mb-3">
+                                    <span>{item.time}</span>
+                                    <span className="flex items-center gap-1 text-yellow-400 font-bold"><span className="text-yellow-400">★</span> {item.rating}</span>
+                                </div>
+                                <div className="w-full flex items-end justify-between mt-auto">
+                                    <span className="text-lg font-bold text-gray-900">${parseFloat(item.price).toFixed(2)}</span>
+                                    <button className="w-8 h-8 bg-theme rounded-xl flex items-center justify-center text-white shadow-md hover:opacity-90 transition-opacity" style={{ backgroundColor: config.themeColor }}>
+                                        <HiPlus className="w-5 h-5" />
+                                    </button>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Bottom Navigation */}
-                <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md pb-6 pt-4 px-8 flex justify-between items-center z-40 rounded-t-3xl shadow-[0_-5px_20px_rgba(0,0,0,0.05)] text-gray-400">
+                <div className="absolute bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md pb-6 pt-4 px-8 flex justify-between items-center z-40 rounded-t-3xl shadow-[0_-5px_20px_rgba(0,0,0,0.05)] text-gray-400">
                     <button className="text-theme" style={{ color: config.themeColor }}><HiHome className="w-7 h-7" /></button>
                     <button className="hover:text-theme transition-colors"><HiChatBubbleLeftRight className="w-6 h-6" /></button>
 
                     {/* Floating Cart Button */}
                     <div className="relative -top-8">
                         <button className="w-14 h-14 bg-theme rounded-full flex items-center justify-center text-white shadow-xl shadow-green-200 hover:scale-105 transition-transform" style={{ backgroundColor: config.themeColor }} onClick={() => {
-                            // Simple Cart Toggle Logic could go here or route to checkout
-                            // For this demo template, we just acknowledge
+                            // Link to checkout or toggle cart
                         }}>
                             <HiShoppingBag className="w-6 h-6" />
                             {cartItems.length > 0 && <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>}
@@ -293,10 +343,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                 )}
             </AnimatePresence>
 
-            <style>{`
-                .no-scrollbar::-webkit-scrollbar { display: none; }
-                .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-            `}</style>
+            <PublicMenuSidebar isOpen={showAuthSidebar} onClose={() => setShowAuthSidebar(false)} restaurantName={restaurantName} displayName={config.restaurantName} themeColor={config.themeColor} />
         </div>
     );
 };
