@@ -217,24 +217,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                     </div>
                 </div>
 
-                {/* Bottom Navigation */}
-                <div className="absolute bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md pb-6 pt-4 px-8 flex justify-between items-center z-40 rounded-t-3xl shadow-[0_-5px_20px_rgba(0,0,0,0.05)] text-gray-400">
-                    <button className="text-theme" style={{ color: config.themeColor }}><HiHome className="w-7 h-7" /></button>
-                    <button className="hover:text-theme transition-colors"><HiChatBubbleLeftRight className="w-6 h-6" /></button>
-
-                    {/* Floating Cart Button */}
-                    <div className="relative -top-8">
-                        <button className="w-14 h-14 bg-theme rounded-full flex items-center justify-center text-white shadow-xl shadow-green-200 hover:scale-105 transition-transform" style={{ backgroundColor: config.themeColor }} onClick={() => {
-                            // Link to checkout or toggle cart
-                        }}>
-                            <HiShoppingBag className="w-6 h-6" />
-                            {cartItems.length > 0 && <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>}
-                        </button>
-                    </div>
-
-                    <button className="hover:text-theme transition-colors"><HiBell className="w-6 h-6" /></button>
-                    <button className="hover:text-theme transition-colors"><HiUserGroup className="w-6 h-6" /></button>
-                </div>
+                {/* Footer removed as per user request */}
             </div>
 
             {/* Screen 2: Details View (Overlay) */}
