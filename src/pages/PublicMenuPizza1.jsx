@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, HiBars3, HiBuildingStorefront, HiXMark, HiTrash, HiOutlineClipboardDocumentList, HiUser } from 'react-icons/hi2';
+import { FaInstagram, FaFacebookF, FaTiktok, FaSnapchatGhost, FaGoogle } from 'react-icons/fa6';
 import { Link, useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
@@ -146,49 +147,66 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
             `}</style>
 
             {/* Left Sidebar / Thumbnail List */}
-            <div className="relative shrink-0 z-40 bg-white/90 backdrop-blur-md md:bg-white/50 w-24 md:w-32 lg:w-40 h-full flex flex-col items-center py-6 pb-48 overflow-y-auto scroll-smooth no-scrollbar">
-                <button
-                    onClick={() => setShowAuthSidebar(true)}
-                    className="mb-6 p-4 rounded-[1.5rem] border shadow-sm transition-all active:scale-95 flex items-center justify-center"
-                    style={{
-                        color: config.themeColor,
-                        borderColor: `${config.themeColor}40`,
-                        backgroundColor: `${config.themeColor}08`,
-                        boxShadow: `0 4px 6px -1px ${config.themeColor}20`
-                    }}
-                >
-                    <HiBars3 className="w-6 h-6" />
-                </button>
+            <div className="relative shrink-0 z-40 bg-white/90 backdrop-blur-md md:bg-white/50 w-24 md:w-32 lg:w-40 h-full flex flex-col items-center border-r border-gray-100/50">
+                <div className="flex-1 w-full overflow-y-auto scroll-smooth no-scrollbar py-6 flex flex-col items-center">
+                    <button
+                        onClick={() => setShowAuthSidebar(true)}
+                        className="mb-6 p-4 rounded-[1.5rem] border shadow-sm transition-all active:scale-95 flex items-center justify-center shrink-0"
+                        style={{
+                            color: config.themeColor,
+                            borderColor: `${config.themeColor}40`,
+                            backgroundColor: `${config.themeColor}08`,
+                            boxShadow: `0 4px 6px -1px ${config.themeColor}20`
+                        }}
+                    >
+                        <HiBars3 className="w-6 h-6" />
+                    </button>
 
-                <motion.div
-                    initial="hidden"
-                    animate="visible"
-                    variants={{ visible: { transition: { staggerChildren: 0.05 } } }}
-                    className="space-y-6 w-full px-3 flex flex-col items-center"
-                >
-                    {menuItems.filter(item => item && (activeCategory === 'All' || item.category === activeCategory)).map((item) => (
-                        <motion.button
-                            key={item.id}
-                            variants={{ hidden: { opacity: 0, x: -20 }, visible: { opacity: 1, x: 0 } }}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => handleItemSelect(item)}
-                            className="relative group w-full flex flex-col items-center justify-center transition-all duration-300"
-                        >
-                            <div
-                                className={`w-16 h-16 md:w-20 md:h-20 flex items-center justify-center transition-all duration-300 ${selectedItem.id === item.id ? 'rounded-[1.8rem] p-1.5' : 'rounded-full p-0 scale-90 opacity-70 hover:opacity-100 hover:scale-100'}`}
-                                style={selectedItem.id === item.id ? { backgroundColor: `${config.themeColor}20`, color: config.themeColor } : {}}
+                    <motion.div
+                        initial="hidden"
+                        animate="visible"
+                        variants={{ visible: { transition: { staggerChildren: 0.05 } } }}
+                        className="space-y-6 w-full px-3 flex flex-col items-center pb-20"
+                    >
+                        {menuItems.filter(item => item && (activeCategory === 'All' || item.category === activeCategory)).map((item) => (
+                            <motion.button
+                                key={item.id}
+                                variants={{ hidden: { opacity: 0, x: -20 }, visible: { opacity: 1, x: 0 } }}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => handleItemSelect(item)}
+                                className="relative group w-full flex flex-col items-center justify-center transition-all duration-300"
                             >
-                                <img
-                                    src={item.image}
-                                    alt={localize(item, 'name')}
-                                    className="w-full h-full object-cover rounded-full shadow-md"
-                                    style={selectedItem.id === item.id ? { boxShadow: `0 4px 14px 0 ${config.themeColor}40` } : {}}
-                                />
-                            </div>
-                        </motion.button>
+                                <div
+                                    className={`w-16 h-16 md:w-20 md:h-20 flex items-center justify-center transition-all duration-300 ${selectedItem.id === item.id ? 'rounded-[1.8rem] p-1.5' : 'rounded-full p-0 scale-90 opacity-70 hover:opacity-100 hover:scale-100'}`}
+                                    style={selectedItem.id === item.id ? { backgroundColor: `${config.themeColor}20`, color: config.themeColor } : {}}
+                                >
+                                    <img
+                                        src={item.image}
+                                        alt={localize(item, 'name')}
+                                        className="w-full h-full object-cover rounded-full shadow-md"
+                                        style={selectedItem.id === item.id ? { boxShadow: `0 4px 14px 0 ${config.themeColor}40` } : {}}
+                                    />
+                                </div>
+                            </motion.button>
+                        ))}
+                    </motion.div>
+                </div>
+
+                {/* Left Mini Footer Social Icons */}
+                <div className="w-full p-4 flex flex-col items-center gap-4 bg-white/50 backdrop-blur-md border-t border-gray-100/50">
+                    {[FaInstagram, FaFacebookF, FaTiktok, FaSnapchatGhost, FaGoogle].map((Icon, idx) => (
+                        <motion.a
+                            key={idx}
+                            href="#"
+                            whileHover={{ scale: 1.2, x: 4 }}
+                            whileTap={{ scale: 0.9 }}
+                            className="text-gray-400 hover:text-gray-900 transition-colors"
+                        >
+                            <Icon size={16} />
+                        </motion.a>
                     ))}
-                </motion.div>
+                </div>
             </div>
 
             {/* Main Content Area */}
@@ -343,7 +361,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
             <PublicMenuSidebar isOpen={showAuthSidebar} onClose={() => setShowAuthSidebar(false)} restaurantName={restaurantName} displayName={config.restaurantName} themeColor={config.themeColor} />
             <Checkout isOpen={isCheckoutOpen} onClose={() => setIsCheckoutOpen(false)} restaurantName={restaurantName} themeColor={config.themeColor} />
             <WelcomeSequence restaurantName={config.restaurantName} themeColor={config.themeColor} promoConfig={config} language="fr" />
-        </div>
+        </div >
     );
 };
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HiOutlineUserCircle, HiOutlineX, HiOutlineShoppingBag, HiOutlineLogout, HiOutlineLogin, HiOutlineClipboardList, HiOutlineUserAdd, HiOutlineSun, HiOutlineMoon } from 'react-icons/hi';
 import { HiXMark, HiUser, HiEnvelope, HiLockClosed, HiArrowRightOnRectangle, HiArchiveBox, HiChevronRight } from 'react-icons/hi2';
+import { FaInstagram, FaFacebookF, FaTiktok, FaSnapchatGhost, FaGoogle } from 'react-icons/fa6';
 import { useClientAuth } from '../../context/ClientAuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { translations } from '../../translations';
@@ -215,7 +216,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                     <HiOutlineUserCircle size={24} />
                                 </div>
                                 <div>
-                                    <h2 className={`font-black text-lg transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{headerT.myOrders}</h2>
+                                    <h2 className={`font-black text-lg transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{t.orderHistory}</h2>
                                     <p className={`text-xs uppercase tracking-widest font-bold transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{displayName || restaurantName}</p>
                                 </div>
                             </div>
@@ -241,7 +242,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                             </div>
                         </div>
 
-                        <div className="p-6 overflow-y-auto h-[calc(100vh-88px)]">
+                        <div className="p-6 overflow-y-auto h-[calc(100vh-170px)]">
                             {error && (
                                 <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-sm font-medium">
                                     {error}
@@ -262,10 +263,10 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                         <HiOutlineUserCircle size={48} />
                                     </motion.div>
                                     <h3 className={`text-2xl font-black mb-4 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                                        Welcome!
+                                        {t.welcomeTitle}
                                     </h3>
                                     <p className={`mb-8 px-4 transition-colors ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                        Login to see all our features and enjoy our promos.
+                                        {t.welcomeSubtitle}
                                     </p>
 
                                     <div className="w-full space-y-4">
@@ -276,7 +277,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                             className="w-full py-4 text-white font-black rounded-xl transition-all shadow-lg"
                                             style={{ backgroundColor: themeColor, boxShadow: `0 10px 15px -3px ${themeColor}40` }}
                                         >
-                                            Login
+                                            {t.loginButton}
                                         </motion.button>
                                         <motion.button
                                             whileHover={{ scale: 1.02 }}
@@ -287,7 +288,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                                 : 'border-gray-200 text-gray-900 hover:bg-gray-50'
                                                 }`}
                                         >
-                                            Register
+                                            {t.registerButton}
                                         </motion.button>
                                     </div>
                                 </motion.div>
@@ -563,6 +564,35 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                     </div>
                                 </div>
                             )}
+                        </div>
+
+                        {/* Social Footer */}
+                        <div className={`p-6 border-t mt-auto flex flex-col items-center gap-4 transition-colors ${isDarkMode
+                            ? 'bg-[#1a1c23] border-white/5'
+                            : 'bg-gray-50 border-gray-100'}`}>
+                            <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                                {language === 'en' ? 'Follow Us' : 'Suivez-nous'}
+                            </span>
+                            <div className="flex items-center justify-center gap-4">
+                                {[
+                                    { Icon: FaInstagram, color: '#E1306C', label: 'Instagram' },
+                                    { Icon: FaFacebookF, color: '#1877F2', label: 'Facebook' },
+                                    { Icon: FaTiktok, color: isDarkMode ? '#FFFFFF' : '#000000', label: 'TikTok' },
+                                    { Icon: FaSnapchatGhost, color: '#FFFC00', label: 'Snapchat' },
+                                    { Icon: FaGoogle, color: '#4285F4', label: 'Google' }
+                                ].map((social, idx) => (
+                                    <motion.a
+                                        key={idx}
+                                        href="#"
+                                        whileHover={{ scale: 1.2, y: -4 }}
+                                        whileTap={{ scale: 0.9 }}
+                                        className="p-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-100 dark:border-white/5"
+                                        title={social.label}
+                                    >
+                                        <social.Icon size={18} style={{ color: social.Icon === FaSnapchatGhost ? '#FFFC00' : (social.Icon === FaTiktok && !isDarkMode ? '#000000' : social.color) }} className={social.Icon === FaSnapchatGhost ? 'filter drop-shadow-[0_0_1px_rgba(0,0,0,0.5)]' : ''} />
+                                    </motion.a>
+                                ))}
+                            </div>
                         </div>
                     </motion.div>
                 </>

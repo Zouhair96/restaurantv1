@@ -236,7 +236,13 @@ export const translations = {
                 thanks: "Merci pour votre commande !",
                 preparing: "Nous préparons vos délicieux plats...",
                 error: "Une erreur est survenue lors de l'envoi de la commande.",
-                welcomePromo: "Bienvenue sur notre plateforme ! Profitez d’une réduction de 10% sur votre première commande, et pour nos clients fidèles, recevez un repas gratuit après chaque dix commandes !"
+                welcomePromo: "Bienvenue sur notre plateforme ! Profitez d’une réduction de 10% sur votre première commande, et pour nos clients fidèles, recevez un repas gratuit après chaque dix commandes !",
+                subtotal: "Sous-total",
+                taxes: "Taxes",
+                promoCode: "Code promo ?",
+                apply: "Applier",
+                emptyCart: "Votre panier est vide",
+                myCart: "Mon<br />Panier"
             },
             menu: {
                 search: "Rechercher",
@@ -487,7 +493,13 @@ export const translations = {
                 thanks: "Thank you for your order!",
                 preparing: "We are preparing your delicious meal...",
                 error: "An error occurred while submitting your order.",
-                welcomePromo: "Welcome to our platform! Enjoy a 10% discount on your first order, and for our loyal customers, receive a free meal after every ten orders!"
+                welcomePromo: "Welcome to our platform! Enjoy a 10% discount on your first order, and for our loyal customers, receive a free meal after every ten orders!",
+                subtotal: "Subtotal",
+                taxes: "Est. Tax",
+                promoCode: "Promo code?",
+                apply: "Apply",
+                emptyCart: "Your cart is empty",
+                myCart: "My<br />Cart"
             },
             menu: {
                 search: "Search",
