@@ -132,7 +132,6 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
         if (selectedItem) {
             addToCart({ ...selectedItem, quantity });
             triggerCartAnimation(selectedItem, e);
-            setSelectedItem(null);
         }
     };
 
