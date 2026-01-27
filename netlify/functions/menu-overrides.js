@@ -109,6 +109,25 @@ export const handler = async (event, context) => {
                 };
             });
 
+            // 5.1 Fetch Custom Items (Items with NO base template_item_id)
+            const customItemsRes = await query(
+                'SELECT * FROM item_overrides WHERE restaurant_template_id = $1 AND template_item_id IS NULL',
+                [rt.id]
+            );
+
+            const customItems = customItemsRes.rows.map(item => ({
+                id: item.id,
+                name: item.name_override,
+                description: item.description_override,
+                price: item.price_override,
+                image_url: item.image_override,
+                // image: item.image_override,
+                category: item.category_override,
+                is_hidden: item.is_hidden,
+                is_custom: true,
+                restaurant_template_id: rt.id
+            }));
+
             // Filter out hidden items if this is a "Public" fetch? 
             // The handler is used by ManageMenu (auth required) and potentially PublicMenu?
             // Actually PublicMenu uses `public-menu.js` or `templates.js` (for master).
