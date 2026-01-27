@@ -329,7 +329,10 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                                         {/* Add Button - Bottom Right Corner */}
                                         <button
                                             className="absolute bottom-0 right-0 w-10 h-10 bg-theme flex items-center justify-center text-white rounded-tl-[1.2rem] hover:opacity-90 active:scale-95 transition-all"
-                                            style={{ backgroundColor: config.themeColor }}
+                                            style={{
+                                                backgroundColor: config.themeColor,
+                                                boxShadow: `-4px -4px 12px ${config.themeColor}44`
+                                            }}
                                             onClick={(e) => {
                                                 e.stopPropagation(); // Prevent opening modal
                                                 addToCart({ ...item, quantity: 1 });
@@ -437,7 +440,14 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                                 <div className="text-gray-500 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: selectedItem.description }} />
                             </div>
 
-                            <button onClick={(e) => handleAddToCart(e)} className="w-full bg-theme text-white font-bold py-4 rounded-2xl shadow-lg shadow-green-200 hover:opacity-90 transition-opacity active:scale-95" style={{ backgroundColor: config.themeColor }}>
+                            <button
+                                onClick={(e) => handleAddToCart(e)}
+                                className="w-full bg-theme text-white font-bold py-4 rounded-2xl shadow-xl hover:opacity-90 transition-opacity active:scale-95"
+                                style={{
+                                    backgroundColor: config.themeColor,
+                                    boxShadow: `0 12px 32px -8px ${config.themeColor}88`
+                                }}
+                            >
                                 Add to cart
                             </button>
                         </motion.div>
