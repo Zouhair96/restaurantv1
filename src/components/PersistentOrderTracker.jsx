@@ -12,8 +12,8 @@ const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline
         const prevStatus = prevStatusRef.current;
         if (prevStatus && prevStatus !== order.status) {
             // Play sound and show notification when order is ready/completed/cancelled
-            if (order.status === 'completed' || order.status === 'ready' || order.status === 'cancelled') {
-                if (prevStatus !== 'completed' && prevStatus !== 'ready' && prevStatus !== 'cancelled') {
+            if (['ready', 'completed', 'cancelled'].includes(order.status)) {
+                if (prevStatus !== order.status) {
                     let message = '';
                     let voiceText = '';
 
@@ -122,12 +122,13 @@ const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline
         <AnimatePresence>
             <motion.div
                 drag
-                dragMomentum={false}
-                dragConstraints={{ left: -300, right: 300, top: 0, bottom: 600 }} // Approximate viewport bounds
+                dragMomentum={true}
+                dragElastic={0.1}
+                dragTransition={{ bounceStiffness: 600, bounceDamping: 20 }}
                 initial={inline ? { opacity: 0 } : { x: 100, opacity: 0 }}
                 animate={inline ? { opacity: 1 } : { x: 0, opacity: 1 }}
                 exit={inline ? { opacity: 0 } : { x: 100, opacity: 0 }}
-                className={inline ? 'relative' : 'fixed top-20 right-4 z-[120] w-80 pointer-events-none'}
+                className={inline ? 'relative' : 'fixed top-20 right-4 z-[120] w-80 pointer-events-auto'}
             >
                 <div className={`${inline ? '' : 'pointer-events-auto cursor-default'}`}>
                     {isMinimized ? (

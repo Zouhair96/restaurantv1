@@ -54,7 +54,7 @@ export const ClientAuthProvider = ({ children }) => {
         };
 
         fetchOrder();
-        const interval = setInterval(fetchOrder, 10000);
+        const interval = setInterval(fetchOrder, 3000);
         return () => clearInterval(interval);
     }, [activeOrderId]);
 
