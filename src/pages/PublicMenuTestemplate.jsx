@@ -358,6 +358,8 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
 
                             <motion.div
                                 layoutId={`item-image-${selectedItem.id}`}
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                                 className="w-64 h-64 rounded-full border-4 border-white/20 shadow-2xl overflow-hidden z-10"
                             >
                                 <img src={selectedItem.image} alt={selectedItem.name} className="w-full h-full object-cover" />
