@@ -93,28 +93,86 @@ CREATE TABLE IF NOT EXISTS orders (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Integration Settings Table
+-- Integrations and Platform Settings
 CREATE TABLE IF NOT EXISTS integration_settings (
     id SERIAL PRIMARY KEY,
     restaurant_id INTEGER REFERENCES users(id) ON DELETE CASCADE UNIQUE,
-    
-    -- POS Settings
     pos_provider VARCHAR(50) DEFAULT 'custom',
     pos_enabled BOOLEAN DEFAULT false,
     pos_webhook_url TEXT,
     pos_api_key TEXT,
-    
-    -- Stock Settings
     stock_provider VARCHAR(50) DEFAULT 'custom',
     stock_enabled BOOLEAN DEFAULT false,
     stock_sync_url TEXT,
     stock_api_key TEXT,
-    
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Generated Menus Tables
+CREATE TABLE IF NOT EXISTS platform_settings (
+    id SERIAL PRIMARY KEY,
+    key TEXT UNIQUE NOT NULL,
+    value JSONB NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Template Management
+CREATE TABLE IF NOT EXISTS templates (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    template_key TEXT UNIQUE NOT NULL,
+    icon TEXT,
+    image_url TEXT,
+    description TEXT,
+    allowed_plans JSONB DEFAULT '[]',
+    config JSONB DEFAULT '{}',
+    base_layout TEXT DEFAULT 'grid',
+    status TEXT DEFAULT 'active',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS restaurant_templates (
+    id SERIAL PRIMARY KEY,
+    restaurant_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    template_id INTEGER REFERENCES templates(id) ON DELETE CASCADE,
+    subscription_tier TEXT,
+    status TEXT DEFAULT 'active',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(restaurant_id, template_id)
+);
+
+CREATE TABLE IF NOT EXISTS template_items (
+    id SERIAL PRIMARY KEY,
+    template_id INTEGER REFERENCES templates(id) ON DELETE CASCADE,
+    category TEXT,
+    name TEXT NOT NULL,
+    description TEXT,
+    price DECIMAL(10, 2),
+    image_url TEXT,
+    sort_order INTEGER DEFAULT 0,
+    is_deleted BOOLEAN DEFAULT false,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS item_overrides (
+    id SERIAL PRIMARY KEY,
+    restaurant_template_id INTEGER REFERENCES restaurant_templates(id) ON DELETE CASCADE,
+    restaurant_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    template_item_id INTEGER REFERENCES template_items(id) ON DELETE CASCADE,
+    name_override TEXT,
+    description_override TEXT,
+    price_override DECIMAL(10, 2),
+    image_override TEXT,
+    category_override TEXT,
+    is_hidden BOOLEAN DEFAULT false,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(restaurant_id, template_item_id)
+);
+
+-- Generated Menus
 CREATE TABLE IF NOT EXISTS generated_menus (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
@@ -157,23 +215,26 @@ CREATE INDEX IF NOT EXISTS idx_generated_menu_items_menu_id ON generated_menu_it
 CREATE INDEX IF NOT EXISTS idx_generated_menu_items_category ON generated_menu_items(category);
 
 -- Triggers
--- Integration Settings Trigger
-DROP TRIGGER IF EXISTS update_integration_settings_timestamp ON integration_settings;
-CREATE TRIGGER update_integration_settings_timestamp
-    BEFORE UPDATE ON integration_settings
-    FOR EACH ROW
-    EXECUTE FUNCTION update_generated_menus_updated_at();
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
--- Generated Menus Trigger
-DROP TRIGGER IF EXISTS update_generated_menus_timestamp ON generated_menus;
-CREATE TRIGGER update_generated_menus_timestamp
-    BEFORE UPDATE ON generated_menus
-    FOR EACH ROW
-    EXECUTE FUNCTION update_generated_menus_updated_at();
-
--- Generated Menu Items Trigger
-DROP TRIGGER IF EXISTS update_generated_menu_items_timestamp ON generated_menu_items;
-CREATE TRIGGER update_generated_menu_items_timestamp
-    BEFORE UPDATE ON generated_menu_items
-    FOR EACH ROW
-    EXECUTE FUNCTION update_generated_menus_updated_at();
+-- Set up generic triggers for all tables with updated_at
+DO $$
+DECLARE
+    t text;
+BEGIN
+    FOR t IN 
+        SELECT table_name 
+        FROM information_schema.columns 
+        WHERE column_name = 'updated_at' 
+        AND table_schema = 'public'
+    LOOP
+        EXECUTE format('DROP TRIGGER IF EXISTS update_%I_updated_at ON %I', t, t);
+        EXECUTE format('CREATE TRIGGER update_%I_updated_at BEFORE UPDATE ON %I FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()', t, t);
+    END LOOP;
+END $$;
