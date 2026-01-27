@@ -2,15 +2,28 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 
 const ClientAuthContext = createContext(null);
 
+// Safe storage helper to prevent mobile crashes in private mode or full storage
+const safeStorage = {
+    getItem: (key) => {
+        try { return localStorage.getItem(key); } catch (e) { return null; }
+    },
+    setItem: (key, value) => {
+        try { localStorage.setItem(key, value); } catch (e) { }
+    },
+    removeItem: (key) => {
+        try { localStorage.removeItem(key); } catch (e) { }
+    }
+};
+
 export const ClientAuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [activeOrderId, setActiveOrderId] = useState(() => {
-        return localStorage.getItem('activeOrderId') || null;
+        return safeStorage.getItem('activeOrderId') || null;
     });
     const [activeOrder, setActiveOrder] = useState(null);
     const [isTopTrackerHidden, setIsTopTrackerHidden] = useState(() => {
-        return localStorage.getItem('isTopTrackerHidden') === 'true';
+        return safeStorage.getItem('isTopTrackerHidden') === 'true';
     });
 
     useEffect(() => {
@@ -18,10 +31,10 @@ export const ClientAuthProvider = ({ children }) => {
             const orderId = event.detail?.orderId;
             if (orderId) {
                 setActiveOrderId(orderId);
-                localStorage.setItem('activeOrderId', orderId);
+                safeStorage.setItem('activeOrderId', orderId);
                 setIsTopTrackerHidden(false);
-                localStorage.removeItem('isTopTrackerHidden');
-                localStorage.removeItem(`completedAt_${orderId}`);
+                safeStorage.removeItem('isTopTrackerHidden');
+                safeStorage.removeItem(`completedAt_${orderId}`);
             }
         };
 
@@ -31,7 +44,7 @@ export const ClientAuthProvider = ({ children }) => {
 
     const handleCloseTracker = () => {
         setIsTopTrackerHidden(true);
-        localStorage.setItem('isTopTrackerHidden', 'true');
+        safeStorage.setItem('isTopTrackerHidden', 'true');
     };
 
     // Poll for active order status
@@ -68,20 +81,20 @@ export const ClientAuthProvider = ({ children }) => {
                 // However, the prompt specifically says "completed".
                 if (activeOrder.status === 'completed' || activeOrder.status === 'cancelled') {
                     const storageKey = `completedAt_${activeOrderId}`;
-                    let completedAt = localStorage.getItem(storageKey);
+                    let completedAt = safeStorage.getItem(storageKey);
 
                     if (!completedAt) {
                         completedAt = Date.now().toString();
-                        localStorage.setItem(storageKey, completedAt);
+                        safeStorage.setItem(storageKey, completedAt);
                     }
 
                     const elapsed = Date.now() - parseInt(completedAt);
                     if (elapsed > 15 * 60 * 1000) { // 15 minutes
                         setActiveOrderId(null);
                         setActiveOrder(null);
-                        localStorage.removeItem('activeOrderId');
-                        localStorage.removeItem(storageKey);
-                        localStorage.removeItem('isTopTrackerHidden');
+                        safeStorage.removeItem('activeOrderId');
+                        safeStorage.removeItem(storageKey);
+                        safeStorage.removeItem('isTopTrackerHidden');
                     }
                 }
             }
@@ -93,15 +106,15 @@ export const ClientAuthProvider = ({ children }) => {
     }, [activeOrder, activeOrderId]);
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('client_user');
-        const token = localStorage.getItem('client_token');
+        const storedUser = safeStorage.getItem('client_user');
+        const token = safeStorage.getItem('client_token');
         if (storedUser && token) {
             try {
                 setUser(JSON.parse(storedUser));
             } catch (e) {
                 console.error("Failed to parse client user", e);
-                localStorage.removeItem('client_user');
-                localStorage.removeItem('client_token');
+                safeStorage.removeItem('client_user');
+                safeStorage.removeItem('client_token');
             }
         }
         setLoading(false);
@@ -117,8 +130,8 @@ export const ClientAuthProvider = ({ children }) => {
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || 'Login failed');
 
-            localStorage.setItem('client_token', data.token);
-            localStorage.setItem('client_user', JSON.stringify(data.user));
+            safeStorage.setItem('client_token', data.token);
+            safeStorage.setItem('client_user', JSON.stringify(data.user));
             setUser(data.user);
             return data.user;
         } catch (error) {
@@ -136,8 +149,8 @@ export const ClientAuthProvider = ({ children }) => {
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || 'Signup failed');
 
-            localStorage.setItem('client_token', data.token);
-            localStorage.setItem('client_user', JSON.stringify(data.user));
+            safeStorage.setItem('client_token', data.token);
+            safeStorage.setItem('client_user', JSON.stringify(data.user));
             setUser(data.user);
             return data.user;
         } catch (error) {
@@ -146,8 +159,8 @@ export const ClientAuthProvider = ({ children }) => {
     };
 
     const logout = () => {
-        localStorage.removeItem('client_token');
-        localStorage.removeItem('client_user');
+        safeStorage.removeItem('client_token');
+        safeStorage.removeItem('client_user');
         setUser(null);
     };
 

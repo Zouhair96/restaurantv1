@@ -38,14 +38,18 @@ const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline
     }, [order?.status]);
 
     const speakMessage = (text) => {
-        if ('speechSynthesis' in window) {
-            // Cancel any ongoing speech
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 1.0;
-            utterance.pitch = 1.0;
-            utterance.volume = 1.0;
-            window.speechSynthesis.speak(utterance);
+        try {
+            if ('speechSynthesis' in window) {
+                // Cancel any ongoing speech
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 1.0;
+                utterance.pitch = 1.0;
+                utterance.volume = 1.0;
+                window.speechSynthesis.speak(utterance);
+            }
+        } catch (e) {
+            console.error('Speech error:', e);
         }
     }
 
@@ -74,41 +78,45 @@ const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline
     }
 
     const showNotification = (message) => {
-        if (!order?.id) return;
+        try {
+            if (!order?.id) return;
 
-        // Request permission if not granted
-        if ('Notification' in window) {
-            const options = {
-                body: message,
-                icon: '/logo.png',
-                badge: '/logo.png',
-                tag: `order-${order.id}`,
-                requireInteraction: true,
-                vibrate: [200, 100, 200],
-                data: {
-                    orderId: order.id,
-                    url: `/order/${order.id}`
-                }
-            };
-
-            if (Notification.permission === 'granted') {
-                new Notification('🎉 Order Update!', options);
-            } else if (Notification.permission !== 'denied') {
-                Notification.requestPermission().then(permission => {
-                    if (permission === 'granted') {
-                        new Notification('🎉 Order Update!', options);
+            // Request permission if not granted
+            if ('Notification' in window) {
+                const options = {
+                    body: message,
+                    icon: '/logo.png',
+                    badge: '/logo.png',
+                    tag: `order-${order.id}`,
+                    requireInteraction: true,
+                    vibrate: [200, 100, 200],
+                    data: {
+                        orderId: order.id,
+                        url: `/order/${order.id}`
                     }
-                });
+                };
+
+                if (Notification.permission === 'granted') {
+                    new Notification('🎉 Order Update!', options);
+                } else if (Notification.permission !== 'denied') {
+                    Notification.requestPermission().then(permission => {
+                        if (permission === 'granted') {
+                            new Notification('🎉 Order Update!', options);
+                        }
+                    }).catch(e => console.warn('Notification permission catch:', e));
+                }
             }
+        } catch (e) {
+            console.error('Notification error:', e);
         }
     }
 
     const getStatusInfo = (status) => {
         const statusMap = {
             pending: { label: 'Order Received', color: 'bg-yellow-500', progress: 25, emoji: '📝' },
-            preparing: { label: 'Being Prepared', color: 'bg-blue-500', progress: 50, emoji: '👨‍🍳' },
-            ready: { label: 'Ready for Pickup', color: 'bg-green-500', progress: 75, emoji: '✅' },
-            completed: { label: 'Completed', color: 'bg-gray-500', progress: 100, emoji: '🎉' },
+            preparing: { label: 'Being Prepared', color: 'bg-blue-500', progress: 50, emoji: '👨‍Chef' },
+            ready: { label: 'Ready for Pickup', color: 'bg-blue-500', progress: 75, emoji: '✅' },
+            completed: { label: 'Completed', color: 'bg-green-500', progress: 100, emoji: '🎉' },
             cancelled: { label: 'Cancelled', color: 'bg-red-500', progress: 100, emoji: '❌' }
         }
         return statusMap[status] || statusMap.pending
@@ -117,13 +125,17 @@ const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline
     if (!order) return null
 
     const statusInfo = getStatusInfo(order.status)
+    const displayColor = order.status === 'completed' ? '#22c55e' :
+        (order.status === 'cancelled' ? '#ef4444' :
+            (['preparing', 'ready'].includes(order.status) ? '#3b82f6' : themeColor));
 
     return (
         <AnimatePresence>
             <motion.div
                 drag
                 dragMomentum={true}
-                dragElastic={0.1}
+                dragElastic={0.05}
+                dragConstraints={{ left: -300, right: 0, top: -80, bottom: 500 }}
                 dragTransition={{ bounceStiffness: 600, bounceDamping: 20 }}
                 initial={inline ? { opacity: 0 } : { x: 100, opacity: 0 }}
                 animate={inline ? { opacity: 1 } : { x: 0, opacity: 1 }}
@@ -148,7 +160,7 @@ const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline
                         // Full tracker card - Draggable
                         <div
                             className={`bg-white dark:bg-gray-800 rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-700`}
-                            style={{ borderTop: `6px solid ${themeColor}` }}
+                            style={{ borderTop: `6px solid ${displayColor}` }}
                         >
                             {/* Drag Handle Top Overlay */}
                             <div className="flex justify-center pt-2 cursor-grab active:cursor-grabbing group">
@@ -204,8 +216,8 @@ const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline
                                             transition={{ duration: 1, ease: 'circOut' }}
                                             className="h-full rounded-full shadow-lg"
                                             style={{
-                                                backgroundColor: themeColor,
-                                                boxShadow: `0 0 12px ${themeColor}44`
+                                                backgroundColor: displayColor,
+                                                boxShadow: `0 0 12px ${displayColor}44`
                                             }}
                                         />
                                     </div>
