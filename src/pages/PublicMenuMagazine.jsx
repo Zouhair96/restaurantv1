@@ -6,6 +6,7 @@ import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
 import Checkout from '../components/menu/Checkout';
 import Cart from '../components/menu/Cart';
 import WelcomeSequence from '../components/public-menu/WelcomeSequence';
+import { useLanguage } from '../context/LanguageContext';
 
 const PublicMenuMagazine = ({ restaurantName: propRestaurantName, templateKey: propTemplateKey }) => {
     const { restaurantName: urlRestaurantName, templateKey: urlTemplateKey } = useParams();
@@ -13,6 +14,9 @@ const PublicMenuMagazine = ({ restaurantName: propRestaurantName, templateKey: p
     const templateKey = propTemplateKey || urlTemplateKey || 'pizza1';
     const isMasterView = !restaurantName;
 
+    const { t, localize, language } = useLanguage();
+    const [menuItems, setMenuItems] = useState([]);
+    const [config, setConfig] = useState({});
     const [isLoading, setIsLoading] = useState(true);
     const [showAuthSidebar, setShowAuthSidebar] = useState(false);
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
@@ -50,17 +54,17 @@ const PublicMenuMagazine = ({ restaurantName: propRestaurantName, templateKey: p
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M4 6h16M4 12h16M4 18h16" /></svg>
                 </button>
                 <h1 className="text-6xl md:text-8xl font-black uppercase italic leading-none">{isMasterView ? 'Magazine' : restaurantName}</h1>
-                <p className="mt-4 text-xl font-bold uppercase tracking-[0.3em]">The Daily Menu / Issue 01</p>
+                <p className="mt-4 text-xl font-bold uppercase tracking-[0.3em]">{language === 'fr' ? 'Le Menu Quotidien / Édition 01' : 'The Daily Menu / Issue 01'}</p>
             </header>
 
             <div className="columns-1 md:columns-2 lg:columns-3 gap-8 space-y-8">
                 {menuItems.map((item, idx) => (
                     <div key={item.id} className="break-inside-avoid bg-gray-50 p-6 rounded-sm border-2 border-black hover:bg-black hover:text-white transition-all group relative overflow-hidden">
                         <div className="mb-4 aspect-[4/5] overflow-hidden grayscale group-hover:grayscale-0 transition-all duration-700">
-                            <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                            <img src={item.image} alt={localize(item, 'name')} className="w-full h-full object-cover" />
                         </div>
-                        <h3 className="text-3xl font-black uppercase mb-2 leading-tight">{item.name}</h3>
-                        <p className="text-sm font-medium mb-6 leading-relaxed opacity-70">{item.description}</p>
+                        <h3 className="text-3xl font-black uppercase mb-2 leading-tight">{localize(item, 'name')}</h3>
+                        <p className="text-sm font-medium mb-6 leading-relaxed opacity-70" dangerouslySetInnerHTML={{ __html: localize(item, 'description') }} />
                         <div className="flex items-center justify-between border-t-2 border-current pt-4">
                             <span className="text-2xl font-black">${parseFloat(item.price).toFixed(2)}</span>
                             <button

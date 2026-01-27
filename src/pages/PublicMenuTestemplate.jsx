@@ -184,7 +184,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
         }
     };
 
-    if (isLoading) return <div className="min-h-screen flex items-center justify-center text-green-500">{t('menu.loading')}</div>;
+    if (isLoading) return <div className="min-h-screen flex items-center justify-center text-green-500">{t('auth.menu.loading')}</div>;
     if (error) return <div className="min-h-screen flex items-center justify-center text-red-500">{error}</div>;
 
     return (
@@ -267,13 +267,29 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                     ref={scrollContainerRef}
                     onScroll={handleScroll}
                 >
+                    <div className="px-6 mt-8 flex justify-between items-center mb-6">
+                        <div className="flex items-center gap-3">
+                            <div className="p-3 bg-gray-50 rounded-2xl">
+                                <HiMapPin className="w-5 h-5 text-gray-400" />
+                            </div>
+                            <div>
+                                <p className="text-xs text-gray-400 font-medium">{t('auth.menu.deliverTo')}</p>
+                                <h4 className="text-sm font-bold text-gray-900">{config.location || t('auth.menu.yourTable')}</h4>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="px-6 mt-8">
+                        <h2 className="text-3xl font-black text-gray-900 leading-tight" dangerouslySetInnerHTML={{ __html: t('auth.menu.searchPrompt').replace('?', '? <br />') }} />
+                    </div>
+
                     {/* Search Bar */}
                     <div className="px-6 mt-6 flex gap-4">
                         <div className="flex-1 bg-white rounded-2xl flex items-center px-4 py-3 shadow-sm">
                             <HiMagnifyingGlass className="w-6 h-6 text-gray-400 mr-2" />
                             <input
                                 type="text"
-                                placeholder={t('menu.search')}
+                                placeholder={t('auth.menu.search')}
                                 className="flex-1 bg-transparent outline-none text-gray-700 placeholder-gray-400"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -290,7 +306,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                                 className={`whitespace-nowrap font-medium transition-colors ${activeCategory === cat ? 'text-theme scale-105' : 'text-gray-400 hover:text-gray-600'}`}
                                 style={activeCategory === cat ? { color: config.themeColor } : {}}
                             >
-                                {cat === 'All' ? t('menu.all') : cat}
+                                {cat === 'All' ? t('auth.menu.all') : cat}
                             </button>
                         ))}
                     </div>
@@ -446,7 +462,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                             {/* Metadata removed as per user request */}
 
                             <div className="flex-1 overflow-y-auto mb-6">
-                                <h3 className="font-bold text-gray-900 mb-2">{t('menu.about')}</h3>
+                                <h3 className="font-bold text-gray-900 mb-2">{t('auth.menu.about')}</h3>
                                 <div className="text-gray-500 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: localize(selectedItem, 'description') }} />
                             </div>
 
@@ -458,7 +474,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                                     boxShadow: `0 20px 48px -12px ${config.themeColor}cc`
                                 }}
                             >
-                                {t('menu.addToCart')}
+                                {t('auth.menu.addToCart')}
                             </button>
                         </motion.div>
                     </motion.div>

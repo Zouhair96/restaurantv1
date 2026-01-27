@@ -106,7 +106,7 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
         );
     };
 
-    if (isLoading) return <div className="min-h-screen flex items-center justify-center text-orange-500 font-bold">{t('menu.loading')}</div>;
+    if (isLoading) return <div className="min-h-screen flex items-center justify-center text-orange-500 font-bold">{t('auth.menu.loading')}</div>;
     if (error) return <div className="min-h-screen flex items-center justify-center text-red-500">{error}</div>;
 
     return (
@@ -118,7 +118,7 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
                     <HiBars3 className="w-6 h-6 text-gray-700" />
                 </button>
                 <div className="text-center">
-                    <h5 className="text-xs text-gray-400 font-bold uppercase tracking-wider">Location</h5>
+                    <h5 className="text-xs text-gray-400 font-bold uppercase tracking-wider">{t('auth.menu.location')}</h5>
                     <div className="text-sm font-bold text-gray-800 flex items-center gap-1">
                         <span className="text-theme">📍</span> {config.location || 'Unknown'}
                     </div>
@@ -129,17 +129,14 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
             </header>
 
             <div className="px-6 mt-6">
-                <h1 className="text-3xl font-black text-gray-900 leading-tight">
-                    Different<br />
-                    <span className="text-theme" style={{ color: config.themeColor }}>Kind of Food</span>
-                </h1>
+                <h1 className="text-3xl font-black text-gray-900 leading-tight" dangerouslySetInnerHTML={{ __html: t('auth.menu.differentKind').replace('kind', 'kind <br />') }} />
             </div>
 
             {/* Search */}
             <div className="px-6 mt-6 flex gap-3">
                 <div className="flex-1 bg-white rounded-2xl flex items-center px-4 py-3 shadow-sm border border-gray-100">
                     <HiMagnifyingGlass className="w-5 h-5 text-gray-400 mr-2" />
-                    <input type="text" placeholder={t('menu.search')} className="w-full bg-transparent outline-none text-sm font-medium" />
+                    <input type="text" placeholder={t('auth.menu.search')} className="w-full bg-transparent outline-none text-sm font-medium" />
                 </div>
                 <button className="w-12 h-12 bg-theme rounded-2xl flex items-center justify-center text-white shadow-lg active:scale-95 transition-transform" style={{ backgroundColor: config.themeColor }}>
                     <HiAdjustmentsHorizontal className="w-6 h-6" />
@@ -158,7 +155,7 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
                             }`}
                         style={activeCategory === cat ? { backgroundColor: config.themeColor } : {}}
                     >
-                        {cat === 'All' ? t('menu.all') : cat}
+                        {cat === 'All' ? t('auth.menu.all') : cat}
                     </button>
                 ))}
             </div>
@@ -166,7 +163,7 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
             {/* Popular Items Grid */}
             <div className="px-6 mt-2 pb-8">
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-bold text-gray-900">{t('menu.all')}</h2>
+                    <h2 className="text-xl font-bold text-gray-900">{t('auth.menu.all')}</h2>
                     <span className="text-xs font-bold text-theme uppercase tracking-wider cursor-pointer" style={{ color: config.themeColor }}>{t('header.howItWorks')}</span>
                 </div>
 

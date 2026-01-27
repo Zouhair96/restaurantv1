@@ -9,12 +9,14 @@ import PublicMenuList from './PublicMenuList'
 import PublicMenuMagazine from './PublicMenuMagazine'
 import PublicMenuMinimal from './PublicMenuMinimal'
 import PublicMenuSwipe from './PublicMenuSwipe'
+import { useLanguage } from '../context/LanguageContext'
 
 const PublicMenu = () => {
     const { restaurantName, templateKey } = useParams()
     const [data, setData] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
+    const { t } = useLanguage()
 
     useEffect(() => {
         const fetchMenu = async () => {
@@ -76,9 +78,9 @@ const PublicMenu = () => {
     if (error) {
         return (
             <div className="min-h-screen bg-[#0f1115] flex flex-col items-center justify-center text-white p-4 text-center">
-                <h1 className="text-4xl font-bold mb-4">😕 Oops!</h1>
+                <h1 className="text-4xl font-bold mb-4">😕 {t('auth.menu.oops')}</h1>
                 <p className="text-xl text-gray-400 mb-8">{error}</p>
-                <p className="text-gray-500 text-sm">Check the URL or contact the restaurant.</p>
+                <p className="text-gray-500 text-sm">{t('auth.menu.checkUrl')}</p>
             </div>
         )
     }
@@ -87,7 +89,7 @@ const PublicMenu = () => {
         return (
             <div className="min-h-screen bg-[#0f1115] flex flex-col items-center justify-center text-white p-4 text-center">
                 <h1 className="text-4xl font-bold mb-4">🍽️ {data?.restaurant || 'Restaurant'}</h1>
-                <p className="text-xl text-gray-400">No menu published yet.</p>
+                <p className="text-xl text-gray-400">{t('auth.menu.noMenu')}</p>
             </div>
         )
     }
@@ -102,22 +104,27 @@ const PublicMenu = () => {
     }
 
     if (data.menu?.template_type === 'testemplate2' || templateKey === 'testemplate2') {
-        return <PublicMenuTestemplate2 restaurantName={restaurantName} menuData={data} />
+        return <PublicMenuTestemplate2 restaurantName={restaurantName} />
     }
 
-    // Removed testemplate3 logic
-
-    // Dynamic Multi-Layout Selection
-    const baseLayout = data.menu.base_layout || 'grid';
-
-    switch (baseLayout) {
-        case 'grid': return <PublicMenuGrid restaurantName={restaurantName} templateKey={templateKey} />;
-        case 'list': return <PublicMenuList restaurantName={restaurantName} templateKey={templateKey} />;
-        case 'magazine': return <PublicMenuMagazine restaurantName={restaurantName} templateKey={templateKey} />;
-        case 'minimal': return <PublicMenuMinimal restaurantName={restaurantName} templateKey={templateKey} />;
-        case 'swipe': return <PublicMenuSwipe restaurantName={restaurantName} templateKey={templateKey} />;
-        default: return <PublicMenuGrid restaurantName={restaurantName} templateKey={templateKey} />;
+    if (data.menu?.template_type === 'magazine' || templateKey === 'magazine') {
+        return <PublicMenuMagazine restaurantName={restaurantName} templateKey={templateKey} />
     }
+
+    // Default to Grid or List based on layout preference
+    if (data.menu.base_layout === 'swipe') {
+        return <PublicMenuSwipe restaurant={data.restaurant} menu={data.menu} config={data.menu.config} />
+    }
+
+    if (data.menu.base_layout === 'minimal') {
+        return <PublicMenuMinimal restaurant={data.restaurant} menu={data.menu} config={data.menu.config} />
+    }
+
+    if (data.menu.base_layout === 'list') {
+        return <PublicMenuList restaurant={data.restaurant} menu={data.menu} config={data.menu.config} />
+    }
+
+    return <PublicMenuGrid restaurant={data.restaurant} menu={data.menu} config={data.menu.config} />
 }
 
 export default PublicMenu

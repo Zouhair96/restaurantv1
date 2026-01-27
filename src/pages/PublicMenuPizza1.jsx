@@ -126,7 +126,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
     };
 
     if (!selectedItem) {
-        return <div className="min-h-screen flex items-center justify-center bg-white text-gray-900">{t('menu.loading')}</div>;
+        if (isLoading) return <div className="min-h-screen flex items-center justify-center text-green-500">{t('auth.menu.loading')}</div>;
     }
 
     return (
@@ -235,7 +235,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                 className={`font-bold pb-1 whitespace-nowrap transition-colors ${activeCategory === category ? 'text-gray-900 border-b-2' : 'text-gray-400 hover-text-theme'}`}
                                 style={activeCategory === category ? { borderColor: config.themeColor } : {}}
                             >
-                                {category === 'All' ? t('menu.all') : category}
+                                {category === 'All' ? t('auth.menu.all') : category}
                             </button>
                         ))}
                     </div>

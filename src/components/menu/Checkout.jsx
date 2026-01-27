@@ -137,7 +137,7 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316' }) =
                         <>
                             {/* Body */}
                             <div className="flex-1 px-6 overflow-y-auto no-scrollbar pb-32">
-                                <h1 className="text-4xl font-black text-gray-900 mb-8 mt-4 tracking-tight" dangerouslySetInnerHTML={{ __html: lang === 'fr' ? 'Mon<br />Panier' : 'My<br />Cart List' }} />
+                                <h1 className="text-4xl font-black text-gray-900 mb-8 mt-4 tracking-tight" dangerouslySetInnerHTML={{ __html: t.myCart }} />
 
                                 {cartItems.length === 0 ? (
                                     <motion.div
@@ -148,7 +148,7 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316' }) =
                                         className="flex flex-col items-center justify-center py-20 opacity-40"
                                     >
                                         <HiTrash size={64} />
-                                        <p className="font-bold mt-4 uppercase tracking-widest text-xs">{lang === 'fr' ? 'Votre panier est vide' : 'Your cart is empty'}</p>
+                                        <p className="font-bold mt-4 uppercase tracking-widest text-xs">{t.emptyCart}</p>
                                     </motion.div>
                                 ) : (
                                     <div className="space-y-6">
@@ -204,11 +204,11 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316' }) =
                                 className="bg-white rounded-t-[3rem] px-8 pt-8 pb-10 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] space-y-4 border-t border-gray-50"
                             >
                                 <div className="flex justify-between items-center">
-                                    <span className="text-gray-400 font-bold">{lang === 'fr' ? 'Sous-total' : 'Subtotal'}</span>
+                                    <span className="text-gray-400 font-bold">{t.subtotal}</span>
                                     <span className="text-gray-900 font-black text-lg">${subtotal.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="text-gray-400 font-bold">{lang === 'fr' ? 'Taxes' : 'Est. Tax'}</span>
+                                    <span className="text-gray-400 font-bold">{t.taxes}</span>
                                     <span className="text-gray-900 font-black text-lg">${tax.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between items-center group">
@@ -216,13 +216,13 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316' }) =
                                         <div className="relative">
                                             <input
                                                 type="text"
-                                                placeholder={lang === 'fr' ? 'Code promo ?' : 'Do you have any discount code?'}
+                                                placeholder={t.promoCode}
                                                 className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-theme transition-colors font-medium"
                                                 style={{ focusBorderColor: themeColor }}
                                             />
                                         </div>
                                     </div>
-                                    <span className="text-theme font-black text-sm uppercase tracking-wider" style={{ color: themeColor }}>{lang === 'fr' ? 'Appliquer' : 'Apply'}</span>
+                                    <span className="text-theme font-black text-sm uppercase tracking-wider" style={{ color: themeColor }}>{t.apply}</span>
                                 </div>
                                 <div className="h-px bg-dashed bg-gray-100 my-2 border-t-2 border-dashed border-gray-100" />
                                 <div className="flex justify-between items-center pb-2">
@@ -245,7 +245,7 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316' }) =
                                         <div className="w-6 h-6 border-4 border-gray-900 border-t-transparent rounded-full animate-spin" />
                                     ) : (
                                         <div className="flex flex-col items-center leading-tight">
-                                            <span className="text-xl">{lang === 'fr' ? 'Commander' : 'Checkout'}</span>
+                                            <span className="text-xl uppercase tracking-tighter">{t.confirm}</span>
                                             <span className="text-xs opacity-70 font-bold uppercase tracking-wider">({t.cash})</span>
                                         </div>
                                     )}

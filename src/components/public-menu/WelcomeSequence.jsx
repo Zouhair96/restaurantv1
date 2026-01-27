@@ -1,18 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { HiXMark, HiStar, HiSparkles } from 'react-icons/hi2';
+import { useLanguage } from '../../context/LanguageContext';
 
 const WelcomeSequence = ({
     restaurantName,
     themeColor = '#f97316',
     promoConfig = {}
 }) => {
+    const { t, language } = useLanguage();
     // Extract config with defaults
     const {
         showWelcomePromo = true,
-        welcomePromoText = "Bienvenue sur notre plateforme ! Profitez d’une réduction de 10% sur votre première commande, et pour nos clients fidèles, recevez un repas gratuit après chaque dix commandes !",
+        welcomePromoText = "",
         loadingDuration = 5,
         promoDuration = 15
     } = promoConfig;
+
+    // Fallback translation for welcome promo if empty
+    const defaultPromoText = t('auth.checkout.welcomePromo');
+    const finalPromoText = welcomePromoText || defaultPromoText;
 
     const [phase, setPhase] = useState('loading'); // 'loading', 'popup', 'hidden'
     const [isVisible, setIsVisible] = useState(false);
@@ -79,7 +85,7 @@ const WelcomeSequence = ({
                             </h2>
                             <div className="h-1 w-24 bg-orange-500 mx-auto rounded-full animate-stretch"></div>
                             <p className="text-orange-200/60 font-medium tracking-[0.2em] text-xs uppercase animate-fade-in-delayed">
-                                L'aventure Culinaire Commence...
+                                {t('auth.menu.culinaryAdventure')}
                             </p>
                         </div>
 
@@ -116,25 +122,25 @@ const WelcomeSequence = ({
                                 </div>
                                 <div>
                                     <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">
-                                        Offre Spéciale
+                                        {t('auth.menu.specialOffer')}
                                     </h3>
                                     <div className="flex items-center gap-2 mt-1">
                                         <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-                                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Actif Maintenant</span>
+                                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('auth.menu.activeNow')}</span>
                                     </div>
                                 </div>
                             </div>
 
                             <div
                                 className="text-gray-600 dark:text-gray-300 font-bold leading-relaxed text-lg tracking-tight ql-editor !p-0 !overflow-visible"
-                                dangerouslySetInnerHTML={{ __html: welcomePromoText }}
+                                dangerouslySetInnerHTML={{ __html: finalPromoText }}
                             />
 
                             <button
                                 onClick={handleClose}
                                 className="w-full py-5 rounded-[1.5rem] bg-gray-900 dark:bg-white text-white dark:text-black font-black uppercase tracking-widest text-xs hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl"
                             >
-                                Commencer l'Exploration
+                                {t('auth.menu.startExploration')}
                             </button>
                         </div>
 

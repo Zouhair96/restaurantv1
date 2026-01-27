@@ -10,7 +10,7 @@ import PersistentOrderTracker from '../PersistentOrderTracker';
 
 const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, designConfig, isDarkMode, setIsDarkMode, themeColor = '#f97316' }) => {
     const { user: authUser, logout: authLogout, activeOrderId, activeOrder, handleCloseTracker } = useClientAuth();
-    const { language, toggleLanguage } = useLanguage();
+    const { language, toggleLanguage, t } = useLanguage();
     const [view, setView] = useState('welcome');
     const [clientUser, setClientUser] = useState(null);
     const [orders, setOrders] = useState([]);
@@ -24,8 +24,6 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
     const [showHistory, setShowHistory] = useState(false);
 
     const lang = language.toLowerCase();
-    const t = translations[lang]?.auth || translations['fr'].auth;
-    const headerT = translations[lang]?.header || translations['fr'].header;
 
     useEffect(() => {
         const storedUser = localStorage.getItem('client_user');
@@ -216,7 +214,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                     <HiOutlineUserCircle size={24} />
                                 </div>
                                 <div>
-                                    <h2 className={`font-black text-lg transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{t.orderHistory}</h2>
+                                    <h2 className={`font-black text-lg transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{t('auth.orderHistory')}</h2>
                                     <p className={`text-xs uppercase tracking-widest font-bold transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{displayName || restaurantName}</p>
                                 </div>
                             </div>
@@ -263,10 +261,10 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                         <HiOutlineUserCircle size={48} />
                                     </motion.div>
                                     <h3 className={`text-2xl font-black mb-4 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                                        {t.welcomeTitle}
+                                        {t('auth.welcomeTitle')}
                                     </h3>
                                     <p className={`mb-8 px-4 transition-colors ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                        {t.welcomeSubtitle}
+                                        {t('auth.welcomeSubtitle')}
                                     </p>
 
                                     <div className="w-full space-y-4">
@@ -277,7 +275,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                             className="w-full py-4 text-white font-black rounded-xl transition-all shadow-lg"
                                             style={{ backgroundColor: themeColor, boxShadow: `0 10px 15px -3px ${themeColor}40` }}
                                         >
-                                            {t.loginButton}
+                                            {t('auth.loginButton')}
                                         </motion.button>
                                         <motion.button
                                             whileHover={{ scale: 1.02 }}
@@ -288,7 +286,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                                 : 'border-gray-200 text-gray-900 hover:bg-gray-50'
                                                 }`}
                                         >
-                                            {t.registerButton}
+                                            {t('auth.registerButton')}
                                         </motion.button>
                                     </div>
                                 </motion.div>
@@ -301,12 +299,12 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                     exit={{ opacity: 0, x: -20 }}
                                 >
                                     <div className="text-center mb-8">
-                                        <h3 className={`text-2xl font-black mb-2 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{t.loginTitle}</h3>
-                                        <p className={isDarkMode ? 'text-gray-400 text-sm' : 'text-gray-500 text-sm'}>{t.welcomeSubtitle}</p>
+                                        <h3 className={`text-2xl font-black mb-2 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{t('auth.loginTitle')}</h3>
+                                        <p className={isDarkMode ? 'text-gray-400 text-sm' : 'text-gray-500 text-sm'}>{t('auth.welcomeSubtitle')}</p>
                                     </div>
                                     <form onSubmit={handleLogin} className="space-y-4">
                                         <div>
-                                            <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t.emailOrPhone}</label>
+                                            <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('auth.emailOrPhone')}</label>
                                             <input
                                                 type="text"
                                                 required
@@ -318,7 +316,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                             />
                                         </div>
                                         <div>
-                                            <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t.password}</label>
+                                            <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('auth.password')}</label>
                                             <input
                                                 type="password"
                                                 required
@@ -345,12 +343,12 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                             onClick={() => setView('forgot-password')}
                                             className={`text-sm font-medium transition-colors ${isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'}`}
                                         >
-                                            {t.forgotPassword}
+                                            {t('auth.forgotPassword')}
                                         </button>
                                     </div>
                                     <p className={`mt-4 text-center text-sm transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                                        {t.toggleToSignup} {' '}
-                                        <button onClick={() => setView('signup')} className="font-bold hover:underline" style={{ color: themeColor }}>{t.linkSignup}</button>
+                                        {t('auth.toggleToSignup')} {' '}
+                                        <button onClick={() => setView('signup')} className="font-bold hover:underline" style={{ color: themeColor }}>{t('auth.linkSignup')}</button>
                                     </p>
                                 </motion.div>
                             )}
@@ -358,12 +356,12 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                             {view === 'signup' && (
                                 <div className="animate-fade-in">
                                     <div className="text-center mb-8">
-                                        <h3 className={`text-2xl font-black mb-2 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{t.signupTitle}</h3>
-                                        <p className={isDarkMode ? 'text-gray-400 text-sm' : 'text-gray-500 text-sm'}>{t.welcomeSubtitle}</p>
+                                        <h3 className={`text-2xl font-black mb-2 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{t('auth.signupTitle')}</h3>
+                                        <p className={isDarkMode ? 'text-gray-400 text-sm' : 'text-gray-500 text-sm'}>{t('auth.welcomeSubtitle')}</p>
                                     </div>
                                     <form onSubmit={handleSignup} className="space-y-4">
                                         <div>
-                                            <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t.name}</label>
+                                            <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('auth.name')}</label>
                                             <input
                                                 type="text"
                                                 required
@@ -375,7 +373,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                             />
                                         </div>
                                         <div>
-                                            <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t.emailOrPhoneLong}</label>
+                                            <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('auth.emailOrPhoneLong')}</label>
                                             <input
                                                 type="text"
                                                 required
@@ -387,7 +385,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                             />
                                         </div>
                                         <div>
-                                            <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t.password}</label>
+                                            <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('auth.password')}</label>
                                             <input
                                                 type="password"
                                                 required
@@ -408,8 +406,8 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                         </button>
                                     </form>
                                     <p className={`mt-8 text-center text-sm transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                                        {t.toggleToLogin} {' '}
-                                        <button onClick={() => setView('login')} className="font-bold hover:underline" style={{ color: themeColor }}>{t.linkLogin}</button>
+                                        {t('auth.toggleToLogin')} {' '}
+                                        <button onClick={() => setView('login')} className="font-bold hover:underline" style={{ color: themeColor }}>{t('auth.linkLogin')}</button>
                                     </p>
                                 </div>
                             )}
@@ -417,12 +415,12 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                             {view === 'forgot-password' && (
                                 <div className="animate-fade-in">
                                     <div className="text-center mb-8">
-                                        <h3 className={`text-2xl font-black mb-2 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{t.resetPasswordTitle}</h3>
-                                        <p className={isDarkMode ? 'text-gray-400 text-sm' : 'text-gray-500 text-sm'}>{t.resetPasswordSubtitle}</p>
+                                        <h3 className={`text-2xl font-black mb-2 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{t('auth.resetPasswordTitle')}</h3>
+                                        <p className={isDarkMode ? 'text-gray-400 text-sm' : 'text-gray-500 text-sm'}>{t('auth.resetPasswordSubtitle')}</p>
                                     </div>
                                     <form onSubmit={(e) => { e.preventDefault(); /* Handle reset logic */ }} className="space-y-4">
                                         <div>
-                                            <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t.emailOrPhoneLong}</label>
+                                            <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('auth.emailOrPhoneLong')}</label>
                                             <input
                                                 type="text"
                                                 required
@@ -444,7 +442,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                             onClick={() => setView('login')}
                                             className={`text-sm font-medium hover:underline transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
                                         >
-                                            {t.backToLogin}
+                                            {t('auth.backToLogin')}
                                         </button>
                                     </div>
                                 </div>
@@ -464,7 +462,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                                 ? 'text-gray-400 hover:text-red-500'
                                                 : 'text-gray-500 hover:text-red-500'}`}
                                         >
-                                            <HiOutlineLogout size={18} /> {headerT.logout}
+                                            <HiOutlineLogout size={18} /> {t('header.logout')}
                                         </button>
                                     </div>
 
@@ -478,7 +476,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                         >
                                             <div className="flex items-center gap-2">
                                                 <HiOutlineClipboardList style={{ color: themeColor }} size={20} />
-                                                <span className="font-black uppercase tracking-widest text-xs">{t.orderHistory}</span>
+                                                <span className="font-black uppercase tracking-widest text-xs">{t('auth.orderHistory')}</span>
                                                 {orders.length > 0 && (
                                                     <span className="px-2 py-0.5 rounded-full text-[10px] bg-white/10 dark:bg-white/5 font-black">{orders.length}</span>
                                                 )}
@@ -542,7 +540,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                                                         </div>
 
                                                                         <div className="flex justify-between items-center mt-4">
-                                                                            <span className={`text-sm transition-colors ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{order.order_type === 'dine_in' ? `🍽️ ${t.dineIn}` : `🥡 ${t.takeOut}`}</span>
+                                                                            <span className={`text-sm transition-colors ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{order.order_type === 'dine_in' ? `🍽️ ${t('auth.dineIn')}` : `🥡 ${t('auth.takeOut')}`}</span>
                                                                             <span className={`font-black text-lg transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>${Number(order.total_price).toFixed(2)}</span>
                                                                         </div>
                                                                     </motion.div>
@@ -554,8 +552,8 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                                             ? 'bg-white/5 border-white/10'
                                                             : 'bg-gray-50 border-gray-200'}`}>
                                                             <HiOutlineShoppingBag size={48} className={`mx-auto mb-4 transition-colors ${isDarkMode ? 'text-gray-700' : 'text-gray-300'}`} />
-                                                            <p className={`font-bold transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{t.noOrders}</p>
-                                                            <p className={`text-xs mt-1 transition-colors ${isDarkMode ? 'text-gray-600' : 'text-gray-500'}`}>{t.noOrdersDesc}</p>
+                                                            <p className={`font-bold transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{t('auth.noOrders')}</p>
+                                                            <p className={`text-xs mt-1 transition-colors ${isDarkMode ? 'text-gray-600' : 'text-gray-500'}`}>{t('auth.noOrdersDesc')}</p>
                                                         </div>
                                                     )}
                                                 </motion.div>
