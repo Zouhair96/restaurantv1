@@ -123,23 +123,18 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
             `}</style>
 
-            {/* --- PORTED SIDEBAR START --- */}
-            <div className="relative shrink-0 z-40 bg-white/90 backdrop-blur-md md:bg-white/50 w-20 md:w-24 h-full flex flex-col items-center py-6 border-r border-gray-100">
+            {/* --- PORTED SIDEBAR (NOW FLOATING BUTTON) --- */}
+            <div className="absolute top-6 left-6 z-50">
                 <button
                     onClick={() => setShowAuthSidebar(true)}
-                    className="mb-6 p-4 rounded-[1.5rem] border shadow-sm transition-all active:scale-95 flex items-center justify-center"
+                    className="p-3 md:p-4 rounded-[1.2rem] border shadow-md transition-all active:scale-95 flex items-center justify-center bg-white"
                     style={{
                         color: config.themeColor,
                         borderColor: `${config.themeColor}40`,
-                        backgroundColor: `${config.themeColor}08`,
-                        boxShadow: `0 4px 6px -1px ${config.themeColor}20`
                     }}
                 >
                     <HiBars3 className="w-6 h-6" />
                 </button>
-
-                {/* Menu items removed as per user request */}
-                <div className="flex-1"></div> {/* Spacer */}
             </div>
             {/* --- PORTED SIDEBAR END --- */}
 
@@ -147,7 +142,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
             <div className="flex-1 flex flex-col h-full overflow-hidden relative z-0">
                 <div className="flex-1 overflow-y-auto pb-24">
                     {/* Header */}
-                    <div className="px-6 pt-6 flex justify-between items-center">
+                    <div className="px-6 pt-6 flex justify-between items-center pl-24">
                         {/* Hidden mobile menu button since we have sidebar now? Or keep for consistency? */}
                         {/* The Sidebar is visible on mobile in Pizza1 design, so this button is redundant for sidebar toggle.
                              But maybe for "Auth Sidebar" or "Menu"? Pizza1 sidebar button toggles AuthSidebar.
