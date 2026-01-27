@@ -24,6 +24,7 @@ import PublicMenuPizza1 from './pages/PublicMenuPizza1'
 import PublicMenuTestemplate from './pages/PublicMenuTestemplate'
 import ManageMenu from './pages/ManageMenu'
 import PublicMenuTestemplate2 from './pages/PublicMenuTestemplate2'
+import PublicMenuTestemplate3 from './pages/PublicMenuTestemplate3'
 
 import ScrollToTop from './components/ScrollToTop'
 import { LanguageProvider } from './context/LanguageContext'
@@ -73,6 +74,7 @@ function App() {
                   <Route path="/menu-pizza1" element={<PublicMenuPizza1 />} />
                   <Route path="/menu-testemplate" element={<PublicMenuTestemplate />} />
                   <Route path="/menu-testemplate2" element={<PublicMenuTestemplate2 />} />
+                  <Route path="/menu-testemplate3" element={<PublicMenuTestemplate3 />} />
                   <Route path="/menu/:templateKey" element={<PublicMenu />} />
 
                   {/* Unified Management Route */}
