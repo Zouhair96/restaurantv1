@@ -74,7 +74,7 @@ function App() {
                   <Route path="/menu-pizza1" element={<PublicMenuPizza1 />} />
                   <Route path="/menu-testemplate" element={<PublicMenuTestemplate />} />
                   <Route path="/menu-testemplate2" element={<PublicMenuTestemplate2 />} />
-                  <Route path="/menu-testemplate3" element={<PublicMenuTestemplate3 />} />
+
                   <Route path="/menu/:templateKey" element={<PublicMenu />} />
 
                   {/* Unified Management Route */}
