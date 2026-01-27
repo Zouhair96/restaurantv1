@@ -370,12 +370,12 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                         className="fixed inset-0 top-16 z-50 flex flex-col bg-theme overflow-hidden touch-none"
                         style={{ backgroundColor: config.themeColor }}
                     >
-                        {/* Detail Header - Removed "Product Details" and Back icon. Only Like button remains. */}
-                        <div className="px-6 pt-4 flex justify-end items-center text-white mb-2">
-                            <button onClick={() => setIsLiked(!isLiked)} className="p-2 border border-white/20 rounded-xl hover:bg-white/10 transition-colors">
-                                {isLiked ? <HiHeart className="w-6 h-6" /> : <HiOutlineHeart className="w-6 h-6" />}
-                            </button>
-                        </div>
+                        <button
+                            onClick={() => setIsLiked(!isLiked)}
+                            className="absolute top-6 right-6 p-3 bg-white/10 backdrop-blur-md rounded-2xl hover:bg-white/20 transition-all z-50 text-white"
+                        >
+                            {isLiked ? <HiHeart className="w-6 h-6" /> : <HiOutlineHeart className="w-6 h-6" />}
+                        </button>
 
                         {/* Image Section */}
                         <div className="flex-1 flex flex-col items-center justify-center p-8 relative overflow-hidden">
@@ -385,7 +385,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                             <div className="relative">
                                 <motion.div
                                     layoutId={`item-image-${selectedItem.id}`}
-                                    className="w-64 h-64 rounded-full border-8 border-white/10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] overflow-hidden z-10 relative"
+                                    className="w-64 h-64 rounded-full shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] overflow-hidden z-10 relative"
                                 >
                                     <img
                                         src={selectedItem.image}
