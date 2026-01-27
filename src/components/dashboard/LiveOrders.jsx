@@ -9,9 +9,9 @@ const LiveOrders = ({ onSelectOrder }) => {
 
     const playNewOrderSound = () => {
         try {
-            // Professional notification chime
-            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-            audio.volume = 0.6;
+            // Custom notification sound
+            const audio = new Audio('/sounds/notification.mp3');
+            audio.volume = 0.7;
             audio.play().catch(e => console.warn('Dashboard sound blocked:', e));
         } catch (err) {
             console.error('Audio error:', err);
