@@ -21,11 +21,8 @@ import PlanDetails from './pages/PlanDetails'
 import TestMenu from './pages/TestMenu'
 
 import PublicMenuPizza1 from './pages/PublicMenuPizza1'
-import ManageMenuPizza1 from './pages/ManageMenuPizza1'
-import PublicMenuTestemplate from './pages/PublicMenuTestemplate'
-import ManageMenuTestemplate from './pages/ManageMenuTestemplate'
+import ManageMenu from './pages/ManageMenu'
 import PublicMenuTestemplate2 from './pages/PublicMenuTestemplate2'
-import ManageMenuTestemplate2 from './pages/ManageMenuTestemplate2'
 
 import ScrollToTop from './components/ScrollToTop'
 import { LanguageProvider } from './context/LanguageContext'
@@ -76,12 +73,12 @@ function App() {
                   <Route path="/menu-testemplate" element={<PublicMenuTestemplate />} />
                   <Route path="/menu-testemplate2" element={<PublicMenuTestemplate2 />} />
                   <Route path="/menu/:templateKey" element={<PublicMenu />} />
-                  <Route path="/manage-menu-pizza1" element={<ManageMenuPizza1 />} />
-                  <Route path="/manage-menu-testemplate" element={<ManageMenuTestemplate />} />
-                  <Route path="/manage-menu-testemplate2" element={<ManageMenuTestemplate2 />} />
-                  <Route path="/manage-template/testemplate" element={<ManageMenuTestemplate isAdminView={true} />} />
-                  <Route path="/manage-template/testemplate2" element={<ManageMenuTestemplate2 isAdminView={true} />} />
-                  <Route path="/manage-template/:templateKey" element={<ManageMenuPizza1 isAdminView={true} />} />
+
+                  {/* Unified Management Route */}
+                  <Route path="/manage-menu/:templateKey" element={<ManageMenu />} />
+
+                  {/* Admin Management Routes - Reusing same component */}
+                  <Route path="/manage-template/:templateKey" element={<ManageMenu isAdminView={true} />} />
 
                   {/* Public Menu Route - Must be last to avoid conflicts */}
                   <Route path="/:restaurantName" element={<PublicMenu />} />

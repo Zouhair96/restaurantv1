@@ -69,8 +69,36 @@ export const handler = async (event, context) => {
                 };
             }
 
+            // 1. Transaction-like: Deactivate ALL other templates for this user to ensure mutual exclusivity
+            await query(
+                `UPDATE restaurant_templates 
+                 SET status = 'inactive' 
+                 WHERE restaurant_id = $1`,
+                [user.id]
+            );
+
+            // 2. Insert/Update the specific requested template to ACTIVE
+            // First get the template ID from the key
+            const templateRes = await query('SELECT id FROM templates WHERE template_key = $1', [templateType || 'pizza1']);
+            const templateId = templateRes.rows[0]?.id;
+
+            if (templateId) {
+                await query(
+                    `INSERT INTO restaurant_templates (restaurant_id, template_id, status, subscription_tier)
+                     VALUES ($1, $2, 'active', 'starter')
+                     ON CONFLICT (restaurant_id, template_id)
+                     DO UPDATE SET status = 'active', updated_at = NOW()`,
+                    [user.id, templateId]
+                );
+            }
+
+            // 3. Create/Update the Menu Config Entry (Metadata)
             const result = await query(
-                'INSERT INTO menus (user_id, name, template_type, config) VALUES ($1, $2, $3, $4) RETURNING *',
+                `INSERT INTO menus (user_id, name, template_type, config) 
+                 VALUES ($1, $2, $3, $4) 
+                 ON CONFLICT (user_id, template_type) 
+                 DO UPDATE SET name = EXCLUDED.name, config = EXCLUDED.config, updated_at = NOW()
+                 RETURNING *`,
                 [user.id, name, templateType || 'custom', JSON.stringify(config)]
             );
 

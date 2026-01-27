@@ -90,21 +90,8 @@ const MenuManagement = () => {
     }
 
     const handleEditMenu = (menu) => {
-        if (menu.template_type === 'pizza1') {
-            navigate('/manage-menu-pizza1');
-            return;
-        }
-        if (menu.template_type === 'testemplate') {
-            navigate('/manage-menu-testemplate');
-            return;
-        }
-        if (menu.template_type === 'testemplate2') {
-            navigate('/manage-menu-testemplate2');
-            return;
-        }
-        setEditingMenu(menu)
-        setSelectedTemplate(menu.template_type)
-        setIsEditorOpen(true)
+        // Unified Route Navigation
+        navigate(`/manage-menu/${menu.template_type}`);
     }
 
     const hasMenu = savedMenus.length > 0
@@ -203,22 +190,8 @@ const MenuManagement = () => {
                                 if (isLocked) return;
                                 if (hasMenu && isActive) return; // Already created, use widget at top
 
-                                if (template.template_key === 'pizza1') {
-                                    navigate('/manage-menu-pizza1');
-                                    return;
-                                }
-                                if (template.template_key === 'testemplate') {
-                                    navigate('/manage-menu-testemplate');
-                                    return;
-                                }
-                                if (template.template_key === 'testemplate2') {
-                                    navigate('/manage-menu-testemplate2');
-                                    return;
-                                }
-
-                                setSelectedTemplate(template.template_key);
-                                setEditingMenu(null);
-                                setIsEditorOpen(true);
+                                // Unified Route Navigation
+                                navigate(`/manage-menu/${template.template_key}`);
                             }}
                             className={`group relative rounded-[2.5rem] overflow-hidden transition-all duration-300 border-2 ${isLocked
                                 ? 'opacity-40 grayscale cursor-not-allowed border-transparent'
@@ -263,17 +236,8 @@ const MenuManagement = () => {
                                                         await createMenu(user.restaurant_name || 'My Menu', template.template_key, {});
                                                         await loadMenus(); // Refresh to update UI state
 
-                                                        if (template.template_key === 'pizza1') {
-                                                            navigate('/manage-menu-pizza1');
-                                                        } else if (template.template_key === 'testemplate') {
-                                                            navigate('/manage-menu-testemplate');
-                                                        } else if (template.template_key === 'testemplate2') {
-                                                            navigate('/manage-menu-testemplate2');
-                                                        } else {
-                                                            setSelectedTemplate(template.template_key);
-                                                            setEditingMenu(null);
-                                                            setIsEditorOpen(true);
-                                                        }
+                                                        // Unified Route Navigation
+                                                        navigate(`/manage-menu/${template.template_key}`);
                                                     } catch (err) {
                                                         console.error("Activation failed:", err);
                                                         alert("Failed to activate menu. Please try again.");
