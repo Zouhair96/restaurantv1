@@ -107,7 +107,7 @@ export const handler = async (event, context) => {
                      SET name = $1, config = $2, updated_at = NOW()
                      WHERE id = $3
                      RETURNING *`,
-                    [name, JSON.stringify(config), existingMenuRes.rows[0].id]
+                    [name, config, existingMenuRes.rows[0].id]
                 );
             } else {
                 // INSERT
@@ -115,7 +115,7 @@ export const handler = async (event, context) => {
                     `INSERT INTO menus (user_id, name, template_type, config) 
                      VALUES ($1, $2, $3, $4) 
                      RETURNING *`,
-                    [user.id, name, templateType || 'custom', JSON.stringify(config)]
+                    [user.id, name, templateType || 'custom', config]
                 );
             }
 
@@ -150,7 +150,7 @@ export const handler = async (event, context) => {
 
             const result = await query(
                 'UPDATE menus SET name = $1, config = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3 RETURNING *',
-                [name || check.rows[0].name, JSON.stringify(config), id]
+                [name || check.rows[0].name, config, id]
             );
 
             return {

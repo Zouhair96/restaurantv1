@@ -221,8 +221,10 @@ const ManageMenu = ({ isAdminView = false }) => {
         });
     };
 
-    const handleSaveSettings = async () => {
+    const handleSaveSettings = async (configOverride = null) => {
         setIsSaving(true);
+        const activeConfig = configOverride || menuConfig;
+
         try {
             if (isAdminView) {
                 // Admin: Save to Template Config
@@ -234,22 +236,22 @@ const ManageMenu = ({ isAdminView = false }) => {
                     },
                     body: JSON.stringify({
                         id: template.id,
-                        config: menuConfig
+                        config: activeConfig
                     })
                 });
-                if (response.ok) alert('Master Template Settings saved!');
+                if (response.ok) {
+                    // Use a toast or subtle notification instead of alert if possible, 
+                    // but for now let's just avoid the alert blocking during auto-saves
+                    if (!configOverride) alert('Master Template Settings saved!');
+                }
             } else {
                 // Restaurant: Save to Menu Config
                 const menuId = template?.restaurant_menu_id;
-
-                // If menuId exists, update. If not, create.
-                // NOTE: In the new logic, "Activation" creates the menu record. So menuId should exist if we are here.
-                // But just in case:
                 const endpoint = '/.netlify/functions/menus';
                 const method = menuId ? 'PUT' : 'POST';
                 const body = menuId
-                    ? { id: menuId, name: menuConfig.restaurantName, config: menuConfig }
-                    : { name: menuConfig.restaurantName, templateType: templateKey, config: menuConfig };
+                    ? { id: menuId, name: activeConfig.restaurantName, config: activeConfig }
+                    : { name: activeConfig.restaurantName, templateType: templateKey, config: activeConfig };
 
                 const response = await fetch(endpoint, {
                     method,
@@ -259,9 +261,12 @@ const ManageMenu = ({ isAdminView = false }) => {
                     },
                     body: JSON.stringify(body)
                 });
-                if (response.ok) alert('Settings Saved!');
+
+                if (response.ok) {
+                    if (!configOverride) alert('Settings Saved!');
+                }
             }
-            setIsSettingsModalOpen(false);
+            if (!configOverride) setIsSettingsModalOpen(false);
             await loadData();
         } catch (error) {
             console.error('Failed to save settings:', error);
@@ -627,17 +632,19 @@ const ManageMenu = ({ isAdminView = false }) => {
                         updatedPromos = [...existingPromos, promo];
                     }
 
-                    setMenuConfig({ ...menuConfig, promotions: updatedPromos });
+                    const newConfig = { ...menuConfig, promotions: updatedPromos };
+                    setMenuConfig(newConfig);
 
-                    // Auto-save to backend
-                    handleSaveSettings();
+                    // Auto-save to backend using the NEW config immediately
+                    handleSaveSettings(newConfig);
                 }}
                 onDelete={(promoId) => {
                     const updatedPromos = (menuConfig.promotions || []).filter(p => p.id !== promoId);
-                    setMenuConfig({ ...menuConfig, promotions: updatedPromos });
+                    const newConfig = { ...menuConfig, promotions: updatedPromos };
+                    setMenuConfig(newConfig);
 
-                    // Auto-save to backend
-                    handleSaveSettings();
+                    // Auto-save to backend using the NEW config immediately
+                    handleSaveSettings(newConfig);
                 }}
             />
 

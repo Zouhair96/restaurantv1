@@ -11,6 +11,8 @@ import { useClientAuth } from '../context/ClientAuthContext';
 import PersistentOrderTracker from '../components/PersistentOrderTracker';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
+import { isPromoActive, getDiscountedPrice, getPromosByDisplayStyle } from '../utils/promoUtils';
+import { HiTag, HiChevronLeft, HiChevronRight } from 'react-icons/hi2';
 
 const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
     const { user: clientUser, activeOrderId, activeOrder, handleCloseTracker, isTopTrackerHidden } = useClientAuth();
@@ -47,6 +49,8 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
     const [showAuthSidebar, setShowAuthSidebar] = useState(false);
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
     const [activeCategory, setActiveCategory] = useState('All');
+    const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
+    const [showBadgePromos, setShowBadgePromos] = useState(false);
 
     const {
         cartItems,
@@ -95,6 +99,17 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
         };
         fetchData();
     }, [restaurantName, isMasterView]);
+
+    useEffect(() => {
+        const bannerPromos = getPromosByDisplayStyle(config.promotions || [], 'banner');
+        if (bannerPromos.length <= 1) return;
+
+        const interval = setInterval(() => {
+            setCurrentBannerIndex(prev => (prev + 1) % bannerPromos.length);
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, [config.promotions]);
 
     useEffect(() => {
         if (menuItems.length > 0 && !selectedItem) {
@@ -372,8 +387,57 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                 onClose={() => setIsCheckoutOpen(false)}
                 restaurantName={restaurantName}
                 themeColor={config.themeColor}
+                promotions={config.promotions || []}
                 taxConfig={{ applyTax: config.applyTax, taxPercentage: config.taxPercentage }}
             />
+
+            {/* Badge Promotions List Modal */}
+            <AnimatePresence>
+                {showBadgePromos && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowBadgePromos(false)} className="absolute inset-0 bg-black/60 backdrop-blur-md" />
+                        <motion.div initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }} className="relative bg-white dark:bg-[#1a1c23] w-full max-w-md rounded-[2.5rem] overflow-hidden shadow-2xl">
+                            <div className="p-8">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Active Offers</h2>
+                                    <button onClick={() => setShowBadgePromos(false)} className="p-2 rounded-full bg-gray-100 dark:bg-white/5 text-gray-500 hover:text-gray-900 transition-colors">
+                                        <HiXMark className="w-6 h-6" />
+                                    </button>
+                                </div>
+
+                                <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 no-scrollbar">
+                                    {getPromosByDisplayStyle(config.promotions || [], 'badge').map((promo) => (
+                                        <div key={promo.id} className="p-5 rounded-3xl bg-orange-50 border border-orange-100 flex flex-col gap-3">
+                                            <div className="flex items-center gap-4">
+                                                {promo.promoImage ? (
+                                                    <img src={promo.promoImage} alt="" className="w-16 h-16 rounded-2xl object-cover shadow-sm" />
+                                                ) : (
+                                                    <div className="w-16 h-16 rounded-2xl bg-orange-200 flex items-center justify-center text-2xl shadow-sm">🎁</div>
+                                                )}
+                                                <div className="flex-1">
+                                                    <div className="flex items-center justify-between mb-1">
+                                                        <h3 className="font-black text-gray-900">{promo.name}</h3>
+                                                        <span className="text-orange-600 font-black">{promo.discountType === 'percentage' ? `${promo.discountValue}% OFF` : `$${promo.discountValue} OFF`}</span>
+                                                    </div>
+                                                    <p className="text-sm text-gray-500 italic">{promo.promoText}</p>
+                                                </div>
+                                            </div>
+                                            {promo.requiresCode && (
+                                                <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-dashed border-orange-300 text-sm">
+                                                    <span className="text-gray-400 font-bold">PROMO CODE</span>
+                                                    <span className="font-black tracking-widest text-orange-600 uppercase">{promo.promoCode}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <button onClick={() => setShowBadgePromos(false)} className="w-full mt-8 py-4 bg-gray-900 text-white font-black rounded-2xl shadow-xl active:scale-95 transition-all uppercase tracking-widest text-sm">Got it!</button>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
             <WelcomeSequence restaurantName={config.restaurantName} themeColor={config.themeColor} promoConfig={config} />
         </div >
     );

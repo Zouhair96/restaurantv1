@@ -11,6 +11,8 @@ import { useLanguage } from '../context/LanguageContext';
 import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
 import Checkout from '../components/menu/Checkout';
 import WelcomeSequence from '../components/public-menu/WelcomeSequence';
+import { isPromoActive, getDiscountedPrice, getPromosByDisplayStyle } from '../utils/promoUtils';
+import { HiTag, HiChevronLeft, HiChevronRight, HiXMark } from 'react-icons/hi2';
 
 const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
     const { restaurantName: urlRestaurantName } = useParams();
@@ -32,13 +34,25 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
     const [favorites, setFavorites] = useState([]);
     const [showAuthSidebar, setShowAuthSidebar] = useState(false);
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+    const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
+    const [showBadgePromos, setShowBadgePromos] = useState(false);
 
     // Cart
     const { addToCart, cartItems } = useCart();
     const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
     const { t, localize } = useLanguage();
 
-    // Fetch Data
+    useEffect(() => {
+        const bannerPromos = getPromosByDisplayStyle(config.promotions || [], 'banner');
+        if (bannerPromos.length <= 1) return;
+
+        const interval = setInterval(() => {
+            setCurrentBannerIndex(prev => (prev + 1) % bannerPromos.length);
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, [config.promotions]);
+
     useEffect(() => {
         const fetchData = async () => {
             setIsLoading(true);
@@ -97,9 +111,14 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
         setQuantity(1);
     };
 
+    const handleAddToCartFromList = (item, price) => {
+        addToCart({ ...item, price: price || item.price, quantity: 1 });
+    };
+
     const handleAddToCart = () => {
         if (selectedItem) {
-            addToCart({ ...selectedItem, quantity });
+            const { finalPrice } = getDiscountedPrice(config.promotions || [], selectedItem);
+            addToCart({ ...selectedItem, price: finalPrice, quantity });
             setSelectedItem(null);
         }
     };
@@ -136,85 +155,147 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
                 </div>
             </header>
 
-            <div className="px-6 mt-6">
-                <h1 className="text-3xl font-black text-gray-900 leading-tight" dangerouslySetInnerHTML={{ __html: t('auth.menu.differentKind').replace('kind', 'kind <br />') }} />
-            </div>
+            {/* Main Content */}
+            <main className="flex-1 overflow-y-auto no-scrollbar pb-24 px-6 pt-6">
+                {/* Banner Promotions */}
+                {(() => {
+                    const bannerPromos = getPromosByDisplayStyle(config.promotions || [], 'banner');
+                    if (bannerPromos.length > 0) {
+                        const currentPromo = bannerPromos[currentBannerIndex % bannerPromos.length];
+                        return (
+                            <div className="mb-8">
+                                <div className="relative h-44 rounded-[2.5rem] overflow-hidden shadow-2xl group">
+                                    {currentPromo.promoImage && (
+                                        <img src={currentPromo.promoImage} className="absolute inset-0 w-full h-full object-cover" alt="" />
+                                    )}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-8">
+                                        <AnimatePresence mode="wait">
+                                            <motion.div
+                                                key={currentBannerIndex}
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -10 }}
+                                            >
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <div className="p-1 px-3 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-black text-white uppercase tracking-[0.2em]">Promotion</div>
+                                                </div>
+                                                <h3 className="text-white text-2xl font-black uppercase tracking-tight mb-1">{currentPromo.name}</h3>
+                                                <div className="flex items-center justify-between">
+                                                    <p className="text-white/70 text-sm font-medium italic">{currentPromo.promoText}</p>
+                                                    <div className="bg-[#F97316] text-white px-4 py-1 rounded-full font-black text-sm shadow-lg">
+                                                        {currentPromo.discountType === 'percentage' ? `${currentPromo.discountValue}% OFF` : `$${currentPromo.discountValue} OFF`}
+                                                    </div>
+                                                </div>
+                                            </motion.div>
+                                        </AnimatePresence>
+                                    </div>
 
-            {/* Search */}
-            <div className="px-6 mt-6 flex gap-3">
-                <div className="flex-1 bg-white rounded-2xl flex items-center px-4 py-3 shadow-sm border border-gray-100">
-                    <HiMagnifyingGlass className="w-5 h-5 text-gray-400 mr-2" />
-                    <input type="text" placeholder={t('auth.menu.search')} className="w-full bg-transparent outline-none text-sm font-medium" />
-                </div>
-                <button className="w-12 h-12 bg-theme rounded-2xl flex items-center justify-center text-white shadow-lg active:scale-95 transition-transform" style={{ backgroundColor: config.themeColor }}>
-                    <HiAdjustmentsHorizontal className="w-6 h-6" />
-                </button>
-            </div>
+                                    {bannerPromos.length > 1 && (
+                                        <div className="absolute top-4 right-6 flex gap-1.5">
+                                            {bannerPromos.map((_, i) => (
+                                                <div key={i} className={`h-1.5 rounded-full transition-all ${i === (currentBannerIndex % bannerPromos.length) ? 'w-6 bg-white' : 'w-1.5 bg-white/30'}`} />
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        );
+                    }
+                    return null;
+                })()}
 
-            {/* Categories */}
-            <div className="mt-8 pl-6 overflow-x-auto no-scrollbar flex gap-4 pr-6 pb-4">
-                {categories.map((cat, i) => (
-                    <button
-                        key={i}
-                        onClick={() => setActiveCategory(cat)}
-                        className={`px-6 py-3 rounded-full font-bold text-sm whitespace-nowrap transition-all shadow-sm ${activeCategory === cat
-                            ? 'bg-theme text-white shadow-lg shadow-orange-200'
-                            : 'bg-white text-gray-400 hover:bg-gray-50'
-                            }`}
-                        style={activeCategory === cat ? { backgroundColor: config.themeColor } : {}}
-                    >
-                        {cat === 'All' ? t('auth.menu.all') : cat}
-                    </button>
-                ))}
-            </div>
+                <header className="mb-8">
+                    <h1 className="text-4xl font-black text-white uppercase tracking-tighter leading-none mb-2">
+                        {t('auth.menu.popular')} <span className="text-[#F97316]">Food</span>
+                    </h1>
+                    <p className="text-white/40 text-sm font-medium uppercase tracking-widest">{config.location}</p>
+                </header>
 
-            {/* Popular Items Grid */}
-            <div className="px-6 mt-2 pb-8">
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-bold text-gray-900">{t('auth.menu.all')}</h2>
-                    <span className="text-xs font-bold text-theme uppercase tracking-wider cursor-pointer" style={{ color: config.themeColor }}>{t('header.howItWorks')}</span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                    {filteredItems.map(item => (
-                        <motion.div
-                            key={item.id}
-                            layoutId={`card-${item.id}`}
-                            onClick={() => handleItemClick(item)}
-                            className="bg-white rounded-3xl p-3 shadow-sm hover:shadow-xl transition-shadow cursor-pointer group"
+                {/* Categories */}
+                <div className="flex gap-4 overflow-x-auto no-scrollbar mb-8">
+                    {categories.map((cat) => (
+                        <button
+                            key={cat}
+                            onClick={() => setActiveCategory(cat)}
+                            className={`px-6 py-4 rounded-3xl font-black uppercase tracking-widest text-xs transition-all ${activeCategory === cat
+                                ? 'bg-[#F97316] text-white shadow-xl shadow-orange-500/20'
+                                : 'bg-white/5 text-white/40 hover:bg-white/10'
+                                }`}
                         >
-                            <div className="relative mb-3">
-                                <motion.div layoutId={`image-${item.id}`} className="w-full aspect-square rounded-full overflow-hidden shadow-md">
-                                    <img src={item.image} alt={localize(item, 'name')} className="w-full h-full object-cover" />
-                                </motion.div>
-                                <button
-                                    onClick={(e) => toggleFavorite(e, item.id)}
-                                    className="absolute top-0 right-0 p-1.5 bg-white rounded-full shadow-sm text-gray-300 hover:text-red-500 transition-colors"
-                                >
-                                    <HiHeart className={`w-4 h-4 ${favorites.includes(item.id) ? 'text-red-500 fill-current' : ''}`} />
-                                </button>
-                            </div>
-
-                            <h3 className="font-bold text-gray-900 text-sm line-clamp-1">{localize(item, 'name')}</h3>
-                            <div className="flex items-center gap-2 mt-1 mb-2">
-                                <span className="flex items-center text-xs font-bold text-gray-400">
-                                    <HiClock className="w-3 h-3 mr-1" /> {item.time}
-                                </span>
-                                <span className="flex items-center text-xs font-bold text-gray-400">
-                                    <HiStar className="w-3 h-3 mr-1 text-yellow-400" /> {item.rating}
-                                </span>
-                            </div>
-
-                            <div className="flex justify-between items-end">
-                                <span className="text-lg font-black text-gray-900">${parseFloat(item.price).toFixed(2)}</span>
-                                <button className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-theme hover:text-white transition-colors" style={{ '--tw-hover-bg': config.themeColor }}>
-                                    <HiPlus className="w-5 h-5" />
-                                </button>
-                            </div>
-                        </motion.div>
+                            {cat === 'All' ? t('auth.menu.all') : cat}
+                        </button>
                     ))}
                 </div>
-            </div>
+
+                {/* Products Grid */}
+                <div className="grid grid-cols-2 gap-6">
+                    {filteredItems.map((item) => {
+                        const { finalPrice, discount, originalPrice, promo } = getDiscountedPrice(config.promotions || [], item);
+                        const hasDiscount = discount > 0;
+
+                        return (
+                            <motion.div
+                                key={item.id}
+                                onClick={() => handleItemClick(item)}
+                                className="bg-white/5 rounded-[2.5rem] p-5 relative group cursor-pointer hover:bg-white/10 transition-colors"
+                                whileHover={{ y: -5 }}
+                            >
+                                {hasDiscount && (
+                                    <div className="absolute -top-2 -left-2 bg-[#F97316] text-white text-[10px] font-black px-3 py-1.5 rounded-2xl z-10 shadow-xl rotate-[-5deg]">
+                                        {promo.discountType === 'percentage' ? `${promo.discountValue}% OFF` : `$${promo.discountValue} OFF`}
+                                    </div>
+                                )}
+                                <button className="absolute top-5 right-5 text-white/20 hover:text-red-500 transition-colors z-10">
+                                    <HiHeart className="w-5 h-5" />
+                                </button>
+                                <div className="relative mb-6">
+                                    <div className="absolute inset-0 bg-orange-500/10 blur-3xl rounded-full scale-150 group-hover:bg-orange-500/20 transition-all"></div>
+                                    <img src={item.image} alt={localize(item, 'name')} className="w-full h-32 object-contain relative z-10 drop-shadow-2xl group-hover:scale-110 transition-transform duration-500" />
+                                </div>
+                                <h3 className="text-white font-black uppercase tracking-tight text-sm mb-1 truncate">{localize(item, 'name')}</h3>
+                                <div className="flex items-center gap-2 mb-4">
+                                    <HiStar className="text-orange-500 w-3 h-3" />
+                                    <span className="text-white/40 text-[10px] font-black">{item.rating}</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <div className="flex flex-col">
+                                        {hasDiscount && <span className="text-white/20 line-through text-[10px] font-black">${parseFloat(originalPrice).toFixed(2)}</span>}
+                                        <span className="text-white font-black text-xl tracking-tighter">${parseFloat(finalPrice).toFixed(2)}</span>
+                                    </div>
+                                    <button
+                                        className="w-10 h-10 bg-[#F97316] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-orange-500/40 hover:scale-110 active:scale-95 transition-all"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleAddToCartFromList(item, finalPrice);
+                                        }}
+                                    >
+                                        <HiPlus className="w-6 h-6" />
+                                    </button>
+                                </div>
+                            </motion.div>
+                        );
+                    })}
+                </div>
+            </main>
+
+            {/* Floating Badge Promo Trigger */}
+            {(() => {
+                const badgePromos = getPromosByDisplayStyle(config.promotions || [], 'badge');
+                if (badgePromos.length > 0) {
+                    return (
+                        <motion.button
+                            onClick={() => setShowBadgePromos(true)}
+                            className="fixed bottom-28 right-8 z-40 bg-[#F97316] text-white p-4 rounded-full shadow-2xl flex items-center gap-2 font-black uppercase text-[10px] tracking-[0.2em]"
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                        >
+                            <HiTag className="w-5 h-5" />
+                            <span>{badgePromos.length} Offers</span>
+                        </motion.button>
+                    );
+                }
+                return null;
+            })()}
 
             {/* Bottom Nav */}
             <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-8 py-4 flex justify-between items-center z-40 pb-8">
@@ -277,10 +358,25 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
                         <div className="flex-1 -mt-10 bg-white rounded-t-[2.5rem] relative px-8 pt-12 pb-8 flex flex-col">
                             <div className="w-12 h-1.5 bg-gray-200 rounded-full absolute top-4 left-1/2 -translate-x-1/2" />
 
-                            <div className="flex justify-between items-start mb-2">
-                                <h2 className="text-2xl font-black text-gray-900">{localize(selectedItem, 'name')}</h2>
-                                <span className="text-2xl font-black text-theme" style={{ color: config.themeColor }}>${parseFloat(selectedItem.price).toFixed(2)}</span>
-                            </div>
+                            <header className="mb-10 text-center">
+                                <h2 className="text-3xl font-black text-gray-900 uppercase tracking-tighter mb-1">{localize(selectedItem, 'name')}</h2>
+                                {(() => {
+                                    const { finalPrice, discount, originalPrice, promo } = getDiscountedPrice(config.promotions || [], selectedItem);
+                                    return (
+                                        <div className="flex flex-col items-center gap-1">
+                                            <div className="flex items-center gap-4">
+                                                {discount > 0 && <span className="text-gray-300 line-through font-black text-lg font-mono">${parseFloat(originalPrice).toFixed(2)}</span>}
+                                                <span className="text-4xl font-black text-[#F97316] tracking-tighter font-mono">${parseFloat(finalPrice).toFixed(2)}</span>
+                                            </div>
+                                            {promo && (
+                                                <div className="mt-2 bg-[#F97316]/10 text-[#F97316] px-4 py-1.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] border border-[#F97316]/20 flex items-center gap-2">
+                                                    <HiTag className="w-4 h-4" /> {promo.name}
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })()}
+                            </header>
 
                             <div className="flex items-center gap-6 mt-4 mb-6">
                                 <span className="flex items-center gap-2 font-bold text-gray-500 text-sm">
@@ -327,8 +423,58 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
                 onClose={() => setIsCheckoutOpen(false)}
                 restaurantName={restaurantName}
                 themeColor={config.themeColor}
+                promotions={config.promotions || []}
                 taxConfig={{ applyTax: config.applyTax, taxPercentage: config.taxPercentage }}
             />
+
+            {/* Floating Badge Promotions List */}
+            <AnimatePresence>
+                {showBadgePromos && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowBadgePromos(false)} className="absolute inset-0 bg-black/80 backdrop-blur-md" />
+                        <motion.div initial={{ scale: 0.9, opacity: 0, y: 30 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 30 }} className="relative bg-[#1a1c23] w-full max-w-md rounded-[3rem] overflow-hidden shadow-2xl border border-white/10">
+                            <div className="p-8">
+                                <div className="flex justify-between items-center mb-8">
+                                    <h2 className="text-2xl font-black text-white uppercase tracking-tighter">Exclusive <span className="text-orange-500">Offers</span></h2>
+                                    <button onClick={() => setShowBadgePromos(false)} className="p-2 rounded-2xl bg-white/5 text-white/40 hover:text-white transition-colors">
+                                        <HiXMark className="w-6 h-6" />
+                                    </button>
+                                </div>
+
+                                <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-2 no-scrollbar">
+                                    {getPromosByDisplayStyle(config.promotions || [], 'badge').map((promo) => (
+                                        <div key={promo.id} className="p-6 rounded-[2rem] bg-white/5 border border-white/10 flex flex-col gap-4">
+                                            <div className="flex items-center gap-5">
+                                                {promo.promoImage ? (
+                                                    <img src={promo.promoImage} alt="" className="w-16 h-16 rounded-2xl object-cover shadow-2xl" />
+                                                ) : (
+                                                    <div className="w-16 h-16 rounded-2xl bg-orange-500/10 flex items-center justify-center text-3xl shadow-inner">🍔</div>
+                                                )}
+                                                <div className="flex-1">
+                                                    <div className="flex items-center justify-between mb-1">
+                                                        <h3 className="font-black text-white uppercase tracking-tight">{promo.name}</h3>
+                                                        <span className="text-orange-500 font-black font-mono">{promo.discountType === 'percentage' ? `${promo.discountValue}%` : `$${promo.discountValue}`}</span>
+                                                    </div>
+                                                    <p className="text-sm text-white/40 font-medium italic">{promo.promoText}</p>
+                                                </div>
+                                            </div>
+                                            {promo.requiresCode && (
+                                                <div className="flex items-center justify-between p-4 bg-black/40 rounded-2xl border border-dashed border-orange-500/30 text-xs">
+                                                    <span className="text-white/20 font-black uppercase tracking-widest">Code</span>
+                                                    <span className="font-black tracking-[0.3em] text-orange-500 uppercase">{promo.promoCode}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <button onClick={() => setShowBadgePromos(false)} className="w-full mt-8 py-5 bg-orange-500 text-white font-black rounded-3xl shadow-2xl shadow-orange-500/30 active:scale-95 transition-all uppercase tracking-[0.3em] text-xs">Close</button>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
             <WelcomeSequence restaurantName={config.restaurantName} themeColor={config.themeColor} promoConfig={config} />
 
             <style>{`
