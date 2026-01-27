@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { HiPencil, HiTrash, HiXMark, HiCloudArrowUp, HiPhoto, HiPlus, HiCog6Tooth, HiArrowLeft, HiRocketLaunch, HiEye, HiEyeSlash } from 'react-icons/hi2';
+import { HiPencil, HiTrash, HiXMark, HiCloudArrowUp, HiPhoto, HiPlus, HiCog6Tooth, HiArrowLeft, HiRocketLaunch, HiEye, HiEyeSlash, HiTag } from 'react-icons/hi2';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
+import PromoManagementModal from '../components/dashboard/PromoManagementModal';
 
 const ManageMenu = ({ isAdminView = false }) => {
     const { user: currentUser } = useAuth();
@@ -21,7 +22,8 @@ const ManageMenu = ({ isAdminView = false }) => {
         showWelcomePromo: true,
         welcomePromoText: "",
         loadingDuration: 3,
-        promoDuration: 5
+        promoDuration: 5,
+        promotions: [] // Promotion management
     });
 
     const [isLoading, setIsLoading] = useState(true);
@@ -29,6 +31,7 @@ const ManageMenu = ({ isAdminView = false }) => {
     const [editingItem, setEditingItem] = useState(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+    const [isPromoModalOpen, setIsPromoModalOpen] = useState(false);
 
     // Filter States
     const [selectedCategory, setSelectedCategory] = useState('All');
@@ -338,6 +341,14 @@ const ManageMenu = ({ isAdminView = false }) => {
                         {isAdminView ? 'Add Master' : 'Add Custom'}
                     </button>
                     <button
+                        onClick={() => setIsPromoModalOpen(true)}
+                        style={{ backgroundColor: menuConfig.themeColor }}
+                        className="p-4 text-white font-black rounded-2xl shadow-lg hover:opacity-90 transition-all active:scale-95"
+                        title="Manage Promotions"
+                    >
+                        <HiTag className="w-6 h-6" />
+                    </button>
+                    <button
                         onClick={() => setIsSettingsModalOpen(true)}
                         className="p-4 bg-indigo-50 dark:bg-white/10 text-indigo-600 dark:text-white font-black rounded-2xl border-2 border-indigo-200 shadow-md hover:border-indigo-500 hover:bg-white transition-all active:rotate-45"
                         title="Display Settings"
@@ -591,6 +602,42 @@ const ManageMenu = ({ isAdminView = false }) => {
                     </div>
                 </div>
             )}
+
+            {/* Promo Management Modal */}
+            <PromoManagementModal
+                isOpen={isPromoModalOpen}
+                onClose={() => setIsPromoModalOpen(false)}
+                promotions={menuConfig.promotions || []}
+                items={items}
+                categories={categories}
+                themeColor={menuConfig.themeColor}
+                onSave={(promo) => {
+                    const existingPromos = menuConfig.promotions || [];
+                    const promoIndex = existingPromos.findIndex(p => p.id === promo.id);
+                    let updatedPromos;
+
+                    if (promoIndex >= 0) {
+                        // Update existing
+                        updatedPromos = [...existingPromos];
+                        updatedPromos[promoIndex] = promo;
+                    } else {
+                        // Add new
+                        updatedPromos = [...existingPromos, promo];
+                    }
+
+                    setMenuConfig({ ...menuConfig, promotions: updatedPromos });
+
+                    // Auto-save to backend
+                    handleSaveSettings();
+                }}
+                onDelete={(promoId) => {
+                    const updatedPromos = (menuConfig.promotions || []).filter(p => p.id !== promoId);
+                    setMenuConfig({ ...menuConfig, promotions: updatedPromos });
+
+                    // Auto-save to backend
+                    handleSaveSettings();
+                }}
+            />
 
             {/* Settings Modal - Simplified for brevity, similar structure to previous */}
             {isSettingsModalOpen && (
