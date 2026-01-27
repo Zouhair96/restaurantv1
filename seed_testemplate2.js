@@ -11,7 +11,7 @@ async function seed() {
             '🍔', 
             'https://images.unsplash.com/photo-1561758033-d89a9ad46330?q=80&w=1000', 
             'Modern Fast Food Application Style', 
-            '["pro", "enterprise"]',
+            '["starter", "pro", "enterprise"]',
             'list'
         )
         ON CONFLICT (template_key) DO UPDATE SET 
