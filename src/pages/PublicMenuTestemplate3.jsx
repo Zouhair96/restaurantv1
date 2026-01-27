@@ -4,7 +4,7 @@ import { useCart } from '../context/CartContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const PublicMenuTestemplate3 = ({ menuData, loading }) => {
-    const { addToCart, cart } = useCart();
+    const { addToCart, cartItems: cart } = useCart();
     const [activeCategory, setActiveCategory] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedItem, setSelectedItem] = useState(null);
@@ -112,8 +112,8 @@ const PublicMenuTestemplate3 = ({ menuData, loading }) => {
                                 key={cat}
                                 onClick={() => scrollToCategory(cat)}
                                 className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeCategory === cat
-                                        ? 'text-white shadow-lg'
-                                        : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+                                    ? 'text-white shadow-lg'
+                                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
                                     }`}
                                 style={activeCategory === cat ? { backgroundColor: themeColor } : {}}
                             >
@@ -155,8 +155,8 @@ const PublicMenuTestemplate3 = ({ menuData, loading }) => {
                             key={cat}
                             onClick={() => scrollToCategory(cat)}
                             className={`whitespace-nowrap px-5 py-2 rounded-full text-xs font-black uppercase tracking-wide transition-all ${activeCategory === cat
-                                    ? 'text-white shadow-md'
-                                    : 'bg-white text-gray-500 border border-gray-100'
+                                ? 'text-white shadow-md'
+                                : 'bg-white text-gray-500 border border-gray-100'
                                 }`}
                             style={activeCategory === cat ? { backgroundColor: themeColor } : {}}
                         >
