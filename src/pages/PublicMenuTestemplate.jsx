@@ -355,19 +355,23 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
             <AnimatePresence>
                 {selectedItem && (
                     <motion.div
+                        drag="y"
+                        dragConstraints={{ top: 0, bottom: 0 }}
+                        dragElastic={0.7}
+                        onDragEnd={(_, info) => {
+                            if (Math.abs(info.offset.y) > 150 || Math.abs(info.velocity.y) > 500) {
+                                handleCloseDetail();
+                            }
+                        }}
                         initial={{ opacity: 0, y: '100%' }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: '100%' }}
                         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                        className="fixed inset-0 top-16 z-50 flex flex-col bg-theme overflow-hidden"
+                        className="fixed inset-0 top-16 z-50 flex flex-col bg-theme overflow-hidden touch-none"
                         style={{ backgroundColor: config.themeColor }}
                     >
-                        {/* Detail Header - Simplified since main header is visible */}
-                        <div className="px-6 pt-4 flex justify-between items-center text-white mb-2">
-                            <button onClick={handleCloseDetail} className="p-2 border border-white/20 rounded-xl hover:bg-white/10 transition-colors">
-                                <HiArrowLeft className="w-6 h-6" />
-                            </button>
-                            <span className="font-semibold text-lg">Product Details</span>
+                        {/* Detail Header - Removed "Product Details" and Back icon. Only Like button remains. */}
+                        <div className="px-6 pt-4 flex justify-end items-center text-white mb-2">
                             <button onClick={() => setIsLiked(!isLiked)} className="p-2 border border-white/20 rounded-xl hover:bg-white/10 transition-colors">
                                 {isLiked ? <HiHeart className="w-6 h-6" /> : <HiOutlineHeart className="w-6 h-6" />}
                             </button>
@@ -379,12 +383,15 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                             <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/food.png')] pointer-events-none"></div>
 
                             <div className="relative">
-
                                 <motion.div
                                     layoutId={`item-image-${selectedItem.id}`}
-                                    className="w-64 h-64 rounded-full border-8 border-white/10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] overflow-hidden z-10 relative"
+                                    className="w-64 h-64 z-10 relative"
                                 >
-                                    <img src={selectedItem.image} alt={selectedItem.name} className="w-full h-full object-cover" />
+                                    <img
+                                        src={selectedItem.image}
+                                        alt={selectedItem.name}
+                                        className="w-full h-full object-contain"
+                                    />
                                 </motion.div>
                             </div>
                         </div>
