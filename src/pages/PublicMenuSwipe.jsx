@@ -6,6 +6,7 @@ import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
 import Checkout from '../components/menu/Checkout';
 import Cart from '../components/menu/Cart';
 import WelcomeSequence from '../components/public-menu/WelcomeSequence';
+import { useLanguage } from '../context/LanguageContext';
 
 const PublicMenuSwipe = ({ restaurantName: propRestaurantName, templateKey: propTemplateKey }) => {
     const { restaurantName: urlRestaurantName, templateKey: urlTemplateKey } = useParams();
@@ -16,7 +17,11 @@ const PublicMenuSwipe = ({ restaurantName: propRestaurantName, templateKey: prop
     const [isLoading, setIsLoading] = useState(true);
     const [showAuthSidebar, setShowAuthSidebar] = useState(false);
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+    const [menuItems, setMenuItems] = useState([]);
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [config, setConfig] = useState({});
     const { addToCart, setIsCartOpen } = useCart();
+    const { t, localize } = useLanguage();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -28,8 +33,10 @@ const PublicMenuSwipe = ({ restaurantName: propRestaurantName, templateKey: prop
                 const data = await res.json();
                 if (isMasterView && data.items) {
                     setMenuItems(data.items.map(i => ({ ...i, image: i.image_url })));
+                    setConfig({ themeColor: data.config?.themeColor || '#f97316' });
                 } else if (data.menu?.config) {
                     setMenuItems(data.menu.config.items || []);
+                    setConfig(data.menu.config);
                 }
             } catch (err) { console.error(err); } finally { setIsLoading(false); }
         };
@@ -67,9 +74,9 @@ const PublicMenuSwipe = ({ restaurantName: propRestaurantName, templateKey: prop
                 <div className="relative w-full max-w-md aspect-[3/4] bg-white rounded-[2.5rem] shadow-2xl overflow-hidden animate-fade-in">
                     <img src={currentItem.image} alt={currentItem.name} className="absolute inset-0 w-full h-full object-cover" />
                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-8 pt-20">
-                        <span className="bg-white/20 backdrop-blur-md text-white px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase mb-2 inline-block border border-white/20">{currentItem.category}</span>
-                        <h3 className="text-3xl font-black text-white leading-tight mb-2 uppercase tracking-tight">{currentItem.name}</h3>
-                        <p className="text-gray-300 text-sm font-medium line-clamp-2 mb-4 leading-relaxed">{currentItem.description}</p>
+                        <span className="bg-white/20 backdrop-blur-md text-white px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase mb-2 inline-block border border-white/20">{localize(currentItem, 'category')}</span>
+                        <h3 className="text-3xl font-black text-white leading-tight mb-2 uppercase tracking-tight">{localize(currentItem, 'name')}</h3>
+                        <p className="text-gray-300 text-sm font-medium line-clamp-2 mb-4 leading-relaxed" dangerouslySetInnerHTML={{ __html: localize(currentItem, 'description') }} />
                         <div className="text-3xl font-black text-white">${parseFloat(currentItem.price).toFixed(2)}</div>
                     </div>
                 </div>

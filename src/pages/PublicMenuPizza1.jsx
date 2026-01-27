@@ -195,15 +195,22 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
 
                 {/* Left Mini Footer Social Icons */}
                 <div className="w-full p-4 flex flex-col items-center gap-4 bg-white/50 backdrop-blur-md border-t border-gray-100/50">
-                    {[FaInstagram, FaFacebookF, FaTiktok, FaSnapchatGhost, FaGoogle].map((Icon, idx) => (
+                    {[
+                        { Icon: FaInstagram, label: 'Instagram' },
+                        { Icon: FaFacebookF, label: 'Facebook' },
+                        { Icon: FaTiktok, label: 'TikTok' },
+                        { Icon: FaSnapchatGhost, label: 'Snapchat' },
+                        { Icon: FaGoogle, label: 'Google Reviews' }
+                    ].map((social, idx) => (
                         <motion.a
                             key={idx}
                             href="#"
                             whileHover={{ scale: 1.2, x: 4 }}
                             whileTap={{ scale: 0.9 }}
                             className="text-gray-400 hover:text-gray-900 transition-colors"
+                            title={social.label}
                         >
-                            <Icon size={16} />
+                            <social.Icon size={16} />
                         </motion.a>
                     ))}
                 </div>
@@ -351,16 +358,16 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                         )}
                     </div>
                     <div className="p-6 border-t border-gray-100 bg-gray-50/50">
-                        <div className="flex justify-between mb-2 text-sm text-gray-500"><span>Subtotal</span><span>${parseFloat(getCartTotal() || 0).toFixed(2)}</span></div>
-                        <div className="flex justify-between mb-6"><span className="text-gray-900 font-bold text-lg">Total</span><span className="font-black text-2xl text-gray-900">${parseFloat(getCartTotal() || 0).toFixed(2)}</span></div>
-                        <button onClick={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }} className="w-full bg-gray-900 text-white font-bold py-4 rounded-xl shadow-lg">Checkout</button>
+                        <div className="flex justify-between mb-2 text-sm text-gray-500"><span>{t('auth.checkout.subtotal')}</span><span>${parseFloat(getCartTotal() || 0).toFixed(2)}</span></div>
+                        <div className="flex justify-between mb-6"><span className="text-gray-900 font-bold text-lg">{t('auth.checkout.total')}</span><span className="font-black text-2xl text-gray-900">${parseFloat(getCartTotal() || 0).toFixed(2)}</span></div>
+                        <button onClick={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }} className="w-full bg-gray-900 text-white font-bold py-4 rounded-xl shadow-lg">{t('auth.checkout.title')}</button>
                     </div>
                 </div>
             </div>
 
             <PublicMenuSidebar isOpen={showAuthSidebar} onClose={() => setShowAuthSidebar(false)} restaurantName={restaurantName} displayName={config.restaurantName} themeColor={config.themeColor} />
             <Checkout isOpen={isCheckoutOpen} onClose={() => setIsCheckoutOpen(false)} restaurantName={restaurantName} themeColor={config.themeColor} />
-            <WelcomeSequence restaurantName={config.restaurantName} themeColor={config.themeColor} promoConfig={config} language="fr" />
+            <WelcomeSequence restaurantName={config.restaurantName} themeColor={config.themeColor} promoConfig={config} />
         </div >
     );
 };

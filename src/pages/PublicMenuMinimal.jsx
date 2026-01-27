@@ -6,6 +6,7 @@ import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
 import Checkout from '../components/menu/Checkout';
 import Cart from '../components/menu/Cart';
 import WelcomeSequence from '../components/public-menu/WelcomeSequence';
+import { useLanguage } from '../context/LanguageContext';
 
 const PublicMenuMinimal = ({ restaurantName: propRestaurantName, templateKey: propTemplateKey }) => {
     const { restaurantName: urlRestaurantName, templateKey: urlTemplateKey } = useParams();
@@ -16,7 +17,10 @@ const PublicMenuMinimal = ({ restaurantName: propRestaurantName, templateKey: pr
     const [isLoading, setIsLoading] = useState(true);
     const [showAuthSidebar, setShowAuthSidebar] = useState(false);
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+    const [menuItems, setMenuItems] = useState([]);
+    const [config, setConfig] = useState({});
     const { addToCart, setIsCartOpen } = useCart();
+    const { t, localize } = useLanguage();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -59,8 +63,8 @@ const PublicMenuMinimal = ({ restaurantName: propRestaurantName, templateKey: pr
                         <div className="mb-10 aspect-square overflow-hidden bg-stone-100 rounded-sm">
                             <img src={item.image} alt={item.name} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-1000" />
                         </div>
-                        <h3 className="text-2xl font-light tracking-widest uppercase mb-3">{item.name}</h3>
-                        <p className="text-stone-500 font-serif italic mb-6 leading-relaxed px-4">{item.description}</p>
+                        <h3 className="text-2xl font-light tracking-widest uppercase mb-3">{localize(item, 'name')}</h3>
+                        <p className="text-stone-500 font-serif italic mb-6 leading-relaxed px-4" dangerouslySetInnerHTML={{ __html: localize(item, 'description') }} />
                         <div className="flex flex-col items-center gap-6">
                             <span className="text-xl font-light tracking-widest text-stone-400">/ ${parseFloat(item.price).toFixed(2)} /</span>
                             <button

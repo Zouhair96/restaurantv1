@@ -8,6 +8,9 @@ import {
     HiStar, HiClock, HiFire, HiPlus, HiMinus, HiArrowLeft
 } from 'react-icons/hi2';
 import { useLanguage } from '../context/LanguageContext';
+import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
+import Checkout from '../components/menu/Checkout';
+import WelcomeSequence from '../components/public-menu/WelcomeSequence';
 
 const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
     const { restaurantName: urlRestaurantName } = useParams();
@@ -27,6 +30,8 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [quantity, setQuantity] = useState(1);
     const [favorites, setFavorites] = useState([]);
+    const [showAuthSidebar, setShowAuthSidebar] = useState(false);
+    const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
     // Cart
     const { addToCart, cartItems } = useCart();
@@ -114,7 +119,10 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
 
             {/* Header */}
             <header className="px-6 pt-6 pb-2 flex justify-between items-center bg-white sticky top-0 z-10 shadow-sm">
-                <button className="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors">
+                <button
+                    onClick={() => setShowAuthSidebar(true)}
+                    className="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors"
+                >
                     <HiBars3 className="w-6 h-6 text-gray-700" />
                 </button>
                 <div className="text-center">
@@ -218,7 +226,11 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
                 </button>
 
                 <div className="relative -top-8">
-                    <button className="w-14 h-14 bg-theme rounded-full flex items-center justify-center text-white shadow-xl shadow-orange-200 active:scale-95 transition-transform" style={{ backgroundColor: config.themeColor }}>
+                    <button
+                        onClick={() => setIsCheckoutOpen(true)}
+                        className="w-14 h-14 bg-theme rounded-full flex items-center justify-center text-white shadow-xl shadow-orange-200 active:scale-95 transition-transform"
+                        style={{ backgroundColor: config.themeColor }}
+                    >
                         <HiShoppingBag className="w-6 h-6" />
                         {cartCount > 0 && (
                             <span className="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">
@@ -308,6 +320,10 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            <PublicMenuSidebar isOpen={showAuthSidebar} onClose={() => setShowAuthSidebar(false)} restaurantName={restaurantName} displayName={config.restaurantName} themeColor={config.themeColor} />
+            <Checkout isOpen={isCheckoutOpen} onClose={() => setIsCheckoutOpen(false)} restaurantName={restaurantName} themeColor={config.themeColor} />
+            <WelcomeSequence restaurantName={config.restaurantName} themeColor={config.themeColor} promoConfig={config} />
 
             <style>{`
                 .no-scrollbar::-webkit-scrollbar { display: none; }

@@ -335,7 +335,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                             className="w-full py-4 text-white font-black rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg"
                                             style={{ backgroundColor: themeColor, boxShadow: `0 10px 15px -3px ${themeColor}40` }}
                                         >
-                                            {loading ? '...' : <><HiOutlineLogin size={20} /> {t.submitLogin}</>}
+                                            {loading ? '...' : <><HiOutlineLogin size={20} /> {t('auth.submitLogin')}</>}
                                         </motion.button>
                                     </form>
                                     <div className="mt-6 text-center">
@@ -402,7 +402,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                             className="w-full py-4 text-white font-black rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg"
                                             style={{ backgroundColor: themeColor, boxShadow: `0 10px 15px -3px ${themeColor}40` }}
                                         >
-                                            {loading ? '...' : <><HiOutlineUserAdd size={20} /> {t.submitSignup}</>}
+                                            {loading ? '...' : <><HiOutlineUserAdd size={20} /> {t('auth.submitSignup')}</>}
                                         </button>
                                     </form>
                                     <p className={`mt-8 text-center text-sm transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
@@ -434,7 +434,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                             className="w-full py-4 text-white font-black rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg"
                                             style={{ backgroundColor: themeColor, boxShadow: `0 10px 15px -3px ${themeColor}40` }}
                                         >
-                                            {t.sendResetLink}
+                                            {t('auth.sendResetLink')}
                                         </button>
                                     </form>
                                     <div className="mt-6 text-center">
@@ -573,15 +573,15 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                             </span>
                             <div className="flex items-center justify-center gap-4">
                                 {[
-                                    { Icon: FaInstagram, color: '#E1306C', label: 'Instagram' },
-                                    { Icon: FaFacebookF, color: '#1877F2', label: 'Facebook' },
-                                    { Icon: FaTiktok, color: isDarkMode ? '#FFFFFF' : '#000000', label: 'TikTok' },
-                                    { Icon: FaSnapchatGhost, color: '#FFFC00', label: 'Snapchat' },
-                                    { Icon: FaGoogle, color: '#4285F4', label: 'Google' }
+                                    { Icon: FaInstagram, color: '#E1306C', label: 'Instagram', href: '#' },
+                                    { Icon: FaFacebookF, color: '#1877F2', label: 'Facebook', href: '#' },
+                                    { Icon: FaTiktok, color: isDarkMode ? '#FFFFFF' : '#000000', label: 'TikTok', href: '#' },
+                                    { Icon: FaSnapchatGhost, color: '#FFFC00', label: 'Snapchat', href: '#' },
+                                    { Icon: FaGoogle, color: '#4285F4', label: 'Google Reviews', href: '#' }
                                 ].map((social, idx) => (
                                     <motion.a
                                         key={idx}
-                                        href="#"
+                                        href={social.href}
                                         whileHover={{ scale: 1.2, y: -4 }}
                                         whileTap={{ scale: 0.9 }}
                                         className="p-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-100 dark:border-white/5"

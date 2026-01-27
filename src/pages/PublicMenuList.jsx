@@ -5,6 +5,7 @@ import { useCart } from '../context/CartContext';
 import Checkout from '../components/menu/Checkout';
 import Cart from '../components/menu/Cart';
 import WelcomeSequence from '../components/public-menu/WelcomeSequence';
+import { useLanguage } from '../context/LanguageContext';
 import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
 import PersistentOrderTracker from '../components/PersistentOrderTracker';
 import { useClientAuth } from '../context/ClientAuthContext';
@@ -25,6 +26,7 @@ const PublicMenuList = ({ restaurantName: propRestaurantName, templateKey: propT
     const [showAuthSidebar, setShowAuthSidebar] = useState(false);
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
     const { addToCart, setIsCartOpen } = useCart();
+    const { t, localize } = useLanguage();
     const { user: clientUser, activeOrderId, activeOrder, handleCloseTracker, isTopTrackerHidden } = useClientAuth();
 
     useEffect(() => {
@@ -56,8 +58,8 @@ const PublicMenuList = ({ restaurantName: propRestaurantName, templateKey: propT
         fetchData();
     }, [restaurantName, templateKey, isMasterView]);
 
-    const categories = ['All', ...new Set(menuItems.map(item => item.category))];
-    const filteredItems = activeCategory === 'All' ? menuItems : menuItems.filter(i => i.category === activeCategory);
+    const categories = ['All', ...new Set(menuItems.map(item => localize(item, 'category')))];
+    const filteredItems = activeCategory === 'All' ? menuItems : menuItems.filter(i => localize(i, 'category') === activeCategory);
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -96,6 +98,13 @@ const PublicMenuList = ({ restaurantName: propRestaurantName, templateKey: propT
             {/* Header */}
             <header className="bg-white px-6 py-8 border-b border-gray-100 flex items-center justify-between sticky top-0 z-50">
                 <div className="flex items-center gap-4">
+                    <button
+                        onClick={() => setShowAuthSidebar(true)}
+                        className="p-3 rounded-2xl bg-gray-100 hover:bg-gray-200 transition-colors"
+                        style={{ color: config.themeColor }}
+                    >
+                        <HiOutlineUserCircle size={24} />
+                    </button>
                     <h1 className="text-3xl font-black text-gray-900 uppercase tracking-tight">{isMasterView ? 'Master List' : config.restaurantName || restaurantName}</h1>
                 </div>
                 <div className="flex gap-2">
@@ -106,7 +115,7 @@ const PublicMenuList = ({ restaurantName: propRestaurantName, templateKey: propT
                             className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeCategory === cat ? 'bg-green-500 text-white shadow-lg' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
                             style={activeCategory === cat ? { backgroundColor: config.themeColor } : {}}
                         >
-                            {cat}
+                            {cat === 'All' ? t('auth.menu.all') : cat}
                         </button>
                     ))}
                 </div>
@@ -142,7 +151,7 @@ const PublicMenuList = ({ restaurantName: propRestaurantName, templateKey: propT
                             <div className="flex-1 py-2 flex flex-col justify-between">
                                 <div>
                                     <div className="flex justify-between items-start">
-                                        <h3 className="text-xl font-black text-gray-800 uppercase tracking-tight">{item.name}</h3>
+                                        <h3 className="text-xl font-black text-gray-800 uppercase tracking-tight">{localize(item, 'name')}</h3>
                                         <motion.span
                                             key={item.price}
                                             initial={{ scale: 1.2, color: config.themeColor }}
@@ -152,10 +161,10 @@ const PublicMenuList = ({ restaurantName: propRestaurantName, templateKey: propT
                                             ${parseFloat(item.price).toFixed(2)}
                                         </motion.span>
                                     </div>
-                                    <p className="text-gray-400 text-sm mt-1 leading-relaxed font-medium">{item.description}</p>
+                                    <p className="text-gray-400 text-sm mt-1 leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: localize(item, 'description') }} />
                                 </div>
                                 <div className="flex items-center justify-between mt-4">
-                                    <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 bg-gray-50 text-gray-400 rounded-lg">{item.category}</span>
+                                    <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 bg-gray-50 text-gray-400 rounded-lg">{localize(item, 'category')}</span>
                                     <motion.button
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
@@ -163,7 +172,7 @@ const PublicMenuList = ({ restaurantName: propRestaurantName, templateKey: propT
                                         className="px-6 py-3 rounded-2xl bg-gray-900 text-white text-xs font-black uppercase tracking-widest transition-all shadow-lg"
                                         style={{ backgroundColor: config.themeColor }}
                                     >
-                                        Add to Cart
+                                        {t('auth.menu.addToCart')}
                                     </motion.button>
                                 </div>
                             </div>

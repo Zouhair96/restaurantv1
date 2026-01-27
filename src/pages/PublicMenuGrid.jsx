@@ -9,6 +9,7 @@ import Cart from '../components/menu/Cart';
 import WelcomeSequence from '../components/public-menu/WelcomeSequence';
 import { useClientAuth } from '../context/ClientAuthContext';
 import PersistentOrderTracker from '../components/PersistentOrderTracker';
+import { useLanguage } from '../context/LanguageContext';
 
 const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propTemplateKey }) => {
     const { user: clientUser, activeOrderId, activeOrder, handleCloseTracker, isTopTrackerHidden } = useClientAuth();
@@ -25,6 +26,7 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
         logoImage: null,
         useLogo: false
     });
+    const { t, localize } = useLanguage();
     const [isAuthHovered, setIsAuthHovered] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -90,10 +92,10 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
     const [activeCategory, setActiveCategory] = useState('All');
     const { cartItems, addToCart, removeFromCart, updateQuantity, isCartOpen, setIsCartOpen, getCartTotal } = useCart();
 
-    const categories = ['All', ...new Set(menuItems.map(item => item.category))];
+    const categories = ['All', ...new Set(menuItems.map(item => localize(item, 'category')))];
     const filteredItems = activeCategory === 'All'
         ? menuItems
-        : menuItems.filter(item => item.category === activeCategory);
+        : menuItems.filter(item => localize(item, 'category') === activeCategory);
 
     const handleAddToCart = () => {
         if (selectedItem) {
@@ -129,7 +131,7 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
                             onClick={() => { setSelectedItem(item); setQuantity(1); }}
                             className={`relative aspect-square rounded-2xl overflow-hidden transition-all duration-500 group ${selectedItem?.id === item.id ? 'ring-4 ring-offset-2 ring-theme scale-95 shadow-lg' : 'hover:scale-105 opacity-60 hover:opacity-100 shadow-sm'}`}
                         >
-                            <img src={item.image} alt={item.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                            <img src={item.image} alt={localize(item, 'name')} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                             <div className={`absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors ${selectedItem?.id === item.id ? 'bg-transparent' : ''}`} />
                         </button>
                     ))}
@@ -155,7 +157,7 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
                                 onClick={() => setActiveCategory(cat)}
                                 className={`px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeCategory === cat ? 'bg-theme text-white shadow-lg' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
                             >
-                                {cat}
+                                {cat === 'All' ? t('auth.menu.all') : cat}
                             </button>
                         ))}
                     </div>
@@ -167,7 +169,7 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
                     <div className="flex-1 flex flex-col relative animate-fade-in group/main">
                         <div className="flex-1 relative overflow-hidden bg-gray-50 flex items-center justify-center p-8">
                             <div className="relative w-full max-w-lg aspect-square">
-                                <img src={selectedItem.image} alt={selectedItem.name}
+                                <img src={selectedItem.image} alt={localize(selectedItem, 'name')}
                                     className="w-full h-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.15)] transition-transform duration-1000 group-hover/main:scale-105" />
                             </div>
                         </div>
@@ -176,12 +178,12 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
                         <div className="p-8 space-y-4">
                             <div className="flex justify-between items-start">
                                 <div className="space-y-1">
-                                    <span className="bg-theme/10 text-theme px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">{selectedItem.category}</span>
-                                    <h1 className="text-4xl font-black text-gray-900 uppercase tracking-tight leading-none">{selectedItem.name}</h1>
-                                    <p className="text-gray-500 font-medium leading-relaxed max-w-md">{selectedItem.description}</p>
+                                    <span className="bg-theme/10 text-theme px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">{localize(selectedItem, 'category')}</span>
+                                    <h1 className="text-4xl font-black text-gray-900 uppercase tracking-tight leading-none">{localize(selectedItem, 'name')}</h1>
+                                    <p className="text-gray-500 font-medium leading-relaxed max-w-md" dangerouslySetInnerHTML={{ __html: localize(selectedItem, 'description') }} />
                                 </div>
                                 <div className="text-right">
-                                    <span className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Price</span>
+                                    <span className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{t('auth.checkout.price')}</span>
                                     <span className="text-3xl font-black text-theme">${parseFloat(selectedItem.price).toFixed(2)}</span>
                                 </div>
                             </div>
@@ -196,7 +198,7 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
                                     onClick={handleAddToCart}
                                     className="flex-1 ml-6 h-14 bg-theme text-white font-black rounded-2xl shadow-xl hover:opacity-90 transition-all active:scale-95 flex items-center justify-center gap-3 uppercase tracking-widest text-sm"
                                 >
-                                    <HiShoppingBag className="w-6 h-6" /> Add to Order
+                                    <HiShoppingBag className="w-6 h-6" /> {t('auth.menu.addToCart')}
                                 </button>
                             </div>
                         </div>

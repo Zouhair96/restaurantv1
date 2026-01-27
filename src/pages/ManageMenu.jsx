@@ -19,7 +19,7 @@ const ManageMenu = ({ isAdminView = false }) => {
         logoImage: null,
         useLogo: false,
         showWelcomePromo: true,
-        welcomePromoText: "Welcome!",
+        welcomePromoText: "",
         loadingDuration: 3,
         promoDuration: 5
     });

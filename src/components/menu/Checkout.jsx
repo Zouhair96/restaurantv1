@@ -226,7 +226,7 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316' }) =
                                 </div>
                                 <div className="h-px bg-dashed bg-gray-100 my-2 border-t-2 border-dashed border-gray-100" />
                                 <div className="flex justify-between items-center pb-2">
-                                    <span className="text-gray-900 text-xl font-black">Total</span>
+                                    <span className="text-gray-900 text-xl font-black">{t.total}</span>
                                     <span className="text-gray-900 text-2xl font-black">${total.toFixed(2)}</span>
                                 </div>
 
