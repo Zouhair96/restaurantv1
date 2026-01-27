@@ -134,6 +134,22 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
         }
     };
 
+    const [showScrollTop, setShowScrollTop] = useState(false);
+    const scrollContainerRef = React.useRef(null);
+
+    const handleScroll = () => {
+        if (scrollContainerRef.current) {
+            const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
+            setShowScrollTop(scrollTop > clientHeight * 0.1);
+        }
+    };
+
+    const scrollToTop = () => {
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
+
     if (isLoading) return <div className="min-h-screen flex items-center justify-center text-green-500">Loading...</div>;
     if (error) return <div className="min-h-screen flex items-center justify-center text-red-500">{error}</div>;
 
@@ -147,27 +163,29 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
             `}</style>
 
-            {/* --- PORTED SIDEBAR (NOW FLOATING BUTTON) --- */}
-            <div className="absolute top-6 left-6 z-50">
+            {/* --- FIXED HEADER --- */}
+            <div className="h-20 bg-gray-50/90 backdrop-blur-md z-40 flex items-center justify-between px-6 shrink-0 shadow-sm relative transition-all duration-300">
+                {/* Menu Toggle */}
                 <button
                     onClick={() => setShowAuthSidebar(true)}
-                    className="p-3 md:p-4 rounded-[1.2rem] border shadow-md transition-all active:scale-95 flex items-center justify-center bg-white"
+                    className="p-3 rounded-[1rem] border shadow-sm active:scale-95 flex items-center justify-center bg-white hover:bg-gray-50 transition-colors"
                     style={{
                         color: config.themeColor,
-                        borderColor: `${config.themeColor}40`,
+                        borderColor: `${config.themeColor}20`,
                     }}
                 >
                     <HiBars3 className="w-6 h-6" />
                 </button>
-            </div>
 
-            {/* --- CART ICON (TOP RIGHT) --- */}
-            <div className="absolute top-6 right-6 z-50">
+                {/* Restaurant Name */}
+                <h1 className="text-xl font-bold text-gray-900 text-center flex-1 mx-4 truncate">{config.restaurantName}</h1>
+
+                {/* Cart Icon */}
                 <button
                     onClick={() => setIsCheckoutOpen(true)}
-                    className="relative p-3 md:p-4 rounded-[1.2rem] border shadow-md transition-all active:scale-95 flex items-center justify-center bg-white text-gray-700 hover:text-theme"
+                    className="relative p-3 rounded-[1rem] border shadow-sm active:scale-95 flex items-center justify-center bg-white text-gray-700 hover:text-theme transition-colors"
                     style={{
-                        borderColor: `${config.themeColor}40`,
+                        borderColor: `${config.themeColor}20`,
                     }}
                 >
                     <HiShoppingBag className="w-6 h-6" />
@@ -179,17 +197,15 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                 </button>
             </div>
 
-
             {/* --- MAIN CONTENT AREA --- */}
             <div className="flex-1 flex flex-col h-full overflow-hidden relative z-0">
-                <div className="flex-1 overflow-y-auto pb-24">
-                    {/* Header */}
-                    <div className="px-6 pt-6 flex justify-center items-center pl-24 min-h-[88px]">
-                        <h1 className="text-2xl font-bold text-gray-900 text-center">{config.restaurantName}</h1>
-                    </div>
-
+                <div
+                    className="flex-1 overflow-y-auto pb-24 scroll-smooth"
+                    ref={scrollContainerRef}
+                    onScroll={handleScroll}
+                >
                     {/* Search Bar */}
-                    <div className="px-6 mt-2 flex gap-4">
+                    <div className="px-6 mt-6 flex gap-4">
                         <div className="flex-1 bg-white rounded-2xl flex items-center px-4 py-3 shadow-sm">
                             <HiMagnifyingGlass className="w-6 h-6 text-gray-400 mr-2" />
                             <input
@@ -222,8 +238,6 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                         variants={containerVariants}
                         initial="hidden"
                         animate="visible"
-                        // Force re-animation when category changes if desired, 
-                        // key={activeCategory} can be added here.
                         key={activeCategory}
                     >
                         {menuItems.filter(item =>
@@ -269,6 +283,22 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                     </motion.div>
                 </div>
             </div>
+
+            {/* --- SCROLL TO TOP BUTTON --- */}
+            <AnimatePresence>
+                {showScrollTop && (
+                    <motion.button
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 20 }}
+                        onClick={scrollToTop}
+                        className="fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-white bg-theme hover:scale-110 active:scale-95 transition-all"
+                        style={{ backgroundColor: config.themeColor }}
+                    >
+                        <HiArrowLeft className="w-6 h-6 rotate-90" />
+                    </motion.button>
+                )}
+            </AnimatePresence>
 
             {/* Screen 2: Details View (Overlay) */}
             <AnimatePresence>
