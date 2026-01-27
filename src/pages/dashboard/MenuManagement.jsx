@@ -210,53 +210,88 @@ const MenuManagement = () => {
                                     ? 'border-green-500 shadow-xl cursor-default'
                                     : 'cursor-pointer hover:shadow-2xl hover:scale-[1.02] border-transparent hover:border-indigo-500'}`}
                         >
-                            <div className="aspect-[9/16] bg-black relative">
+                            <div className="aspect-[9/16] bg-black relative group-hover:scale-105 transition-transform duration-500">
                                 {template.image_url ? (
                                     <img
                                         src={template.image_url}
                                         alt={template.name}
-                                        className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity"
+                                        className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
                                     />
                                 ) : (
                                     <div className="w-full h-full bg-indigo-900/20"></div>
                                 )}
 
-                                {/* Overlay */}
-                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 group-hover:bg-black/60 transition-colors">
-                                    {isLocked ? (
-                                        <div className="text-center px-4">
-                                            <div className="w-16 h-16 rounded-full bg-gray-800/80 backdrop-blur-sm flex items-center justify-center mb-4 mx-auto">
-                                                <span className="text-3xl">🔒</span>
+                                {/* Overlay / Actions */}
+                                <div className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-gradient-to-b from-transparent via-black/20 to-black/80">
+
+                                    {isActive ? (
+                                        <div className="flex flex-col items-center">
+                                            <div className="w-16 h-16 rounded-full bg-green-500 text-white flex items-center justify-center text-3xl mb-3 shadow-lg shadow-green-500/30 ring-4 ring-green-500/20">
+                                                ✓
                                             </div>
-                                            <p className="text-white font-black uppercase tracking-widest text-sm">Locked</p>
-                                            <p className="text-gray-400 text-[10px] mt-1">Delete active menu to change</p>
-                                        </div>
-                                    ) : isActive ? (
-                                        <div className="text-center px-4">
-                                            <div className="w-16 h-16 rounded-full bg-green-500/20 backdrop-blur-sm flex items-center justify-center mb-4 mx-auto border border-green-500/30">
-                                                <span className="text-3xl text-green-500">✓</span>
-                                            </div>
-                                            <p className="text-green-500 font-black uppercase tracking-widest text-sm">Active Template</p>
+                                            <span className="font-black text-white uppercase tracking-widest text-sm bg-green-500/20 px-4 py-1 rounded-full backdrop-blur-md border border-green-500/30">Active</span>
                                         </div>
                                     ) : (
-                                        <>
-                                            <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                                <span className="text-4xl">{template.icon || '🍽️'}</span>
-                                            </div>
-                                            <button className="px-8 py-3 bg-indigo-600 text-white font-black rounded-xl opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 uppercase tracking-widest text-xs shadow-xl shadow-indigo-600/40">
-                                                Select Template
+                                        <div className="mt-auto w-full space-y-3 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                                            {/* Activate Button */}
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (isLocked) {
+                                                        alert("You can only have one active menu at a time. Please delete your current menu to activate this template.");
+                                                        return;
+                                                    }
+                                                    if (template.template_key === 'pizza1') {
+                                                        navigate('/manage-menu-pizza1');
+                                                        return;
+                                                    }
+                                                    setSelectedTemplate(template.template_key);
+                                                    setEditingMenu(null);
+                                                    setIsEditorOpen(true);
+                                                }}
+                                                disabled={isLocked}
+                                                className={`w-full py-4 rounded-xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 shadow-xl ${isLocked
+                                                        ? 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                                                        : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/30'
+                                                    }`}
+                                            >
+                                                {isLocked ? (
+                                                    <><span className="text-base">🔒</span> Locked</>
+                                                ) : (
+                                                    <><span className="text-base">🚀</span> Activate</>
+                                                )}
                                             </button>
-                                        </>
+
+                                            {/* Preview Button */}
+                                            <a
+                                                href={`/menu/${template.template_key}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                onClick={(e) => e.stopPropagation()}
+                                                className="w-full py-3 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white font-bold rounded-xl border border-white/10 uppercase tracking-widest text-xs flex items-center justify-center gap-2"
+                                            >
+                                                <span className="text-base">👁️</span> Preview
+                                            </a>
+                                        </div>
+                                    )}
+
+                                    {/* Locked Message Overlay (Only if locked and not hovering controls) */}
+                                    {isLocked && (
+                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center w-full px-4 group-hover:opacity-0 transition-opacity pointer-events-none">
+                                            <div className="w-12 h-12 rounded-full bg-gray-900/80 backdrop-blur-md text-gray-500 flex items-center justify-center text-2xl mb-3 mx-auto border border-white/10">
+                                                🔒
+                                            </div>
+                                        </div>
                                     )}
                                 </div>
 
-                                {/* Label */}
-                                <div className="absolute bottom-0 inset-x-0 p-6 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
-                                    <div className="flex items-center gap-3">
-                                        <span className="text-2xl">{template.icon || '🍽️'}</span>
+                                {/* Label Bottom */}
+                                <div className="absolute bottom-0 inset-x-0 p-6 pointer-events-none">
+                                    <div className={`flex items-center gap-3 transition-opacity duration-300 ${isActive ? 'opacity-100' : 'group-hover:opacity-0'}`}>
+                                        <span className="text-2xl filter drop-shadow-lg">{template.icon || '🍽️'}</span>
                                         <div>
-                                            <h3 className="text-white font-black text-xl uppercase tracking-tight">{template.name}</h3>
-                                            <p className="text-gray-300 text-xs font-medium">{template.description}</p>
+                                            <h3 className="text-white font-black text-xl uppercase tracking-tight filter drop-shadow-lg">{template.name}</h3>
+                                            <p className="text-gray-300 text-xs font-medium line-clamp-1">{template.description}</p>
                                         </div>
                                     </div>
                                 </div>
