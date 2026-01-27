@@ -4,7 +4,7 @@ import { useCart } from '../../context/CartContext';
 import { translations } from '../../translations';
 
 const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', language = 'fr' }) => {
-    const { cartItems, getCartTotal, clearCart } = useCart();
+    const { cartItems, getCartTotal, clearCart, updateQuantity, removeFromCart } = useCart();
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -146,27 +146,54 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', lan
                                     </div>
                                 </div>
 
-                                <div className="p-8 rounded-[2.5rem] bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 relative group">
-                                    <div className="flex justify-between items-center mb-6">
-                                        <div className="flex -space-x-3">
-                                            {cartItems.slice(0, 3).map((item, i) => (
-                                                <div key={i} className="w-10 h-10 rounded-full border-4 border-gray-50 dark:border-[#1a1c1e] bg-white dark:bg-gray-800 flex items-center justify-center text-lg shadow-sm">
-                                                    {item.category?.toLowerCase() === 'drinks' ? '🥤' : '🍕'}
+                                {/* Detailed Item List */}
+                                <div className="space-y-4 mb-8">
+                                    <h3 className="text-xs font-black uppercase tracking-widest text-gray-400 mb-4">{t.items || 'Your Selection'}</h3>
+                                    <div className="space-y-3 max-h-60 overflow-y-auto no-scrollbar pr-2">
+                                        {cartItems.map((item, index) => (
+                                            <div key={`${item.id}-${index}`} className="flex items-center gap-4 p-4 rounded-3xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 group hover:border-theme/30 transition-all">
+                                                <div className="w-16 h-16 shrink-0 rounded-2xl overflow-hidden border-2 border-white dark:border-white/10 shadow-sm relative">
+                                                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                                                 </div>
-                                            ))}
-                                        </div>
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">{cartItems.length} Items</span>
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="text-sm font-bold text-gray-900 dark:text-white truncate">{item.name}</h4>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <span className="text-sm font-black text-theme" style={{ color: themeColor }}>
+                                                            ${(item.price * item.quantity).toFixed(2)}
+                                                        </span>
+                                                        <span className="text-[10px] font-bold text-gray-400">({item.quantity}x)</span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center bg-white dark:bg-[#1a1c1e] rounded-2xl border border-gray-100 dark:border-white/5 p-1">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
+                                                        className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-red-500 transition-colors"
+                                                    >
+                                                        <HiXMark className="w-4 h-4" />
+                                                    </button>
+                                                    <span className="w-6 text-center text-xs font-black text-gray-900 dark:text-white">{item.quantity}</span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)}
+                                                        className="w-8 h-8 flex items-center justify-center text-theme hover:scale-110 transition-all"
+                                                        style={{ color: themeColor }}
+                                                    >
+                                                        <HiArrowRight className="w-4 h-4 -rotate-90" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
 
-                                    <div className="flex justify-between items-end">
-                                        <div className="space-y-1">
-                                            <span className="block text-[10px] font-black uppercase tracking-widest text-gray-400">{t.total}</span>
-                                            <span className="text-4xl font-black text-gray-900 dark:text-white tracking-tighter">
-                                                {getCartTotal().toFixed(2)}€
-                                            </span>
+                                    {/* Summary Bar */}
+                                    <div className="p-6 rounded-[2rem] bg-gray-900 dark:bg-white/10 text-white flex justify-between items-center shadow-lg">
+                                        <div>
+                                            <span className="block text-[10px] font-black uppercase tracking-widest opacity-50 mb-1">{t.total}</span>
+                                            <span className="text-3xl font-black tracking-tighter">${getCartTotal().toFixed(2)}</span>
                                         </div>
-                                        <div className="p-4 rounded-2xl bg-white dark:bg-white/10 shadow-sm">
-                                            <HiBanknotes size={24} style={{ color: themeColor }} />
+                                        <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center">
+                                            <HiBanknotes size={24} />
                                         </div>
                                     </div>
                                 </div>
