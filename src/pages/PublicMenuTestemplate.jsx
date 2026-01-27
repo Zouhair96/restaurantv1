@@ -124,7 +124,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
             `}</style>
 
             {/* --- PORTED SIDEBAR START --- */}
-            <div className="relative shrink-0 z-40 bg-white/90 backdrop-blur-md md:bg-white/50 w-24 md:w-32 lg:w-40 h-full flex flex-col items-center py-6 pb-48 overflow-y-auto scroll-smooth no-scrollbar border-r border-gray-100">
+            <div className="relative shrink-0 z-40 bg-white/90 backdrop-blur-md md:bg-white/50 w-20 md:w-24 h-full flex flex-col items-center py-6 border-r border-gray-100">
                 <button
                     onClick={() => setShowAuthSidebar(true)}
                     className="mb-6 p-4 rounded-[1.5rem] border shadow-sm transition-all active:scale-95 flex items-center justify-center"
@@ -138,35 +138,8 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                     <HiBars3 className="w-6 h-6" />
                 </button>
 
-                <motion.div
-                    initial="hidden"
-                    animate="visible"
-                    variants={{ visible: { transition: { staggerChildren: 0.05 } } }}
-                    className="space-y-6 w-full px-3 flex flex-col items-center"
-                >
-                    {menuItems.filter(item => item && (activeCategory === 'All' || item.category === activeCategory)).map((item) => (
-                        <motion.button
-                            key={item.id}
-                            variants={{ hidden: { opacity: 0, x: -20 }, visible: { opacity: 1, x: 0 } }}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => handleItemClick(item)}
-                            className="relative group w-full flex flex-col items-center justify-center transition-all duration-300"
-                        >
-                            <div
-                                className={`w-16 h-16 md:w-20 md:h-20 flex items-center justify-center transition-all duration-300 ${selectedItem?.id === item.id ? 'rounded-[1.8rem] p-1.5' : 'rounded-full p-0 scale-90 opacity-70 hover:opacity-100 hover:scale-100'}`}
-                                style={selectedItem?.id === item.id ? { backgroundColor: `${config.themeColor}20`, color: config.themeColor } : {}}
-                            >
-                                <img
-                                    src={item.image}
-                                    alt={item.name}
-                                    className="w-full h-full object-cover rounded-full shadow-md"
-                                    style={selectedItem?.id === item.id ? { boxShadow: `0 4px 14px 0 ${config.themeColor}40` } : {}}
-                                />
-                            </div>
-                        </motion.button>
-                    ))}
-                </motion.div>
+                {/* Menu items removed as per user request */}
+                <div className="flex-1"></div> {/* Spacer */}
             </div>
             {/* --- PORTED SIDEBAR END --- */}
 
