@@ -93,6 +93,8 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
         }
     }, [categories, activeCategory]);
 
+    const [searchQuery, setSearchQuery] = useState('');
+
     const handleItemClick = (item) => {
         setSelectedItem(item);
         setQuantity(1);
@@ -106,6 +108,8 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
     const handleAddToCart = () => {
         if (selectedItem) {
             addToCart({ ...selectedItem, quantity });
+            // In a real app, maybe show a toast instead of alert
+            // window.alert(`${quantity} ${selectedItem.name} added to cart!`);
             setSelectedItem(null);
         }
     };
@@ -142,34 +146,22 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
             <div className="flex-1 flex flex-col h-full overflow-hidden relative z-0">
                 <div className="flex-1 overflow-y-auto pb-24">
                     {/* Header */}
-                    <div className="px-6 pt-6 flex justify-between items-center pl-24">
-                        {/* Hidden mobile menu button since we have sidebar now? Or keep for consistency? */}
-                        {/* The Sidebar is visible on mobile in Pizza1 design, so this button is redundant for sidebar toggle.
-                             But maybe for "Auth Sidebar" or "Menu"? Pizza1 sidebar button toggles AuthSidebar.
-                         */}
-                        <div className="flex items-center gap-1 text-gray-500 text-sm font-medium">
-                            <HiMapPin className="w-4 h-4 text-theme" />
-                            <span>{config.location || 'Location'}</span>
-                        </div>
-                        <div className="w-10 h-10 rounded-xl bg-gray-200 overflow-hidden">
-                            <div className="w-full h-full bg-gray-300 flex items-center justify-center text-gray-500 text-xs">User</div>
-                        </div>
-                    </div>
-
-                    <div className="px-6 mt-6">
-                        <h2 className="text-gray-500 font-medium">Welcome</h2>
-                        <h1 className="text-3xl font-bold text-gray-900 mt-1">{config.restaurantName}</h1>
+                    <div className="px-6 pt-6 flex justify-center items-center pl-24 min-h-[88px]">
+                        <h1 className="text-2xl font-bold text-gray-900 text-center">{config.restaurantName}</h1>
                     </div>
 
                     {/* Search Bar */}
-                    <div className="px-6 mt-6 flex gap-4">
+                    <div className="px-6 mt-2 flex gap-4">
                         <div className="flex-1 bg-white rounded-2xl flex items-center px-4 py-3 shadow-sm">
                             <HiMagnifyingGlass className="w-6 h-6 text-gray-400 mr-2" />
-                            <input type="text" placeholder="Search Food" className="flex-1 bg-transparent outline-none text-gray-700 placeholder-gray-400" />
+                            <input
+                                type="text"
+                                placeholder="Search Food"
+                                className="flex-1 bg-transparent outline-none text-gray-700 placeholder-gray-400"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
                         </div>
-                        <button className="w-14 h-14 bg-theme rounded-2xl flex items-center justify-center text-white shadow-lg shadow-green-200 hover:opacity-90 transition-opacity" style={{ backgroundColor: config.themeColor }}>
-                            <HiAdjustmentsHorizontal className="w-6 h-6" />
-                        </button>
                     </div>
 
                     {/* Categories - keeping existing logic */}
