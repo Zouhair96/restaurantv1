@@ -183,362 +183,384 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
     };
 
     return (
-        <div className={`fixed inset-y-0 left-0 z-[100] w-full sm:w-96 border-r shadow-2xl transition-all duration-300 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} ${isDarkMode
-            ? 'bg-[#0f1115] border-white/10'
-            : 'bg-white border-gray-200'}`}>
-            {/* Header */}
-            <div className={`p-6 border-b flex items-center justify-between transition-colors ${isDarkMode
-                ? 'bg-[#1a1c23] border-white/5'
-                : 'bg-gray-50 border-gray-100'}`}>
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${themeColor}20`, color: themeColor }}>
-                        <HiOutlineUserCircle size={24} />
-                    </div>
-                    <div>
-                        <h2 className={`font-black text-lg transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{headerT.myOrders}</h2>
-                        <p className={`text-xs uppercase tracking-widest font-bold transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{displayName || restaurantName}</p>
-                    </div>
-                </div>
-                <div className="flex items-center gap-2">
-                    <button
-                        onClick={() => setLanguage(language === 'FR' ? 'EN' : 'FR')}
-                        className={`p-2 rounded-xl transition-all border font-bold text-xs w-10 flex items-center justify-center ${isDarkMode
-                            ? 'bg-white/5 border-white/10 text-white hover:bg-white/10'
-                            : 'bg-black/5 border-black/10 text-gray-900 hover:bg-black/10'
-                            }`}
-                    >
-                        {language}
-                    </button>
-                    <button onClick={onClose} className={`p-2 transition-colors ${isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-400 hover:text-gray-900'}`}>
-                        <HiOutlineX size={24} />
-                    </button>
-                </div>
-            </div>
-
-            <div className="p-6 overflow-y-auto h-[calc(100vh-88px)]">
-                {error && (
-                    <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-sm font-medium">
-                        {error}
-                    </div>
-                )}
-
-                {view === 'welcome' && (
+        <AnimatePresence>
+            {isOpen && (
+                <>
+                    {/* Backdrop */}
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="flex flex-col items-center justify-center h-full text-center -mt-10"
-                    >
-                        <motion.div
-                            whileHover={{ scale: 1.1, rotate: 5 }}
-                            className="w-24 h-24 rounded-full flex items-center justify-center mb-6"
-                            style={{ backgroundColor: `${themeColor}20`, color: themeColor }}
-                        >
-                            <HiOutlineUserCircle size={48} />
-                        </motion.div>
-                        <h3 className={`text-2xl font-black mb-4 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                            Welcome!
-                        </h3>
-                        <p className={`mb-8 px-4 transition-colors ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                            Login to see all our features and enjoy our promos.
-                        </p>
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={onClose}
+                        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[90]"
+                    />
 
-                        <div className="w-full space-y-4">
-                            <motion.button
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={() => setView('login')}
-                                className="w-full py-4 text-white font-black rounded-xl transition-all shadow-lg"
-                                style={{ backgroundColor: themeColor, boxShadow: `0 10px 15px -3px ${themeColor}40` }}
-                            >
-                                Login
-                            </motion.button>
-                            <motion.button
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={() => setView('signup')}
-                                className={`w-full py-4 border-2 font-black rounded-xl transition-all ${isDarkMode
-                                    ? 'border-white/20 text-white hover:bg-white/10'
-                                    : 'border-gray-200 text-gray-900 hover:bg-gray-50'
-                                    }`}
-                            >
-                                Register
-                            </motion.button>
-                        </div>
-                    </motion.div>
-                )}
-
-                {view === 'login' && (
+                    {/* Sidebar */}
                     <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
+                        initial={{ x: '-100%' }}
+                        animate={{ x: 0 }}
+                        exit={{ x: '-100%' }}
+                        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                        className={`fixed inset-y-0 left-0 z-[100] w-full sm:w-96 border-r shadow-2xl ${isDarkMode
+                            ? 'bg-[#0f1115] border-white/10'
+                            : 'bg-white border-gray-200'}`}
                     >
-                        <div className="text-center mb-8">
-                            <h3 className={`text-2xl font-black mb-2 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{t.loginTitle}</h3>
-                            <p className={isDarkMode ? 'text-gray-400 text-sm' : 'text-gray-500 text-sm'}>{t.welcomeSubtitle}</p>
-                        </div>
-                        <form onSubmit={handleLogin} className="space-y-4">
-                            <div>
-                                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t.emailOrPhone}</label>
-                                <input
-                                    type="text"
-                                    required
-                                    className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:border-yum-primary transition-all ${isDarkMode
-                                        ? 'bg-white/5 border-white/10 text-white'
-                                        : 'bg-gray-50 border-gray-200 text-gray-900'}`}
-                                    value={formData.email}
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                />
-                            </div>
-                            <div>
-                                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t.password}</label>
-                                <input
-                                    type="password"
-                                    required
-                                    className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:border-yum-primary transition-all ${isDarkMode
-                                        ? 'bg-white/5 border-white/10 text-white'
-                                        : 'bg-gray-50 border-gray-200 text-gray-900'}`}
-                                    value={formData.password}
-                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                />
-                            </div>
-                            <motion.button
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                type="submit"
-                                disabled={loading}
-                                className="w-full py-4 text-white font-black rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg"
-                                style={{ backgroundColor: themeColor, boxShadow: `0 10px 15px -3px ${themeColor}40` }}
-                            >
-                                {loading ? '...' : <><HiOutlineLogin size={20} /> {t.submitLogin}</>}
-                            </motion.button>
-                        </form>
-                        <div className="mt-6 text-center">
-                            <button
-                                onClick={() => setView('forgot-password')}
-                                className={`text-sm font-medium transition-colors ${isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'}`}
-                            >
-                                {t.forgotPassword}
-                            </button>
-                        </div>
-                        <p className={`mt-4 text-center text-sm transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                            {t.toggleToSignup} {' '}
-                            <button onClick={() => setView('signup')} className="font-bold hover:underline" style={{ color: themeColor }}>{t.linkSignup}</button>
-                        </p>
-                    </motion.div>
-                )}
-
-                {view === 'signup' && (
-                    <div className="animate-fade-in">
-                        <div className="text-center mb-8">
-                            <h3 className={`text-2xl font-black mb-2 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{t.signupTitle}</h3>
-                            <p className={isDarkMode ? 'text-gray-400 text-sm' : 'text-gray-500 text-sm'}>{t.welcomeSubtitle}</p>
-                        </div>
-                        <form onSubmit={handleSignup} className="space-y-4">
-                            <div>
-                                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t.name}</label>
-                                <input
-                                    type="text"
-                                    required
-                                    className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:border-yum-primary transition-all ${isDarkMode
-                                        ? 'bg-white/5 border-white/10 text-white'
-                                        : 'bg-gray-50 border-gray-200 text-gray-900'}`}
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                />
-                            </div>
-                            <div>
-                                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t.emailOrPhoneLong}</label>
-                                <input
-                                    type="text"
-                                    required
-                                    className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:border-yum-primary transition-all ${isDarkMode
-                                        ? 'bg-white/5 border-white/10 text-white'
-                                        : 'bg-gray-50 border-gray-200 text-gray-900'}`}
-                                    value={formData.email}
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                />
-                            </div>
-                            <div>
-                                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t.password}</label>
-                                <input
-                                    type="password"
-                                    required
-                                    className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:border-yum-primary transition-all ${isDarkMode
-                                        ? 'bg-white/5 border-white/10 text-white'
-                                        : 'bg-gray-50 border-gray-200 text-gray-900'}`}
-                                    value={formData.password}
-                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                />
-                            </div>
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="w-full py-4 text-white font-black rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg"
-                                style={{ backgroundColor: themeColor, boxShadow: `0 10px 15px -3px ${themeColor}40` }}
-                            >
-                                {loading ? '...' : <><HiOutlineUserAdd size={20} /> {t.submitSignup}</>}
-                            </button>
-                        </form>
-                        <p className={`mt-8 text-center text-sm transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                            {t.toggleToLogin} {' '}
-                            <button onClick={() => setView('login')} className="font-bold hover:underline" style={{ color: themeColor }}>{t.linkLogin}</button>
-                        </p>
-                    </div>
-                )}
-
-                {view === 'forgot-password' && (
-                    <div className="animate-fade-in">
-                        <div className="text-center mb-8">
-                            <h3 className={`text-2xl font-black mb-2 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{t.resetPasswordTitle}</h3>
-                            <p className={isDarkMode ? 'text-gray-400 text-sm' : 'text-gray-500 text-sm'}>{t.resetPasswordSubtitle}</p>
-                        </div>
-                        <form onSubmit={(e) => { e.preventDefault(); /* Handle reset logic */ }} className="space-y-4">
-                            <div>
-                                <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t.emailOrPhoneLong}</label>
-                                <input
-                                    type="text"
-                                    required
-                                    className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:border-yum-primary transition-all ${isDarkMode
-                                        ? 'bg-white/5 border-white/10 text-white'
-                                        : 'bg-gray-50 border-gray-200 text-gray-900'}`}
-                                />
-                            </div>
-                            <button
-                                type="submit"
-                                className="w-full py-4 text-white font-black rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg"
-                                style={{ backgroundColor: themeColor, boxShadow: `0 10px 15px -3px ${themeColor}40` }}
-                            >
-                                {t.sendResetLink}
-                            </button>
-                        </form>
-                        <div className="mt-6 text-center">
-                            <button
-                                onClick={() => setView('login')}
-                                className={`text-sm font-medium hover:underline transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
-                            >
-                                {t.backToLogin}
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-                {view === 'profile' && clientUser && (
-                    <div className="animate-fade-in space-y-8">
-                        {/* User Summary */}
-                        <div className={`p-6 rounded-2xl border transition-colors ${isDarkMode
-                            ? 'bg-white/5 border-white/10'
+                        {/* Header */}
+                        <div className={`p-6 border-b flex items-center justify-between transition-colors ${isDarkMode
+                            ? 'bg-[#1a1c23] border-white/5'
                             : 'bg-gray-50 border-gray-100'}`}>
-                            <h4 className={`font-black text-xl mb-1 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{clientUser.name}</h4>
-                            <p className={`text-sm mb-6 transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{clientUser.email}</p>
-                            <button
-                                onClick={handleLogout}
-                                className={`flex items-center gap-2 transition-colors font-bold text-sm ${isDarkMode
-                                    ? 'text-gray-400 hover:text-red-500'
-                                    : 'text-gray-500 hover:text-red-500'}`}
-                            >
-                                <HiOutlineLogout size={18} /> {headerT.logout}
-                            </button>
-                        </div>
-
-                        {/* Order History Section */}
-                        <div className="relative">
-                            {/* History Toggle Button */}
-                            <button
-                                onClick={() => setShowHistory(!showHistory)}
-                                className={`w-full flex items-center justify-between p-4 mb-4 rounded-2xl border transition-all ${isDarkMode ? 'bg-white/5 border-white/10 text-white hover:bg-white/10' : 'bg-gray-50 border-gray-100 text-gray-900 hover:bg-gray-100'
-                                    }`}
-                            >
-                                <div className="flex items-center gap-2">
-                                    <HiOutlineClipboardList style={{ color: themeColor }} size={20} />
-                                    <span className="font-black uppercase tracking-widest text-xs">{t.orderHistory}</span>
-                                    {orders.length > 0 && (
-                                        <span className="px-2 py-0.5 rounded-full text-[10px] bg-white/10 dark:bg-white/5 font-black">{orders.length}</span>
-                                    )}
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${themeColor}20`, color: themeColor }}>
+                                    <HiOutlineUserCircle size={24} />
                                 </div>
-                                <motion.div animate={{ rotate: showHistory ? 180 : 0 }}>
-                                    <HiChevronRight size={18} className="text-gray-400" />
-                                </motion.div>
-                            </button>
-
-                            {/* Dropdown Historical Orders */}
-                            <AnimatePresence>
-                                {showHistory && (
-                                    <motion.div
-                                        key="history-panel"
-                                        initial={{ height: 0, opacity: 0 }}
-                                        animate={{ height: 'auto', opacity: 1 }}
-                                        exit={{ height: 0, opacity: 0 }}
-                                        className="overflow-hidden space-y-4 px-1 pb-10"
-                                    >
-                                        {orders.length > 0 ? (
-                                            <motion.div
-                                                initial="hidden"
-                                                animate="visible"
-                                                variants={{
-                                                    visible: { transition: { staggerChildren: 0.1 } }
-                                                }}
-                                                className="space-y-4"
-                                            >
-                                                {orders.map(order => {
-                                                    const isActive = activeOrderId && String(order.id) === String(activeOrderId);
-                                                    return (
-                                                        <motion.div
-                                                            key={order.id}
-                                                            variants={{
-                                                                hidden: { opacity: 0, y: 10 },
-                                                                visible: { opacity: 1, y: 0 }
-                                                            }}
-                                                            className={`border rounded-2xl p-4 transition-all group ${isDarkMode
-                                                                ? 'bg-white/5 border-white/10 hover:border-white/20'
-                                                                : 'bg-white border-gray-100 hover:border-gray-200 hover:shadow-md'
-                                                                } ${isActive ? 'ring-2 ring-offset-2 ring-offset-transparent' : ''}`}
-                                                            style={isActive ? { ringColor: themeColor, borderColor: themeColor } : {}}
-                                                        >
-                                                            {isActive && (
-                                                                <MiniStepper status={activeOrder?.status || order.status} themeColor={themeColor} />
-                                                            )}
-
-                                                            <div className="flex justify-between items-start mb-2">
-                                                                <div>
-                                                                    <span className={`font-bold block transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Order #{String(order.id).slice(0, 8)}</span>
-                                                                    <span className={`text-xs transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{new Date(order.created_at).toLocaleDateString()}</span>
-                                                                </div>
-                                                                <span
-                                                                    className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter`}
-                                                                    style={order.status === 'completed' ? { backgroundColor: '#22c55e33', color: '#22c55e' } :
-                                                                        order.status === 'cancelled' ? { backgroundColor: '#ef444433', color: '#ef4444' } :
-                                                                            { backgroundColor: `${themeColor}33`, color: themeColor }}
-                                                                >
-                                                                    {order.status}
-                                                                </span>
-                                                            </div>
-
-                                                            <div className="flex justify-between items-center mt-4">
-                                                                <span className={`text-sm transition-colors ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{order.order_type === 'dine_in' ? `🍽️ ${t.dineIn}` : `🥡 ${t.takeOut}`}</span>
-                                                                <span className={`font-black text-lg transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>${Number(order.total_price).toFixed(2)}</span>
-                                                            </div>
-                                                        </motion.div>
-                                                    );
-                                                })}
-                                            </motion.div>
-                                        ) : (
-                                            <div className={`text-center py-12 rounded-2xl border border-dashed transition-colors ${isDarkMode
-                                                ? 'bg-white/5 border-white/10'
-                                                : 'bg-gray-50 border-gray-200'}`}>
-                                                <HiOutlineShoppingBag size={48} className={`mx-auto mb-4 transition-colors ${isDarkMode ? 'text-gray-700' : 'text-gray-300'}`} />
-                                                <p className={`font-bold transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{t.noOrders}</p>
-                                                <p className={`text-xs mt-1 transition-colors ${isDarkMode ? 'text-gray-600' : 'text-gray-500'}`}>{t.noOrdersDesc}</p>
-                                            </div>
-                                        )}
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
+                                <div>
+                                    <h2 className={`font-black text-lg transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{headerT.myOrders}</h2>
+                                    <p className={`text-xs uppercase tracking-widest font-bold transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{displayName || restaurantName}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => setLanguage(language === 'FR' ? 'EN' : 'FR')}
+                                    className={`p-2 rounded-xl transition-all border font-bold text-xs w-10 flex items-center justify-center ${isDarkMode
+                                        ? 'bg-white/5 border-white/10 text-white hover:bg-white/10'
+                                        : 'bg-black/5 border-black/10 text-gray-900 hover:bg-black/10'
+                                        }`}
+                                >
+                                    {language}
+                                </button>
+                                <button onClick={onClose} className={`p-2 transition-colors ${isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-400 hover:text-gray-900'}`}>
+                                    <HiOutlineX size={24} />
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                )}
-            </div>
-        </div>
+
+                        <div className="p-6 overflow-y-auto h-[calc(100vh-88px)]">
+                            {error && (
+                                <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-sm font-medium">
+                                    {error}
+                                </div>
+                            )}
+
+                            {view === 'welcome' && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="flex flex-col items-center justify-center h-full text-center -mt-10"
+                                >
+                                    <motion.div
+                                        whileHover={{ scale: 1.1, rotate: 5 }}
+                                        className="w-24 h-24 rounded-full flex items-center justify-center mb-6"
+                                        style={{ backgroundColor: `${themeColor}20`, color: themeColor }}
+                                    >
+                                        <HiOutlineUserCircle size={48} />
+                                    </motion.div>
+                                    <h3 className={`text-2xl font-black mb-4 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                                        Welcome!
+                                    </h3>
+                                    <p className={`mb-8 px-4 transition-colors ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                        Login to see all our features and enjoy our promos.
+                                    </p>
+
+                                    <div className="w-full space-y-4">
+                                        <motion.button
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            onClick={() => setView('login')}
+                                            className="w-full py-4 text-white font-black rounded-xl transition-all shadow-lg"
+                                            style={{ backgroundColor: themeColor, boxShadow: `0 10px 15px -3px ${themeColor}40` }}
+                                        >
+                                            Login
+                                        </motion.button>
+                                        <motion.button
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            onClick={() => setView('signup')}
+                                            className={`w-full py-4 border-2 font-black rounded-xl transition-all ${isDarkMode
+                                                ? 'border-white/20 text-white hover:bg-white/10'
+                                                : 'border-gray-200 text-gray-900 hover:bg-gray-50'
+                                                }`}
+                                        >
+                                            Register
+                                        </motion.button>
+                                    </div>
+                                </motion.div>
+                            )}
+
+                            {view === 'login' && (
+                                <motion.div
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -20 }}
+                                >
+                                    <div className="text-center mb-8">
+                                        <h3 className={`text-2xl font-black mb-2 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{t.loginTitle}</h3>
+                                        <p className={isDarkMode ? 'text-gray-400 text-sm' : 'text-gray-500 text-sm'}>{t.welcomeSubtitle}</p>
+                                    </div>
+                                    <form onSubmit={handleLogin} className="space-y-4">
+                                        <div>
+                                            <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t.emailOrPhone}</label>
+                                            <input
+                                                type="text"
+                                                required
+                                                className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:border-yum-primary transition-all ${isDarkMode
+                                                    ? 'bg-white/5 border-white/10 text-white'
+                                                    : 'bg-gray-50 border-gray-200 text-gray-900'}`}
+                                                value={formData.email}
+                                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t.password}</label>
+                                            <input
+                                                type="password"
+                                                required
+                                                className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:border-yum-primary transition-all ${isDarkMode
+                                                    ? 'bg-white/5 border-white/10 text-white'
+                                                    : 'bg-gray-50 border-gray-200 text-gray-900'}`}
+                                                value={formData.password}
+                                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                            />
+                                        </div>
+                                        <motion.button
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            type="submit"
+                                            disabled={loading}
+                                            className="w-full py-4 text-white font-black rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg"
+                                            style={{ backgroundColor: themeColor, boxShadow: `0 10px 15px -3px ${themeColor}40` }}
+                                        >
+                                            {loading ? '...' : <><HiOutlineLogin size={20} /> {t.submitLogin}</>}
+                                        </motion.button>
+                                    </form>
+                                    <div className="mt-6 text-center">
+                                        <button
+                                            onClick={() => setView('forgot-password')}
+                                            className={`text-sm font-medium transition-colors ${isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'}`}
+                                        >
+                                            {t.forgotPassword}
+                                        </button>
+                                    </div>
+                                    <p className={`mt-4 text-center text-sm transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                                        {t.toggleToSignup} {' '}
+                                        <button onClick={() => setView('signup')} className="font-bold hover:underline" style={{ color: themeColor }}>{t.linkSignup}</button>
+                                    </p>
+                                </motion.div>
+                            )}
+
+                            {view === 'signup' && (
+                                <div className="animate-fade-in">
+                                    <div className="text-center mb-8">
+                                        <h3 className={`text-2xl font-black mb-2 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{t.signupTitle}</h3>
+                                        <p className={isDarkMode ? 'text-gray-400 text-sm' : 'text-gray-500 text-sm'}>{t.welcomeSubtitle}</p>
+                                    </div>
+                                    <form onSubmit={handleSignup} className="space-y-4">
+                                        <div>
+                                            <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t.name}</label>
+                                            <input
+                                                type="text"
+                                                required
+                                                className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:border-yum-primary transition-all ${isDarkMode
+                                                    ? 'bg-white/5 border-white/10 text-white'
+                                                    : 'bg-gray-50 border-gray-200 text-gray-900'}`}
+                                                value={formData.name}
+                                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t.emailOrPhoneLong}</label>
+                                            <input
+                                                type="text"
+                                                required
+                                                className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:border-yum-primary transition-all ${isDarkMode
+                                                    ? 'bg-white/5 border-white/10 text-white'
+                                                    : 'bg-gray-50 border-gray-200 text-gray-900'}`}
+                                                value={formData.email}
+                                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t.password}</label>
+                                            <input
+                                                type="password"
+                                                required
+                                                className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:border-yum-primary transition-all ${isDarkMode
+                                                    ? 'bg-white/5 border-white/10 text-white'
+                                                    : 'bg-gray-50 border-gray-200 text-gray-900'}`}
+                                                value={formData.password}
+                                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                            />
+                                        </div>
+                                        <button
+                                            type="submit"
+                                            disabled={loading}
+                                            className="w-full py-4 text-white font-black rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg"
+                                            style={{ backgroundColor: themeColor, boxShadow: `0 10px 15px -3px ${themeColor}40` }}
+                                        >
+                                            {loading ? '...' : <><HiOutlineUserAdd size={20} /> {t.submitSignup}</>}
+                                        </button>
+                                    </form>
+                                    <p className={`mt-8 text-center text-sm transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                                        {t.toggleToLogin} {' '}
+                                        <button onClick={() => setView('login')} className="font-bold hover:underline" style={{ color: themeColor }}>{t.linkLogin}</button>
+                                    </p>
+                                </div>
+                            )}
+
+                            {view === 'forgot-password' && (
+                                <div className="animate-fade-in">
+                                    <div className="text-center mb-8">
+                                        <h3 className={`text-2xl font-black mb-2 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{t.resetPasswordTitle}</h3>
+                                        <p className={isDarkMode ? 'text-gray-400 text-sm' : 'text-gray-500 text-sm'}>{t.resetPasswordSubtitle}</p>
+                                    </div>
+                                    <form onSubmit={(e) => { e.preventDefault(); /* Handle reset logic */ }} className="space-y-4">
+                                        <div>
+                                            <label className={`block text-xs font-bold uppercase tracking-widest mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t.emailOrPhoneLong}</label>
+                                            <input
+                                                type="text"
+                                                required
+                                                className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:border-yum-primary transition-all ${isDarkMode
+                                                    ? 'bg-white/5 border-white/10 text-white'
+                                                    : 'bg-gray-50 border-gray-200 text-gray-900'}`}
+                                            />
+                                        </div>
+                                        <button
+                                            type="submit"
+                                            className="w-full py-4 text-white font-black rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg"
+                                            style={{ backgroundColor: themeColor, boxShadow: `0 10px 15px -3px ${themeColor}40` }}
+                                        >
+                                            {t.sendResetLink}
+                                        </button>
+                                    </form>
+                                    <div className="mt-6 text-center">
+                                        <button
+                                            onClick={() => setView('login')}
+                                            className={`text-sm font-medium hover:underline transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                                        >
+                                            {t.backToLogin}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {view === 'profile' && clientUser && (
+                                <div className="animate-fade-in space-y-8">
+                                    {/* User Summary */}
+                                    <div className={`p-6 rounded-2xl border transition-colors ${isDarkMode
+                                        ? 'bg-white/5 border-white/10'
+                                        : 'bg-gray-50 border-gray-100'}`}>
+                                        <h4 className={`font-black text-xl mb-1 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{clientUser.name}</h4>
+                                        <p className={`text-sm mb-6 transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{clientUser.email}</p>
+                                        <button
+                                            onClick={handleLogout}
+                                            className={`flex items-center gap-2 transition-colors font-bold text-sm ${isDarkMode
+                                                ? 'text-gray-400 hover:text-red-500'
+                                                : 'text-gray-500 hover:text-red-500'}`}
+                                        >
+                                            <HiOutlineLogout size={18} /> {headerT.logout}
+                                        </button>
+                                    </div>
+
+                                    {/* Order History Section */}
+                                    <div className="relative">
+                                        {/* History Toggle Button */}
+                                        <button
+                                            onClick={() => setShowHistory(!showHistory)}
+                                            className={`w-full flex items-center justify-between p-4 mb-4 rounded-2xl border transition-all ${isDarkMode ? 'bg-white/5 border-white/10 text-white hover:bg-white/10' : 'bg-gray-50 border-gray-100 text-gray-900 hover:bg-gray-100'
+                                                }`}
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <HiOutlineClipboardList style={{ color: themeColor }} size={20} />
+                                                <span className="font-black uppercase tracking-widest text-xs">{t.orderHistory}</span>
+                                                {orders.length > 0 && (
+                                                    <span className="px-2 py-0.5 rounded-full text-[10px] bg-white/10 dark:bg-white/5 font-black">{orders.length}</span>
+                                                )}
+                                            </div>
+                                            <motion.div animate={{ rotate: showHistory ? 180 : 0 }}>
+                                                <HiChevronRight size={18} className="text-gray-400" />
+                                            </motion.div>
+                                        </button>
+
+                                        {/* Dropdown Historical Orders */}
+                                        <AnimatePresence>
+                                            {showHistory && (
+                                                <motion.div
+                                                    key="history-panel"
+                                                    initial={{ height: 0, opacity: 0 }}
+                                                    animate={{ height: 'auto', opacity: 1 }}
+                                                    exit={{ height: 0, opacity: 0 }}
+                                                    className="overflow-hidden space-y-4 px-1 pb-10"
+                                                >
+                                                    {orders.length > 0 ? (
+                                                        <motion.div
+                                                            initial="hidden"
+                                                            animate="visible"
+                                                            variants={{
+                                                                visible: { transition: { staggerChildren: 0.1 } }
+                                                            }}
+                                                            className="space-y-4"
+                                                        >
+                                                            {orders.map(order => {
+                                                                const isActive = activeOrderId && String(order.id) === String(activeOrderId);
+                                                                return (
+                                                                    <motion.div
+                                                                        key={order.id}
+                                                                        variants={{
+                                                                            hidden: { opacity: 0, y: 10 },
+                                                                            visible: { opacity: 1, y: 0 }
+                                                                        }}
+                                                                        className={`border rounded-2xl p-4 transition-all group ${isDarkMode
+                                                                            ? 'bg-white/5 border-white/10 hover:border-white/20'
+                                                                            : 'bg-white border-gray-100 hover:border-gray-200 hover:shadow-md'
+                                                                            } ${isActive ? 'ring-2 ring-offset-2 ring-offset-transparent' : ''}`}
+                                                                        style={isActive ? { ringColor: themeColor, borderColor: themeColor } : {}}
+                                                                    >
+                                                                        {isActive && (
+                                                                            <MiniStepper status={activeOrder?.status || order.status} themeColor={themeColor} />
+                                                                        )}
+
+                                                                        <div className="flex justify-between items-start mb-2">
+                                                                            <div>
+                                                                                <span className={`font-bold block transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Order #{String(order.id).slice(0, 8)}</span>
+                                                                                <span className={`text-xs transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{new Date(order.created_at).toLocaleDateString()}</span>
+                                                                            </div>
+                                                                            <span
+                                                                                className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter`}
+                                                                                style={order.status === 'completed' ? { backgroundColor: '#22c55e33', color: '#22c55e' } :
+                                                                                    order.status === 'cancelled' ? { backgroundColor: '#ef444433', color: '#ef4444' } :
+                                                                                        { backgroundColor: `${themeColor}33`, color: themeColor }}
+                                                                            >
+                                                                                {order.status}
+                                                                            </span>
+                                                                        </div>
+
+                                                                        <div className="flex justify-between items-center mt-4">
+                                                                            <span className={`text-sm transition-colors ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{order.order_type === 'dine_in' ? `🍽️ ${t.dineIn}` : `🥡 ${t.takeOut}`}</span>
+                                                                            <span className={`font-black text-lg transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>${Number(order.total_price).toFixed(2)}</span>
+                                                                        </div>
+                                                                    </motion.div>
+                                                                );
+                                                            })}
+                                                        </motion.div>
+                                                    ) : (
+                                                        <div className={`text-center py-12 rounded-2xl border border-dashed transition-colors ${isDarkMode
+                                                            ? 'bg-white/5 border-white/10'
+                                                            : 'bg-gray-50 border-gray-200'}`}>
+                                                            <HiOutlineShoppingBag size={48} className={`mx-auto mb-4 transition-colors ${isDarkMode ? 'text-gray-700' : 'text-gray-300'}`} />
+                                                            <p className={`font-bold transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{t.noOrders}</p>
+                                                            <p className={`text-xs mt-1 transition-colors ${isDarkMode ? 'text-gray-600' : 'text-gray-500'}`}>{t.noOrdersDesc}</p>
+                                                        </div>
+                                                    )}
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </motion.div>
+                </>
+            )}
+        </AnimatePresence>
     );
 };
 

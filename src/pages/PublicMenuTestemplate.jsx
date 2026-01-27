@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, HiBars3, HiMapPin, HiMagnifyingGlass, HiAdjustmentsHorizontal, HiHome, HiChatBubbleLeftRight, HiBell, HiUserGroup, HiXMark } from 'react-icons/hi2';
+import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, HiMapPin, HiMagnifyingGlass, HiAdjustmentsHorizontal, HiHome, HiChatBubbleLeftRight, HiBell, HiUserGroup, HiXMark } from 'react-icons/hi2';
 import { Link, useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { motion, AnimatePresence, useAnimation } from 'framer-motion';
@@ -192,14 +192,30 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
             <div className="h-16 bg-white/95 backdrop-blur-md z-[60] flex items-center justify-between px-6 shrink-0 shadow-sm relative transition-all duration-300">
                 {/* Menu Toggle */}
                 <button
-                    onClick={() => setShowAuthSidebar(true)}
-                    className="p-3 rounded-[1rem] border shadow-sm active:scale-95 flex items-center justify-center bg-white hover:bg-gray-50 transition-colors"
+                    onClick={() => setShowAuthSidebar(!showAuthSidebar)}
+                    className="p-3 rounded-[1rem] border shadow-sm active:scale-95 flex items-center justify-center bg-white hover:bg-gray-50 transition-colors z-50"
                     style={{
                         color: config.themeColor,
                         borderColor: `${config.themeColor}20`,
                     }}
                 >
-                    <HiBars3 className="w-6 h-6" />
+                    <div className="w-6 h-6 flex flex-col justify-around py-0.5">
+                        <motion.span
+                            animate={showAuthSidebar ? { rotate: 45, y: 7 } : { rotate: 0, y: 0 }}
+                            className="block h-0.5 w-6 bg-current rounded-full"
+                            style={{ backgroundColor: config.themeColor }}
+                        />
+                        <motion.span
+                            animate={showAuthSidebar ? { opacity: 0 } : { opacity: 1 }}
+                            className="block h-0.5 w-6 bg-current rounded-full"
+                            style={{ backgroundColor: config.themeColor }}
+                        />
+                        <motion.span
+                            animate={showAuthSidebar ? { rotate: -45, y: -7 } : { rotate: 0, y: 0 }}
+                            className="block h-0.5 w-6 bg-current rounded-full"
+                            style={{ backgroundColor: config.themeColor }}
+                        />
+                    </div>
                 </button>
 
                 {/* Restaurant Name */}
