@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 import PublicMenuPizza1 from './PublicMenuPizza1'
 import PublicMenuTestemplate from './PublicMenuTestemplate'
 import PublicMenuTestemplate2 from './PublicMenuTestemplate2'
-import PublicMenuTestemplate3 from './PublicMenuTestemplate3'
+
 import PublicMenuGrid from './PublicMenuGrid'
 import PublicMenuList from './PublicMenuList'
 import PublicMenuMagazine from './PublicMenuMagazine'
@@ -105,9 +105,7 @@ const PublicMenu = () => {
         return <PublicMenuTestemplate2 restaurantName={restaurantName} menuData={data} />
     }
 
-    if (data.menu?.template_type === 'testemplate3' || templateKey === 'testemplate3') {
-        return <PublicMenuTestemplate3 restaurantName={restaurantName} menuData={data} />
-    }
+    // Removed testemplate3 logic
 
     // Dynamic Multi-Layout Selection
     const baseLayout = data.menu.base_layout || 'grid';

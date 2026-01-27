@@ -24,7 +24,7 @@ import PublicMenuPizza1 from './pages/PublicMenuPizza1'
 import PublicMenuTestemplate from './pages/PublicMenuTestemplate'
 import ManageMenu from './pages/ManageMenu'
 import PublicMenuTestemplate2 from './pages/PublicMenuTestemplate2'
-import PublicMenuTestemplate3 from './pages/PublicMenuTestemplate3'
+
 
 import ScrollToTop from './components/ScrollToTop'
 import { LanguageProvider } from './context/LanguageContext'
