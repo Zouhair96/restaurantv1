@@ -228,9 +228,15 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                 >
                                     {language}
                                 </button>
-                                <button onClick={onClose} className={`p-2 transition-colors ${isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-400 hover:text-gray-900'}`}>
+                                <motion.button
+                                    whileHover={{ scale: 1.1, rotate: 90 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    onClick={onClose}
+                                    className="p-2 transition-colors rounded-xl"
+                                    style={{ color: themeColor, backgroundColor: `${themeColor}10` }}
+                                >
                                     <HiOutlineX size={24} />
-                                </button>
+                                </motion.button>
                             </div>
                         </div>
 

@@ -274,58 +274,64 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                         ))}
                     </div>
 
-                    {/* Items Grid with Animation */}
-                    <motion.div
-                        className="px-5 mt-6 grid grid-cols-2 gap-3 pb-24"
-                        variants={containerVariants}
-                        initial="hidden"
-                        animate="visible"
-                        key={activeCategory}
-                    >
-                        {menuItems.filter(item =>
-                            (activeCategory === 'All' || item.category === activeCategory) &&
-                            (item.name.toLowerCase().includes(searchQuery.toLowerCase()))
-                        ).map((item) => (
-                            <motion.div
-                                key={item.id}
-                                variants={itemVariants}
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.95 }}
-                                layoutId={`item-card-${item.id}`}
-                                onClick={() => handleItemClick(item)}
-                                className="bg-white rounded-[1.5rem] p-3 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-shadow cursor-pointer flex flex-col items-center text-center relative overflow-hidden group"
-                            >
-                                <button className="absolute top-3 right-3 text-gray-300 hover:text-red-500 transition-colors z-10">
-                                    <HiOutlineHeart className="w-5 h-5" />
-                                </button>
+                    <div className="px-5 mt-6 pb-24">
+                        <motion.div
+                            className="grid grid-cols-2 gap-3"
+                            variants={containerVariants}
+                            initial="hidden"
+                            animate="visible"
+                            key={activeCategory}
+                        >
+                            <AnimatePresence mode="popLayout">
+                                {menuItems.filter(item =>
+                                    (activeCategory === 'All' || item.category === activeCategory) &&
+                                    (item.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                                ).map((item) => (
+                                    <motion.div
+                                        key={item.id}
+                                        variants={itemVariants}
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        layout
+                                        initial={{ opacity: 0, scale: 0.8 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
+                                        onClick={() => handleItemClick(item)}
+                                        className="bg-white rounded-[1.5rem] p-3 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-shadow cursor-pointer flex flex-col items-center text-center relative overflow-hidden group"
+                                    >
+                                        <button className="absolute top-3 right-3 text-gray-300 hover:text-red-500 transition-colors z-10">
+                                            <HiOutlineHeart className="w-5 h-5" />
+                                        </button>
 
-                                <motion.div layoutId={`item-image-${item.id}`} className="w-28 h-28 rounded-full shadow-lg mt-1 mb-2 group-hover:scale-105 transition-transform duration-300">
-                                    <img src={item.image} alt={item.name} className="w-full h-full object-cover rounded-full" />
-                                </motion.div>
+                                        <motion.div layoutId={`item-image-${item.id}`} className="w-28 h-28 rounded-full shadow-lg mt-1 mb-2 group-hover:scale-105 transition-transform duration-300">
+                                            <img src={item.image} alt={item.name} className="w-full h-full object-cover rounded-full" />
+                                        </motion.div>
 
-                                <h3 className="font-bold text-gray-900 text-sm leading-tight mb-1 w-full truncate px-1">{item.name}</h3>
+                                        <h3 className="font-bold text-gray-900 text-sm leading-tight mb-1 w-full truncate px-1">{item.name}</h3>
 
-                                {/* Metadata removed as per user request */}
+                                        {/* Metadata removed as per user request */}
 
-                                <div className="w-full flex items-center justify-between mt-auto pl-1">
-                                    <span className="text-base font-black text-gray-900">${parseFloat(item.price).toFixed(2)}</span>
-                                </div>
+                                        <div className="w-full flex items-center justify-between mt-auto pl-1">
+                                            <span className="text-base font-black text-gray-900">${parseFloat(item.price).toFixed(2)}</span>
+                                        </div>
 
-                                {/* Add Button - Bottom Right Corner */}
-                                <button
-                                    className="absolute bottom-0 right-0 w-10 h-10 bg-theme flex items-center justify-center text-white rounded-tl-[1.2rem] hover:opacity-90 active:scale-95 transition-all"
-                                    style={{ backgroundColor: config.themeColor }}
-                                    onClick={(e) => {
-                                        e.stopPropagation(); // Prevent opening modal
-                                        addToCart({ ...item, quantity: 1 });
-                                        triggerCartAnimation(item, e);
-                                    }}
-                                >
-                                    <HiPlus className="w-5 h-5" />
-                                </button>
-                            </motion.div>
-                        ))}
-                    </motion.div>
+                                        {/* Add Button - Bottom Right Corner */}
+                                        <button
+                                            className="absolute bottom-0 right-0 w-10 h-10 bg-theme flex items-center justify-center text-white rounded-tl-[1.2rem] hover:opacity-90 active:scale-95 transition-all"
+                                            style={{ backgroundColor: config.themeColor }}
+                                            onClick={(e) => {
+                                                e.stopPropagation(); // Prevent opening modal
+                                                addToCart({ ...item, quantity: 1 });
+                                                triggerCartAnimation(item, e);
+                                            }}
+                                        >
+                                            <HiPlus className="w-5 h-5" />
+                                        </button>
+                                    </motion.div>
+                                ))}
+                            </AnimatePresence>
+                        </motion.div>
+                    </div>
                 </div>
             </div>
 
