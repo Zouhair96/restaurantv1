@@ -62,8 +62,8 @@ const AdminSidebar = ({ activeSection, onSectionChange, isMobileMenuOpen, closeM
                 </button>
             )}
 
-            {/* Rounded Pill Background */}
-            <div className="relative w-full h-full bg-[#6359E9] rounded-[2.5rem] shadow-2xl flex flex-col items-center py-8 px-3">
+            {/* Rounded Pill Background - Premium Gradient \u0026 Glass */}
+            <div className="relative w-full h-full bg-gradient-to-b from-[#6359E9] to-[#4c44c7] rounded-[2.5rem] shadow-2xl shadow-indigo-500/30 flex flex-col items-center py-8 px-3 border border-white/10 backdrop-blur-xl">
 
                 {/* Navigation Items */}
                 <div className="flex-1 w-full flex flex-col items-center justify-center gap-6">
@@ -77,7 +77,7 @@ const AdminSidebar = ({ activeSection, onSectionChange, isMobileMenuOpen, closeM
                                     onClick={() => handleNavClick(item.id)}
                                     className={`relative w-14 h-14 flex items-center justify-center rounded-2xl transition-all duration-300
                                         ${isActive
-                                            ? 'bg-white text-[#6359E9] scale-110 shadow-lg'
+                                            ? 'bg-white text-[#6359E9] scale-110 shadow-xl shadow-[#6359E9]/40'
                                             : 'text-white/70 hover:text-white hover:bg-white/10 hover:scale-105'
                                         }`}
                                     title={item.label}

@@ -31,9 +31,9 @@ const OrderGrid = () => {
                     const oldPendingCount = (orders || []).filter(o => o.status === 'pending').length;
                     if (newPendingCount > oldPendingCount) {
                         try {
-                            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-                            audio.volume = 0.8;
-                            audio.play().catch(() => { });
+                            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3'); // Soft professional ding
+                            audio.volume = 0.5;
+                            audio.play().catch(e => console.warn('Dashboard sound blocked:', e));
                         } catch (e) { }
                     }
                 }

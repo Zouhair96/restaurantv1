@@ -10,9 +10,9 @@ const LiveOrders = ({ onSelectOrder }) => {
     const playNewOrderSound = () => {
         try {
             // Professional alert notification - pleasant but attention-grabbing
-            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-            audio.volume = 0.8; // Good volume for alerts
-            audio.play().catch(e => console.warn('Audio play failed (browser policy?):', e));
+            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3'); // Soft professional ding
+            audio.volume = 0.5;
+            audio.play().catch(e => console.warn('Dashboard sound blocked:', e));
         } catch (err) {
             console.error('Audio error:', err);
         }

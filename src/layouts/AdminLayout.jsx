@@ -17,9 +17,9 @@ const AdminLayout = ({ children, activeSection, onSectionChange }) => {
         <div className="min-h-screen bg-[#F8F9FE] dark:bg-[#0f1115] transition-colors duration-300">
             {/* Background Mesh Gradients */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden select-none z-0">
-                <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-[#6359E9]/5 rounded-full blur-[120px]"></div>
-                <div className="absolute top-[20%] -right-[10%] w-[30%] h-[50%] bg-pink-500/5 rounded-full blur-[100px]"></div>
-                <div className="absolute bottom-0 left-[20%] w-[50%] h-[30%] bg-indigo-500/5 rounded-full blur-[100px]"></div>
+                <div className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-[#6359E9]/10 rounded-full blur-[140px]"></div>
+                <div className="absolute top-[20%] -right-[10%] w-[40%] h-[60%] bg-pink-500/10 rounded-full blur-[120px]"></div>
+                <div className="absolute bottom-0 left-[20%] w-[60%] h-[40%] bg-indigo-500/10 rounded-full blur-[120px]"></div>
             </div>
 
             {/* Mobile Backdrop Overlay */}

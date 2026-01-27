@@ -53,8 +53,8 @@ const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline
         try {
             // Success sound or Warning sound
             const url = isWarning
-                ? 'https://assets.mixkit.co/active_storage/sfx/951/951-preview.mp3' // Warning/Error sound
-                : 'https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3'; // Success sound
+                ? 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3' // Refined low-tone warning
+                : 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3'; // Professional digital bell chime
 
             const audio = new Audio(url)
             audio.volume = 0.7

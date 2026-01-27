@@ -98,15 +98,15 @@ const AdminDashboard = () => {
                                 { label: 'Total Revenue', value: `${stats.total_revenue}€`, icon: '💰', color: 'bg-green-500' },
                                 { label: 'New Users (Month)', value: `+${stats.monthly_growth_users}`, icon: '📈', color: 'bg-pink-500' },
                             ].map((stat, i) => (
-                                <div key={i} className="bg-white/50 dark:bg-white/5 backdrop-blur-xl p-6 rounded-[2rem] border border-white dark:border-white/5 shadow-sm hover:shadow-md transition-all group">
+                                <div key={i} className="bg-white/70 dark:bg-white/5 backdrop-blur-2xl p-6 rounded-[2.5rem] border border-white dark:border-white/5 shadow-xl shadow-gray-200/50 dark:shadow-none hover:shadow-2xl hover:shadow-[#6359E9]/10 transition-all duration-500 group">
                                     <div className="flex justify-between items-start mb-4">
                                         <div className={`w-12 h-12 ${stat.color}/10 rounded-2xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform`}>
                                             {stat.icon}
                                         </div>
                                         <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Live Updates</span>
                                     </div>
-                                    <h3 className="text-gray-500 dark:text-gray-400 text-sm font-bold mb-1">{stat.label}</h3>
-                                    <div className="text-3xl font-black text-gray-800 dark:text-white uppercase tracking-tighter">{stat.value}</div>
+                                    <h3 className="text-gray-400 dark:text-gray-500 text-[10px] font-black uppercase tracking-widest mb-1">{stat.label}</h3>
+                                    <div className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter leading-none">{stat.value}</div>
                                 </div>
                             ))}
                         </div>
@@ -121,7 +121,7 @@ const AdminDashboard = () => {
 
                 {activeSection === 'users' && (
                     /* Users Table Card */
-                    <div className="bg-white/50 dark:bg-white/5 backdrop-blur-xl rounded-[2.5rem] border border-white dark:border-white/10 shadow-xl shadow-indigo-500/5 overflow-hidden">
+                    <div className="bg-white/70 dark:bg-white/5 backdrop-blur-2xl rounded-[3rem] border border-white dark:border-white/10 shadow-2xl shadow-indigo-500/10 overflow-hidden">
                         <div className="p-8 border-b border-gray-100 dark:border-white/5 flex justify-between items-center">
                             <div>
                                 <h2 className="text-2xl font-black text-gray-800 dark:text-white tracking-tight uppercase">User Management</h2>
