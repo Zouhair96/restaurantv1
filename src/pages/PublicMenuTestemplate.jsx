@@ -187,31 +187,42 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                     </div>
 
                     {/* Items Grid */}
-                    <div className="px-6 mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-24">
+                    {/* Items Grid */}
+                    <div className="px-5 mt-6 grid grid-cols-2 gap-3 pb-24">
                         {menuItems.filter(item => activeCategory === 'All' || item.category === activeCategory).map((item) => (
                             <motion.div
                                 key={item.id}
                                 layoutId={`item-card-${item.id}`}
                                 onClick={() => handleItemClick(item)}
-                                className="bg-white rounded-3xl p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer flex flex-col items-center text-center relative"
+                                className="bg-white rounded-[1.5rem] p-3 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-shadow cursor-pointer flex flex-col items-center text-center relative overflow-hidden"
                             >
-                                <button className="absolute top-3 right-3 text-red-500 hover:scale-110 transition-transform">
-                                    <HiHeart className="w-5 h-5" />
+                                <button className="absolute top-3 right-3 text-gray-300 hover:text-red-500 transition-colors z-10">
+                                    <HiOutlineHeart className="w-5 h-5" />
                                 </button>
-                                <motion.div layoutId={`item-image-${item.id}`} className="w-24 h-24 rounded-full overflow-hidden mb-3 shadow-lg mt-2">
-                                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+
+                                <motion.div layoutId={`item-image-${item.id}`} className="w-28 h-28 rounded-full shadow-lg mt-1 mb-2">
+                                    <img src={item.image} alt={item.name} className="w-full h-full object-cover rounded-full" />
                                 </motion.div>
-                                <h3 className="font-bold text-gray-900 text-sm line-clamp-1">{item.name}</h3>
-                                <div className="flex items-center gap-4 text-xs text-gray-400 mt-1 mb-3">
+
+                                <h3 className="font-bold text-gray-900 text-sm leading-tight mb-1 w-full truncate px-1">{item.name}</h3>
+
+                                <div className="flex items-center justify-center gap-3 text-[10px] text-gray-400 font-medium mb-3 w-full">
                                     <span>{item.time}</span>
-                                    <span className="flex items-center gap-1 text-yellow-400 font-bold"><span className="text-yellow-400">★</span> {item.rating}</span>
+                                    <div className="w-1 h-1 rounded-full bg-gray-300"></div>
+                                    <span className="flex items-center gap-0.5"><span className="text-yellow-400 text-xs">★</span> {item.rating}</span>
                                 </div>
-                                <div className="w-full flex items-end justify-between mt-auto">
-                                    <span className="text-lg font-bold text-gray-900">${parseFloat(item.price).toFixed(2)}</span>
-                                    <button className="w-8 h-8 bg-theme rounded-xl flex items-center justify-center text-white shadow-md hover:opacity-90 transition-opacity" style={{ backgroundColor: config.themeColor }}>
-                                        <HiPlus className="w-5 h-5" />
-                                    </button>
+
+                                <div className="w-full flex items-center justify-between mt-auto pl-1">
+                                    <span className="text-base font-black text-gray-900">${parseFloat(item.price).toFixed(2)}</span>
                                 </div>
+
+                                {/* Add Button - Bottom Right Corner */}
+                                <button
+                                    className="absolute bottom-0 right-0 w-10 h-10 bg-theme flex items-center justify-center text-white rounded-tl-[1.2rem]"
+                                    style={{ backgroundColor: config.themeColor }}
+                                >
+                                    <HiPlus className="w-5 h-5" />
+                                </button>
                             </motion.div>
                         ))}
                     </div>
