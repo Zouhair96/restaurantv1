@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline = false, noHeader = false }) => {
     const [isMinimized, setIsMinimized] = useState(false)
+    const [isShaking, setIsShaking] = useState(false)
     const prevStatusRef = React.useRef(order?.status);
 
     // Watch for status changes to trigger notifications
@@ -29,8 +30,12 @@ const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline
                     }
 
                     playCompletionSound(order.status === 'cancelled');
-                    speakMessage(voiceText);
+                    // speakMessage(voiceText); // Disabled as per user request
                     showNotification(message);
+
+                    // Trigger visual shake
+                    setIsShaking(true);
+                    setTimeout(() => setIsShaking(false), 600);
                 }
             }
         }
@@ -55,25 +60,27 @@ const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline
 
     const playCompletionSound = (isWarning = false) => {
         try {
-            // Success sound or Warning sound
+            // Audio disabled as per user request - switching to haptic/visual focus
+            /*
             const url = isWarning
-                ? 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3' // Refined low-tone warning
-                : 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3'; // Professional digital bell chime
+                ? 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3'
+                : 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3';
 
             const audio = new Audio(url)
             audio.volume = 0.7
             audio.play().catch(e => console.warn('Audio play failed:', e))
+            */
 
             // Trigger vibration pattern: Success (long, short, long) or Warning (staccato)
             if ('vibrate' in navigator) {
                 if (isWarning) {
                     navigator.vibrate([100, 50, 100, 50, 100, 50, 300]); // Alarm pattern
                 } else {
-                    navigator.vibrate([500, 100, 500]); // Success pattern
+                    navigator.vibrate([200, 100, 200]); // Refined pattern
                 }
             }
         } catch (err) {
-            console.error('Audio/Vibration error:', err)
+            console.error('Vibration error:', err)
         }
     }
 
@@ -138,7 +145,14 @@ const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline
                 dragConstraints={{ left: -300, right: 0, top: -80, bottom: 500 }}
                 dragTransition={{ bounceStiffness: 600, bounceDamping: 20 }}
                 initial={inline ? { opacity: 0 } : { x: 100, opacity: 0 }}
-                animate={inline ? { opacity: 1 } : { x: 0, opacity: 1 }}
+                animate={inline ?
+                    { opacity: 1, x: isShaking ? [0, -10, 10, -10, 10, 0] : 0 } :
+                    { x: isShaking ? [-10, 10, -10, 10, 0] : 0, opacity: 1 }
+                }
+                transition={{
+                    x: { duration: 0.5, ease: "easeInOut" },
+                    opacity: { duration: 0.3 }
+                }}
                 exit={inline ? { opacity: 0 } : { x: 100, opacity: 0 }}
                 className={inline ? 'relative' : 'fixed top-20 right-4 z-[120] w-80 pointer-events-auto'}
             >
