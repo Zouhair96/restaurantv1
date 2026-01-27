@@ -235,19 +235,29 @@ const MenuManagement = () => {
                                         <div className="mt-auto w-full space-y-3 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
                                             {/* Activate Button */}
                                             <button
-                                                onClick={(e) => {
+                                                onClick={async (e) => {
                                                     e.stopPropagation();
                                                     if (isLocked) {
                                                         alert("You can only have one active menu at a time. Please delete your current menu to activate this template.");
                                                         return;
                                                     }
-                                                    if (template.template_key === 'pizza1') {
-                                                        navigate('/manage-menu-pizza1');
-                                                        return;
+
+                                                    try {
+                                                        // Create menu immediately to generate QR code and active state
+                                                        await createMenu(user.restaurant_name || 'My Menu', template.template_key, {});
+                                                        await loadMenus(); // Refresh to update UI state
+
+                                                        if (template.template_key === 'pizza1') {
+                                                            navigate('/manage-menu-pizza1');
+                                                        } else {
+                                                            setSelectedTemplate(template.template_key);
+                                                            setEditingMenu(null);
+                                                            setIsEditorOpen(true);
+                                                        }
+                                                    } catch (err) {
+                                                        console.error("Activation failed:", err);
+                                                        alert("Failed to activate menu. Please try again.");
                                                     }
-                                                    setSelectedTemplate(template.template_key);
-                                                    setEditingMenu(null);
-                                                    setIsEditorOpen(true);
                                                 }}
                                                 disabled={isLocked}
                                                 className={`w-full py-4 rounded-xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 shadow-xl ${isLocked
