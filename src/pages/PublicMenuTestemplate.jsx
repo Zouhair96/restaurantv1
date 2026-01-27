@@ -140,7 +140,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
     const handleScroll = () => {
         if (scrollContainerRef.current) {
             const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
-            setShowScrollTop(scrollTop > clientHeight * 0.1);
+            setShowScrollTop(scrollTop > clientHeight * 0.2);
         }
     };
 
@@ -164,7 +164,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
             `}</style>
 
             {/* --- FIXED HEADER --- */}
-            <div className="h-20 bg-gray-50/90 backdrop-blur-md z-40 flex items-center justify-between px-6 shrink-0 shadow-sm relative transition-all duration-300">
+            <div className="h-16 bg-gray-50/90 backdrop-blur-md z-40 flex items-center justify-between px-6 shrink-0 shadow-sm relative transition-all duration-300">
                 {/* Menu Toggle */}
                 <button
                     onClick={() => setShowAuthSidebar(true)}
