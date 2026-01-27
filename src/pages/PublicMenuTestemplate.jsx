@@ -4,9 +4,8 @@ import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, H
 import { Link, useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar'; // Ensure this component exists or remove if not needed? Pizza1 uses it.
-// Pizza1 imports:
-import { useClientAuth } from '../context/ClientAuthContext';
+import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
+import Checkout from '../components/menu/Checkout'; // Import Checkout
 
 const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
     const { restaurantName: urlRestaurantName } = useParams();
@@ -27,14 +26,13 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
     const [quantity, setQuantity] = useState(1);
     const [activeCategory, setActiveCategory] = useState('All');
     const [isLiked, setIsLiked] = useState(false);
-    const [showAuthSidebar, setShowAuthSidebar] = useState(false); // Added for sidebar
+    const [showAuthSidebar, setShowAuthSidebar] = useState(false);
+    const [isCheckoutOpen, setIsCheckoutOpen] = useState(false); // State for checkout
 
     // Derived state for categories
     const categories = ['All', ...new Set(menuItems.map(i => i.category).filter(Boolean))];
 
     const { addToCart, cartItems } = useCart();
-    // Pizza1 uses useClientAuth for tracker? Not critical for sidebar port but good for consistency.
-    // const { user: clientUser } = useClientAuth(); 
 
     useEffect(() => {
         const fetchData = async () => {
@@ -87,7 +85,6 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
     }, [restaurantName, isMasterView]);
 
     useEffect(() => {
-        // Auto-select first category logic if needed
         if (categories.length > 0 && !categories.includes(activeCategory)) {
             setActiveCategory(categories[0]);
         }
@@ -108,9 +105,32 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
     const handleAddToCart = () => {
         if (selectedItem) {
             addToCart({ ...selectedItem, quantity });
-            // In a real app, maybe show a toast instead of alert
-            // window.alert(`${quantity} ${selectedItem.name} added to cart!`);
+            // Close modal with simple animation or delay if preferred, but instant close is standard for this flow
             setSelectedItem(null);
+        }
+    };
+
+    // Animation Variants
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1
+            }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: {
+                type: 'spring',
+                stiffness: 100,
+                damping: 15
+            }
         }
     };
 
@@ -140,9 +160,27 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                     <HiBars3 className="w-6 h-6" />
                 </button>
             </div>
-            {/* --- PORTED SIDEBAR END --- */}
 
-            {/* --- MAIN CONTENT AREA (Existing Layout Wrapped) --- */}
+            {/* --- CART ICON (TOP RIGHT) --- */}
+            <div className="absolute top-6 right-6 z-50">
+                <button
+                    onClick={() => setIsCheckoutOpen(true)}
+                    className="relative p-3 md:p-4 rounded-[1.2rem] border shadow-md transition-all active:scale-95 flex items-center justify-center bg-white text-gray-700 hover:text-theme"
+                    style={{
+                        borderColor: `${config.themeColor}40`,
+                    }}
+                >
+                    <HiShoppingBag className="w-6 h-6" />
+                    {cartItems.length > 0 && (
+                        <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-white">
+                            {cartItems.length}
+                        </span>
+                    )}
+                </button>
+            </div>
+
+
+            {/* --- MAIN CONTENT AREA --- */}
             <div className="flex-1 flex flex-col h-full overflow-hidden relative z-0">
                 <div className="flex-1 overflow-y-auto pb-24">
                     {/* Header */}
@@ -164,7 +202,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                         </div>
                     </div>
 
-                    {/* Categories - keeping existing logic */}
+                    {/* Categories */}
                     <div className="px-6 mt-8 flex gap-6 overflow-x-auto no-scrollbar pb-2">
                         {categories.map((cat, index) => (
                             <button
@@ -178,21 +216,32 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                         ))}
                     </div>
 
-                    {/* Items Grid */}
-                    {/* Items Grid */}
-                    <div className="px-5 mt-6 grid grid-cols-2 gap-3 pb-24">
-                        {menuItems.filter(item => activeCategory === 'All' || item.category === activeCategory).map((item) => (
+                    {/* Items Grid with Animation */}
+                    <motion.div
+                        className="px-5 mt-6 grid grid-cols-2 gap-3 pb-24"
+                        variants={containerVariants}
+                        initial="hidden"
+                        animate="visible"
+                        // Force re-animation when category changes if desired, 
+                        // key={activeCategory} can be added here.
+                        key={activeCategory}
+                    >
+                        {menuItems.filter(item =>
+                            (activeCategory === 'All' || item.category === activeCategory) &&
+                            (item.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                        ).map((item) => (
                             <motion.div
                                 key={item.id}
+                                variants={itemVariants}
                                 layoutId={`item-card-${item.id}`}
                                 onClick={() => handleItemClick(item)}
-                                className="bg-white rounded-[1.5rem] p-3 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-shadow cursor-pointer flex flex-col items-center text-center relative overflow-hidden"
+                                className="bg-white rounded-[1.5rem] p-3 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-shadow cursor-pointer flex flex-col items-center text-center relative overflow-hidden group"
                             >
                                 <button className="absolute top-3 right-3 text-gray-300 hover:text-red-500 transition-colors z-10">
                                     <HiOutlineHeart className="w-5 h-5" />
                                 </button>
 
-                                <motion.div layoutId={`item-image-${item.id}`} className="w-28 h-28 rounded-full shadow-lg mt-1 mb-2">
+                                <motion.div layoutId={`item-image-${item.id}`} className="w-28 h-28 rounded-full shadow-lg mt-1 mb-2 group-hover:scale-105 transition-transform duration-300">
                                     <img src={item.image} alt={item.name} className="w-full h-full object-cover rounded-full" />
                                 </motion.div>
 
@@ -210,17 +259,19 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
 
                                 {/* Add Button - Bottom Right Corner */}
                                 <button
-                                    className="absolute bottom-0 right-0 w-10 h-10 bg-theme flex items-center justify-center text-white rounded-tl-[1.2rem]"
+                                    className="absolute bottom-0 right-0 w-10 h-10 bg-theme flex items-center justify-center text-white rounded-tl-[1.2rem] hover:opacity-90 active:scale-95 transition-all"
                                     style={{ backgroundColor: config.themeColor }}
+                                    onClick={(e) => {
+                                        e.stopPropagation(); // Prevent opening modal
+                                        addToCart({ ...item, quantity: 1 });
+                                    }}
                                 >
                                     <HiPlus className="w-5 h-5" />
                                 </button>
                             </motion.div>
                         ))}
-                    </div>
+                    </motion.div>
                 </div>
-
-                {/* Footer removed as per user request */}
             </div>
 
             {/* Screen 2: Details View (Overlay) */}
@@ -260,8 +311,9 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
 
                         {/* Details Card */}
                         <motion.div
-                            initial={{ y: 100 }}
+                            initial={{ y: 200 }}
                             animate={{ y: 0 }}
+                            transition={{ type: 'spring', damping: 25, stiffness: 100, delay: 0.1 }}
                             className="bg-white rounded-t-[2.5rem] px-8 pt-10 pb-8 flex flex-col h-[55%] relative z-20"
                         >
                             <div className="w-12 h-1 bg-gray-200 rounded-full absolute top-4 left-1/2 -translate-x-1/2 mb-4"></div>
@@ -298,6 +350,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
             </AnimatePresence>
 
             <PublicMenuSidebar isOpen={showAuthSidebar} onClose={() => setShowAuthSidebar(false)} restaurantName={restaurantName} displayName={config.restaurantName} themeColor={config.themeColor} />
+            <Checkout isOpen={isCheckoutOpen} onClose={() => setIsCheckoutOpen(false)} restaurantName={restaurantName} themeColor={config.themeColor} />
         </div>
     );
 };
