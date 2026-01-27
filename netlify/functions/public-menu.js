@@ -73,7 +73,9 @@ export const handler = async (event, context) => {
             .map(baseItem => {
                 const override = overrides.find(o => o.template_item_id === baseItem.id);
                 if (override) {
+                    // Respect the override's hidden status
                     if (override.is_hidden) return null;
+
                     return {
                         ...baseItem,
                         name: override.name_override ?? baseItem.name,
@@ -83,7 +85,10 @@ export const handler = async (event, context) => {
                         category: override.category_override ?? baseItem.category
                     };
                 }
-                return baseItem;
+
+                // CRITICAL CHANGE: If no override exists, the base item is HIDDEN by default for the public menu.
+                // The restaurant owner must explicitly "add" (override) it to show it.
+                return null;
             })
             .filter(Boolean);
 

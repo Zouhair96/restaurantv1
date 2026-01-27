@@ -75,6 +75,12 @@ export const handler = async (event, context) => {
             const overrides = overridesRes.rows;
 
             // 6. Merge items with overrides (Field-level fallback logic)
+            // CRITICAL CHANGE: For RESTAURANTS (active users), we hide base items by default unless they are explicitly overridden/unhidden.
+            // For MASTER VIEW (templateKey present, implied by context or query), logic differs? 
+            // Actually, we can use the source of the request. Admin/Public demo vs Restaurant.
+            // But here we are authenticated as a restaurant user.
+            // If the user hasn't overridden an item, we treat it as "Hidden" effectively creating a blank canvas.
+
             const mergedItems = baseItems.map(baseItem => {
                 const override = overrides.find(o => o.template_item_id === baseItem.id);
                 if (override) {
@@ -84,30 +90,34 @@ export const handler = async (event, context) => {
                         description: override.description_override ?? baseItem.description,
                         price: override.price_override ?? baseItem.price,
                         image_url: override.image_override ?? baseItem.image_url,
-                        image: override.image_override ?? baseItem.image_url, // Unified for UI
+                        image: override.image_override ?? baseItem.image_url,
                         category: override.category_override ?? baseItem.category,
-                        is_hidden: override.is_hidden ?? false,
+                        is_hidden: override.is_hidden ?? false, // Respect override setting
                         has_override: true,
                         override_id: override.id
                     };
                 }
-                return { ...baseItem, has_override: false, is_hidden: false, image: baseItem.image_url };
+
+                // If NO override, and we are a restaurant looking at our own menu...
+                // User requirement: "if he active the menu ... it will be empty".
+                // So default is_hidden = true for base items without overrides.
+                return {
+                    ...baseItem,
+                    has_override: false,
+                    is_hidden: true, // DEFAULT HIDDEN FOR RESTAURANTS 
+                    image: baseItem.image_url
+                };
             });
 
-            // 7. Add purely custom items (overrides with no base item)
-            const customItems = overrides
-                .filter(o => !o.template_item_id)
-                .map(o => ({
-                    id: o.id, // Using override ID as the primary ID for custom items
-                    name: o.name_override,
-                    description: o.description_override,
-                    price: o.price_override,
-                    image_url: o.image_override,
-                    category: o.category_override || 'Special', // Need to make sure we save category too
-                    is_hidden: o.is_hidden,
-                    has_override: true,
-                    is_custom: true
-                }));
+            // Filter out hidden items if this is a "Public" fetch? 
+            // The handler is used by ManageMenu (auth required) and potentially PublicMenu?
+            // Actually PublicMenu uses `public-menu.js` or `templates.js` (for master).
+            // This file `menu-overrides` is PROTECTED (requires Bearer token).
+            // So this is primarily for the DASHBOARD / EDITOR.
+            // In the EDITOR, we want to see them but maybe marked as "Hidden"?
+            // Yes, user said "he will add his specific photos".
+            // If we hide them here, the Editor will show them as "Hidden" (which is good).
+            // But what about the Public View? Public View uses `public-menu` endpoint?
 
             const finalItems = [...mergedItems, ...customItems];
 
