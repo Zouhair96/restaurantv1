@@ -180,13 +180,6 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', lan
                                     </div>
                                 )}
 
-                                {/* Discount Section */}
-                                <div className="mt-10 flex items-center justify-center">
-                                    <div className="flex items-center gap-2 text-gray-400 font-bold text-sm bg-white py-3 px-6 rounded-full shadow-sm border border-gray-50">
-                                        <HiOutlineTicket size={18} style={{ color: themeColor }} />
-                                        <span>Do you have any discount code?</span>
-                                    </div>
-                                </div>
                             </div>
 
                             {/* Bottom Card */}
@@ -203,12 +196,21 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', lan
                                     <span className="text-gray-400 font-bold">Est. Tax</span>
                                     <span className="text-gray-900 font-black text-lg">${tax.toFixed(2)}</span>
                                 </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-400 font-bold">Delivery</span>
-                                    <span className="text-green-500 font-black text-lg">Free</span>
+                                <div className="flex justify-between items-center group">
+                                    <div className="flex-1 mr-4">
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                placeholder="Do you have any discount code?"
+                                                className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-theme transition-colors font-medium"
+                                                style={{ focusBorderColor: themeColor }}
+                                            />
+                                        </div>
+                                    </div>
+                                    <span className="text-theme font-black text-sm uppercase tracking-wider" style={{ color: themeColor }}>Apply</span>
                                 </div>
-                                <div className="h-px bg-dashed bg-gray-100 my-4 border-t-2 border-dashed border-gray-100" />
-                                <div className="flex justify-between items-center pb-4">
+                                <div className="h-px bg-dashed bg-gray-100 my-2 border-t-2 border-dashed border-gray-100" />
+                                <div className="flex justify-between items-center pb-2">
                                     <span className="text-gray-900 text-xl font-black">Total</span>
                                     <span className="text-gray-900 text-2xl font-black">${total.toFixed(2)}</span>
                                 </div>

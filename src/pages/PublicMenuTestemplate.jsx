@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, HiMapPin, HiMagnifyingGlass, HiAdjustmentsHorizontal, HiHome, HiChatBubbleLeftRight, HiBell, HiUserGroup, HiXMark } from 'react-icons/hi2';
 import { Link, useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { motion, AnimatePresence, useAnimation } from 'framer-motion';
+import { motion, AnimatePresence, useAnimation, useMotionValue, useTransform } from 'framer-motion';
 import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
 import Checkout from '../components/menu/Checkout'; // Import Checkout
 
@@ -30,6 +30,10 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false); // State for checkout
     const [animatingItems, setAnimatingItems] = useState([]); // For fly-to-cart effect
     const cartControls = useAnimation(); // For vibration effect
+    const dragY = useMotionValue(0);
+    const homeOpacity = useTransform(dragY, [-200, 0, 200], [1, 0.4, 1]);
+    const homeScale = useTransform(dragY, [-200, 0, 200], [1, 0.95, 1]);
+    const homeY = useTransform(dragY, [-200, 0, 200], [0, 50, 0]);
 
     // Derived state for categories
     const categories = ['All', ...new Set(menuItems.map(i => i.category).filter(Boolean))];
@@ -240,7 +244,14 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
             </div>
 
             {/* --- MAIN CONTENT AREA --- */}
-            <div className="flex-1 flex flex-col h-full overflow-hidden relative z-0">
+            <motion.div
+                className="flex-1 flex flex-col h-full overflow-hidden relative z-0"
+                style={{
+                    opacity: selectedItem ? homeOpacity : 1,
+                    scale: selectedItem ? homeScale : 1,
+                    y: selectedItem ? homeY : 0
+                }}
+            >
                 <div
                     className="flex-1 overflow-y-auto pb-24 scroll-smooth"
                     ref={scrollContainerRef}
@@ -333,7 +344,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                         </motion.div>
                     </div>
                 </div>
-            </div>
+            </motion.div>
 
             {/* --- SCROLL TO TOP BUTTON --- */}
             <AnimatePresence>
@@ -358,9 +369,12 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                         drag="y"
                         dragConstraints={{ top: 0, bottom: 0 }}
                         dragElastic={0.7}
+                        style={{ backgroundColor: config.themeColor, y: dragY }}
                         onDragEnd={(_, info) => {
                             if (Math.abs(info.offset.y) > 150 || Math.abs(info.velocity.y) > 500) {
                                 handleCloseDetail();
+                            } else {
+                                dragY.set(0);
                             }
                         }}
                         initial={{ opacity: 0, y: '100%' }}
@@ -368,7 +382,6 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                         exit={{ opacity: 0, y: '100%' }}
                         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
                         className="fixed inset-0 top-16 z-50 flex flex-col bg-theme overflow-hidden touch-none"
-                        style={{ backgroundColor: config.themeColor }}
                     >
                         <button
                             onClick={() => setIsLiked(!isLiked)}
@@ -464,7 +477,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                     </motion.div>
                 ))}
             </div>
-        </div>
+        </div >
     );
 };
 
