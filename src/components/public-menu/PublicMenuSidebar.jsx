@@ -3,13 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { HiOutlineUserCircle, HiOutlineX, HiOutlineShoppingBag, HiOutlineLogout, HiOutlineLogin, HiOutlineClipboardList, HiOutlineUserAdd, HiOutlineSun, HiOutlineMoon } from 'react-icons/hi';
 import { HiXMark, HiUser, HiEnvelope, HiLockClosed, HiArrowRightOnRectangle, HiArchiveBox, HiChevronRight } from 'react-icons/hi2';
 import { useClientAuth } from '../../context/ClientAuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { translations } from '../../translations';
 import PersistentOrderTracker from '../PersistentOrderTracker';
 
 const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, designConfig, isDarkMode, setIsDarkMode, themeColor = '#f97316' }) => {
     const { user: authUser, logout: authLogout, activeOrderId, activeOrder, handleCloseTracker } = useClientAuth();
+    const { language, toggleLanguage } = useLanguage();
     const [view, setView] = useState('welcome');
-    const [language, setLanguage] = useState('FR'); // 'FR', 'EN'
     const [clientUser, setClientUser] = useState(null);
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -220,13 +221,13 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                             </div>
                             <div className="flex items-center gap-2">
                                 <button
-                                    onClick={() => setLanguage(language === 'FR' ? 'EN' : 'FR')}
+                                    onClick={toggleLanguage}
                                     className={`p-2 rounded-xl transition-all border font-bold text-xs w-10 flex items-center justify-center ${isDarkMode
                                         ? 'bg-white/5 border-white/10 text-white hover:bg-white/10'
                                         : 'bg-black/5 border-black/10 text-gray-900 hover:bg-black/10'
                                         }`}
                                 >
-                                    {language}
+                                    {language.toUpperCase()}
                                 </button>
                                 <motion.button
                                     whileHover={{ scale: 1.1, rotate: 90 }}

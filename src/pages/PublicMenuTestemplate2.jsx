@@ -7,6 +7,7 @@ import {
     HiHome, HiHeart, HiShoppingBag, HiUser,
     HiStar, HiClock, HiFire, HiPlus, HiMinus, HiArrowLeft
 } from 'react-icons/hi2';
+import { useLanguage } from '../context/LanguageContext';
 
 const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
     const { restaurantName: urlRestaurantName } = useParams();
@@ -30,6 +31,7 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
     // Cart
     const { addToCart, cartItems } = useCart();
     const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+    const { t } = useLanguage();
 
     // Fetch Data
     useEffect(() => {
@@ -104,7 +106,7 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
         );
     };
 
-    if (isLoading) return <div className="min-h-screen flex items-center justify-center text-orange-500 font-bold">Loading Menu...</div>;
+    if (isLoading) return <div className="min-h-screen flex items-center justify-center text-orange-500 font-bold">{t('menu.loading')}</div>;
     if (error) return <div className="min-h-screen flex items-center justify-center text-red-500">{error}</div>;
 
     return (
@@ -137,7 +139,7 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
             <div className="px-6 mt-6 flex gap-3">
                 <div className="flex-1 bg-white rounded-2xl flex items-center px-4 py-3 shadow-sm border border-gray-100">
                     <HiMagnifyingGlass className="w-5 h-5 text-gray-400 mr-2" />
-                    <input type="text" placeholder="Search..." className="w-full bg-transparent outline-none text-sm font-medium" />
+                    <input type="text" placeholder={t('menu.search')} className="w-full bg-transparent outline-none text-sm font-medium" />
                 </div>
                 <button className="w-12 h-12 bg-theme rounded-2xl flex items-center justify-center text-white shadow-lg active:scale-95 transition-transform" style={{ backgroundColor: config.themeColor }}>
                     <HiAdjustmentsHorizontal className="w-6 h-6" />
@@ -151,12 +153,12 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
                         key={i}
                         onClick={() => setActiveCategory(cat)}
                         className={`px-6 py-3 rounded-full font-bold text-sm whitespace-nowrap transition-all shadow-sm ${activeCategory === cat
-                                ? 'bg-theme text-white shadow-lg shadow-orange-200'
-                                : 'bg-white text-gray-400 hover:bg-gray-50'
+                            ? 'bg-theme text-white shadow-lg shadow-orange-200'
+                            : 'bg-white text-gray-400 hover:bg-gray-50'
                             }`}
                         style={activeCategory === cat ? { backgroundColor: config.themeColor } : {}}
                     >
-                        {cat}
+                        {cat === 'All' ? t('menu.all') : cat}
                     </button>
                 ))}
             </div>
@@ -164,8 +166,8 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
             {/* Popular Items Grid */}
             <div className="px-6 mt-2 pb-8">
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-bold text-gray-900">Popular Items</h2>
-                    <span className="text-xs font-bold text-theme uppercase tracking-wider cursor-pointer" style={{ color: config.themeColor }}>See All</span>
+                    <h2 className="text-xl font-bold text-gray-900">{t('menu.all')}</h2>
+                    <span className="text-xs font-bold text-theme uppercase tracking-wider cursor-pointer" style={{ color: config.themeColor }}>{t('header.howItWorks')}</span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -284,6 +286,7 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
                             </div>
 
                             <p className="text-gray-500 leading-relaxed text-sm flex-1 overflow-y-auto mb-6" dangerouslySetInnerHTML={{ __html: selectedItem.description }} />
+                            {/* About section header removed as per template style, but description remains */}
 
                             <div className="flex items-center gap-6 mt-auto">
                                 <div className="flex items-center gap-4 bg-gray-100 rounded-2xl px-4 py-3">
@@ -301,7 +304,7 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
                                     className="flex-1 py-4 bg-theme text-white font-black rounded-2xl shadow-xl hover:opacity-90 active:scale-95 transition-all text-sm uppercase tracking-widest"
                                     style={{ backgroundColor: config.themeColor }}
                                 >
-                                    Add to Cart
+                                    {t('menu.addToCart')}
                                 </button>
                             </div>
                         </div>

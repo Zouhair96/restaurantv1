@@ -8,6 +8,7 @@ import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
 import Checkout from '../components/menu/Checkout'; // Import Checkout
 import PersistentOrderTracker from '../components/PersistentOrderTracker';
 import { useClientAuth } from '../context/ClientAuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
     const { restaurantName: urlRestaurantName } = useParams();
@@ -42,6 +43,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
 
     const { addToCart, cartItems } = useCart();
     const { user: clientUser, activeOrder, handleCloseTracker, isTopTrackerHidden } = useClientAuth();
+    const { t } = useLanguage();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -182,7 +184,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
         }
     };
 
-    if (isLoading) return <div className="min-h-screen flex items-center justify-center text-green-500">Loading...</div>;
+    if (isLoading) return <div className="min-h-screen flex items-center justify-center text-green-500">{t('menu.loading')}</div>;
     if (error) return <div className="min-h-screen flex items-center justify-center text-red-500">{error}</div>;
 
     return (
@@ -271,7 +273,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                             <HiMagnifyingGlass className="w-6 h-6 text-gray-400 mr-2" />
                             <input
                                 type="text"
-                                placeholder="Search Food"
+                                placeholder={t('menu.search')}
                                 className="flex-1 bg-transparent outline-none text-gray-700 placeholder-gray-400"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -288,7 +290,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                                 className={`whitespace-nowrap font-medium transition-colors ${activeCategory === cat ? 'text-theme scale-105' : 'text-gray-400 hover:text-gray-600'}`}
                                 style={activeCategory === cat ? { color: config.themeColor } : {}}
                             >
-                                {cat}
+                                {cat === 'All' ? t('menu.all') : cat}
                             </button>
                         ))}
                     </div>
@@ -444,7 +446,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                             {/* Metadata removed as per user request */}
 
                             <div className="flex-1 overflow-y-auto mb-6">
-                                <h3 className="font-bold text-gray-900 mb-2">About food</h3>
+                                <h3 className="font-bold text-gray-900 mb-2">{t('menu.about')}</h3>
                                 <div className="text-gray-500 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: selectedItem.description }} />
                             </div>
 
@@ -456,7 +458,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                                     boxShadow: `0 20px 48px -12px ${config.themeColor}cc`
                                 }}
                             >
-                                Add to cart
+                                {t('menu.addToCart')}
                             </button>
                         </motion.div>
                     </motion.div>

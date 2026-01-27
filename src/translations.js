@@ -237,6 +237,16 @@ export const translations = {
                 preparing: "Nous préparons vos délicieux plats...",
                 error: "Une erreur est survenue lors de l'envoi de la commande.",
                 welcomePromo: "Bienvenue sur notre plateforme ! Profitez d’une réduction de 10% sur votre première commande, et pour nos clients fidèles, recevez un repas gratuit après chaque dix commandes !"
+            },
+            menu: {
+                search: "Rechercher",
+                categories: "Catégories",
+                all: "Tout",
+                about: "À propos",
+                addToCart: "Ajouter au panier",
+                items: "articles",
+                loading: "Chargement...",
+                cart: "Panier"
             }
         }
     },
@@ -478,6 +488,16 @@ export const translations = {
                 preparing: "We are preparing your delicious meal...",
                 error: "An error occurred while submitting your order.",
                 welcomePromo: "Welcome to our platform! Enjoy a 10% discount on your first order, and for our loyal customers, receive a free meal after every ten orders!"
+            },
+            menu: {
+                search: "Search",
+                categories: "Categories",
+                all: "All",
+                about: "About",
+                addToCart: "Add to Cart",
+                items: "items",
+                loading: "Loading...",
+                cart: "Cart"
             }
         }
     }

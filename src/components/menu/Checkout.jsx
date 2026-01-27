@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HiXMark, HiCheckCircle, HiChevronLeft, HiTrash, HiOutlineTicket } from 'react-icons/hi2';
 import { useCart } from '../../context/CartContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { translations } from '../../translations';
 
-const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', language = 'fr' }) => {
+const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316' }) => {
     const { cartItems, getCartTotal, clearCart, updateQuantity, removeFromCart } = useCart();
+    const { language, t: globalT } = useLanguage();
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -13,6 +15,7 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', lan
 
     const lang = language.toLowerCase();
     const t = translations[lang]?.auth?.checkout || translations['fr']?.auth?.checkout;
+    const menuT = translations[lang]?.menu || translations['fr']?.menu;
 
     const [formData, setFormData] = useState({
         tableSelection: 'take_out',
@@ -134,9 +137,7 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', lan
                         <>
                             {/* Body */}
                             <div className="flex-1 px-6 overflow-y-auto no-scrollbar pb-32">
-                                <h1 className="text-4xl font-black text-gray-900 mb-8 mt-4 tracking-tight">
-                                    My<br />Cart List
-                                </h1>
+                                <h1 className="text-4xl font-black text-gray-900 mb-8 mt-4 tracking-tight" dangerouslySetInnerHTML={{ __html: lang === 'fr' ? 'Mon<br />Panier' : 'My<br />Cart List' }} />
 
                                 {cartItems.length === 0 ? (
                                     <motion.div
@@ -147,7 +148,7 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', lan
                                         className="flex flex-col items-center justify-center py-20 opacity-40"
                                     >
                                         <HiTrash size={64} />
-                                        <p className="font-bold mt-4 uppercase tracking-widest text-xs">Your cart is empty</p>
+                                        <p className="font-bold mt-4 uppercase tracking-widest text-xs">{lang === 'fr' ? 'Votre panier est vide' : 'Your cart is empty'}</p>
                                     </motion.div>
                                 ) : (
                                     <div className="space-y-6">
@@ -203,11 +204,11 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', lan
                                 className="bg-white rounded-t-[3rem] px-8 pt-8 pb-10 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] space-y-4 border-t border-gray-50"
                             >
                                 <div className="flex justify-between items-center">
-                                    <span className="text-gray-400 font-bold">Subtotal</span>
+                                    <span className="text-gray-400 font-bold">{lang === 'fr' ? 'Sous-total' : 'Subtotal'}</span>
                                     <span className="text-gray-900 font-black text-lg">${subtotal.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="text-gray-400 font-bold">Est. Tax</span>
+                                    <span className="text-gray-400 font-bold">{lang === 'fr' ? 'Taxes' : 'Est. Tax'}</span>
                                     <span className="text-gray-900 font-black text-lg">${tax.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between items-center group">
@@ -215,13 +216,13 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', lan
                                         <div className="relative">
                                             <input
                                                 type="text"
-                                                placeholder="Do you have any discount code?"
+                                                placeholder={lang === 'fr' ? 'Code promo ?' : 'Do you have any discount code?'}
                                                 className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-theme transition-colors font-medium"
                                                 style={{ focusBorderColor: themeColor }}
                                             />
                                         </div>
                                     </div>
-                                    <span className="text-theme font-black text-sm uppercase tracking-wider" style={{ color: themeColor }}>Apply</span>
+                                    <span className="text-theme font-black text-sm uppercase tracking-wider" style={{ color: themeColor }}>{lang === 'fr' ? 'Appliquer' : 'Apply'}</span>
                                 </div>
                                 <div className="h-px bg-dashed bg-gray-100 my-2 border-t-2 border-dashed border-gray-100" />
                                 <div className="flex justify-between items-center pb-2">
@@ -244,8 +245,8 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', lan
                                         <div className="w-6 h-6 border-4 border-gray-900 border-t-transparent rounded-full animate-spin" />
                                     ) : (
                                         <div className="flex flex-col items-center leading-tight">
-                                            <span className="text-xl">Checkout</span>
-                                            <span className="text-xs opacity-70 font-bold uppercase tracking-wider">(Paye au comptoir)</span>
+                                            <span className="text-xl">{lang === 'fr' ? 'Commander' : 'Checkout'}</span>
+                                            <span className="text-xs opacity-70 font-bold uppercase tracking-wider">({t.cash})</span>
                                         </div>
                                     )}
                                 </motion.button>

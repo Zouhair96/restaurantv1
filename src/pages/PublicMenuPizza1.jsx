@@ -8,9 +8,11 @@ import WelcomeSequence from '../components/public-menu/WelcomeSequence';
 import { useClientAuth } from '../context/ClientAuthContext';
 import PersistentOrderTracker from '../components/PersistentOrderTracker';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '../context/LanguageContext';
 
 const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
     const { user: clientUser, activeOrderId, activeOrder, handleCloseTracker, isTopTrackerHidden } = useClientAuth();
+    const { t } = useLanguage();
     const { restaurantName: urlRestaurantName } = useParams();
     const restaurantName = propRestaurantName || urlRestaurantName;
     const isMasterView = !restaurantName;
@@ -123,7 +125,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
     };
 
     if (!selectedItem) {
-        return <div className="min-h-screen flex items-center justify-center bg-white text-gray-900">Loading...</div>;
+        return <div className="min-h-screen flex items-center justify-center bg-white text-gray-900">{t('menu.loading')}</div>;
     }
 
     return (
@@ -215,7 +217,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                 className={`font-bold pb-1 whitespace-nowrap transition-colors ${activeCategory === category ? 'text-gray-900 border-b-2' : 'text-gray-400 hover-text-theme'}`}
                                 style={activeCategory === category ? { borderColor: config.themeColor } : {}}
                             >
-                                {category}
+                                {category === 'All' ? t('menu.all') : category}
                             </button>
                         ))}
                     </div>
@@ -287,7 +289,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                             <button onClick={() => setQuantity(q => q + 1)} className="w-5 h-5 flex items-center justify-center text-gray-400 hover-text-theme transition-colors active:scale-95"><HiPlus className="w-4 h-4" /></button>
                         </div>
                         <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleAddToCart} className="bg-white border transition-colors hover:border-theme border-gray-200 text-theme hover-text-theme rounded-[1.2rem] py-2.5 px-6 font-bold text-sm shadow-sm flex items-center justify-center gap-2 h-10" style={{ color: config.themeColor, borderColor: `${config.themeColor}40` }}>
-                            <span>Add to</span><HiShoppingBag className="w-5 h-5" />
+                            <span>{t('menu.addToCart')}</span><HiShoppingBag className="w-5 h-5" />
                         </motion.button>
                     </div>
                 </div>
@@ -297,14 +299,14 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
             <div className={`fixed inset-y-0 right-0 w-80 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-[70] ${isCartOpen ? 'translate-x-0' : 'translate-x-full'}`}>
                 <div className="flex flex-col h-full bg-white">
                     <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                        <h2 className="text-xl font-bold text-gray-900">Your Order</h2>
+                        <h2 className="text-xl font-bold text-gray-900">{t('menu.cart')}</h2>
                         <button onClick={() => setIsCartOpen(false)} className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-100 rounded-full transition-colors"><HiXMark className="w-6 h-6" /></button>
                     </div>
                     <div className="flex-1 overflow-y-auto p-4 flex flex-col">
                         {cartItems.length === 0 ? (
                             <div className="flex-1 flex flex-col items-center justify-center text-gray-500">
                                 <HiShoppingBag className="w-16 h-16 mb-4 opacity-10" />
-                                <p className="font-medium text-gray-400">Your cart is empty</p>
+                                <p className="font-medium text-gray-400">{t('auth.noOrders')}</p>
                             </div>
                         ) : (
                             <div className="space-y-4">
