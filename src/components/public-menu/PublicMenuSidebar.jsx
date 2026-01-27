@@ -223,10 +223,18 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                 )}
 
                 {view === 'welcome' && (
-                    <div className="animate-fade-in flex flex-col items-center justify-center h-full text-center -mt-10">
-                        <div className="w-24 h-24 rounded-full flex items-center justify-center mb-6" style={{ backgroundColor: `${themeColor}20`, color: themeColor }}>
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex flex-col items-center justify-center h-full text-center -mt-10"
+                    >
+                        <motion.div
+                            whileHover={{ scale: 1.1, rotate: 5 }}
+                            className="w-24 h-24 rounded-full flex items-center justify-center mb-6"
+                            style={{ backgroundColor: `${themeColor}20`, color: themeColor }}
+                        >
                             <HiOutlineUserCircle size={48} />
-                        </div>
+                        </motion.div>
                         <h3 className={`text-2xl font-black mb-4 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                             Welcome!
                         </h3>
@@ -235,14 +243,18 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                         </p>
 
                         <div className="w-full space-y-4">
-                            <button
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
                                 onClick={() => setView('login')}
                                 className="w-full py-4 text-white font-black rounded-xl transition-all shadow-lg"
                                 style={{ backgroundColor: themeColor, boxShadow: `0 10px 15px -3px ${themeColor}40` }}
                             >
                                 Login
-                            </button>
-                            <button
+                            </motion.button>
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
                                 onClick={() => setView('signup')}
                                 className={`w-full py-4 border-2 font-black rounded-xl transition-all ${isDarkMode
                                     ? 'border-white/20 text-white hover:bg-white/10'
@@ -250,13 +262,17 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                     }`}
                             >
                                 Register
-                            </button>
+                            </motion.button>
                         </div>
-                    </div>
+                    </motion.div>
                 )}
 
                 {view === 'login' && (
-                    <div className="animate-fade-in">
+                    <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                    >
                         <div className="text-center mb-8">
                             <h3 className={`text-2xl font-black mb-2 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{t.loginTitle}</h3>
                             <p className={isDarkMode ? 'text-gray-400 text-sm' : 'text-gray-500 text-sm'}>{t.welcomeSubtitle}</p>
@@ -286,14 +302,16 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                 />
                             </div>
-                            <button
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
                                 type="submit"
                                 disabled={loading}
                                 className="w-full py-4 text-white font-black rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg"
                                 style={{ backgroundColor: themeColor, boxShadow: `0 10px 15px -3px ${themeColor}40` }}
                             >
                                 {loading ? '...' : <><HiOutlineLogin size={20} /> {t.submitLogin}</>}
-                            </button>
+                            </motion.button>
                         </form>
                         <div className="mt-6 text-center">
                             <button
@@ -307,7 +325,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                             {t.toggleToSignup} {' '}
                             <button onClick={() => setView('signup')} className="font-bold hover:underline" style={{ color: themeColor }}>{t.linkSignup}</button>
                         </p>
-                    </div>
+                    </motion.div>
                 )}
 
                 {view === 'signup' && (
@@ -447,49 +465,63 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                             <AnimatePresence>
                                 {showHistory && (
                                     <motion.div
+                                        key="history-panel"
                                         initial={{ height: 0, opacity: 0 }}
                                         animate={{ height: 'auto', opacity: 1 }}
                                         exit={{ height: 0, opacity: 0 }}
                                         className="overflow-hidden space-y-4 px-1 pb-10"
                                     >
                                         {orders.length > 0 ? (
-                                            orders.map(order => {
-                                                const isActive = activeOrderId && String(order.id) === String(activeOrderId);
-                                                return (
-                                                    <div
-                                                        key={order.id}
-                                                        className={`border rounded-2xl p-4 transition-all group ${isDarkMode
-                                                            ? 'bg-white/5 border-white/10 hover:border-white/20'
-                                                            : 'bg-white border-gray-100 hover:border-gray-200 hover:shadow-md'
-                                                            } ${isActive ? 'ring-2 ring-offset-2 ring-offset-transparent' : ''}`}
-                                                        style={isActive ? { ringColor: themeColor, borderColor: themeColor } : {}}
-                                                    >
-                                                        {isActive && (
-                                                            <MiniStepper status={activeOrder?.status || order.status} themeColor={themeColor} />
-                                                        )}
+                                            <motion.div
+                                                initial="hidden"
+                                                animate="visible"
+                                                variants={{
+                                                    visible: { transition: { staggerChildren: 0.1 } }
+                                                }}
+                                                className="space-y-4"
+                                            >
+                                                {orders.map(order => {
+                                                    const isActive = activeOrderId && String(order.id) === String(activeOrderId);
+                                                    return (
+                                                        <motion.div
+                                                            key={order.id}
+                                                            variants={{
+                                                                hidden: { opacity: 0, y: 10 },
+                                                                visible: { opacity: 1, y: 0 }
+                                                            }}
+                                                            className={`border rounded-2xl p-4 transition-all group ${isDarkMode
+                                                                ? 'bg-white/5 border-white/10 hover:border-white/20'
+                                                                : 'bg-white border-gray-100 hover:border-gray-200 hover:shadow-md'
+                                                                } ${isActive ? 'ring-2 ring-offset-2 ring-offset-transparent' : ''}`}
+                                                            style={isActive ? { ringColor: themeColor, borderColor: themeColor } : {}}
+                                                        >
+                                                            {isActive && (
+                                                                <MiniStepper status={activeOrder?.status || order.status} themeColor={themeColor} />
+                                                            )}
 
-                                                        <div className="flex justify-between items-start mb-2">
-                                                            <div>
-                                                                <span className={`font-bold block transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Order #{String(order.id).slice(0, 8)}</span>
-                                                                <span className={`text-xs transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{new Date(order.created_at).toLocaleDateString()}</span>
+                                                            <div className="flex justify-between items-start mb-2">
+                                                                <div>
+                                                                    <span className={`font-bold block transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Order #{String(order.id).slice(0, 8)}</span>
+                                                                    <span className={`text-xs transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{new Date(order.created_at).toLocaleDateString()}</span>
+                                                                </div>
+                                                                <span
+                                                                    className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter`}
+                                                                    style={order.status === 'completed' ? { backgroundColor: '#22c55e33', color: '#22c55e' } :
+                                                                        order.status === 'cancelled' ? { backgroundColor: '#ef444433', color: '#ef4444' } :
+                                                                            { backgroundColor: `${themeColor}33`, color: themeColor }}
+                                                                >
+                                                                    {order.status}
+                                                                </span>
                                                             </div>
-                                                            <span
-                                                                className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter`}
-                                                                style={order.status === 'completed' ? { backgroundColor: '#22c55e33', color: '#22c55e' } :
-                                                                    order.status === 'cancelled' ? { backgroundColor: '#ef444433', color: '#ef4444' } :
-                                                                        { backgroundColor: `${themeColor}33`, color: themeColor }}
-                                                            >
-                                                                {order.status}
-                                                            </span>
-                                                        </div>
 
-                                                        <div className="flex justify-between items-center mt-4">
-                                                            <span className={`text-sm transition-colors ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{order.order_type === 'dine_in' ? `🍽️ ${t.dineIn}` : `🥡 ${t.takeOut}`}</span>
-                                                            <span className={`font-black text-lg transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>${Number(order.total_price).toFixed(2)}</span>
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })
+                                                            <div className="flex justify-between items-center mt-4">
+                                                                <span className={`text-sm transition-colors ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{order.order_type === 'dine_in' ? `🍽️ ${t.dineIn}` : `🥡 ${t.takeOut}`}</span>
+                                                                <span className={`font-black text-lg transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>${Number(order.total_price).toFixed(2)}</span>
+                                                            </div>
+                                                        </motion.div>
+                                                    );
+                                                })}
+                                            </motion.div>
                                         ) : (
                                             <div className={`text-center py-12 rounded-2xl border border-dashed transition-colors ${isDarkMode
                                                 ? 'bg-white/5 border-white/10'

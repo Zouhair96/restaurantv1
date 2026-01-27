@@ -59,6 +59,29 @@ const PublicMenuList = ({ restaurantName: propRestaurantName, templateKey: propT
     const categories = ['All', ...new Set(menuItems.map(item => item.category))];
     const filteredItems = activeCategory === 'All' ? menuItems : menuItems.filter(i => i.category === activeCategory);
 
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1
+            }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { y: 20, opacity: 0 },
+        visible: {
+            y: 0,
+            opacity: 1,
+            transition: {
+                type: 'spring',
+                stiffness: 300,
+                damping: 24
+            }
+        }
+    };
+
     if (isLoading) return <div className="min-h-screen bg-white flex items-center justify-center"><div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div></div>;
 
     return (
@@ -89,35 +112,65 @@ const PublicMenuList = ({ restaurantName: propRestaurantName, templateKey: propT
                 </div>
             </header>
 
-            {/* List */}
-            <div className="max-w-4xl mx-auto w-full p-6 space-y-6">
-                {filteredItems.map(item => (
-                    <div key={item.id} className="bg-white rounded-[2rem] p-4 flex gap-6 hover:shadow-xl transition-all group border border-gray-50">
-                        <div className="w-32 h-32 md:w-40 md:h-40 rounded-3xl overflow-hidden shrink-0 shadow-sm">
-                            <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                        </div>
-                        <div className="flex-1 py-2 flex flex-col justify-between">
-                            <div>
-                                <div className="flex justify-between items-start">
-                                    <h3 className="text-xl font-black text-gray-800 uppercase tracking-tight">{item.name}</h3>
-                                    <span className="text-xl font-black text-green-600" style={{ color: config.themeColor }}>${parseFloat(item.price).toFixed(2)}</span>
+            <motion.div
+                layout
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="max-w-4xl mx-auto w-full p-6 space-y-6"
+            >
+                <AnimatePresence mode="popLayout">
+                    {filteredItems.map(item => (
+                        <motion.div
+                            key={item.id}
+                            layout
+                            variants={itemVariants}
+                            initial="hidden"
+                            animate="visible"
+                            exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+                            className="bg-white rounded-[2rem] p-4 flex gap-6 hover:shadow-xl transition-shadow group border border-gray-50"
+                        >
+                            <div className="w-32 h-32 md:w-40 md:h-40 rounded-3xl overflow-hidden shrink-0 shadow-sm">
+                                <motion.img
+                                    whileHover={{ scale: 1.1 }}
+                                    transition={{ duration: 0.4 }}
+                                    src={item.image}
+                                    alt={item.name}
+                                    className="w-full h-full object-cover"
+                                />
+                            </div>
+                            <div className="flex-1 py-2 flex flex-col justify-between">
+                                <div>
+                                    <div className="flex justify-between items-start">
+                                        <h3 className="text-xl font-black text-gray-800 uppercase tracking-tight">{item.name}</h3>
+                                        <motion.span
+                                            key={item.price}
+                                            initial={{ scale: 1.2, color: config.themeColor }}
+                                            animate={{ scale: 1, color: config.themeColor }}
+                                            className="text-xl font-black"
+                                        >
+                                            ${parseFloat(item.price).toFixed(2)}
+                                        </motion.span>
+                                    </div>
+                                    <p className="text-gray-400 text-sm mt-1 leading-relaxed font-medium">{item.description}</p>
                                 </div>
-                                <p className="text-gray-400 text-sm mt-1 leading-relaxed font-medium">{item.description}</p>
+                                <div className="flex items-center justify-between mt-4">
+                                    <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 bg-gray-50 text-gray-400 rounded-lg">{item.category}</span>
+                                    <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => { addToCart({ ...item, quantity: 1 }); setIsCartOpen(true); }}
+                                        className="px-6 py-3 rounded-2xl bg-gray-900 text-white text-xs font-black uppercase tracking-widest transition-all shadow-lg"
+                                        style={{ backgroundColor: config.themeColor }}
+                                    >
+                                        Add to Cart
+                                    </motion.button>
+                                </div>
                             </div>
-                            <div className="flex items-center justify-between mt-4">
-                                <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 bg-gray-50 text-gray-400 rounded-lg">{item.category}</span>
-                                <button
-                                    onClick={() => { addToCart({ ...item, quantity: 1 }); setIsCartOpen(true); }}
-                                    className="px-6 py-3 rounded-2xl bg-gray-900 text-white text-xs font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg"
-                                    style={{ backgroundColor: config.themeColor }}
-                                >
-                                    Add to Cart
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
+            </motion.div>
 
             {/* Sidebar preserved for Auth triggers */}
             <PublicMenuSidebar

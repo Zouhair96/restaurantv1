@@ -29,6 +29,8 @@ CREATE TABLE IF NOT EXISTS users (
 
     -- Stripe Connect fields
     stripe_account_id TEXT,
+    stripe_customer_id TEXT,
+    stripe_payment_method_id TEXT,
     stripe_onboarding_complete BOOLEAN DEFAULT false,
     commission_rate DECIMAL(5, 4) DEFAULT 0.0200, -- Default 2%
     owed_commission_balance DECIMAL(12, 2) DEFAULT 0.00,
@@ -83,7 +85,10 @@ CREATE TABLE IF NOT EXISTS orders (
     external_id TEXT,
     customer_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
     
-    -- Timestamps
+    -- Timestamps and Status Extensions
+    accepted_at TIMESTAMP WITH TIME ZONE,
+    is_auto_accepted BOOLEAN DEFAULT FALSE,
+    commission_recorded BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
