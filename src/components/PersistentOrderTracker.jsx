@@ -14,58 +14,70 @@ const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline
             // Play sound and show notification when order is ready/completed
             if (order.status === 'completed' || order.status === 'ready') {
                 if (prevStatus !== 'completed' && prevStatus !== 'ready') {
+                    const message = order.status === 'ready' ? 'Your order is ready! 🎉' : 'Your order is completed! Enjoy! 🍽️';
                     playCompletionSound();
-                    showNotification(order.status === 'ready' ? 'Your order is ready! 🎉' : 'Your order is completed! Enjoy! 🍽️');
+                    speakMessage(order.status === 'ready' ? 'Your order is ready' : 'Your order is completed');
+                    showNotification(message);
                 }
             }
         }
         prevStatusRef.current = order.status;
     }, [order?.status]);
 
+    const speakMessage = (text) => {
+        if ('speechSynthesis' in window) {
+            // Cancel any ongoing speech
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
     const playCompletionSound = () => {
         try {
             // Professional success notification sound
             const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3')
-            audio.volume = 0.7 // Slightly lower volume for pleasantness
+            audio.volume = 0.7
             audio.play().catch(e => console.warn('Audio play failed:', e))
+
+            // Trigger vibration for 500ms
+            if ('vibrate' in navigator) {
+                navigator.vibrate([200, 100, 200]);
+            }
         } catch (err) {
-            console.error('Audio error:', err)
+            console.error('Audio/Vibration error:', err)
         }
     }
 
     const showNotification = (message) => {
+        if (!order?.id) return;
+
         // Request permission if not granted
         if ('Notification' in window) {
+            const options = {
+                body: message,
+                icon: '/logo.png',
+                badge: '/logo.png',
+                tag: `order-${order.id}`,
+                requireInteraction: true,
+                vibrate: [200, 100, 200],
+                data: {
+                    orderId: order.id,
+                    url: `/order/${order.id}`
+                }
+            };
+
             if (Notification.permission === 'granted') {
-                new Notification('🎉 YumYum Order Ready!', {
-                    body: message,
-                    icon: '/logo.png',
-                    badge: '/logo.png',
-                    tag: `order-${orderId}`,
-                    requireInteraction: true, // Notification stays until user interacts
-                    vibrate: [200, 100, 200, 100, 200],
-                    actions: [
-                        { action: 'view', title: '👀 View Order', icon: '/logo.png' },
-                        { action: 'close', title: 'Dismiss' }
-                    ],
-                    data: {
-                        orderId: orderId,
-                        url: `/order/${orderId}`
-                    }
-                })
+                new Notification('🎉 Order Update!', options);
             } else if (Notification.permission !== 'denied') {
                 Notification.requestPermission().then(permission => {
                     if (permission === 'granted') {
-                        new Notification('🎉 YumYum Order Ready!', {
-                            body: message,
-                            icon: '/logo.png',
-                            badge: '/logo.png',
-                            tag: `order-${orderId}`,
-                            requireInteraction: true,
-                            vibrate: [200, 100, 200, 100, 200]
-                        })
+                        new Notification('🎉 Order Update!', options);
                     }
-                })
+                });
             }
         }
     }
