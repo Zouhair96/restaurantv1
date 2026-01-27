@@ -98,7 +98,7 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', lan
                     <>
                         <div className="px-10 pt-10 pb-6 flex items-center justify-between">
                             <div className="space-y-1">
-                                <h2 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter leading-none">{t.title}</h2>
+                                <h2 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter leading-none">Checkout</h2>
                                 <div className="flex items-center gap-2">
                                     <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: themeColor }}></div>
                                     <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{restaurantName}</span>
@@ -135,7 +135,7 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', lan
                                                 <option value="take_out" className="dark:bg-black">🛍️ {t.takeOut}</option>
                                                 <optgroup label="Tables" className="dark:bg-black font-bold">
                                                     {tableOptions.map(num => (
-                                                        <option key={num} value={num}>🪑 {t.table} {num}</option>
+                                                        <option key={num} value={num}>🍱 {t.table} {num}</option>
                                                     ))}
                                                 </optgroup>
                                             </select>
@@ -193,7 +193,7 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', lan
                                             <span className="text-3xl font-black tracking-tighter">${getCartTotal().toFixed(2)}</span>
                                         </div>
                                         <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center">
-                                            <HiBanknotes size={24} />
+                                            {/* Icon removed for simplicity */}
                                         </div>
                                     </div>
                                 </div>
@@ -209,7 +209,7 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', lan
                                     ) : (
                                         <>
                                             <div className="flex flex-col items-center gap-1">
-                                                <span className="relative z-10">{t.confirm}</span>
+                                                <span className="relative z-10">Confirme (au comptoir)</span>
                                                 <span className="text-[10px] opacity-70 tracking-[0.3em] font-black">{t.cash}</span>
                                             </div>
                                             <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center relative z-10 group-hover:translate-x-2 transition-transform duration-500">

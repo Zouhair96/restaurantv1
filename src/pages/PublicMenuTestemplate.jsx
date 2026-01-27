@@ -357,13 +357,9 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                             <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/food.png')] pointer-events-none"></div>
 
                             <div className="relative">
-                                {/* Decorative Ring */}
-                                <div className="absolute -inset-4 border-2 border-dashed border-white/20 rounded-full animate-[spin_60s_linear_infinite]"></div>
 
                                 <motion.div
                                     layoutId={`item-image-${selectedItem.id}`}
-                                    animate={{ rotate: 360 }}
-                                    transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
                                     className="w-64 h-64 rounded-full border-8 border-white/10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] overflow-hidden z-10 relative"
                                 >
                                     <img src={selectedItem.image} alt={selectedItem.name} className="w-full h-full object-cover" />
