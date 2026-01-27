@@ -22,6 +22,8 @@ import TestMenu from './pages/TestMenu'
 
 import PublicMenuPizza1 from './pages/PublicMenuPizza1'
 import ManageMenuPizza1 from './pages/ManageMenuPizza1'
+import PublicMenuTestemplate from './pages/PublicMenuTestemplate'
+import ManageMenuTestemplate from './pages/ManageMenuTestemplate'
 
 import ScrollToTop from './components/ScrollToTop'
 import { LanguageProvider } from './context/LanguageContext'
@@ -69,8 +71,11 @@ function App() {
                   <Route path="/order/:orderId" element={<OrderConfirmation />} />
                   <Route path="/testme" element={<TestMenu />} />
                   <Route path="/menu-pizza1" element={<PublicMenuPizza1 />} />
+                  <Route path="/menu-testemplate" element={<PublicMenuTestemplate />} />
                   <Route path="/menu/:templateKey" element={<PublicMenu />} />
                   <Route path="/manage-menu-pizza1" element={<ManageMenuPizza1 />} />
+                  <Route path="/manage-menu-testemplate" element={<ManageMenuTestemplate />} />
+                  <Route path="/manage-template/testemplate" element={<ManageMenuTestemplate isAdminView={true} />} />
                   <Route path="/manage-template/:templateKey" element={<ManageMenuPizza1 isAdminView={true} />} />
 
                   {/* Public Menu Route - Must be last to avoid conflicts */}
