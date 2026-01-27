@@ -11,12 +11,25 @@ const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline
 
         const prevStatus = prevStatusRef.current;
         if (prevStatus && prevStatus !== order.status) {
-            // Play sound and show notification when order is ready/completed
-            if (order.status === 'completed' || order.status === 'ready') {
-                if (prevStatus !== 'completed' && prevStatus !== 'ready') {
-                    const message = order.status === 'ready' ? 'Your order is ready! 🎉' : 'Your order is completed! Enjoy! 🍽️';
-                    playCompletionSound();
-                    speakMessage(order.status === 'ready' ? 'Your order is ready' : 'Your order is completed');
+            // Play sound and show notification when order is ready/completed/cancelled
+            if (order.status === 'completed' || order.status === 'ready' || order.status === 'cancelled') {
+                if (prevStatus !== 'completed' && prevStatus !== 'ready' && prevStatus !== 'cancelled') {
+                    let message = '';
+                    let voiceText = '';
+
+                    if (order.status === 'ready') {
+                        message = 'Your order is ready! 🎉';
+                        voiceText = 'Your order is ready';
+                    } else if (order.status === 'completed') {
+                        message = 'Your order is completed! Enjoy! 🍽️';
+                        voiceText = 'Your order is completed';
+                    } else if (order.status === 'cancelled') {
+                        message = 'Your order was cancelled. ❌';
+                        voiceText = 'Your order was cancelled';
+                    }
+
+                    playCompletionSound(order.status === 'cancelled');
+                    speakMessage(voiceText);
                     showNotification(message);
                 }
             }
@@ -36,16 +49,24 @@ const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline
         }
     }
 
-    const playCompletionSound = () => {
+    const playCompletionSound = (isWarning = false) => {
         try {
-            // Professional success notification sound
-            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3')
+            // Success sound or Warning sound
+            const url = isWarning
+                ? 'https://assets.mixkit.co/active_storage/sfx/951/951-preview.mp3' // Warning/Error sound
+                : 'https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3'; // Success sound
+
+            const audio = new Audio(url)
             audio.volume = 0.7
             audio.play().catch(e => console.warn('Audio play failed:', e))
 
-            // Trigger vibration pattern: long, short, long
+            // Trigger vibration pattern: Success (long, short, long) or Warning (staccato)
             if ('vibrate' in navigator) {
-                navigator.vibrate([500, 100, 500]);
+                if (isWarning) {
+                    navigator.vibrate([100, 50, 100, 50, 100, 50, 300]); // Alarm pattern
+                } else {
+                    navigator.vibrate([500, 100, 500]); // Success pattern
+                }
             }
         } catch (err) {
             console.error('Audio/Vibration error:', err)
@@ -87,7 +108,8 @@ const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline
             pending: { label: 'Order Received', color: 'bg-yellow-500', progress: 25, emoji: '📝' },
             preparing: { label: 'Being Prepared', color: 'bg-blue-500', progress: 50, emoji: '👨‍🍳' },
             ready: { label: 'Ready for Pickup', color: 'bg-green-500', progress: 75, emoji: '✅' },
-            completed: { label: 'Completed', color: 'bg-gray-500', progress: 100, emoji: '🎉' }
+            completed: { label: 'Completed', color: 'bg-gray-500', progress: 100, emoji: '🎉' },
+            cancelled: { label: 'Cancelled', color: 'bg-red-500', progress: 100, emoji: '❌' }
         }
         return statusMap[status] || statusMap.pending
     }
