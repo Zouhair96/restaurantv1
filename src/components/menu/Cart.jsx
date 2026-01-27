@@ -68,7 +68,7 @@ const Cart = ({ onCheckout }) => {
                                         Taille: {item.size}
                                     </p>
                                     <p className="text-sm font-bold text-orange-500 mt-1">
-                                        {item.price.toFixed(2)}€
+                                        {Number(item.price).toFixed(2)}€
                                     </p>
 
                                     {/* Quantity Controls */}
@@ -112,7 +112,7 @@ const Cart = ({ onCheckout }) => {
                                 Total
                             </span>
                             <span className="text-2xl font-black text-orange-500">
-                                {getCartTotal().toFixed(2)}€
+                                {Number(getCartTotal()).toFixed(2)}€
                             </span>
                         </div>
 

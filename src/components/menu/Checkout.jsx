@@ -154,7 +154,7 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', lan
                                                 <div className="flex-1 min-w-0">
                                                     <h3 className="font-bold text-gray-900 dark:text-white text-lg leading-tight mb-1">{item.name}</h3>
                                                     <p className="text-gray-400 dark:text-gray-500 font-bold text-sm">
-                                                        <span className="text-gray-900 dark:text-white">${item.price.toFixed(2)}</span>
+                                                        <span className="text-gray-900 dark:text-white">${Number(item.price).toFixed(2)}</span>
                                                         <span className="ml-2">x {item.quantity}</span>
                                                     </p>
                                                 </div>
