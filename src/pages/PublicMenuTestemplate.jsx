@@ -154,7 +154,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
     if (error) return <div className="min-h-screen flex items-center justify-center text-red-500">{error}</div>;
 
     return (
-        <div className="flex h-screen bg-gray-50 font-sans text-gray-800 relative overflow-hidden" style={{ '--theme-color': config.themeColor }}>
+        <div className="flex flex-col h-screen bg-gray-50 font-sans text-gray-800 relative overflow-hidden" style={{ '--theme-color': config.themeColor }}>
             <style>{`
                 .text-theme { color: var(--theme-color) !important; }
                 .bg-theme { background-color: var(--theme-color) !important; }
