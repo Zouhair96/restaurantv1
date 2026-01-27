@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import AdminLayout from '../layouts/AdminLayout'
-import TemplatesSection from '../components/admin/TemplatesSection'
+
 
 const AdminDashboard = () => {
     // ... existing state ...
@@ -232,9 +232,7 @@ const AdminDashboard = () => {
                     </div>
                 )}
 
-                {activeSection === 'templates' && (
-                    <TemplatesSection />
-                )}
+                {/* Templates Section Removed */}
 
                 {activeSection === 'settings' && (
                     <div className="space-y-8 max-w-4xl">

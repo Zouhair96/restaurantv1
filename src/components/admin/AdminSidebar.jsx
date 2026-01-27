@@ -45,7 +45,6 @@ const AdminSidebar = ({ activeSection, onSectionChange, isMobileMenuOpen, closeM
         { id: 'notifications', outline: HiOutlineBell, solid: HiBell, label: 'Notifications' },
         { id: 'calendar', outline: HiOutlineCalendarDays, solid: HiCalendarDays, label: 'Calendar' },
         { id: 'inbox', outline: HiOutlineEnvelope, solid: HiEnvelope, label: 'Inbox' },
-        { id: 'templates', outline: HiOutlineSwatch, solid: HiSwatch, label: 'Templates' }, // Added Templates item
         { id: 'settings', outline: HiOutlineCog6Tooth, solid: HiCog6Tooth, label: 'Settings' },
     ];
 
