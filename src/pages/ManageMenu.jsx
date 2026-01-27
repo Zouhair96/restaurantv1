@@ -23,7 +23,9 @@ const ManageMenu = ({ isAdminView = false }) => {
         welcomePromoText: "",
         loadingDuration: 3,
         promoDuration: 5,
-        promotions: [] // Promotion management
+        promotions: [], // Promotion management
+        applyTax: false,
+        taxPercentage: 0
     });
 
     const [isLoading, setIsLoading] = useState(true);
@@ -659,6 +661,41 @@ const ManageMenu = ({ isAdminView = false }) => {
                             <div className="flex items-center justify-between">
                                 <span className="font-bold">Show Welcome Promo</span>
                                 <input type="checkbox" checked={menuConfig.showWelcomePromo} onChange={(e) => setMenuConfig({ ...menuConfig, showWelcomePromo: e.target.checked })} className="w-6 h-6 accent-indigo-600" />
+                            </div>
+
+                            <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-3xl space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex flex-col">
+                                        <span className="font-black text-xs uppercase tracking-widest text-gray-700 dark:text-gray-300">Apply Taxes</span>
+                                        <span className="text-[10px] text-gray-400 font-bold">Enable tax calculation at checkout</span>
+                                    </div>
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={menuConfig.applyTax}
+                                            onChange={(e) => setMenuConfig({ ...menuConfig, applyTax: e.target.checked })}
+                                            className="sr-only peer"
+                                        />
+                                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-500"></div>
+                                    </label>
+                                </div>
+
+                                {menuConfig.applyTax && (
+                                    <div className="animate-fade-in">
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Tax Percentage (%)</label>
+                                        <div className="relative">
+                                            <input
+                                                type="number"
+                                                step="0.01"
+                                                min="0"
+                                                value={menuConfig.taxPercentage}
+                                                onChange={(e) => setMenuConfig({ ...menuConfig, taxPercentage: parseFloat(e.target.value) || 0 })}
+                                                className="w-full px-5 py-3 rounded-xl border border-gray-100 dark:border-white/10 font-bold outline-none pr-10"
+                                            />
+                                            <span className="absolute right-4 top-1/2 -translate-y-1/2 font-black text-gray-400">%</span>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                         <div className="p-8 border-t border-gray-100 dark:border-white/5 flex gap-3">

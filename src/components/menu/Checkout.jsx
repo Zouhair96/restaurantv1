@@ -6,7 +6,14 @@ import { useLanguage } from '../../context/LanguageContext';
 import { translations } from '../../translations';
 import { calculateOrderDiscount } from '../../utils/promoUtils';
 
-const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', promotions = [] }) => {
+const Checkout = ({
+    isOpen,
+    onClose,
+    restaurantName,
+    themeColor = '#f97316',
+    promotions = [],
+    taxConfig = { applyTax: false, taxPercentage: 0 }
+}) => {
     const { cartItems, getCartTotal, clearCart, updateQuantity, removeFromCart } = useCart();
     const { language, t: globalT } = useLanguage();
     const [isSubmitted, setIsSubmitted] = useState(false);
@@ -93,7 +100,10 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', pro
     const subtotal = getCartTotal();
     const { discount: orderDiscount, promo: orderPromo } = calculateOrderDiscount(promotions, subtotal);
     const discountedSubtotal = Math.max(0, subtotal - orderDiscount);
-    const tax = discountedSubtotal * 0.05; // Mock tax calculation
+
+    // Dynamic Tax Calculation
+    const taxRate = taxConfig.applyTax ? (taxConfig.taxPercentage / 100) : 0;
+    const tax = discountedSubtotal * taxRate;
     const total = discountedSubtotal + tax;
 
     return (
@@ -221,10 +231,14 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', pro
                                         <span className="font-black text-lg">-${orderDiscount.toFixed(2)}</span>
                                     </div>
                                 )}
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-400 font-bold">{t.taxes}</span>
-                                    <span className="text-gray-900 font-black text-lg">${tax.toFixed(2)}</span>
-                                </div>
+                                {taxConfig.applyTax && (
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-gray-400 font-bold">
+                                            {t.taxes} ({taxConfig.taxPercentage}%)
+                                        </span>
+                                        <span className="text-gray-900 font-black text-lg">${tax.toFixed(2)}</span>
+                                    </div>
+                                )}
 
                                 <div className="h-px bg-dashed bg-gray-100 my-2 border-t-2 border-dashed border-gray-100" />
                                 <div className="flex justify-between items-center pb-2">

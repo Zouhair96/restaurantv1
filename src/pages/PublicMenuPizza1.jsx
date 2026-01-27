@@ -367,7 +367,13 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
             </div>
 
             <PublicMenuSidebar isOpen={showAuthSidebar} onClose={() => setShowAuthSidebar(false)} restaurantName={restaurantName} displayName={config.restaurantName} themeColor={config.themeColor} />
-            <Checkout isOpen={isCheckoutOpen} onClose={() => setIsCheckoutOpen(false)} restaurantName={restaurantName} themeColor={config.themeColor} />
+            <Checkout
+                isOpen={isCheckoutOpen}
+                onClose={() => setIsCheckoutOpen(false)}
+                restaurantName={restaurantName}
+                themeColor={config.themeColor}
+                taxConfig={{ applyTax: config.applyTax, taxPercentage: config.taxPercentage }}
+            />
             <WelcomeSequence restaurantName={config.restaurantName} themeColor={config.themeColor} promoConfig={config} />
         </div >
     );

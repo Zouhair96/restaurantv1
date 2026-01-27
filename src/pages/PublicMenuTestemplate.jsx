@@ -650,7 +650,14 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
             </AnimatePresence>
 
             <PublicMenuSidebar isOpen={showAuthSidebar} onClose={() => setShowAuthSidebar(false)} restaurantName={restaurantName} displayName={config.restaurantName} themeColor={config.themeColor} />
-            <Checkout isOpen={isCheckoutOpen} onClose={() => setIsCheckoutOpen(false)} restaurantName={restaurantName} themeColor={config.themeColor} promotions={config.promotions || []} />
+            <Checkout
+                isOpen={isCheckoutOpen}
+                onClose={() => setIsCheckoutOpen(false)}
+                restaurantName={restaurantName}
+                themeColor={config.themeColor}
+                promotions={config.promotions || []}
+                taxConfig={{ applyTax: config.applyTax, taxPercentage: config.taxPercentage }}
+            />
 
             {/* Order Status Tracker */}
             {activeOrder && !isTopTrackerHidden && (
