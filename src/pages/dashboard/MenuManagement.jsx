@@ -94,6 +94,10 @@ const MenuManagement = () => {
             navigate('/manage-menu-pizza1');
             return;
         }
+        if (menu.template_type === 'testemplate') {
+            navigate('/manage-menu-testemplate');
+            return;
+        }
         setEditingMenu(menu)
         setSelectedTemplate(menu.template_type)
         setIsEditorOpen(true)
@@ -199,6 +203,10 @@ const MenuManagement = () => {
                                     navigate('/manage-menu-pizza1');
                                     return;
                                 }
+                                if (template.template_key === 'testemplate') {
+                                    navigate('/manage-menu-testemplate');
+                                    return;
+                                }
 
                                 setSelectedTemplate(template.template_key);
                                 setEditingMenu(null);
@@ -249,6 +257,8 @@ const MenuManagement = () => {
 
                                                         if (template.template_key === 'pizza1') {
                                                             navigate('/manage-menu-pizza1');
+                                                        } else if (template.template_key === 'testemplate') {
+                                                            navigate('/manage-menu-testemplate');
                                                         } else {
                                                             setSelectedTemplate(template.template_key);
                                                             setEditingMenu(null);
@@ -261,8 +271,8 @@ const MenuManagement = () => {
                                                 }}
                                                 disabled={isLocked}
                                                 className={`w-full py-4 rounded-xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 shadow-xl ${isLocked
-                                                        ? 'bg-gray-800 text-gray-500 cursor-not-allowed'
-                                                        : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/30'
+                                                    ? 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                                                    : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/30'
                                                     }`}
                                             >
                                                 {isLocked ? (
