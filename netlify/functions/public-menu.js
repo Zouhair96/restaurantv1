@@ -86,9 +86,22 @@ export const handler = async (event, context) => {
                     };
                 }
 
-                // CRITICAL CHANGE: If no override exists, the base item is HIDDEN by default for the public menu.
-                // The restaurant owner must explicitly "add" (override) it to show it.
-                return null;
+
+                // If no override exists, we return the base item but marked as HIDDEN.
+                // This allows the frontend to know it exists (maybe for an "Edit" mode overlay?)
+                // But specifically for Public Menu, we filter !is_hidden.
+                // However, the previous code returned NULL, which meant it wasn't even there.
+                // If we return it as hidden, it's still hidden in the UI, so no visual difference?
+                // The user's issue "no item" might mean they expect to SEE them.
+                // If I change this to `is_hidden: false`, they will see ALL items by default.
+                // Given the confusion, perhaps for `testemplate3` (or generally), we should default to VISIBLE?
+                // The user said "if he active the menu ... it will be empty".
+                // So keeping it hidden is correct.
+
+                return {
+                    ...baseItem,
+                    is_hidden: true // Default to hidden
+                };
             })
             .filter(Boolean);
 

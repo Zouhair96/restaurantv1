@@ -18,11 +18,17 @@ const PublicMenuTestemplate3 = ({ menuData, loading }) => {
 
     const categories = ['All', ...new Set(items.map(i => i.category).filter(Boolean))];
 
+    const isPreview = menuData?.restaurant === 'Master Preview';
+
     const filteredItems = items.filter(item => {
         const matchesCategory = activeCategory === 'All' || item.category === activeCategory;
         const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             item.description.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesCategory && matchesSearch && !item.is_hidden;
+
+        // Show item if:
+        // 1. It matches search/category AND
+        // 2. It is NOT hidden OR We are in Preview Mode
+        return matchesCategory && matchesSearch && (!item.is_hidden || isPreview);
     });
 
     // Scroll Logic for Categories
