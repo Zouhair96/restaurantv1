@@ -30,19 +30,19 @@ export const handler = async (event, context) => {
         }
 
         if (event.httpMethod === 'POST') {
-            const { template_id, category, name, description, price, image_url, sort_order } = JSON.parse(event.body);
+            const { template_id, category, category_en, name, name_en, description, description_en, price, image_url, sort_order } = JSON.parse(event.body);
             const res = await query(
-                'INSERT INTO template_items (template_id, category, name, description, price, image_url, sort_order) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-                [template_id, category, name, description, price, image_url, sort_order || 0]
+                'INSERT INTO template_items (template_id, category, category_en, name, name_en, description, description_en, price, image_url, sort_order) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *',
+                [template_id, category, category_en, name, name_en, description, description_en, price, image_url, sort_order || 0]
             );
             return { statusCode: 201, headers, body: JSON.stringify(res.rows[0]) };
         }
 
         if (event.httpMethod === 'PATCH') {
-            const { id, category, name, description, price, image_url, sort_order } = JSON.parse(event.body);
+            const { id, category, category_en, name, name_en, description, description_en, price, image_url, sort_order } = JSON.parse(event.body);
             const res = await query(
-                'UPDATE template_items SET category = $1, name = $2, description = $3, price = $4, image_url = $5, sort_order = $6, updated_at = NOW() WHERE id = $7 RETURNING *',
-                [category, name, description, price, image_url, sort_order, id]
+                'UPDATE template_items SET category = $1, category_en = $2, name = $3, name_en = $4, description = $5, description_en = $6, price = $7, image_url = $8, sort_order = $9, updated_at = NOW() WHERE id = $10 RETURNING *',
+                [category, category_en, name, name_en, description, description_en, price, image_url, sort_order, id]
             );
             return { statusCode: 200, headers, body: JSON.stringify(res.rows[0]) };
         }

@@ -87,11 +87,14 @@ export const handler = async (event, context) => {
                     return {
                         ...baseItem,
                         name: override.name_override ?? baseItem.name,
+                        name_en: override.name_en ?? baseItem.name_en,
                         description: override.description_override ?? baseItem.description,
+                        description_en: override.description_en ?? baseItem.description_en,
                         price: override.price_override ?? baseItem.price,
                         image_url: override.image_override ?? baseItem.image_url,
                         image: override.image_override ?? baseItem.image_url,
                         category: override.category_override ?? baseItem.category,
+                        category_en: override.category_en ?? baseItem.category_en,
                         is_hidden: override.is_hidden ?? false, // Respect override setting
                         has_override: true,
                         override_id: override.id
@@ -118,11 +121,14 @@ export const handler = async (event, context) => {
             const customItems = customItemsRes.rows.map(item => ({
                 id: item.id,
                 name: item.name_override,
+                name_en: item.name_en,
                 description: item.description_override,
+                description_en: item.description_en,
                 price: item.price_override,
                 image_url: item.image_override,
                 // image: item.image_override,
                 category: item.category_override,
+                category_en: item.category_en,
                 is_hidden: item.is_hidden,
                 is_custom: true,
                 restaurant_template_id: rt.id
@@ -166,10 +172,13 @@ export const handler = async (event, context) => {
                 id,
                 template_item_id,
                 name_override,
+                name_en,
                 description_override,
+                description_en,
                 price_override,
                 image_override,
                 category_override,
+                category_en,
                 is_hidden,
                 restaurant_template_id
             } = JSON.parse(event.body);
@@ -204,42 +213,48 @@ export const handler = async (event, context) => {
             if (template_item_id) {
                 // ... (Override logic stays same)
                 res = await query(
-                    `INSERT INTO item_overrides (restaurant_template_id, restaurant_id, template_item_id, name_override, description_override, price_override, image_override, category_override, is_hidden, updated_at)
-                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
+                    `INSERT INTO item_overrides (restaurant_template_id, restaurant_id, template_item_id, name_override, name_en, description_override, description_en, price_override, image_override, category_override, category_en, is_hidden, updated_at)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())
                      ON CONFLICT (restaurant_id, template_item_id)
                      DO UPDATE SET 
                         name_override = EXCLUDED.name_override,
+                        name_en = EXCLUDED.name_en,
                         description_override = EXCLUDED.description_override,
+                        description_en = EXCLUDED.description_en,
                         price_override = EXCLUDED.price_override,
                         image_override = EXCLUDED.image_override,
                         category_override = EXCLUDED.category_override,
+                        category_en = EXCLUDED.category_en,
                         is_hidden = EXCLUDED.is_hidden,
                         updated_at = NOW()
                      RETURNING *`,
-                    [restaurant_template_id, restaurantId, template_item_id, name_override, description_override, price_override, image_override, category_override, is_hidden]
+                    [restaurant_template_id, restaurantId, template_item_id, name_override, name_en, description_override, description_en, price_override, image_override, category_override, category_en, is_hidden]
                 );
             } else if (id) {
                 // Update existing custom item
                 res = await query(
                     `UPDATE item_overrides SET
                         name_override = $1,
-                        description_override = $2,
-                        price_override = $3,
-                        image_override = $4,
-                        category_override = $5,
-                        is_hidden = $6,
+                        name_en = $2,
+                        description_override = $3,
+                        description_en = $4,
+                        price_override = $5,
+                        image_override = $6,
+                        category_override = $7,
+                        category_en = $8,
+                        is_hidden = $9,
                         updated_at = NOW()
-                     WHERE id = $7 AND restaurant_id = $8
+                     WHERE id = $10 AND restaurant_id = $11
                      RETURNING *`,
-                    [name_override, description_override, price_override, image_override, category_override, is_hidden, id, restaurantId]
+                    [name_override, name_en, description_override, description_en, price_override, image_override, category_override, category_en, is_hidden, id, restaurantId]
                 );
             } else {
                 // Purely custom item (no base item) - INSERT NEW
                 res = await query(
-                    `INSERT INTO item_overrides (restaurant_template_id, restaurant_id, name_override, description_override, price_override, image_override, category_override, is_hidden, updated_at)
-                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+                    `INSERT INTO item_overrides (restaurant_template_id, restaurant_id, name_override, name_en, description_override, description_en, price_override, image_override, category_override, category_en, is_hidden, updated_at)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW())
                      RETURNING *`,
-                    [restaurant_template_id, restaurantId, name_override, description_override, price_override, image_override, category_override, is_hidden || false]
+                    [restaurant_template_id, restaurantId, name_override, name_en, description_override, description_en, price_override, image_override, category_override, category_en, is_hidden || false]
                 );
             }
 

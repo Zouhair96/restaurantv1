@@ -12,7 +12,7 @@ import { useLanguage } from '../context/LanguageContext';
 
 const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
     const { user: clientUser, activeOrderId, activeOrder, handleCloseTracker, isTopTrackerHidden } = useClientAuth();
-    const { t } = useLanguage();
+    const { t, localize } = useLanguage();
     const { restaurantName: urlRestaurantName } = useParams();
     const restaurantName = propRestaurantName || urlRestaurantName;
     const isMasterView = !restaurantName;
@@ -181,7 +181,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                             >
                                 <img
                                     src={item.image}
-                                    alt={item.name}
+                                    alt={localize(item, 'name')}
                                     className="w-full h-full object-cover rounded-full shadow-md"
                                     style={selectedItem.id === item.id ? { boxShadow: `0 4px 14px 0 ${config.themeColor}40` } : {}}
                                 />
@@ -210,7 +210,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                     </div>
 
                     <div className="flex items-center justify-start gap-4 md:gap-8 text-sm md:text-base mb-2 overflow-x-auto no-scrollbar py-1">
-                        {['All', ...new Set(menuItems.map(i => i.category).filter(Boolean))].map((category) => (
+                        {['All', ...new Set(menuItems.map(i => localize(i, 'category')).filter(Boolean))].map((category) => (
                             <button
                                 key={category}
                                 onClick={() => handleCategorySelect(category)}
@@ -238,7 +238,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                 className="absolute inset-0 w-full h-full rounded-full overflow-hidden border-none shadow-none z-10"
                                 style={{ transformOrigin: 'center center' }}
                             >
-                                <motion.img whileHover={{ scale: 1.05, rotate: 5 }} src={selectedItem.image} alt={selectedItem.name} className="w-full h-full object-cover shadow-2xl rounded-full" />
+                                <motion.img whileHover={{ scale: 1.05, rotate: 5 }} src={selectedItem.image} alt={localize(selectedItem, 'name')} className="w-full h-full object-cover shadow-2xl rounded-full" />
                                 <div className="absolute inset-0 flex justify-center pointer-events-none">
                                     <div className="flex gap-4 opacity-30 mt-4">
                                         {[0, 1, 2].map((i) => (
@@ -262,9 +262,9 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
             >
                 <div className="px-5 py-3 flex justify-between items-start mb-0">
                     <div className="flex-1 min-w-0 pr-4">
-                        <h2 className="text-lg md:text-2xl font-black text-gray-900 mb-0.5 truncate h-7 flex items-center">{selectedItem.name}</h2>
+                        <h2 className="text-lg md:text-2xl font-black text-gray-900 mb-0.5 truncate h-7 flex items-center">{localize(selectedItem, 'name')}</h2>
                         <div className="flex items-start gap-2 mb-0 h-10 overflow-hidden">
-                            <p className="text-gray-500 text-xs leading-tight max-w-xs line-clamp-2">{selectedItem.description}</p>
+                            <p className="text-gray-500 text-xs leading-tight max-w-xs line-clamp-2">{localize(selectedItem, 'description')}</p>
                         </div>
                     </div>
                     <motion.button whileTap={{ scale: 0.8 }} onClick={() => setLiked(!liked)} className="text-gray-400 hover:text-red-500 transition-colors shrink-0 pt-1">
@@ -312,10 +312,10 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                             <div className="space-y-4">
                                 {cartItems.map((item, index) => (
                                     <div key={`${item.id}-${index}`} className="flex gap-3 bg-white border border-gray-50 rounded-2xl p-3 shadow-sm">
-                                        <div className="w-16 h-16 shrink-0 bg-gray-50 rounded-xl overflow-hidden"><img src={item.image} alt={item.name} className="w-full h-full object-cover" /></div>
+                                        <div className="w-16 h-16 shrink-0 bg-gray-50 rounded-xl overflow-hidden"><img src={item.image} alt={localize(item, 'name')} className="w-full h-full object-cover" /></div>
                                         <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
                                             <div className="flex justify-between items-start gap-2">
-                                                <h3 className="font-bold text-gray-900 text-sm truncate">{item.name}</h3>
+                                                <h3 className="font-bold text-gray-900 text-sm truncate">{localize(item, 'name')}</h3>
                                                 <button onClick={() => removeFromCart(item.id, item.size)} className="text-gray-300 hover:text-red-500 transition-colors"><HiTrash className="w-4 h-4" /></button>
                                             </div>
                                             <div className="flex justify-between items-end">

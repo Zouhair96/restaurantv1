@@ -31,7 +31,7 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
     // Cart
     const { addToCart, cartItems } = useCart();
     const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
-    const { t } = useLanguage();
+    const { t, localize } = useLanguage();
 
     // Fetch Data
     useEffect(() => {
@@ -83,8 +83,8 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
         calories: item.calories || `${200 + Math.floor(Math.random() * 400)} kcal`
     });
 
-    const categories = ['All', ...new Set(menuItems.map(i => i.category).filter(Boolean))];
-    const filteredItems = menuItems.filter(item => activeCategory === 'All' || item.category === activeCategory);
+    const categories = ['All', ...new Set(menuItems.map(i => localize(i, 'category')).filter(Boolean))];
+    const filteredItems = menuItems.filter(item => activeCategory === 'All' || localize(item, 'category') === activeCategory);
 
     // Handlers
     const handleItemClick = (item) => {
@@ -180,7 +180,7 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
                         >
                             <div className="relative mb-3">
                                 <motion.div layoutId={`image-${item.id}`} className="w-full aspect-square rounded-full overflow-hidden shadow-md">
-                                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                                    <img src={item.image} alt={localize(item, 'name')} className="w-full h-full object-cover" />
                                 </motion.div>
                                 <button
                                     onClick={(e) => toggleFavorite(e, item.id)}
@@ -190,7 +190,7 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
                                 </button>
                             </div>
 
-                            <h3 className="font-bold text-gray-900 text-sm line-clamp-1">{item.name}</h3>
+                            <h3 className="font-bold text-gray-900 text-sm line-clamp-1">{localize(item, 'name')}</h3>
                             <div className="flex items-center gap-2 mt-1 mb-2">
                                 <span className="flex items-center text-xs font-bold text-gray-400">
                                     <HiClock className="w-3 h-3 mr-1" /> {item.time}
@@ -269,7 +269,7 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
                             <div className="w-12 h-1.5 bg-gray-200 rounded-full absolute top-4 left-1/2 -translate-x-1/2" />
 
                             <div className="flex justify-between items-start mb-2">
-                                <h2 className="text-2xl font-black text-gray-900">{selectedItem.name}</h2>
+                                <h2 className="text-2xl font-black text-gray-900">{localize(selectedItem, 'name')}</h2>
                                 <span className="text-2xl font-black text-theme" style={{ color: config.themeColor }}>${parseFloat(selectedItem.price).toFixed(2)}</span>
                             </div>
 
@@ -285,7 +285,7 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
                                 </span>
                             </div>
 
-                            <p className="text-gray-500 leading-relaxed text-sm flex-1 overflow-y-auto mb-6" dangerouslySetInnerHTML={{ __html: selectedItem.description }} />
+                            <p className="text-gray-500 leading-relaxed text-sm flex-1 overflow-y-auto mb-6" dangerouslySetInnerHTML={{ __html: localize(selectedItem, 'description') }} />
                             {/* About section header removed as per template style, but description remains */}
 
                             <div className="flex items-center gap-6 mt-auto">

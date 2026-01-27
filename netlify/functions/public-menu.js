@@ -79,10 +79,13 @@ export const handler = async (event, context) => {
                     return {
                         ...baseItem,
                         name: override.name_override ?? baseItem.name,
+                        name_en: override.name_en ?? baseItem.name_en,
                         description: override.description_override ?? baseItem.description,
+                        description_en: override.description_en ?? baseItem.description_en,
                         price: override.price_override ?? baseItem.price,
                         image_url: override.image_override ?? baseItem.image_url,
-                        category: override.category_override ?? baseItem.category
+                        category: override.category_override ?? baseItem.category,
+                        category_en: override.category_en ?? baseItem.category_en
                     };
                 }
 
@@ -111,10 +114,13 @@ export const handler = async (event, context) => {
             .map(o => ({
                 id: o.id,
                 name: o.name_override,
+                name_en: o.name_en,
                 description: o.description_override,
+                description_en: o.description_en,
                 price: o.price_override,
                 image_url: o.image_override,
                 category: o.category_override || 'Special',
+                category_en: o.category_en,
                 is_custom: true
             }));
 

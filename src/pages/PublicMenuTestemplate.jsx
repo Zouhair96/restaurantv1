@@ -39,11 +39,11 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
     const homeY = useTransform(dragY, [-200, 0, 200], [0, 50, 0]);
 
     // Derived state for categories
-    const categories = ['All', ...new Set(menuItems.map(i => i.category).filter(Boolean))];
+    const { localize, t } = useLanguage();
+    const categories = ['All', ...new Set(menuItems.map(i => localize(i, 'category')).filter(Boolean))];
 
     const { addToCart, cartItems } = useCart();
     const { user: clientUser, activeOrder, handleCloseTracker, isTopTrackerHidden } = useClientAuth();
-    const { t } = useLanguage();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -305,8 +305,8 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                         >
                             <AnimatePresence mode="popLayout">
                                 {menuItems.filter(item =>
-                                    (activeCategory === 'All' || item.category === activeCategory) &&
-                                    (item.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                                    (activeCategory === 'All' || localize(item, 'category') === activeCategory) &&
+                                    (localize(item, 'name').toLowerCase().includes(searchQuery.toLowerCase()))
                                 ).map((item) => (
                                     <motion.div
                                         key={item.id}
@@ -325,10 +325,10 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                                         </button>
 
                                         <motion.div layoutId={`item-image-${item.id}`} className="w-28 h-28 rounded-full shadow-lg mt-1 mb-2 group-hover:scale-105 transition-transform duration-300">
-                                            <img src={item.image} alt={item.name} className="w-full h-full object-cover rounded-full" />
+                                            <img src={item.image} alt={localize(item, 'name')} className="w-full h-full object-cover rounded-full" />
                                         </motion.div>
 
-                                        <h3 className="font-bold text-gray-900 text-sm leading-tight mb-1 w-full truncate px-1">{item.name}</h3>
+                                        <h3 className="font-bold text-gray-900 text-sm leading-tight mb-1 w-full truncate px-1">{localize(item, 'name')}</h3>
 
                                         {/* Metadata removed as per user request */}
 
@@ -415,7 +415,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                                 >
                                     <img
                                         src={selectedItem.image}
-                                        alt={selectedItem.name}
+                                        alt={localize(selectedItem, 'name')}
                                         className="w-full h-full object-cover"
                                     />
                                 </motion.div>
@@ -433,7 +433,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
 
                             <div className="flex justify-between items-start mb-2">
                                 <div>
-                                    <h2 className="text-2xl font-bold text-gray-900">{selectedItem.name}</h2>
+                                    <h2 className="text-2xl font-bold text-gray-900">{localize(selectedItem, 'name')}</h2>
                                     <span className="text-lg font-bold text-theme" style={{ color: config.themeColor }}>${parseFloat(selectedItem.price).toFixed(2)}</span>
                                 </div>
                                 <div className="flex items-center bg-theme rounded-full px-1 py-1" style={{ backgroundColor: config.themeColor }}>
@@ -447,7 +447,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
 
                             <div className="flex-1 overflow-y-auto mb-6">
                                 <h3 className="font-bold text-gray-900 mb-2">{t('menu.about')}</h3>
-                                <div className="text-gray-500 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: selectedItem.description }} />
+                                <div className="text-gray-500 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: localize(selectedItem, 'description') }} />
                             </div>
 
                             <button

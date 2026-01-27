@@ -20,8 +20,18 @@ export const LanguageProvider = ({ children }) => {
         return value || key;
     };
 
+    // Helper to localize dynamic item fields (name, description, category)
+    const localize = (item, field) => {
+        if (!item) return '';
+        if (language === 'en') {
+            const enField = `${field}_en`;
+            return item[enField] || item[field]; // Fallback to primary if EN missing
+        }
+        return item[field]; // Primary is FR
+    };
+
     return (
-        <LanguageContext.Provider value={{ language, toggleLanguage, t }}>
+        <LanguageContext.Provider value={{ language, toggleLanguage, t, localize }}>
             {children}
         </LanguageContext.Provider>
     );

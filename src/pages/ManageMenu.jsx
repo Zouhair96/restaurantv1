@@ -109,10 +109,13 @@ const ManageMenu = ({ isAdminView = false }) => {
                     restaurant_template_id: template.restaurant_template_id,
                     template_item_id: editingItem.is_custom ? null : (editingItem.template_item_id || editingItem.id),
                     name_override: editingItem.name,
+                    name_en: editingItem.name_en,
                     description_override: editingItem.description,
+                    description_en: editingItem.description_en,
                     price_override: editingItem.price,
                     image_override: editingItem.image_url,
                     category_override: editingItem.category,
+                    category_en: editingItem.category_en,
                     is_hidden: editingItem.is_hidden
                 };
 
@@ -325,7 +328,7 @@ const ManageMenu = ({ isAdminView = false }) => {
 
                     <button
                         onClick={() => {
-                            setEditingItem({ name: '', description: '', price: 0, category: 'Food', image_url: '', is_hidden: false, is_custom: true });
+                            setEditingItem({ name: '', name_en: '', description: '', description_en: '', price: 0, category: 'Food', category_en: 'Food', image_url: '', is_hidden: false, is_custom: true });
                             setIsEditModalOpen(true);
                         }}
                         style={{ backgroundColor: menuConfig.themeColor }}
@@ -482,13 +485,23 @@ const ManageMenu = ({ isAdminView = false }) => {
                         </div>
                         <div className="p-8 space-y-6 max-h-[60vh] overflow-y-auto">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="md:col-span-2">
-                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Item Name</label>
+                                <div className="md:col-span-1">
+                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Item Name (FR)</label>
                                     <input
                                         type="text"
                                         value={editingItem.name}
                                         onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })}
                                         className="w-full px-5 py-4 rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-[#24262d] text-gray-900 dark:text-white font-bold focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                    />
+                                </div>
+                                <div className="md:col-span-1">
+                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Item Name (EN)</label>
+                                    <input
+                                        type="text"
+                                        value={editingItem.name_en}
+                                        onChange={(e) => setEditingItem({ ...editingItem, name_en: e.target.value })}
+                                        className="w-full px-5 py-4 rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-[#24262d] text-gray-900 dark:text-white font-bold focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                        placeholder="English Name"
                                     />
                                 </div>
                                 <div>
@@ -502,11 +515,21 @@ const ManageMenu = ({ isAdminView = false }) => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Category</label>
+                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Category (FR)</label>
                                     <input
                                         type="text"
                                         value={editingItem.category}
                                         onChange={(e) => setEditingItem({ ...editingItem, category: e.target.value })}
+                                        className="w-full px-5 py-4 rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-[#24262d] text-gray-900 dark:text-white font-bold focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                        placeholder="ex: Burgers"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Category (EN)</label>
+                                    <input
+                                        type="text"
+                                        value={editingItem.category_en}
+                                        onChange={(e) => setEditingItem({ ...editingItem, category_en: e.target.value })}
                                         className="w-full px-5 py-4 rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-[#24262d] text-gray-900 dark:text-white font-bold focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                                         placeholder="e.g. Burgers"
                                     />
@@ -534,11 +557,20 @@ const ManageMenu = ({ isAdminView = false }) => {
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Description</label>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Description (FR)</label>
                                 <textarea
-                                    rows="3"
+                                    rows="2"
                                     value={editingItem.description}
                                     onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
+                                    className="w-full px-5 py-4 rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-[#24262d] text-gray-900 dark:text-white font-medium italic focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Description (EN)</label>
+                                <textarea
+                                    rows="2"
+                                    value={editingItem.description_en}
+                                    onChange={(e) => setEditingItem({ ...editingItem, description_en: e.target.value })}
                                     className="w-full px-5 py-4 rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-[#24262d] text-gray-900 dark:text-white font-medium italic focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none"
                                 />
                             </div>
