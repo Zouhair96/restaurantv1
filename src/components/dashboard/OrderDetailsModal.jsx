@@ -2,24 +2,11 @@ import React, { useState } from 'react'
 import { HiOutlineBan, HiOutlineCheckCircle, HiOutlineClock } from 'react-icons/hi'
 
 const OrderDetailsModal = ({ order, isOpen, onClose, onStatusUpdate, getStatusColor = () => '' }) => {
-    const [showDriverForm, setShowDriverForm] = useState(false)
-    const [driverName, setDriverName] = useState('')
-    const [driverPhone, setDriverPhone] = useState('')
 
     if (!isOpen || !order) return null
 
     const items = order.items ? (typeof order.items === 'string' ? JSON.parse(order.items) : order.items) : {}
 
-    const handleAssignDriver = () => {
-        if (!driverName) return
-        onStatusUpdate(order.id, 'out_for_delivery', {
-            name: driverName,
-            phone: driverPhone
-        })
-        setShowDriverForm(false)
-        setDriverName('')
-        setDriverPhone('')
-    }
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in custom-scrollbar overflow-y-auto">
@@ -82,20 +69,6 @@ const OrderDetailsModal = ({ order, isOpen, onClose, onStatusUpdate, getStatusCo
                         </div>
                     </div>
 
-                    {/* Driver Info Display */}
-                    {order.status === 'out_for_delivery' && order.driver_name && (
-                        <div className="bg-purple-50 dark:bg-purple-900/10 p-5 rounded-3xl border border-purple-100 dark:border-purple-500/20 flex justify-between items-center">
-                            <div>
-                                <span className="block text-xs font-black uppercase tracking-widest text-purple-400 mb-1">Assigned Driver</span>
-                                <p className="text-lg font-black text-purple-700 dark:text-purple-300">🚗 {order.driver_name}</p>
-                            </div>
-                            {order.driver_phone && (
-                                <span className="bg-white/50 px-3 py-1 rounded-lg text-sm font-bold text-gray-600 dark:text-gray-400">
-                                    📞 {order.driver_phone}
-                                </span>
-                            )}
-                        </div>
-                    )}
 
                     {/* Detailed Items */}
                     <div className="bg-gray-50 dark:bg-gray-800/50 rounded-[2rem] p-6 border border-gray-100 dark:border-gray-700">
@@ -127,58 +100,13 @@ const OrderDetailsModal = ({ order, isOpen, onClose, onStatusUpdate, getStatusCo
                         </div>
                     </div>
 
-                    {/* Driver Assignment Form */}
-                    {showDriverForm && (
-                        <div className="bg-orange-50 dark:bg-orange-900/10 p-6 rounded-[2rem] border border-orange-100 dark:border-orange-500/20 animate-fade-in">
-                            <h4 className="text-lg font-black text-gray-800 dark:text-white mb-4">Assign Driver</h4>
-                            <div className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Driver Name</label>
-                                        <input
-                                            type="text"
-                                            value={driverName}
-                                            onChange={(e) => setDriverName(e.target.value)}
-                                            className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 font-bold text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-yum-primary"
-                                            placeholder="e.g. John Doe"
-                                            autoFocus
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Phone (Optional)</label>
-                                        <input
-                                            type="text"
-                                            value={driverPhone}
-                                            onChange={(e) => setDriverPhone(e.target.value)}
-                                            className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 font-bold text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-yum-primary"
-                                            placeholder="+1 234..."
-                                        />
-                                    </div>
-                                </div>
-                                <div className="flex gap-4">
-                                    <button
-                                        onClick={() => setShowDriverForm(false)}
-                                        className="flex-1 px-6 py-3 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-xl font-bold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border border-gray-200 dark:border-gray-700"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        onClick={handleAssignDriver}
-                                        className="flex-1 px-6 py-3 bg-yum-primary text-white rounded-xl font-bold hover:bg-yum-primary/90 transition-colors shadow-lg shadow-orange-500/20"
-                                    >
-                                        Assign & Send
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
                 </div>
 
                 {/* Modal Footer */}
                 <div className="p-8 bg-gray-50 dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 flex flex-wrap gap-4 justify-end">
                     {/* Dynamic Main Action Button */}
                     {/* Pending -> Preparing */}
-                    {!showDriverForm && order.status === 'pending' && (
+                    {order.status === 'pending' && (
                         <button
                             onClick={() => onStatusUpdate(order.id, 'preparing')}
                             className="flex-1 md:flex-none px-8 py-3 bg-blue-600 text-white hover:bg-blue-700 rounded-2xl font-black shadow-xl transition-all hover:scale-105 active:scale-95"
@@ -188,7 +116,7 @@ const OrderDetailsModal = ({ order, isOpen, onClose, onStatusUpdate, getStatusCo
                     )}
 
                     {/* Preparing -> Complete (Dine In) */}
-                    {!showDriverForm && order.status === 'preparing' && order.order_type === 'dine_in' && (
+                    {order.status === 'preparing' && order.order_type === 'dine_in' && (
                         <button
                             onClick={() => onStatusUpdate(order.id, 'completed')}
                             className="flex-1 md:flex-none px-8 py-3 bg-green-500 text-white hover:bg-green-600 rounded-2xl font-black shadow-xl transition-all hover:scale-105 active:scale-95"
@@ -197,18 +125,18 @@ const OrderDetailsModal = ({ order, isOpen, onClose, onStatusUpdate, getStatusCo
                         </button>
                     )}
 
-                    {/* Preparing -> Assign Driver (Take Out) */}
-                    {!showDriverForm && order.status === 'preparing' && order.order_type === 'take_out' && (
+                    {/* Preparing -> Out for Delivery (Take Out) */}
+                    {order.status === 'preparing' && order.order_type === 'take_out' && (
                         <button
-                            onClick={() => setShowDriverForm(true)}
+                            onClick={() => onStatusUpdate(order.id, 'out_for_delivery')}
                             className="flex-1 md:flex-none px-8 py-3 bg-purple-600 text-white hover:bg-purple-700 rounded-2xl font-black shadow-xl transition-all hover:scale-105 active:scale-95"
                         >
-                            🚗 Assign Driver
+                            🚚 Out for Delivery
                         </button>
                     )}
 
                     {/* Delivering -> Completed */}
-                    {!showDriverForm && order.status === 'out_for_delivery' && (
+                    {order.status === 'out_for_delivery' && (
                         <button
                             onClick={() => onStatusUpdate(order.id, 'completed')}
                             className="flex-1 md:flex-none px-8 py-3 bg-green-500 text-white hover:bg-green-600 rounded-2xl font-black shadow-xl transition-all hover:scale-105 active:scale-95"
@@ -217,7 +145,7 @@ const OrderDetailsModal = ({ order, isOpen, onClose, onStatusUpdate, getStatusCo
                         </button>
                     )}
 
-                    {!showDriverForm && order.status !== 'completed' && order.status !== 'cancelled' && (
+                    {order.status !== 'completed' && order.status !== 'cancelled' && (
                         <button
                             onClick={() => {
                                 if (window.confirm('Are you sure you want to CANCEL this order? This action cannot be undone.')) {
