@@ -93,14 +93,31 @@ export const handler = async (event, context) => {
             }
 
             // 3. Create/Update the Menu Config Entry (Metadata)
-            const result = await query(
-                `INSERT INTO menus (user_id, name, template_type, config) 
-                 VALUES ($1, $2, $3, $4) 
-                 ON CONFLICT (user_id, template_type) 
-                 DO UPDATE SET name = EXCLUDED.name, config = EXCLUDED.config, updated_at = NOW()
-                 RETURNING *`,
-                [user.id, name, templateType || 'custom', JSON.stringify(config)]
+            // Check if menu for this template exists
+            const existingMenuRes = await query(
+                'SELECT id FROM menus WHERE user_id = $1 AND template_type = $2',
+                [user.id, templateType || 'custom']
             );
+
+            let result;
+            if (existingMenuRes.rows.length > 0) {
+                // UPDATE
+                result = await query(
+                    `UPDATE menus 
+                     SET name = $1, config = $2, updated_at = NOW()
+                     WHERE id = $3
+                     RETURNING *`,
+                    [name, JSON.stringify(config), existingMenuRes.rows[0].id]
+                );
+            } else {
+                // INSERT
+                result = await query(
+                    `INSERT INTO menus (user_id, name, template_type, config) 
+                     VALUES ($1, $2, $3, $4) 
+                     RETURNING *`,
+                    [user.id, name, templateType || 'custom', JSON.stringify(config)]
+                );
+            }
 
             return {
                 statusCode: 201,
