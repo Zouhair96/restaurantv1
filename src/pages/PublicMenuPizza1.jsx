@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, HiBars3, HiBuildingStorefront, HiXMark, HiTrash, HiOutlineClipboardDocumentList, HiUser } from 'react-icons/hi2';
-import { FaInstagram, FaFacebookF, FaTiktok, FaSnapchatGhost, FaGoogle } from 'react-icons/fa6';
+import { FaInstagram, FaFacebookF, FaTiktok, FaGoogle } from 'react-icons/fa6';
+import { FaSnapchatGhost } from 'react-icons/fa';
 import { Link, useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';

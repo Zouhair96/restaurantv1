@@ -52,6 +52,6 @@
     "@babel/code-frame": "7.27.1"
   },
   "engines": {
-    "node": ">=18 <19"
+    "node": ">=20.19.0"
   }
 }
