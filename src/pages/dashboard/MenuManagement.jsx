@@ -98,6 +98,10 @@ const MenuManagement = () => {
             navigate('/manage-menu-testemplate');
             return;
         }
+        if (menu.template_type === 'testemplate2') {
+            navigate('/manage-menu-testemplate2');
+            return;
+        }
         setEditingMenu(menu)
         setSelectedTemplate(menu.template_type)
         setIsEditorOpen(true)
@@ -207,6 +211,10 @@ const MenuManagement = () => {
                                     navigate('/manage-menu-testemplate');
                                     return;
                                 }
+                                if (template.template_key === 'testemplate2') {
+                                    navigate('/manage-menu-testemplate2');
+                                    return;
+                                }
 
                                 setSelectedTemplate(template.template_key);
                                 setEditingMenu(null);
@@ -259,6 +267,8 @@ const MenuManagement = () => {
                                                             navigate('/manage-menu-pizza1');
                                                         } else if (template.template_key === 'testemplate') {
                                                             navigate('/manage-menu-testemplate');
+                                                        } else if (template.template_key === 'testemplate2') {
+                                                            navigate('/manage-menu-testemplate2');
                                                         } else {
                                                             setSelectedTemplate(template.template_key);
                                                             setEditingMenu(null);
