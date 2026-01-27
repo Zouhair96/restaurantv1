@@ -6,6 +6,8 @@ import { useCart } from '../context/CartContext';
 import { motion, AnimatePresence, useAnimation, useMotionValue, useTransform } from 'framer-motion';
 import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
 import Checkout from '../components/menu/Checkout'; // Import Checkout
+import PersistentOrderTracker from '../components/PersistentOrderTracker';
+import { useClientAuth } from '../context/ClientAuthContext';
 
 const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
     const { restaurantName: urlRestaurantName } = useParams();
@@ -39,6 +41,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
     const categories = ['All', ...new Set(menuItems.map(i => i.category).filter(Boolean))];
 
     const { addToCart, cartItems } = useCart();
+    const { user: clientUser, activeOrder, handleCloseTracker, isTopTrackerHidden } = useClientAuth();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -331,7 +334,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                                             className="absolute bottom-0 right-0 w-10 h-10 bg-theme flex items-center justify-center text-white rounded-tl-[1.2rem] hover:opacity-90 active:scale-95 transition-all"
                                             style={{
                                                 backgroundColor: config.themeColor,
-                                                boxShadow: `-4px -4px 12px ${config.themeColor}44`
+                                                boxShadow: `0 8px 20px -4px ${config.themeColor}aa`
                                             }}
                                             onClick={(e) => {
                                                 e.stopPropagation(); // Prevent opening modal
@@ -442,10 +445,10 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
 
                             <button
                                 onClick={(e) => handleAddToCart(e)}
-                                className="w-full bg-theme text-white font-bold py-4 rounded-2xl shadow-xl hover:opacity-90 transition-opacity active:scale-95"
+                                className="w-full bg-theme text-white font-bold py-4 rounded-2xl shadow-xl hover:opacity-90 transition-opacity active:scale-95 text-lg"
                                 style={{
                                     backgroundColor: config.themeColor,
-                                    boxShadow: `0 12px 32px -8px ${config.themeColor}88`
+                                    boxShadow: `0 20px 48px -12px ${config.themeColor}cc`
                                 }}
                             >
                                 Add to cart
@@ -457,6 +460,15 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
 
             <PublicMenuSidebar isOpen={showAuthSidebar} onClose={() => setShowAuthSidebar(false)} restaurantName={restaurantName} displayName={config.restaurantName} themeColor={config.themeColor} />
             <Checkout isOpen={isCheckoutOpen} onClose={() => setIsCheckoutOpen(false)} restaurantName={restaurantName} themeColor={config.themeColor} />
+
+            {/* Order Status Tracker */}
+            {activeOrder && !isTopTrackerHidden && (
+                <PersistentOrderTracker
+                    order={activeOrder}
+                    onClose={handleCloseTracker}
+                    themeColor={config.themeColor}
+                />
+            )}
 
             {/* Float to Cart Animation Overlay */}
             <div className="fixed inset-0 pointer-events-none z-[100]">

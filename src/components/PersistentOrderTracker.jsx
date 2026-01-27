@@ -43,9 +43,9 @@ const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline
             audio.volume = 0.7
             audio.play().catch(e => console.warn('Audio play failed:', e))
 
-            // Trigger vibration for 500ms
+            // Trigger vibration pattern: long, short, long
             if ('vibrate' in navigator) {
-                navigator.vibrate([200, 100, 200]);
+                navigator.vibrate([500, 100, 500]);
             }
         } catch (err) {
             console.error('Audio/Vibration error:', err)
@@ -102,7 +102,7 @@ const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline
                 initial={inline ? { opacity: 0 } : { y: -100, opacity: 0 }}
                 animate={inline ? { opacity: 1 } : { y: 0, opacity: 1 }}
                 exit={inline ? { opacity: 0 } : { y: -100, opacity: 0 }}
-                className={`${inline ? 'relative' : 'fixed top-0 left-0 right-0 z-50 pointer-events-none'}`}
+                className={`${inline ? 'relative' : 'fixed top-0 left-0 right-0 z-[120] pointer-events-none'}`}
             >
                 <div className={`${inline ? '' : 'pointer-events-auto'}`}>
                     {isMinimized ? (
