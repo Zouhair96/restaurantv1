@@ -248,11 +248,16 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
 
             {/* --- MAIN CONTENT AREA --- */}
             <motion.div
-                className="flex-1 flex flex-col h-full overflow-hidden relative z-0"
+                className="flex-1 flex flex-col h-full overflow-hidden relative z-0 origin-center"
+                animate={{
+                    scale: isCheckoutOpen ? 0.94 : (selectedItem ? 0.95 : 1),
+                    opacity: isCheckoutOpen ? 0.4 : (selectedItem ? 0.4 : 1),
+                }}
+                transition={{ type: 'spring', damping: 30, stiffness: 200 }}
                 style={{
-                    opacity: selectedItem ? homeOpacity : 1,
-                    scale: selectedItem ? homeScale : 1,
-                    y: selectedItem ? homeY : 0
+                    opacity: (!isCheckoutOpen && selectedItem) ? homeOpacity : undefined,
+                    scale: (!isCheckoutOpen && selectedItem) ? homeScale : undefined,
+                    y: (!isCheckoutOpen && selectedItem) ? homeY : undefined,
                 }}
             >
                 <div
