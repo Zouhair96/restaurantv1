@@ -247,11 +247,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
 
                                 <h3 className="font-bold text-gray-900 text-sm leading-tight mb-1 w-full truncate px-1">{item.name}</h3>
 
-                                <div className="flex items-center justify-center gap-3 text-[10px] text-gray-400 font-medium mb-3 w-full">
-                                    <span>{item.time}</span>
-                                    <div className="w-1 h-1 rounded-full bg-gray-300"></div>
-                                    <span className="flex items-center gap-0.5"><span className="text-yellow-400 text-xs">★</span> {item.rating}</span>
-                                </div>
+                                {/* Metadata removed as per user request */}
 
                                 <div className="w-full flex items-center justify-between mt-auto pl-1">
                                     <span className="text-base font-black text-gray-900">${parseFloat(item.price).toFixed(2)}</span>
@@ -330,11 +326,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                                 </div>
                             </div>
 
-                            <div className="flex justify-between items-center mt-6 mb-8 text-sm font-medium text-gray-600">
-                                <div className="flex items-center gap-1"><span className="text-yellow-400 text-lg">★</span> {selectedItem.rating}</div>
-                                <div className="flex items-center gap-1 text-red-500">🔥 {selectedItem.calories}</div>
-                                <div className="flex items-center gap-1 text-orange-400">🕒 {selectedItem.time}</div>
-                            </div>
+                            {/* Metadata removed as per user request */}
 
                             <div className="flex-1 overflow-y-auto mb-6">
                                 <h3 className="font-bold text-gray-900 mb-2">About food</h3>
