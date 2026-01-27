@@ -25,6 +25,7 @@ const PromoManagementModal = ({
             promoImage: '',
             requiresCode: false,
             promoCode: '',
+            displayStyle: 'banner',
             scope: {
                 type: 'all',
                 itemIds: [],
@@ -211,15 +212,15 @@ const PromoManagementModal = ({
                                         <div
                                             key={promo.id}
                                             className={`group relative bg-white dark:bg-[#24262d] rounded-2xl border-2 p-6 transition-all hover:shadow-xl ${promo.isActive
-                                                    ? 'border-green-500 shadow-lg shadow-green-500/10'
-                                                    : 'border-gray-100 dark:border-white/10 opacity-60'
+                                                ? 'border-green-500 shadow-lg shadow-green-500/10'
+                                                : 'border-gray-100 dark:border-white/10 opacity-60'
                                                 }`}
                                         >
                                             {/* Status Badge */}
                                             <div className="absolute top-4 right-4">
                                                 <span className={`text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest ${promo.isActive
-                                                        ? 'bg-green-500 text-white'
-                                                        : 'bg-gray-200 dark:bg-gray-700 text-gray-500'
+                                                    ? 'bg-green-500 text-white'
+                                                    : 'bg-gray-200 dark:bg-gray-700 text-gray-500'
                                                     }`}>
                                                     {promo.isActive ? 'Active' : 'Inactive'}
                                                 </span>
@@ -307,8 +308,8 @@ const PromoManagementModal = ({
                                         <button
                                             onClick={() => setFormData({ ...formData, discountType: 'percentage' })}
                                             className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all ${formData.discountType === 'percentage'
-                                                    ? 'text-white shadow-lg'
-                                                    : 'bg-gray-100 dark:bg-white/5 text-gray-500'
+                                                ? 'text-white shadow-lg'
+                                                : 'bg-gray-100 dark:bg-white/5 text-gray-500'
                                                 }`}
                                             style={formData.discountType === 'percentage' ? { backgroundColor: themeColor } : {}}
                                         >
@@ -317,8 +318,8 @@ const PromoManagementModal = ({
                                         <button
                                             onClick={() => setFormData({ ...formData, discountType: 'fixed' })}
                                             className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all ${formData.discountType === 'fixed'
-                                                    ? 'text-white shadow-lg'
-                                                    : 'bg-gray-100 dark:bg-white/5 text-gray-500'
+                                                ? 'text-white shadow-lg'
+                                                : 'bg-gray-100 dark:bg-white/5 text-gray-500'
                                                 }`}
                                             style={formData.discountType === 'fixed' ? { backgroundColor: themeColor } : {}}
                                         >
@@ -349,6 +350,33 @@ const PromoManagementModal = ({
                                         placeholder="e.g., Get 20% off all items this summer!"
                                         className="w-full px-5 py-4 rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-[#24262d] text-gray-900 dark:text-white font-medium italic focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none"
                                     />
+                                </div>
+
+                                {/* Display Style */}
+                                <div className="md:col-span-2">
+                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Display Style on Public Menu</label>
+                                    <div className="flex gap-3">
+                                        <button
+                                            onClick={() => setFormData({ ...formData, displayStyle: 'banner' })}
+                                            className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all ${formData.displayStyle === 'banner'
+                                                    ? 'text-white shadow-lg'
+                                                    : 'bg-gray-100 dark:bg-white/5 text-gray-500'
+                                                }`}
+                                            style={formData.displayStyle === 'banner' ? { backgroundColor: themeColor } : {}}
+                                        >
+                                            🎪 Banner Carousel
+                                        </button>
+                                        <button
+                                            onClick={() => setFormData({ ...formData, displayStyle: 'badge' })}
+                                            className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all ${formData.displayStyle === 'badge'
+                                                    ? 'text-white shadow-lg'
+                                                    : 'bg-gray-100 dark:bg-white/5 text-gray-500'
+                                                }`}
+                                            style={formData.displayStyle === 'badge' ? { backgroundColor: themeColor } : {}}
+                                        >
+                                            🎁 Floating Badge
+                                        </button>
+                                    </div>
                                 </div>
 
                                 {/* Promo Image */}
@@ -424,8 +452,8 @@ const PromoManagementModal = ({
                                                     key={category}
                                                     onClick={() => toggleCategory(category)}
                                                     className={`px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-widest transition-all ${formData.scope.categories.includes(category)
-                                                            ? 'text-white shadow-lg'
-                                                            : 'bg-white dark:bg-white/5 text-gray-500 border border-gray-200 dark:border-white/10'
+                                                        ? 'text-white shadow-lg'
+                                                        : 'bg-white dark:bg-white/5 text-gray-500 border border-gray-200 dark:border-white/10'
                                                         }`}
                                                     style={formData.scope.categories.includes(category) ? { backgroundColor: themeColor } : {}}
                                                 >
@@ -530,8 +558,8 @@ const PromoManagementModal = ({
                                                                 key={day.value}
                                                                 onClick={() => toggleDayOfWeek(day.value)}
                                                                 className={`px-4 py-2 rounded-xl font-bold text-xs transition-all ${formData.schedule.recurring.daysOfWeek.includes(day.value)
-                                                                        ? 'text-white shadow-lg'
-                                                                        : 'bg-white dark:bg-white/5 text-gray-500 border border-gray-200 dark:border-white/10'
+                                                                    ? 'text-white shadow-lg'
+                                                                    : 'bg-white dark:bg-white/5 text-gray-500 border border-gray-200 dark:border-white/10'
                                                                     }`}
                                                                 style={formData.schedule.recurring.daysOfWeek.includes(day.value) ? { backgroundColor: themeColor } : {}}
                                                             >

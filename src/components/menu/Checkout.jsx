@@ -4,8 +4,9 @@ import { HiXMark, HiCheckCircle, HiChevronLeft, HiTrash, HiOutlineTicket } from 
 import { useCart } from '../../context/CartContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { translations } from '../../translations';
+import { calculateOrderDiscount } from '../../utils/promoUtils';
 
-const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316' }) => {
+const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', promotions = [] }) => {
     const { cartItems, getCartTotal, clearCart, updateQuantity, removeFromCart } = useCart();
     const { language, t: globalT } = useLanguage();
     const [isSubmitted, setIsSubmitted] = useState(false);
@@ -51,7 +52,9 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316' }) =
                 tableNumber,
                 paymentMethod: 'cash',
                 items: cartItems,
-                totalPrice: getCartTotal()
+                totalPrice: total,
+                discount: orderDiscount,
+                subtotal: subtotal
             };
 
             const token = localStorage.getItem('client_token');
@@ -88,8 +91,10 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316' }) =
     };
 
     const subtotal = getCartTotal();
-    const tax = subtotal * 0.05; // Mock tax calculation
-    const total = subtotal + tax;
+    const { discount: orderDiscount, promo: orderPromo } = calculateOrderDiscount(promotions, subtotal);
+    const discountedSubtotal = Math.max(0, subtotal - orderDiscount);
+    const tax = discountedSubtotal * 0.05; // Mock tax calculation
+    const total = discountedSubtotal + tax;
 
     return (
         <AnimatePresence>
@@ -207,23 +212,20 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316' }) =
                                     <span className="text-gray-400 font-bold">{t.subtotal}</span>
                                     <span className="text-gray-900 font-black text-lg">${subtotal.toFixed(2)}</span>
                                 </div>
+                                {orderDiscount > 0 && (
+                                    <div className="flex justify-between items-center text-green-600 dark:text-green-500">
+                                        <div className="flex flex-col">
+                                            <span className="font-bold text-sm">Promo Discount</span>
+                                            <span className="text-[10px] italic font-medium">{orderPromo.name}</span>
+                                        </div>
+                                        <span className="font-black text-lg">-${orderDiscount.toFixed(2)}</span>
+                                    </div>
+                                )}
                                 <div className="flex justify-between items-center">
                                     <span className="text-gray-400 font-bold">{t.taxes}</span>
                                     <span className="text-gray-900 font-black text-lg">${tax.toFixed(2)}</span>
                                 </div>
-                                <div className="flex justify-between items-center group">
-                                    <div className="flex-1 mr-4">
-                                        <div className="relative">
-                                            <input
-                                                type="text"
-                                                placeholder={t.promoCode}
-                                                className="w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-theme transition-colors font-medium"
-                                                style={{ focusBorderColor: themeColor }}
-                                            />
-                                        </div>
-                                    </div>
-                                    <span className="text-theme font-black text-sm uppercase tracking-wider" style={{ color: themeColor }}>{t.apply}</span>
-                                </div>
+
                                 <div className="h-px bg-dashed bg-gray-100 my-2 border-t-2 border-dashed border-gray-100" />
                                 <div className="flex justify-between items-center pb-2">
                                     <span className="text-gray-900 text-xl font-black">{t.total}</span>

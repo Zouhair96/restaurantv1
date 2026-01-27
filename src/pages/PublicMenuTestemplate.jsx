@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, HiMapPin, HiMagnifyingGlass, HiAdjustmentsHorizontal, HiHome, HiChatBubbleLeftRight, HiBell, HiUserGroup, HiXMark } from 'react-icons/hi2';
+import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, HiMapPin, HiMagnifyingGlass, HiAdjustmentsHorizontal, HiHome, HiChatBubbleLeftRight, HiBell, HiUserGroup, HiXMark, HiTag, HiChevronLeft, HiChevronRight } from 'react-icons/hi2';
 import { Link, useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { motion, AnimatePresence, useAnimation, useMotionValue, useTransform } from 'framer-motion';
@@ -9,6 +9,7 @@ import Checkout from '../components/menu/Checkout'; // Import Checkout
 import PersistentOrderTracker from '../components/PersistentOrderTracker';
 import { useClientAuth } from '../context/ClientAuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { isPromoActive, getDiscountedPrice, getPromosByDisplayStyle } from '../utils/promoUtils';
 
 const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
     const { restaurantName: urlRestaurantName } = useParams();
@@ -21,7 +22,8 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
         themeColor: '#22c55e',
         logoImage: null,
         useLogo: false,
-        location: 'Khulna, BD'
+        location: 'Khulna, BD',
+        promotions: []
     });
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -32,6 +34,8 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
     const [showAuthSidebar, setShowAuthSidebar] = useState(false);
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false); // State for checkout
     const [animatingItems, setAnimatingItems] = useState([]); // For fly-to-cart effect
+    const [currentBannerIndex, setCurrentBannerIndex] = useState(0); // For banner carousel
+    const [showBadgePromos, setShowBadgePromos] = useState(false); // For floating badge modal
     const cartControls = useAnimation(); // For vibration effect
     const dragY = useMotionValue(0);
     const homeOpacity = useTransform(dragY, [-200, 0, 200], [1, 0.4, 1]);
@@ -136,6 +140,18 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
             setAnimatingItems(prev => prev.filter(a => a.id !== id));
         }, 800);
     };
+
+    // Auto-swipe for promotion banners
+    useEffect(() => {
+        const bannerPromos = getPromosByDisplayStyle(config.promotions || [], 'banner');
+        if (bannerPromos.length <= 1) return;
+
+        const interval = setInterval(() => {
+            setCurrentBannerIndex(prev => (prev + 1) % bannerPromos.length);
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, [config.promotions]);
 
     const handleAddToCart = (e) => {
         if (selectedItem) {
@@ -282,6 +298,116 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                         </div>
                     </div>
 
+                    {/* Banner Carousel Promotions */}
+                    {(() => {
+                        const bannerPromos = getPromosByDisplayStyle(config.promotions || [], 'banner');
+                        if (bannerPromos.length > 0) {
+                            const currentPromo = bannerPromos[currentBannerIndex % bannerPromos.length];
+                            return (
+                                <div className="px-6 mt-6">
+                                    <div className="relative bg-gradient-to-r rounded-3xl overflow-hidden shadow-xl" style={{
+                                        background: `linear-gradient(135deg, ${config.themeColor}dd, ${config.themeColor})`
+                                    }}>
+                                        <AnimatePresence mode="wait">
+                                            <motion.div
+                                                key={currentBannerIndex}
+                                                initial={{ opacity: 0, x: 100 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                exit={{ opacity: 0, x: -100 }}
+                                                transition={{ duration: 0.5 }}
+                                                className="flex items-center p-6 gap-4"
+                                            >
+                                                {currentPromo.promoImage && (
+                                                    <img
+                                                        src={currentPromo.promoImage}
+                                                        alt={currentPromo.name}
+                                                        className="w-20 h-20 rounded-2xl object-cover shadow-lg"
+                                                    />
+                                                )}
+                                                <div className="flex-1">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <HiTag className="w-5 h-5 text-white" />
+                                                        <span className="text-white/90 text-xs font-bold uppercase tracking-widest">Special Offer</span>
+                                                    </div>
+                                                    <h3 className="text-white font-black text-lg mb-1">{currentPromo.name}</h3>
+                                                    <p className="text-white/90 text-sm italic mb-2">{currentPromo.promoText}</p>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-white font-black text-sm">
+                                                            {currentPromo.discountType === 'percentage'
+                                                                ? `${currentPromo.discountValue}% OFF`
+                                                                : `$${currentPromo.discountValue} OFF`}
+                                                        </span>
+                                                        {currentPromo.requiresCode && (
+                                                            <span className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-white text-xs font-bold">
+                                                                Code: {currentPromo.promoCode}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </motion.div>
+                                        </AnimatePresence>
+
+                                        {/* Navigation Arrows */}
+                                        {bannerPromos.length > 1 && (
+                                            <>
+                                                <button
+                                                    onClick={() => setCurrentBannerIndex((currentBannerIndex - 1 + bannerPromos.length) % bannerPromos.length)}
+                                                    className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all"
+                                                >
+                                                    <HiChevronLeft className="w-5 h-5" />
+                                                </button>
+                                                <button
+                                                    onClick={() => setCurrentBannerIndex((currentBannerIndex + 1) % bannerPromos.length)}
+                                                    className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all"
+                                                >
+                                                    <HiChevronRight className="w-5 h-5" />
+                                                </button>
+
+                                                {/* Dots Indicator */}
+                                                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                                                    {bannerPromos.map((_, idx) => (
+                                                        <button
+                                                            key={idx}
+                                                            onClick={() => setCurrentBannerIndex(idx)}
+                                                            className={`w-1.5 h-1.5 rounded-full transition-all ${idx === currentBannerIndex % bannerPromos.length
+                                                                ? 'bg-white w-4'
+                                                                : 'bg-white/40'
+                                                                }`}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        }
+                        return null;
+                    })()}
+
+                    {/* Floating Badge Promotions Button */}
+                    {(() => {
+                        const badgePromos = getPromosByDisplayStyle(config.promotions || [], 'badge');
+                        if (badgePromos.length > 0) {
+                            return (
+                                <motion.button
+                                    onClick={() => setShowBadgePromos(true)}
+                                    className="fixed bottom-24 right-6 z-30 px-4 py-3 rounded-full shadow-2xl flex items-center gap-2 text-white font-bold"
+                                    style={{ backgroundColor: config.themeColor }}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+                                >
+                                    <HiTag className="w-5 h-5" />
+                                    <span className="text-sm">{badgePromos.length} {badgePromos.length === 1 ? 'Promo' : 'Promos'}</span>
+                                </motion.button>
+                            );
+                        }
+                        return null;
+                    })()}
+
                     {/* Categories */}
                     <div className="px-6 mt-8 flex gap-6 overflow-x-auto no-scrollbar pb-2">
                         {categories.map((cat, index) => (
@@ -308,52 +434,75 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                                 {menuItems.filter(item =>
                                     (activeCategory === 'All' || localize(item, 'category') === activeCategory) &&
                                     (localize(item, 'name').toLowerCase().includes(searchQuery.toLowerCase()))
-                                ).map((item) => (
-                                    <motion.div
-                                        key={item.id}
-                                        variants={itemVariants}
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        layout
-                                        initial={{ opacity: 0, scale: 0.8 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
-                                        onClick={() => handleItemClick(item)}
-                                        className="bg-white rounded-[1.5rem] p-3 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-shadow cursor-pointer flex flex-col items-center text-center relative overflow-hidden group"
-                                    >
-                                        <button className="absolute top-3 right-3 text-gray-300 hover:text-red-500 transition-colors z-10">
-                                            <HiOutlineHeart className="w-5 h-5" />
-                                        </button>
+                                ).map((item) => {
+                                    const { finalPrice, discount, originalPrice, promo } = getDiscountedPrice(config.promotions || [], item);
+                                    const hasDiscount = discount > 0;
 
-                                        <motion.div layoutId={`item-image-${item.id}`} className="w-28 h-28 rounded-full shadow-lg mt-1 mb-2 group-hover:scale-105 transition-transform duration-300">
-                                            <img src={item.image} alt={localize(item, 'name')} className="w-full h-full object-cover rounded-full" />
-                                        </motion.div>
-
-                                        <h3 className="font-bold text-gray-900 text-sm leading-tight mb-1 w-full truncate px-1">{localize(item, 'name')}</h3>
-
-                                        {/* Metadata removed as per user request */}
-
-                                        <div className="w-full flex items-center justify-between mt-auto pl-1">
-                                            <span className="text-base font-black text-gray-900">${parseFloat(item.price).toFixed(2)}</span>
-                                        </div>
-
-                                        {/* Add Button - Bottom Right Corner */}
-                                        <button
-                                            className="absolute bottom-0 right-0 w-10 h-10 bg-theme flex items-center justify-center text-white rounded-tl-[1.2rem] hover:opacity-90 active:scale-95 transition-all"
-                                            style={{
-                                                backgroundColor: config.themeColor,
-                                                boxShadow: `0 8px 20px -4px ${config.themeColor}aa`
-                                            }}
-                                            onClick={(e) => {
-                                                e.stopPropagation(); // Prevent opening modal
-                                                addToCart({ ...item, quantity: 1 });
-                                                triggerCartAnimation(item, e);
-                                            }}
+                                    return (
+                                        <motion.div
+                                            key={item.id}
+                                            variants={itemVariants}
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            layout
+                                            initial={{ opacity: 0, scale: 0.8 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
+                                            onClick={() => handleItemClick(item)}
+                                            className="bg-white rounded-[1.5rem] p-3 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-shadow cursor-pointer flex flex-col items-center text-center relative overflow-hidden group"
                                         >
-                                            <HiPlus className="w-5 h-5" />
-                                        </button>
-                                    </motion.div>
-                                ))}
+                                            {hasDiscount && (
+                                                <div
+                                                    className="absolute top-0 left-0 px-3 py-1 rounded-br-2xl text-[10px] font-black text-white z-10 shadow-sm"
+                                                    style={{ backgroundColor: config.themeColor }}
+                                                >
+                                                    {promo.discountType === 'percentage'
+                                                        ? `${promo.discountValue}% OFF`
+                                                        : `$${promo.discountValue} OFF`}
+                                                </div>
+                                            )}
+
+                                            <button className="absolute top-3 right-3 text-gray-300 hover:text-red-500 transition-colors z-10">
+                                                <HiOutlineHeart className="w-5 h-5" />
+                                            </button>
+
+                                            <motion.div layoutId={`item-image-${item.id}`} className="w-28 h-28 rounded-full shadow-lg mt-1 mb-2 group-hover:scale-105 transition-transform duration-300">
+                                                <img src={item.image} alt={localize(item, 'name')} className="w-full h-full object-cover rounded-full" />
+                                            </motion.div>
+
+                                            <h3 className="font-bold text-gray-900 text-sm leading-tight mb-1 w-full truncate px-1">{localize(item, 'name')}</h3>
+
+                                            <div className="w-full flex items-center justify-between mt-auto pl-1">
+                                                <div className="flex flex-col items-start">
+                                                    {hasDiscount && (
+                                                        <span className="text-[10px] text-gray-400 line-through font-bold">
+                                                            ${parseFloat(originalPrice).toFixed(2)}
+                                                        </span>
+                                                    )}
+                                                    <span className="text-base font-black text-gray-900">
+                                                        ${parseFloat(finalPrice).toFixed(2)}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            {/* Add Button - Bottom Right Corner */}
+                                            <button
+                                                className="absolute bottom-0 right-0 w-10 h-10 bg-theme flex items-center justify-center text-white rounded-tl-[1.2rem] hover:opacity-90 active:scale-95 transition-all"
+                                                style={{
+                                                    backgroundColor: config.themeColor,
+                                                    boxShadow: `0 8px 20px -4px ${config.themeColor}aa`
+                                                }}
+                                                onClick={(e) => {
+                                                    e.stopPropagation(); // Prevent opening modal
+                                                    addToCart({ ...item, price: finalPrice, quantity: 1 });
+                                                    triggerCartAnimation(item, e);
+                                                }}
+                                            >
+                                                <HiPlus className="w-5 h-5" />
+                                            </button>
+                                        </motion.div>
+                                    );
+                                })}
                             </AnimatePresence>
                         </motion.div>
                     </div>
@@ -435,7 +584,21 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                             <div className="flex justify-between items-start mb-2">
                                 <div>
                                     <h2 className="text-2xl font-bold text-gray-900">{localize(selectedItem, 'name')}</h2>
-                                    <span className="text-lg font-bold text-theme" style={{ color: config.themeColor }}>${parseFloat(selectedItem.price).toFixed(2)}</span>
+                                    {(() => {
+                                        const { finalPrice, discount, originalPrice } = getDiscountedPrice(config.promotions || [], selectedItem);
+                                        return (
+                                            <div className="flex items-center gap-2">
+                                                {discount > 0 && (
+                                                    <span className="text-sm text-gray-400 line-through font-bold">
+                                                        ${parseFloat(originalPrice).toFixed(2)}
+                                                    </span>
+                                                )}
+                                                <span className="text-lg font-bold text-theme" style={{ color: config.themeColor }}>
+                                                    ${parseFloat(finalPrice).toFixed(2)}
+                                                </span>
+                                            </div>
+                                        );
+                                    })()}
                                 </div>
                                 <div className="flex items-center bg-theme rounded-full px-1 py-1" style={{ backgroundColor: config.themeColor }}>
                                     <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-8 h-8 flex items-center justify-center text-white"><HiMinus /></button>
@@ -447,12 +610,32 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                             {/* Metadata removed as per user request */}
 
                             <div className="flex-1 overflow-y-auto mb-6">
+                                {(() => {
+                                    const { promo } = getDiscountedPrice(config.promotions || [], selectedItem);
+                                    if (promo) {
+                                        return (
+                                            <div className="bg-theme/10 rounded-2xl p-4 mb-4 border border-theme/20" style={{ borderColor: `${config.themeColor}33`, backgroundColor: `${config.themeColor}11` }}>
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <HiTag className="w-5 h-5 text-theme" style={{ color: config.themeColor }} />
+                                                    <span className="text-theme font-black text-xs uppercase tracking-wider" style={{ color: config.themeColor }}>Active Promotion</span>
+                                                </div>
+                                                <p className="text-gray-700 font-bold text-sm">{promo.name}</p>
+                                                <p className="text-gray-500 text-xs italic">{promo.promoText}</p>
+                                            </div>
+                                        );
+                                    }
+                                    return null;
+                                })()}
                                 <h3 className="font-bold text-gray-900 mb-2">{t('auth.menu.about')}</h3>
                                 <div className="text-gray-500 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: localize(selectedItem, 'description') }} />
                             </div>
 
                             <button
-                                onClick={(e) => handleAddToCart(e)}
+                                onClick={(e) => {
+                                    const { finalPrice } = getDiscountedPrice(config.promotions || [], selectedItem);
+                                    addToCart({ ...selectedItem, price: finalPrice, quantity });
+                                    triggerCartAnimation(selectedItem, e);
+                                }}
                                 className="w-full bg-theme text-white font-bold py-4 rounded-2xl shadow-xl hover:opacity-90 transition-opacity active:scale-95 text-lg"
                                 style={{
                                     backgroundColor: config.themeColor,
@@ -467,7 +650,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
             </AnimatePresence>
 
             <PublicMenuSidebar isOpen={showAuthSidebar} onClose={() => setShowAuthSidebar(false)} restaurantName={restaurantName} displayName={config.restaurantName} themeColor={config.themeColor} />
-            <Checkout isOpen={isCheckoutOpen} onClose={() => setIsCheckoutOpen(false)} restaurantName={restaurantName} themeColor={config.themeColor} />
+            <Checkout isOpen={isCheckoutOpen} onClose={() => setIsCheckoutOpen(false)} restaurantName={restaurantName} themeColor={config.themeColor} promotions={config.promotions || []} />
 
             {/* Order Status Tracker */}
             {activeOrder && !isTopTrackerHidden && (
@@ -477,6 +660,85 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                     themeColor={config.themeColor}
                 />
             )}
+
+            {/* Floating Badge Promotions Modal */}
+            <AnimatePresence>
+                {showBadgePromos && (
+                    <div className="fixed inset-0 z-[100] flex items-end justify-center px-4 pb-6 sm:items-center sm:p-0">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setShowBadgePromos(false)}
+                            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                        />
+
+                        <motion.div
+                            initial={{ y: "100%", opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: "100%", opacity: 0 }}
+                            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                            className="relative bg-white dark:bg-gray-900 w-full max-w-lg rounded-t-[2.5rem] sm:rounded-[2.5rem] overflow-hidden shadow-2xl z-10"
+                        >
+                            <div className="p-8">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h2 className="text-2xl font-black text-gray-900 dark:text-white">Active Offers</h2>
+                                    <button
+                                        onClick={() => setShowBadgePromos(false)}
+                                        className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500"
+                                    >
+                                        <HiXMark className="w-6 h-6" />
+                                    </button>
+                                </div>
+
+                                <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 no-scrollbar">
+                                    {getPromosByDisplayStyle(config.promotions || [], 'badge').map((promo) => (
+                                        <div
+                                            key={promo.id}
+                                            className="p-5 rounded-3xl border-2 flex flex-col gap-3 transition-all"
+                                            style={{ borderColor: `${config.themeColor}22`, backgroundColor: `${config.themeColor}08` }}
+                                        >
+                                            <div className="flex items-center gap-4">
+                                                {promo.promoImage ? (
+                                                    <img src={promo.promoImage} alt="" className="w-16 h-16 rounded-2xl object-cover shadow-sm" />
+                                                ) : (
+                                                    <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl shadow-sm" style={{ backgroundColor: `${config.themeColor}22` }}>
+                                                        🎁
+                                                    </div>
+                                                )}
+                                                <div className="flex-1">
+                                                    <div className="flex items-center justify-between mb-1">
+                                                        <h3 className="font-black text-gray-900 dark:text-white">{promo.name}</h3>
+                                                        <span className="text-theme font-black" style={{ color: config.themeColor }}>
+                                                            {promo.discountType === 'percentage' ? `${promo.discountValue}% OFF` : `$${promo.discountValue} OFF`}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-sm text-gray-500 italic">{promo.promoText}</p>
+                                                </div>
+                                            </div>
+
+                                            {promo.requiresCode && (
+                                                <div className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-xl border border-dashed text-sm" style={{ borderColor: config.themeColor }}>
+                                                    <span className="text-gray-500 font-bold">PROMO CODE:</span>
+                                                    <span className="font-black tracking-widest text-theme uppercase" style={{ color: config.themeColor }}>{promo.promoCode}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <button
+                                    onClick={() => setShowBadgePromos(false)}
+                                    className="w-full mt-8 py-4 bg-theme text-white font-black rounded-2xl shadow-xl active:scale-95 transition-all"
+                                    style={{ backgroundColor: config.themeColor, boxShadow: `0 12px 24px -8px ${config.themeColor}88` }}
+                                >
+                                    Great!
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
 
             {/* Float to Cart Animation Overlay */}
             <div className="fixed inset-0 pointer-events-none z-[100]">
