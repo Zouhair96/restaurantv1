@@ -110,9 +110,9 @@ const LiveOrders = ({ onSelectOrder }) => {
     const getStatusColor = (status) => {
         switch (status) {
             case 'pending': return 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
-            case 'preparing': return 'bg-blue-500/10 text-blue-500 border-blue-500/20'
-            case 'ready': return 'bg-green-500/10 text-green-500 border-green-500/20'
-            case 'completed': return 'bg-gray-500/10 text-gray-500 border-gray-500/20'
+            case 'preparing':
+            case 'out_for_delivery': return 'bg-blue-500/10 text-blue-500 border-blue-500/20'
+            case 'completed': return 'bg-green-500/10 text-green-500 border-green-500/20'
             case 'cancelled': return 'bg-red-500/10 text-red-500 border-red-500/20'
             default: return 'bg-gray-500/10 text-gray-500 border-gray-500/20'
         }
@@ -159,7 +159,7 @@ const LiveOrders = ({ onSelectOrder }) => {
                 <div className="flex flex-col gap-3">
                     {/* Status Filters */}
                     <div className="flex flex-wrap gap-2">
-                        {['pending', 'preparing', 'ready', 'completed', 'cancelled'].map(status => (
+                        {['pending', 'preparing', 'out_for_delivery', 'completed', 'cancelled'].map(status => (
                             <button
                                 key={status}
                                 onClick={() => setFilter(status)}
@@ -168,7 +168,7 @@ const LiveOrders = ({ onSelectOrder }) => {
                                     : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                                     }`}
                             >
-                                {status}
+                                {status.replace(/_/g, ' ')}
                             </button>
                         ))}
                     </div>

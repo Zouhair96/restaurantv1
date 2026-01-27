@@ -187,13 +187,13 @@ const OrderDetailsModal = ({ order, isOpen, onClose, onStatusUpdate, getStatusCo
                         </button>
                     )}
 
-                    {/* Preparing -> Ready (Dine In) */}
+                    {/* Preparing -> Complete (Dine In) */}
                     {!showDriverForm && order.status === 'preparing' && order.order_type === 'dine_in' && (
                         <button
-                            onClick={() => onStatusUpdate(order.id, 'ready')}
+                            onClick={() => onStatusUpdate(order.id, 'completed')}
                             className="flex-1 md:flex-none px-8 py-3 bg-green-500 text-white hover:bg-green-600 rounded-2xl font-black shadow-xl transition-all hover:scale-105 active:scale-95"
                         >
-                            ✅ Mark Ready
+                            ✅ Complete Order
                         </button>
                     )}
 
@@ -207,8 +207,8 @@ const OrderDetailsModal = ({ order, isOpen, onClose, onStatusUpdate, getStatusCo
                         </button>
                     )}
 
-                    {/* Ready/Delivering -> Completed */}
-                    {!showDriverForm && (order.status === 'ready' || order.status === 'out_for_delivery') && (
+                    {/* Delivering -> Completed */}
+                    {!showDriverForm && order.status === 'out_for_delivery' && (
                         <button
                             onClick={() => onStatusUpdate(order.id, 'completed')}
                             className="flex-1 md:flex-none px-8 py-3 bg-green-500 text-white hover:bg-green-600 rounded-2xl font-black shadow-xl transition-all hover:scale-105 active:scale-95"

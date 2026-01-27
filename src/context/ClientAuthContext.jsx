@@ -76,7 +76,7 @@ export const ClientAuthProvider = ({ children }) => {
         if (!activeOrder || !activeOrderId) return;
 
         const checkExpiry = () => {
-            if (activeOrder.status === 'completed' || activeOrder.status === 'cancelled' || activeOrder.status === 'ready') {
+            if (activeOrder.status === 'completed' || activeOrder.status === 'cancelled') {
                 // User said "completed", but "ready" might also be considered for dismissal after some time.
                 // However, the prompt specifically says "completed".
                 if (activeOrder.status === 'completed' || activeOrder.status === 'cancelled') {

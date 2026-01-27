@@ -12,14 +12,14 @@ const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline
         const prevStatus = prevStatusRef.current;
         if (prevStatus && prevStatus !== order.status) {
             // Play sound and show notification when order is ready/completed/cancelled
-            if (['ready', 'completed', 'cancelled'].includes(order.status)) {
+            if (['out_for_delivery', 'completed', 'cancelled'].includes(order.status)) {
                 if (prevStatus !== order.status) {
                     let message = '';
                     let voiceText = '';
 
-                    if (order.status === 'ready') {
-                        message = 'Your order is ready! 🎉';
-                        voiceText = 'Your order is ready';
+                    if (order.status === 'out_for_delivery') {
+                        message = 'Your order is on the way! 🚚';
+                        voiceText = 'Your order is on the way';
                     } else if (order.status === 'completed') {
                         message = 'Your order is completed! Enjoy! 🍽️';
                         voiceText = 'Your order is completed';
@@ -113,11 +113,11 @@ const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline
 
     const getStatusInfo = (status) => {
         const statusMap = {
-            pending: { label: 'Order Received', color: 'bg-yellow-500', progress: 25, emoji: '📝' },
-            preparing: { label: 'Being Prepared', color: 'bg-blue-500', progress: 50, emoji: '👨‍Chef' },
-            ready: { label: 'Ready for Pickup', color: 'bg-blue-500', progress: 75, emoji: '✅' },
-            completed: { label: 'Completed', color: 'bg-green-500', progress: 100, emoji: '🎉' },
-            cancelled: { label: 'Cancelled', color: 'bg-red-500', progress: 100, emoji: '❌' }
+            pending: { label: 'Order Received', color: 'bg-yellow-500', progress: 20, emoji: '📝', step: 1 },
+            preparing: { label: 'Being Prepared', color: 'bg-blue-500', progress: 60, emoji: '👨‍🍳', step: 2 },
+            out_for_delivery: { label: 'On the Way!', color: 'bg-blue-500', progress: 85, emoji: '🚚', step: 2 },
+            completed: { label: 'Completed', color: 'bg-green-500', progress: 100, emoji: '🎉', step: 3 },
+            cancelled: { label: 'Cancelled', color: 'bg-red-500', progress: 100, emoji: '❌', step: 3 }
         }
         return statusMap[status] || statusMap.pending
     }
@@ -127,7 +127,7 @@ const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline
     const statusInfo = getStatusInfo(order.status)
     const displayColor = order.status === 'completed' ? '#22c55e' :
         (order.status === 'cancelled' ? '#ef4444' :
-            (['preparing', 'ready'].includes(order.status) ? '#3b82f6' : themeColor));
+            (['preparing', 'out_for_delivery'].includes(order.status) ? '#3b82f6' : themeColor));
 
     return (
         <AnimatePresence>
@@ -221,11 +221,19 @@ const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline
                                             }}
                                         />
                                     </div>
-                                    <div className="flex justify-between text-[9px] font-black uppercase tracking-tighter text-gray-400">
-                                        <span className={order.status === 'pending' || order.status === 'preparing' || order.status === 'ready' || order.status === 'completed' ? 'text-gray-900 dark:text-white' : ''}>Recu</span>
-                                        <span className={order.status === 'preparing' || order.status === 'ready' || order.status === 'completed' ? 'text-gray-900 dark:text-white' : ''}>Prepa</span>
-                                        <span className={order.status === 'ready' || order.status === 'completed' ? 'text-gray-900 dark:text-white' : ''}>Pret</span>
-                                        <span className={order.status === 'completed' ? 'text-gray-900 dark:text-white' : ''}>Ok</span>
+                                    <div className="flex justify-around items-center px-2">
+                                        {[1, 2, 3].map((step) => (
+                                            <div
+                                                key={step}
+                                                className={`w-2.5 h-2.5 rounded-full transition-all duration-500 ${statusInfo.step >= step ? 'scale-125' : 'opacity-30'}`}
+                                                style={{ backgroundColor: statusInfo.step >= step ? displayColor : 'currentColor' }}
+                                            />
+                                        ))}
+                                    </div>
+                                    <div className="flex justify-between text-[10px] font-black uppercase tracking-tight text-gray-400 mt-1">
+                                        <span className={statusInfo.step >= 1 ? 'text-gray-900 dark:text-white' : ''}>Received</span>
+                                        <span className={statusInfo.step >= 2 ? 'text-gray-900 dark:text-white' : ''}>Preparing</span>
+                                        <span className={statusInfo.step >= 3 ? 'text-gray-900 dark:text-white' : ''}>Completed</span>
                                     </div>
                                 </div>
 
