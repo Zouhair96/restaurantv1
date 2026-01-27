@@ -218,16 +218,16 @@ const Checkout = ({ isOpen, onClose, restaurantName, themeColor = '#f97316', lan
                                     whileTap={{ scale: 0.98 }}
                                     onClick={handleSubmit}
                                     disabled={loading || cartItems.length === 0}
-                                    className="w-full py-5 rounded-2xl text-gray-900 font-black flex items-center justify-center gap-3 shadow-lg relative overflow-hidden"
+                                    className="w-full py-4 rounded-2xl text-gray-900 font-black flex flex-col items-center justify-center shadow-lg relative overflow-hidden"
                                     style={{ backgroundColor: themeColor }}
                                 >
                                     {loading ? (
                                         <div className="w-6 h-6 border-4 border-gray-900 border-t-transparent rounded-full animate-spin" />
                                     ) : (
-                                        <>
-                                            <span>Checkout</span>
-                                            <HiArrowRight size={20} />
-                                        </>
+                                        <div className="flex flex-col items-center leading-tight">
+                                            <span className="text-xl">Checkout</span>
+                                            <span className="text-xs opacity-70 font-bold uppercase tracking-wider">(Paye au comptoir)</span>
+                                        </div>
                                     )}
                                 </motion.button>
                             </motion.div>
