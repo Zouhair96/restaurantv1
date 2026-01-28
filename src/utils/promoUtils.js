@@ -49,13 +49,14 @@ export const doesPromoApplyToItem = (promo, item) => {
     if (!isPromoActive(promo)) return false;
 
     const { scope } = promo;
+    const itemId = String(item.id);
 
     switch (scope.type) {
         case 'all':
             return true;
 
         case 'items':
-            return scope.itemIds.includes(item.id);
+            return scope.itemIds.some(id => String(id) === itemId);
 
         case 'categories':
             return scope.categories.includes(item.category) ||
@@ -171,7 +172,8 @@ export const getPromoFilteredItems = (promo, allItems) => {
             return allItems;
 
         case 'items':
-            return allItems.filter(item => scope.itemIds.includes(item.id));
+            const promoItemIds = scope.itemIds.map(String);
+            return allItems.filter(item => promoItemIds.includes(String(item.id)));
 
         case 'categories':
             return allItems.filter(item =>

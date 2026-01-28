@@ -319,11 +319,11 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                             <>
                                                 {promo.decorationImage && (
                                                     <motion.img
-                                                        initial={{ scale: 0.8, opacity: 0 }}
-                                                        animate={{ scale: 1, opacity: 0.9 }}
+                                                        initial={{ scale: 0.8, opacity: 0, x: promo.decorationPosition === 'left' ? -20 : 20 }}
+                                                        animate={{ scale: 1, opacity: 1, x: 0 }}
                                                         src={promo.decorationImage}
                                                         alt=""
-                                                        className={`absolute top-1/2 -translate-y-1/2 w-28 h-28 object-contain pointer-events-none ${promo.decorationPosition === 'left' ? 'left-4' : 'right-4'}`}
+                                                        className={`absolute top-0 h-full w-auto object-contain pointer-events-none z-10 ${promo.decorationPosition === 'left' ? 'left-0' : 'right-0'}`}
                                                     />
                                                 )}
                                             </>
@@ -475,14 +475,22 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
             />
 
             {/* Top Fixed Floating Badge */}
-            {getPromosByDisplayStyle(config.promotions || [], 'badge').length > 0 && (
-                <div className="fixed top-24 right-4 z-[55] pointer-events-none">
+            {getPromosByDisplayStyle(config.promotions || [], 'badge').length > 0 && !selectedPromoId && (
+                <div className="fixed top-6 right-6 z-[80] pointer-events-none">
                     <motion.button
                         initial={{ x: 100, opacity: 0, rotate: -10 }}
                         animate={{ x: 0, opacity: 1, rotate: 0 }}
                         whileHover={{ scale: 1.1, rotate: 5 }}
                         whileTap={{ scale: 0.9 }}
-                        onClick={() => setShowBadgePromos(true)}
+                        onClick={() => {
+                            const badgePromos = getPromosByDisplayStyle(config.promotions || [], 'badge');
+                            if (badgePromos.length === 1) {
+                                setSelectedPromoId(badgePromos[0].id);
+                                if (window.innerWidth < 768) setIsCartOpen(false); // Close cart if open on mobile
+                            } else {
+                                setShowBadgePromos(true);
+                            }
+                        }}
                         className="pointer-events-auto w-14 h-14 rounded-2xl bg-white shadow-2xl flex items-center justify-center border-2 border-theme relative group"
                         style={{ borderColor: config.themeColor }}
                     >

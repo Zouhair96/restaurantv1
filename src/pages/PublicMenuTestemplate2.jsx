@@ -193,11 +193,11 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
                                             <>
                                                 {promo.decorationImage && (
                                                     <motion.img
-                                                        initial={{ scale: 0.8, opacity: 0 }}
-                                                        animate={{ scale: 1, opacity: 0.9 }}
+                                                        initial={{ scale: 0.8, opacity: 0, x: promo.decorationPosition === 'left' ? -20 : 20 }}
+                                                        animate={{ scale: 1, opacity: 1, x: 0 }}
                                                         src={promo.decorationImage}
                                                         alt=""
-                                                        className={`absolute top-1/2 -translate-y-1/2 w-40 h-40 object-contain pointer-events-none ${promo.decorationPosition === 'left' ? 'left-4' : 'right-4'}`}
+                                                        className={`absolute top-0 h-full w-auto object-contain pointer-events-none z-10 ${promo.decorationPosition === 'left' ? 'left-0' : 'right-0'}`}
                                                     />
                                                 )}
                                             </>
@@ -315,13 +315,21 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
             {/* Floating Badge Promo Trigger */}
             {(() => {
                 const badgePromos = getPromosByDisplayStyle(config.promotions || [], 'badge');
-                if (badgePromos.length > 0) {
+                if (badgePromos.length > 0 && !selectedPromoId) {
                     return (
                         <motion.button
-                            onClick={() => setShowBadgePromos(true)}
-                            className="fixed bottom-28 right-8 z-40 bg-[#F97316] text-white p-4 rounded-full shadow-2xl flex items-center gap-2 font-black uppercase text-[10px] tracking-[0.2em]"
+                            onClick={() => {
+                                const badgePromos = getPromosByDisplayStyle(config.promotions || [], 'badge');
+                                if (badgePromos.length === 1) {
+                                    setSelectedPromoId(badgePromos[0].id);
+                                } else {
+                                    setShowBadgePromos(true);
+                                }
+                            }}
+                            className="fixed top-20 right-8 z-40 bg-[#F97316] text-white p-4 rounded-full shadow-2xl flex items-center gap-2 font-black uppercase text-[10px] tracking-[0.2em]"
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
+                            layoutId="floating-badge"
                         >
                             <HiTag className="w-5 h-5" />
                             <span>{badgePromos.length} Offers</span>

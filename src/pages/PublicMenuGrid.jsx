@@ -200,11 +200,11 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
                                             <>
                                                 {promo.decorationImage && (
                                                     <motion.img
-                                                        initial={{ scale: 0.8, opacity: 0 }}
-                                                        animate={{ scale: 1, opacity: 0.9 }}
+                                                        initial={{ scale: 0.8, opacity: 0, x: promo.decorationPosition === 'left' ? -20 : 20 }}
+                                                        animate={{ scale: 1, opacity: 1, x: 0 }}
                                                         src={promo.decorationImage}
                                                         alt=""
-                                                        className={`absolute top-1/2 -translate-y-1/2 w-24 h-24 object-contain pointer-events-none opacity-20 ${promo.decorationPosition === 'left' ? 'left-2' : 'right-2'}`}
+                                                        className={`absolute top-0 h-full w-auto object-contain pointer-events-none z-10 ${promo.decorationPosition === 'left' ? 'left-0' : 'right-0'}`}
                                                     />
                                                 )}
                                             </>
@@ -320,11 +320,18 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
             {/* Badge Promotions Trigger */}
             {(() => {
                 const badgePromos = getPromosByDisplayStyle(config.promotions || [], 'badge');
-                if (badgePromos.length > 0) {
+                if (badgePromos.length > 0 && !selectedPromoId) {
                     return (
                         <motion.button
-                            onClick={() => setShowBadgePromos(true)}
-                            className="fixed bottom-28 right-8 z-[60] w-16 h-16 bg-white rounded-2xl shadow-2xl border border-gray-100 flex flex-col items-center justify-center text-theme hover:scale-110 active:scale-90 transition-all"
+                            onClick={() => {
+                                const badgePromos = getPromosByDisplayStyle(config.promotions || [], 'badge');
+                                if (badgePromos.length === 1) {
+                                    setSelectedPromoId(badgePromos[0].id);
+                                } else {
+                                    setShowBadgePromos(true);
+                                }
+                            }}
+                            className="fixed top-6 right-8 z-[60] w-16 h-16 bg-white rounded-2xl shadow-2xl border border-gray-100 flex flex-col items-center justify-center text-theme hover:scale-110 active:scale-90 transition-all"
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
                         >

@@ -331,11 +331,11 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                                                 <>
                                                     {promo.decorationImage && (
                                                         <motion.img
-                                                            initial={{ scale: 0.8, opacity: 0 }}
-                                                            animate={{ scale: 1, opacity: 0.9 }}
+                                                            initial={{ scale: 0.8, opacity: 0, x: promo.decorationPosition === 'left' ? -20 : 20 }}
+                                                            animate={{ scale: 1, opacity: 1, x: 0 }}
                                                             src={promo.decorationImage}
                                                             alt=""
-                                                            className={`absolute top-1/2 -translate-y-1/2 w-28 h-28 object-contain pointer-events-none ${promo.decorationPosition === 'left' ? 'left-4' : 'right-4'}`}
+                                                            className={`absolute top-0 h-full w-auto object-contain pointer-events-none z-10 ${promo.decorationPosition === 'left' ? 'left-0' : 'right-0'}`}
                                                         />
                                                     )}
                                                 </>
@@ -381,11 +381,17 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                     {/* Floating Badge Promotions Button */}
                     {(() => {
                         const badgePromos = getPromosByDisplayStyle(config.promotions || [], 'badge');
-                        if (badgePromos.length > 0) {
+                        if (badgePromos.length > 0 && !selectedPromoId) {
                             return (
                                 <motion.button
-                                    onClick={() => setShowBadgePromos(true)}
-                                    className="fixed bottom-24 right-6 z-30 px-4 py-3 rounded-full shadow-2xl flex items-center gap-2 text-white font-bold"
+                                    onClick={() => {
+                                        if (badgePromos.length === 1) {
+                                            setSelectedPromoId(badgePromos[0].id);
+                                        } else {
+                                            setShowBadgePromos(true);
+                                        }
+                                    }}
+                                    className="fixed top-20 right-6 z-40 px-4 py-3 rounded-full shadow-2xl flex items-center gap-2 text-white font-bold"
                                     style={{ backgroundColor: config.themeColor }}
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
@@ -400,7 +406,6 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                         }
                         return null;
                     })()}
-
                     {/* Categories */}
                     <div className="px-6 mt-8 flex gap-6 overflow-x-auto no-scrollbar pb-2">
                         {categories.map((cat, index) => (
@@ -497,10 +502,10 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                         </motion.div>
                     </div>
                 </div>
-            </motion.div>
+            </motion.div >
 
             {/* --- SCROLL TO TOP BUTTON --- */}
-            <AnimatePresence>
+            < AnimatePresence >
                 {showScrollTop && (
                     <motion.button
                         initial={{ opacity: 0, y: 20 }}
@@ -513,10 +518,10 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                         <HiArrowLeft className="w-6 h-6 rotate-90" />
                     </motion.button>
                 )}
-            </AnimatePresence>
+            </AnimatePresence >
 
             {/* Screen 2: Details View (Overlay) */}
-            <AnimatePresence>
+            < AnimatePresence >
                 {selectedItem && (
                     <motion.div
                         drag="y"
@@ -639,7 +644,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                         </motion.div>
                     </motion.div>
                 )}
-            </AnimatePresence>
+            </AnimatePresence >
 
             <PublicMenuSidebar isOpen={showAuthSidebar} onClose={() => setShowAuthSidebar(false)} restaurantName={restaurantName} displayName={config.restaurantName} themeColor={config.themeColor} />
             <Checkout
@@ -652,13 +657,15 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
             />
 
             {/* Order Status Tracker */}
-            {activeOrder && !isTopTrackerHidden && (
-                <PersistentOrderTracker
-                    order={activeOrder}
-                    onClose={handleCloseTracker}
-                    themeColor={config.themeColor}
-                />
-            )}
+            {
+                activeOrder && !isTopTrackerHidden && (
+                    <PersistentOrderTracker
+                        order={activeOrder}
+                        onClose={handleCloseTracker}
+                        themeColor={config.themeColor}
+                    />
+                )
+            }
 
             {/* Floating Badge Promotions Modal */}
             <AnimatePresence>
