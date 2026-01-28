@@ -45,8 +45,8 @@ const ManageMenu = ({ isAdminView = false }) => {
         loadData();
     }, [isAdminView, templateKey]);
 
-    const loadData = async () => {
-        setIsLoading(true);
+    const loadData = async (silent = false) => {
+        if (!silent) setIsLoading(true);
         try {
             if (isAdminView) {
                 // Admin View: Fetch Base Template and its Items
@@ -267,7 +267,7 @@ const ManageMenu = ({ isAdminView = false }) => {
                 }
             }
             if (!configOverride) setIsSettingsModalOpen(false);
-            await loadData();
+            await loadData(configOverride !== null); // Use silent load if saving config from modal (like promos)
         } catch (error) {
             console.error('Failed to save settings:', error);
             alert('Error saving settings.');

@@ -152,7 +152,10 @@ const Checkout = ({
                         <>
                             {/* Body */}
                             <div className="flex-1 px-6 overflow-y-auto no-scrollbar pb-32">
-                                <h1 className="text-4xl font-black text-gray-900 mb-8 mt-4 tracking-tight" dangerouslySetInnerHTML={{ __html: t.myCart }} />
+                                <div className="text-center mt-6 mb-8">
+                                    <h1 className="text-3xl font-black text-gray-900 uppercase tracking-tight" dangerouslySetInnerHTML={{ __html: t.myCart }} />
+                                    <div className="h-1 w-12 bg-gray-900 mx-auto mt-2 rounded-full opacity-10" />
+                                </div>
 
                                 {cartItems.length === 0 ? (
                                     <motion.div
@@ -190,24 +193,22 @@ const Checkout = ({
                                                 </div>
 
                                                 {/* Vertical +/- Controls */}
-                                                <div className="flex flex-col items-center bg-gray-900 text-white rounded-2xl py-1 px-1 shadow-md">
+                                                <div className="flex flex-col items-center bg-gray-100 rounded-xl py-1 px-1 border border-gray-200">
                                                     <button
                                                         onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)}
-                                                        className="w-8 h-8 flex items-center justify-center hover:scale-125 transition-transform"
+                                                        className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-900 hover:bg-white rounded-lg transition-all"
                                                     >
-                                                        <span className="text-xl font-bold">+</span>
+                                                        <span className="text-lg font-bold">+</span>
                                                     </button>
-                                                    {item.quantity > 1 && (
-                                                        <>
-                                                            <div className="h-px w-4 bg-white/20 my-1" />
-                                                            <button
-                                                                onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
-                                                                className="w-8 h-8 flex items-center justify-center hover:scale-125 transition-transform"
-                                                            >
-                                                                <span className="text-xl font-bold">-</span>
-                                                            </button>
-                                                        </>
-                                                    )}
+                                                    <div className="h-4 flex items-center justify-center">
+                                                        <span className="text-[10px] font-black text-gray-900">{item.quantity}</span>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => updateQuantity(item.id, item.size, Math.max(0, item.quantity - 1))}
+                                                        className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-900 hover:bg-white rounded-lg transition-all"
+                                                    >
+                                                        <span className="text-lg font-bold">-</span>
+                                                    </button>
                                                 </div>
                                             </motion.div>
                                         ))}
