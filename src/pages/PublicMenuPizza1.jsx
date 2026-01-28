@@ -323,7 +323,9 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
 
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-3 bg-gray-100 rounded-full px-3 py-1.5 h-10">
-                            <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="w-5 h-5 flex items-center justify-center text-gray-400 hover-text-theme transition-colors active:scale-95"><HiMinus className="w-4 h-4" /></button>
+                            {quantity > 1 && (
+                                <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="w-5 h-5 flex items-center justify-center text-gray-400 hover-text-theme transition-colors active:scale-95"><HiMinus className="w-4 h-4" /></button>
+                            )}
                             <AnimatePresence mode="wait">
                                 <motion.span key={quantity} initial={{ y: 5, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -5, opacity: 0 }} className="w-4 text-center font-bold text-gray-900 text-sm">{quantity}</motion.span>
                             </AnimatePresence>
@@ -362,7 +364,9 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                             <div className="flex justify-between items-end">
                                                 <span className="font-bold text-theme text-sm" style={{ color: config.themeColor }}>${(parseFloat(item.price || 0) * item.quantity).toFixed(2)}</span>
                                                 <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-2 py-1">
-                                                    <button onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)} className="text-gray-400 hover:text-gray-900"><HiMinus className="w-3 h-3" /></button>
+                                                    {item.quantity > 1 && (
+                                                        <button onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)} className="text-gray-400 hover:text-gray-900"><HiMinus className="w-3 h-3" /></button>
+                                                    )}
                                                     <span className="text-xs font-bold text-gray-900 w-3 text-center">{item.quantity}</span>
                                                     <button onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)} className="text-gray-400 hover:text-gray-900"><HiPlus className="w-3 h-3" /></button>
                                                 </div>

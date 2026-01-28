@@ -395,9 +395,11 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
 
                             <div className="flex items-center gap-6 mt-auto">
                                 <div className="flex items-center gap-4 bg-gray-100 rounded-2xl px-4 py-3">
-                                    <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="p-1 hover:text-red-500 transition-colors">
-                                        <HiMinus className="w-5 h-5" />
-                                    </button>
+                                    {quantity > 1 && (
+                                        <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="p-1 hover:text-red-500 transition-colors">
+                                            <HiMinus className="w-5 h-5" />
+                                        </button>
+                                    )}
                                     <span className="font-black text-lg w-6 text-center">{quantity}</span>
                                     <button onClick={() => setQuantity(quantity + 1)} className="p-1 hover:text-green-500 transition-colors">
                                         <HiPlus className="w-5 h-5" />

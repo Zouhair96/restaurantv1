@@ -197,13 +197,17 @@ const Checkout = ({
                                                     >
                                                         <span className="text-xl font-bold">+</span>
                                                     </button>
-                                                    <div className="h-px w-4 bg-white/20 my-1" />
-                                                    <button
-                                                        onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
-                                                        className="w-8 h-8 flex items-center justify-center hover:scale-125 transition-transform"
-                                                    >
-                                                        <span className="text-xl font-bold">-</span>
-                                                    </button>
+                                                    {item.quantity > 1 && (
+                                                        <>
+                                                            <div className="h-px w-4 bg-white/20 my-1" />
+                                                            <button
+                                                                onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
+                                                                className="w-8 h-8 flex items-center justify-center hover:scale-125 transition-transform"
+                                                            >
+                                                                <span className="text-xl font-bold">-</span>
+                                                            </button>
+                                                        </>
+                                                    )}
                                                 </div>
                                             </motion.div>
                                         ))}
@@ -251,18 +255,18 @@ const Checkout = ({
                                     whileTap={{ scale: 0.98 }}
                                     onClick={handleSubmit}
                                     disabled={loading}
-                                    className="w-full py-4 rounded-2xl text-gray-900 font-black flex flex-col items-center justify-center relative overflow-hidden transition-all active:scale-[0.98]"
+                                    className="w-full py-4 rounded-2xl text-white font-black flex flex-col items-center justify-center relative overflow-hidden transition-all active:scale-[0.98]"
                                     style={{
                                         backgroundColor: themeColor,
                                         boxShadow: `0 12px 32px -8px ${themeColor}88`
                                     }}
                                 >
                                     {loading ? (
-                                        <div className="w-6 h-6 border-4 border-gray-900 border-t-transparent rounded-full animate-spin" />
+                                        <div className="w-6 h-6 border-4 border-white border-t-transparent rounded-full animate-spin" />
                                     ) : (
                                         <div className="flex flex-col items-center leading-tight">
                                             <span className="text-xl uppercase tracking-tighter">{t.confirm}</span>
-                                            <span className="text-xs opacity-70 font-bold uppercase tracking-wider">({t.cash})</span>
+                                            <span className="text-[10px] opacity-80 font-bold uppercase tracking-widest">{t.confirmSub}</span>
                                         </div>
                                     )}
                                 </motion.button>

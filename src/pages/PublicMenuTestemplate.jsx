@@ -601,7 +601,9 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                                     })()}
                                 </div>
                                 <div className="flex items-center bg-theme rounded-full px-1 py-1" style={{ backgroundColor: config.themeColor }}>
-                                    <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-8 h-8 flex items-center justify-center text-white"><HiMinus /></button>
+                                    {quantity > 1 && (
+                                        <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-8 h-8 flex items-center justify-center text-white"><HiMinus /></button>
+                                    )}
                                     <span className="w-6 text-center font-bold text-white">{quantity}</span>
                                     <button onClick={() => setQuantity(quantity + 1)} className="w-8 h-8 flex items-center justify-center text-white"><HiPlus /></button>
                                 </div>

@@ -247,7 +247,9 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
 
                             <div className="flex items-center justify-between pt-6 border-t border-gray-100">
                                 <div className="flex items-center gap-4 bg-gray-100 rounded-2xl p-2 px-4">
-                                    <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="p-2 hover:text-theme transition-colors"><HiMinus className="w-5 h-5" /></button>
+                                    {quantity > 1 && (
+                                        <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="p-2 hover:text-theme transition-colors"><HiMinus className="w-5 h-5" /></button>
+                                    )}
                                     <span className="w-8 text-center font-black text-lg">{quantity}</span>
                                     <button onClick={() => setQuantity(q => q + 1)} className="p-2 hover:text-theme transition-colors"><HiPlus className="w-5 h-5" /></button>
                                 </div>

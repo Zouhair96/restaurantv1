@@ -73,12 +73,14 @@ const Cart = ({ onCheckout }) => {
 
                                     {/* Quantity Controls */}
                                     <div className="flex items-center gap-2 mt-2">
-                                        <button
-                                            onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
-                                            className="w-7 h-7 flex items-center justify-center rounded-md bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                                        >
-                                            <HiMinus size={14} />
-                                        </button>
+                                        {item.quantity > 1 && (
+                                            <button
+                                                onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
+                                                className="w-7 h-7 flex items-center justify-center rounded-md bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                                            >
+                                                <HiMinus size={14} />
+                                            </button>
+                                        )}
                                         <span className="w-8 text-center font-bold text-gray-900 dark:text-white">
                                             {item.quantity}
                                         </span>
