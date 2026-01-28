@@ -39,7 +39,8 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
         restaurantName: 'Pizza Time',
         themeColor: '#f97316',
         logoImage: null,
-        useLogo: false
+        useLogo: false,
+        socialMedia: {}
     });
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -87,7 +88,8 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                         setMenuItems(data.menu.config.items || []);
                         setConfig({
                             ...data.menu.config,
-                            restaurantName: data.menu.config.restaurantName || data.restaurant || restaurantName
+                            restaurantName: data.menu.config.restaurantName || data.restaurant || restaurantName,
+                            socialMedia: data.menu.social_media || data.menu.config.socialMedia || {}
                         });
                     }
                 }
@@ -209,7 +211,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                         initial="hidden"
                         animate="visible"
                         variants={{ visible: { transition: { staggerChildren: 0.05 } } }}
-                        className="space-y-6 w-full px-3 flex flex-col items-center pb-20"
+                        className="space-y-6 w-full px-3 flex flex-col items-center pb-20 pt-32"
                     >
                         {activePromo && (
                             <motion.button
@@ -256,15 +258,21 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                 {/* Left Mini Footer Social Icons */}
                 <div className="w-full p-4 flex flex-col items-center gap-4 bg-white/50 backdrop-blur-md border-t border-gray-100/50">
                     {[
-                        { Icon: FaInstagram, label: 'Instagram' },
-                        { Icon: FaFacebookF, label: 'Facebook' },
-                        { Icon: FaTiktok, label: 'TikTok' },
-                        { Icon: FaSnapchatGhost, label: 'Snapchat' },
-                        { Icon: FaGoogle, label: 'Google Reviews' }
-                    ].map((social, idx) => (
+                        { key: 'instagram', Icon: FaInstagram, label: 'Instagram' },
+                        { key: 'facebook', Icon: FaFacebookF, label: 'Facebook' },
+                        { key: 'tiktok', Icon: FaTiktok, label: 'TikTok' },
+                        { key: 'snapchat', Icon: FaSnapchatGhost, label: 'Snapchat' },
+                        { key: 'google', Icon: FaGoogle, label: 'Google Reviews' }
+                    ].filter(social => {
+                        // Show all if no config (backward compatibility)
+                        if (!config.socialMedia || Object.keys(config.socialMedia).length === 0) return true;
+                        return config.socialMedia[social.key]?.show;
+                    }).map((social, idx) => (
                         <motion.a
                             key={idx}
-                            href="#"
+                            href={config.socialMedia?.[social.key]?.url || "#"}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             whileHover={{ scale: 1.2, x: 4 }}
                             whileTap={{ scale: 0.9 }}
                             className="text-gray-400 hover:text-gray-900 transition-colors"
@@ -296,7 +304,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
 
                     {/* Promotion Banner */}
                     {config.promotions && getPromosByDisplayStyle(config.promotions, 'banner').length > 0 && !selectedPromoId && (
-                        <div className="mb-6 relative z-30 flex justify-center w-full">
+                        <div className="mx-[-20px] mb-6 relative z-30 flex justify-center w-[calc(100%+40px)]">
                             <div className="relative w-full max-w-7xl h-28 md:h-48 lg:h-64 rounded-[2rem] overflow-hidden shadow-xl shadow-gray-200/50 group border border-gray-100 bg-gray-900">
                                 <AnimatePresence mode="wait">
                                     {getPromosByDisplayStyle(config.promotions, 'banner').map((promo, idx) => idx === currentBannerIndex && (
@@ -573,7 +581,14 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                 </div>
             </div>
 
-            <PublicMenuSidebar isOpen={showAuthSidebar} onClose={() => setShowAuthSidebar(false)} restaurantName={restaurantName} displayName={config.restaurantName} themeColor={config.themeColor} />
+            <PublicMenuSidebar
+                isOpen={showAuthSidebar}
+                onClose={() => setShowAuthSidebar(false)}
+                restaurantName={restaurantName}
+                displayName={config.restaurantName}
+                themeColor={config.themeColor}
+                socialMedia={config.socialMedia}
+            />
             <Checkout
                 isOpen={isCheckoutOpen}
                 onClose={() => setIsCheckoutOpen(false)}
