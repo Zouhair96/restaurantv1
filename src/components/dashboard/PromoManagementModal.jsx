@@ -126,7 +126,7 @@ const PromoManagementModal = ({
 
     const isMediaVideo = (url) => {
         if (!url) return false;
-        return url.match(/\.(mp4|webm|ogg|mov|data:video)/i);
+        return url.startsWith('data:video/') || url.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i);
     };
 
     const toggleDayOfWeek = (day) => {
@@ -405,7 +405,7 @@ const PromoManagementModal = ({
                                         <div className="flex gap-2">
                                             {[
                                                 { id: 'color', label: '🎨 Color' },
-                                                { id: 'image', label: '🖼️ Image' }
+                                                { id: 'image', label: '🎬 Media' }
                                             ].map((type) => (
                                                 <button
                                                     key={type.id}
@@ -441,7 +441,7 @@ const PromoManagementModal = ({
                                                 ) : (
                                                     <HiPhoto className="w-10 h-10 mb-2 opacity-30" />
                                                 )}
-                                                <span className="text-xs font-black uppercase tracking-widest relative z-10">Upload Background</span>
+                                                <span className="text-xs font-black uppercase tracking-widest relative z-10">Upload Image/Video</span>
                                                 <input type="file" id="promo-image-upload" className="hidden" accept="image/*,video/*" onChange={(e) => handleFileUpload(e.target.files[0], 'promoImage')} />
                                             </div>
                                         </div>

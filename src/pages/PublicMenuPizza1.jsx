@@ -147,7 +147,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
     // Helper to detect video files
     const isMediaVideo = (url) => {
         if (!url) return false;
-        return url.match(/\.(mp4|webm|ogg|mov)$/i);
+        return url.startsWith('data:video/') || url.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i);
     };
 
     const filteredMenuItems = menuItems.filter(item => {
