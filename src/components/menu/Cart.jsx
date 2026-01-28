@@ -3,12 +3,14 @@ import { HiXMark, HiPlus, HiMinus, HiShoppingCart, HiTrash } from 'react-icons/h
 import { useCart } from '../../context/CartContext';
 import { calculateOrderDiscount } from '../../utils/promoUtils';
 
-const Cart = ({ onCheckout, promotions = [] }) => {
+const Cart = ({ onCheckout, promotions = [], taxConfig = { applyTax: false, taxPercentage: 0 } }) => {
     const { cartItems, isCartOpen, toggleCart, updateQuantity, removeFromCart, getCartTotal, getCartCount } = useCart();
 
     const subtotal = getCartTotal();
     const { discount: orderDiscount, promo: orderPromo } = calculateOrderDiscount(promotions, subtotal);
-    const total = subtotal - orderDiscount;
+    const discountedTotal = Math.max(0, subtotal - orderDiscount);
+    const taxAmount = taxConfig.applyTax ? (discountedTotal * (taxConfig.taxPercentage / 100)) : 0;
+    const total = discountedTotal + taxAmount;
 
     return (
         <>
@@ -127,6 +129,13 @@ const Cart = ({ onCheckout, promotions = [] }) => {
                                         <span className="text-[9px] opacity-60">Offre appliquée</span>
                                     </div>
                                     <span>-{orderDiscount.toFixed(2)}€</span>
+                                </div>
+                            )}
+
+                            {taxConfig.applyTax && (
+                                <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 font-bold italic">
+                                    <span>Taxes ({taxConfig.taxPercentage}%)</span>
+                                    <span>{taxAmount.toFixed(2)}€</span>
                                 </div>
                             )}
 

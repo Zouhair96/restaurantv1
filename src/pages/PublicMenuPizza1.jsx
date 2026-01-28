@@ -539,10 +539,16 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                             <span>-${orderDiscount.toFixed(2)}</span>
                                         </div>
                                     )}
+                                    {config.applyTax && (
+                                        <div className="flex justify-between mb-2 text-sm text-gray-500 italic">
+                                            <span>{t('auth.checkout.taxes')} ({config.taxPercentage}%)</span>
+                                            <span>${(Math.max(0, subtotal - orderDiscount) * (config.taxPercentage / 100)).toFixed(2)}</span>
+                                        </div>
+                                    )}
                                     <div className="flex justify-between mb-6">
                                         <span className="text-gray-900 font-bold text-lg">{t('auth.checkout.total')}</span>
-                                        <span className="font-black text-2xl text-gray-900" style={{ color: total < subtotal ? config.themeColor : '#111827' }}>
-                                            ${total.toFixed(2)}
+                                        <span className="font-black text-2xl text-gray-900" style={{ color: (subtotal - orderDiscount + (Math.max(0, subtotal - orderDiscount) * (config.applyTax ? config.taxPercentage / 100 : 0))) < subtotal ? config.themeColor : '#111827' }}>
+                                            ${(Math.max(0, subtotal - orderDiscount) + (Math.max(0, subtotal - orderDiscount) * (config.applyTax ? config.taxPercentage / 100 : 0))).toFixed(2)}
                                         </span>
                                     </div>
                                 </>
