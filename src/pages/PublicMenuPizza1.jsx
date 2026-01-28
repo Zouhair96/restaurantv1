@@ -143,13 +143,22 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
     };
 
     const activePromo = selectedPromoId ? (config.promotions || []).find(p => p.id === selectedPromoId) : null;
-    const filteredMenuItems = activePromo ? getPromoFilteredItems(activePromo, menuItems) : menuItems.filter(item => item && (activeCategory === 'All' || item.category === activeCategory));
+    const filteredMenuItems = menuItems.filter(item => {
+        if (!item) return false;
 
-    useEffect(() => {
-        if (activePromo && filteredMenuItems.length > 0) {
-            handleItemSelect(filteredMenuItems[0]);
+        // Category filter
+        const categoryMatch = activeCategory === 'All' || item.category === activeCategory;
+
+        // Promotion filter
+        let promoMatch = true;
+        if (activePromo) {
+            promoMatch = getPromoFilteredItems(activePromo, menuItems).some(promoItem => String(promoItem.id) === String(item.id));
         }
-    }, [selectedPromoId]);
+
+        return categoryMatch && promoMatch;
+    });
+
+    // Removed auto-item select on promo change as requested by user
 
     if (!selectedItem) {
         if (isLoading) return <div className="min-h-screen flex items-center justify-center text-green-500">{t('auth.menu.loading')}</div>;
@@ -205,7 +214,13 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                 <HiArrowUturnLeft className="w-6 h-6" />
                             </motion.button>
                         )}
-                        {filteredMenuItems.map((item) => (
+                        {filteredMenuItems.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
+                                <span className="text-4xl mb-4">😕</span>
+                                <p className="text-gray-400 font-bold text-sm uppercase tracking-widest">{t('auth.noOrders') || 'Sorry, nothing in promo here, soon'}</p>
+                                <p className="text-[10px] text-gray-400 mt-2 opacity-60">Try selecting "All" or another category</p>
+                            </div>
+                        ) : filteredMenuItems.map((item) => (
                             <motion.button
                                 key={item.id}
                                 variants={{ hidden: { opacity: 0, x: -20 }, visible: { opacity: 1, x: 0 } }}
@@ -215,14 +230,14 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                 className="relative group w-full flex flex-col items-center justify-center transition-all duration-300"
                             >
                                 <div
-                                    className={`w-16 h-16 md:w-20 md:h-20 flex items-center justify-center transition-all duration-300 ${selectedItem.id === item.id ? 'rounded-[1.8rem] p-1.5' : 'rounded-full p-0 scale-90 opacity-70 hover:opacity-100 hover:scale-100'}`}
-                                    style={selectedItem.id === item.id ? { backgroundColor: `${config.themeColor}20`, color: config.themeColor } : {}}
+                                    className={`w-16 h-16 md:w-20 md:h-20 flex items-center justify-center transition-all duration-300 ${selectedItem?.id === item.id ? 'rounded-[1.8rem] p-1.5' : 'rounded-full p-0 scale-90 opacity-70 hover:opacity-100 hover:scale-100'}`}
+                                    style={selectedItem?.id === item.id ? { backgroundColor: `${config.themeColor}20`, color: config.themeColor } : {}}
                                 >
                                     <img
                                         src={item.image}
                                         alt={localize(item, 'name')}
                                         className="w-full h-full object-cover rounded-full shadow-md"
-                                        style={selectedItem.id === item.id ? { boxShadow: `0 4px 14px 0 ${config.themeColor}40` } : {}}
+                                        style={selectedItem?.id === item.id ? { boxShadow: `0 4px 14px 0 ${config.themeColor}40` } : {}}
                                     />
                                 </div>
                             </motion.button>
@@ -313,7 +328,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                         {promo.backgroundType === 'image' ? (
                                             <>
                                                 <img src={promo.promoImage} alt="" className="w-full h-full object-cover" />
-                                                <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent" />
+                                                <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/20 to-transparent" />
                                             </>
                                         ) : (
                                             <>
@@ -329,7 +344,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                             </>
                                         )}
 
-                                        <div className="relative h-full px-8 flex flex-col justify-center text-white z-20">
+                                        <div className={`relative h-full px-8 flex flex-col justify-center text-white z-20 ${promo.decorationPosition === 'left' ? 'items-end text-right' : 'items-start text-left'}`}>
                                             <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
                                                 <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 mb-1 block">Special Offer</span>
                                                 <h3 className="text-xl md:text-2xl font-black uppercase tracking-tight leading-none mb-1">{promo.name}</h3>

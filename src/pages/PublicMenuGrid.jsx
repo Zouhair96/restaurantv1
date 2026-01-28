@@ -104,18 +104,22 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
 
     const activePromo = selectedPromoId ? (config.promotions || []).find(p => p.id === selectedPromoId) : null;
     const categories = ['All', ...new Set(menuItems.map(item => localize(item, 'category')))];
-    const filteredItems = activePromo
-        ? getPromoFilteredItems(activePromo, menuItems)
-        : activeCategory === 'All'
-            ? menuItems
-            : menuItems.filter(item => localize(item, 'category') === activeCategory);
+    const filteredMenuItems = menuItems.filter(item => {
+        if (!item) return false;
 
-    useEffect(() => {
-        if (activePromo && filteredItems.length > 0) {
-            setSelectedItem(filteredItems[0]);
-            setQuantity(1);
+        // Category filter
+        const categoryMatch = activeCategory === 'All' || localize(item, 'category') === activeCategory;
+
+        // Promotion filter
+        let promoMatch = true;
+        if (activePromo) {
+            promoMatch = getPromoFilteredItems(activePromo, menuItems).some(promoItem => String(promoItem.id) === String(item.id));
         }
-    }, [selectedPromoId]);
+
+        return categoryMatch && promoMatch;
+    });
+
+    // Removed auto-item select on promo change as requested by user
 
     if (isLoading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent"></div></div>;
 
@@ -138,7 +142,7 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
             {/* Left Sidebar / Thumbnail List */}
             <div className="relative shrink-0 z-40 bg-white/90 backdrop-blur-md w-24 md:w-32 lg:w-40 h-full flex flex-col items-center py-6 overflow-y-auto scroll-smooth no-scrollbar shadow-xl transition-all duration-300">
                 <div className="flex flex-col gap-4 w-full px-3">
-                    {filteredItems.map((item) => (
+                    {filteredMenuItems.map((item) => (
                         <button
                             key={item.id}
                             onClick={() => { setSelectedItem(item); setQuantity(1); }}
@@ -194,7 +198,7 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
                                         {promo.backgroundType === 'image' ? (
                                             <>
                                                 <img src={promo.promoImage} alt="" className="w-full h-full object-cover" />
-                                                <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent" />
+                                                <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/20 to-transparent" />
                                             </>
                                         ) : (
                                             <>
@@ -210,7 +214,7 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
                                             </>
                                         )}
 
-                                        <div className="relative h-full px-6 flex flex-col justify-center text-white z-20">
+                                        <div className={`relative h-full px-6 flex flex-col justify-center text-white z-20 ${promo.decorationPosition === 'left' ? 'items-end text-right' : 'items-start text-left'}`}>
                                             <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
                                                 <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 mb-1 block">Special Offer</span>
                                                 <h3 className="text-lg font-black uppercase tracking-tight leading-none mb-1">{promo.name}</h3>
@@ -404,7 +408,7 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
                                         </div>
                                     ))}
                                 </div>
-                                <button onClick={() => setShowBadgePromos(false)} className="w-full mt-6 py-4 bg-theme text-white font-black rounded-2xl shadow-xl uppercase tracking-widest text-[10px]">Got it!</button>
+                                <button onClick={() => setShowBadgePromos(false)} className="w-full mt-6 py-4 bg-theme text-white font-black rounded-2xl shadow-xl uppercase tracking-widest text-[10px]" style={{ backgroundColor: config.themeColor }}>Got it!</button>
                             </div>
                         </motion.div>
                     </div>

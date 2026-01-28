@@ -105,15 +105,22 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
 
     const activePromo = selectedPromoId ? (config.promotions || []).find(p => p.id === selectedPromoId) : null;
     const categories = ['All', ...new Set(menuItems.map(i => localize(i, 'category')).filter(Boolean))];
-    const filteredItems = activePromo
-        ? getPromoFilteredItems(activePromo, menuItems)
-        : menuItems.filter(item => activeCategory === 'All' || localize(item, 'category') === activeCategory);
+    const filteredItems = menuItems.filter(item => {
+        if (!item) return false;
 
-    useEffect(() => {
-        if (activePromo && filteredItems.length > 0) {
-            handleItemClick(filteredItems[0]);
+        // Category filter
+        const categoryMatch = activeCategory === 'All' || localize(item, 'category') === activeCategory;
+
+        // Promotion filter
+        let promoMatch = true;
+        if (activePromo) {
+            promoMatch = getPromoFilteredItems(activePromo, menuItems).some(promoItem => String(promoItem.id) === String(item.id));
         }
-    }, [selectedPromoId]);
+
+        return categoryMatch && promoMatch;
+    });
+
+    // Removed auto-item select on promo change as requested by user
 
     // Handlers
     const handleItemClick = (item) => {
@@ -187,7 +194,7 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
                                         {promo.backgroundType === 'image' ? (
                                             <>
                                                 <img src={promo.promoImage} alt="" className="w-full h-full object-cover" />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
                                             </>
                                         ) : (
                                             <>
@@ -203,9 +210,9 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
                                             </>
                                         )}
 
-                                        <div className="relative h-full p-8 flex flex-col justify-end text-white z-20">
+                                        <div className={`relative h-full p-8 flex flex-col justify-end text-white z-20 ${promo.decorationPosition === 'left' ? 'items-end text-right' : 'items-start text-left'}`}>
                                             <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
-                                                <div className="p-1 px-3 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-black w-fit mb-2 uppercase tracking-[0.2em]">Promotion</div>
+                                                <div className="p-1 px-3 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-black w-fit mb-2 uppercase tracking-[0.2em] opacity-80 ${promo.decorationPosition === 'left' ? 'ml-auto' : ''}">Promotion</div>
                                                 <h3 className="text-2xl font-black uppercase tracking-tight leading-none mb-1">{promo.name}</h3>
                                                 <p className="text-sm font-bold opacity-80 italic">{promo.promoText}</p>
                                             </motion.div>
@@ -263,7 +270,15 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
 
                 {/* Products Grid */}
                 <div className="grid grid-cols-2 gap-6">
-                    {filteredItems.map((item) => {
+                    {filteredItems.length === 0 ? (
+                        <div className="col-span-2 flex flex-col items-center justify-center py-20 text-center bg-white/5 rounded-[2.5rem] border border-white/5">
+                            <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-6">
+                                <HiTag className="w-10 h-10 text-white/20" />
+                            </div>
+                            <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-2">Sorry, nothing in promo here, soon</h3>
+                            <p className="text-sm text-white/40 font-bold max-w-[240px] mx-auto uppercase tracking-widest leading-relaxed">We couldn't find any items matching your selected category and active offers.</p>
+                        </div>
+                    ) : filteredItems.map((item) => {
                         const { finalPrice, discount, originalPrice, promo } = getDiscountedPrice(config.promotions || [], item);
                         const hasDiscount = discount > 0;
 
