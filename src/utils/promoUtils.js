@@ -6,16 +6,17 @@
 export const isPromoActive = (promo) => {
     if (!promo.isActive) return false;
 
+    // If "Always Active" is checked, ignore all other schedule constraints
+    if (promo.schedule.alwaysActive) return true;
+
     const now = new Date();
 
-    // Check date range if not always active
-    if (!promo.schedule.alwaysActive) {
-        if (promo.schedule.startDate && new Date(promo.schedule.startDate) > now) {
-            return false;
-        }
-        if (promo.schedule.endDate && new Date(promo.schedule.endDate) < now) {
-            return false;
-        }
+    // Check date range
+    if (promo.schedule.startDate && new Date(promo.schedule.startDate) > now) {
+        return false;
+    }
+    if (promo.schedule.endDate && new Date(promo.schedule.endDate) < now) {
+        return false;
     }
 
     // Check recurring schedule
