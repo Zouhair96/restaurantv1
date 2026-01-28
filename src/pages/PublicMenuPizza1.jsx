@@ -189,7 +189,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
             `}</style>
 
             {/* Left Sidebar / Thumbnail List */}
-            <div className="relative shrink-0 z-40 bg-white/50 backdrop-blur-sm w-28 md:w-36 lg:w-44 h-full flex flex-col items-center">
+            <div className="relative shrink-0 z-40 bg-white/50 backdrop-blur-sm w-20 md:w-36 lg:w-44 h-full flex flex-col items-center">
                 <div className="flex-1 w-full overflow-y-auto scroll-smooth no-scrollbar py-6 flex flex-col items-center">
                     <button
                         onClick={() => setShowAuthSidebar(true)}
@@ -234,14 +234,14 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                 className="relative group w-full flex flex-col items-center justify-center transition-all duration-300"
                             >
                                 <div
-                                    className={`w-20 h-20 md:w-28 md:h-28 lg:w-36 lg:h-36 flex items-center justify-center transition-all duration-300 ${selectedItem?.id === item.id ? 'rounded-[2rem] p-4' : 'rounded-full p-0 scale-90 opacity-70 hover:opacity-100 hover:scale-100'}`}
+                                    className={`w-14 h-14 md:w-28 md:h-28 lg:w-36 lg:h-36 flex items-center justify-center transition-all duration-300 ${selectedItem?.id === item.id ? 'rounded-[1.2rem] md:rounded-[2rem] p-2 md:p-4' : 'rounded-full p-0 scale-90 opacity-70 hover:opacity-100 hover:scale-100'}`}
                                     style={selectedItem?.id === item.id ? { backgroundColor: `${config.themeColor}15`, color: config.themeColor } : {}}
                                 >
                                     <img
                                         src={item.image}
                                         alt={localize(item, 'name')}
                                         className="w-full h-full object-cover rounded-full shadow-md"
-                                        style={selectedItem?.id === item.id ? { boxShadow: `0 12px 30px -10px ${config.themeColor}50` } : {}}
+                                        style={selectedItem?.id === item.id ? { boxShadow: `0 8px 20px -5px ${config.themeColor}50` } : {}}
                                     />
                                 </div>
                             </motion.button>
@@ -394,8 +394,8 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                 </div>
 
                 {/* Hero Image & Animation Container */}
-                <div className="flex-1 flex items-center justify-end p-2 relative min-h-[220px] overflow-hidden">
-                    <div className="w-[120vw] h-[120vw] sm:w-[100vw] sm:h-[100vw] md:w-[80vw] md:h-[80vw] relative z-10 aspect-square shrink-0 translate-x-[40%]">
+                <div className="flex-1 flex items-center justify-end p-2 relative min-h-[180px] md:min-h-[220px] overflow-hidden">
+                    <div className="w-[100vw] h-[100vw] sm:w-[80vw] sm:h-[80vw] md:w-[80vw] md:h-[80vw] relative z-10 aspect-square shrink-0 translate-x-[35%] md:translate-x-[40%]">
                         <AnimatePresence mode="popLayout">
                             <motion.div
                                 key={selectedItem.id}
@@ -430,12 +430,12 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                 <div className="px-8 py-4 max-w-lg">
                     <div className="flex justify-between items-start mb-1">
                         <div className="flex-1">
-                            <h2 className="text-4xl md:text-5xl font-black text-gray-900 leading-[1.1] mb-2 uppercase tracking-tight">
+                            <h2 className="text-2xl md:text-5xl font-black text-gray-900 leading-[1.1] mb-1 md:mb-2 uppercase tracking-tight">
                                 {localize(selectedItem, 'name')}
                             </h2>
                             <div className="flex items-center gap-2 text-gray-300">
-                                <HiBars3 className="w-5 h-4 opacity-50" />
-                                <span className="text-[11px] font-bold uppercase tracking-[0.2em] opacity-40">ingredients</span>
+                                <HiBars3 className="w-4 h-3 md:w-5 md:h-4 opacity-50" />
+                                <span className="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.2em] opacity-40">ingredients</span>
                             </div>
                         </div>
                         <motion.button
@@ -447,13 +447,13 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                         </motion.button>
                     </div>
 
-                    <div className="flex items-center gap-8 mt-8">
+                    <div className="flex items-center gap-4 md:gap-8 mt-4 md:mt-8">
                         <div className="flex items-baseline gap-1">
-                            <span className="text-2xl font-black" style={{ color: config.themeColor }}>$</span>
+                            <span className="text-xl md:text-2xl font-black" style={{ color: config.themeColor }}>$</span>
                             {(() => {
                                 const { finalPrice } = getDiscountedPrice(config.promotions || [], selectedItem);
                                 return (
-                                    <span className="text-5xl font-black text-gray-900 tracking-tighter">
+                                    <span className="text-3xl md:text-5xl font-black text-gray-900 tracking-tighter">
                                         {parseFloat(finalPrice).toFixed(2)}
                                     </span>
                                 );
@@ -464,12 +464,12 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={handleAddToCart}
-                            className="h-14 px-8 rounded-full border-2 transition-all flex items-center gap-4 bg-white hover:shadow-lg"
+                            className="h-12 md:h-14 px-6 md:px-8 rounded-full border-2 transition-all flex items-center gap-3 md:gap-4 bg-white hover:shadow-lg"
                             style={{ borderColor: config.themeColor, color: config.themeColor }}
                         >
-                            <span className="font-black text-base uppercase tracking-wider">Add to</span>
+                            <span className="font-black text-sm md:text-base uppercase tracking-wider">Add to</span>
                             <div className="p-1 rounded-md">
-                                <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                     <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 0 1-8 0" />
                                 </svg>
                             </div>
