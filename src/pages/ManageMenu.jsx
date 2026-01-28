@@ -767,7 +767,7 @@ const ManageMenu = ({ isAdminView = false }) => {
                         </div>
                         <div className="p-8 border-t border-gray-100 dark:border-white/5 flex gap-3">
                             <button onClick={() => setIsSettingsModalOpen(false)} className="flex-1 py-4 font-bold text-gray-500">Cancel</button>
-                            <button onClick={handleSaveSettings} className="flex-2 py-4 px-8 text-white font-bold rounded-2xl" style={{ backgroundColor: menuConfig.themeColor }}>Save Changes</button>
+                            <button onClick={() => handleSaveSettings(null)} className="flex-2 py-4 px-8 text-white font-bold rounded-2xl" style={{ backgroundColor: menuConfig.themeColor }}>Save Changes</button>
                         </div>
                     </div>
                 </div>
