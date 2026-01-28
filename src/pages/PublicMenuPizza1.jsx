@@ -193,7 +193,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
             `}</style>
 
             {/* Left Sidebar / Thumbnail List */}
-            <div className="relative shrink-0 z-40 bg-white/50 backdrop-blur-sm w-24 md:w-36 lg:w-44 h-full flex flex-col items-center">
+            <div className="relative shrink-0 z-40 bg-white/50 backdrop-blur-sm w-32 md:w-48 lg:w-56 h-full flex flex-col items-center">
                 <div className="flex-1 w-full overflow-y-auto scroll-smooth no-scrollbar py-6 flex flex-col items-center">
                     <button
                         onClick={() => setShowAuthSidebar(true)}
@@ -238,14 +238,14 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                 className="relative group w-full flex flex-col items-center justify-center transition-all duration-300"
                             >
                                 <div
-                                    className={`w-18 h-18 md:w-28 md:h-28 lg:w-36 lg:h-36 flex items-center justify-center transition-all duration-300 ${selectedItem?.id === item.id ? 'rounded-[1.5rem] md:rounded-[2rem] p-3 md:p-4' : 'rounded-full p-0 scale-90 opacity-70 hover:opacity-100 hover:scale-100'}`}
+                                    className={`w-24 h-24 md:w-36 md:h-36 lg:w-44 lg:h-44 flex items-center justify-center transition-all duration-300 ${selectedItem?.id === item.id ? 'rounded-[2rem] md:rounded-[3rem] p-4 md:p-6' : 'rounded-full p-0 scale-90 opacity-70 hover:opacity-100 hover:scale-100'}`}
                                     style={selectedItem?.id === item.id ? { backgroundColor: `${config.themeColor}15`, color: config.themeColor } : {}}
                                 >
                                     <img
                                         src={item.image}
                                         alt={localize(item, 'name')}
-                                        className="w-full h-full object-cover rounded-full shadow-md"
-                                        style={selectedItem?.id === item.id ? { boxShadow: `0 10px 25px -5px ${config.themeColor}50` } : {}}
+                                        className="w-full h-full object-cover rounded-full shadow-lg"
+                                        style={selectedItem?.id === item.id ? { boxShadow: `0 15px 35px -10px ${config.themeColor}50` } : {}}
                                     />
                                 </div>
                             </motion.button>
