@@ -95,9 +95,9 @@ const PromoManagementModal = ({
     const handleFileUpload = async (file, field) => {
         if (!file) return;
 
-        // 3MB Size Limit Check
-        if (file.size > 3 * 1024 * 1024) {
-            alert("File is too large (Max 3MB). Please use a smaller file or paste a URL.");
+        // 7MB Size Limit Check
+        if (file.size > 7 * 1024 * 1024) {
+            alert("File is too large (Max 7MB). Please use a smaller file or paste a URL.");
             return;
         }
 
@@ -495,7 +495,7 @@ const PromoManagementModal = ({
                                                 ) : (
                                                     <HiPhoto className="w-10 h-10 mb-2 opacity-30" />
                                                 )}
-                                                <span className="text-xs font-black uppercase tracking-widest relative z-10">Upload Image/Video (Max 3MB)</span>
+                                                <span className="text-xs font-black uppercase tracking-widest relative z-10">Upload Image/Video (Max 7MB)</span>
                                                 <input type="file" id="promo-image-upload" className="hidden" accept="image/*,video/*" onChange={(e) => handleFileUpload(e.target.files[0], 'promoImage')} />
                                             </div>
                                             <div className="flex items-center gap-2">

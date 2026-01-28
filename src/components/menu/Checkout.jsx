@@ -12,7 +12,8 @@ const Checkout = ({
     restaurantName,
     themeColor = '#f97316',
     promotions = [],
-    taxConfig = { applyTax: false, taxPercentage: 0 }
+    taxConfig = { applyTax: false, taxPercentage: 0 },
+    isDarkMode = false
 }) => {
     const { cartItems, getCartTotal, clearCart, updateQuantity, removeFromCart } = useCart();
     const { language, t: globalT } = useLanguage();
@@ -114,14 +115,15 @@ const Checkout = ({
                     animate={{ y: 0 }}
                     exit={{ y: '100%' }}
                     transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-                    className="fixed inset-0 z-[110] bg-[#f8f9fa] flex flex-col"
+                    transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+                    className={`fixed inset-0 z-[110] flex flex-col ${isDarkMode ? 'bg-[#0f0f0f]' : 'bg-[#f8f9fa]'}`}
                 >
                     {/* Header */}
                     <div className="px-6 pt-6 pb-4 flex items-center justify-between">
                         <motion.button
                             whileTap={{ scale: 0.9 }}
                             onClick={onClose}
-                            className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white shadow-sm text-gray-900"
+                            className={`w-12 h-12 flex items-center justify-center rounded-2xl shadow-sm ${isDarkMode ? 'bg-white/10 text-white' : 'bg-white text-gray-900'}`}
                         >
                             <HiChevronLeft size={24} />
                         </motion.button>
@@ -130,7 +132,7 @@ const Checkout = ({
                             onClick={() => {
                                 if (window.confirm('Clear your cart?')) clearCart();
                             }}
-                            className="w-12 h-12 flex items-center justify-center rounded-2xl bg-white shadow-sm text-gray-400 hover:text-red-500 transition-colors"
+                            className={`w-12 h-12 flex items-center justify-center rounded-2xl shadow-sm transition-colors ${isDarkMode ? 'bg-white/10 text-gray-400 hover:text-red-500' : 'bg-white text-gray-400 hover:text-red-500'}`}
                         >
                             <HiTrash size={24} />
                         </motion.button>
@@ -145,16 +147,16 @@ const Checkout = ({
                             >
                                 <HiCheckCircle size={80} style={{ color: themeColor }} />
                             </motion.div>
-                            <h2 className="text-3xl font-black text-gray-900 mb-2">{t.success}</h2>
-                            <p className="text-gray-500 font-medium">{t.thanks}</p>
+                            <h2 className={`text-3xl font-black mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{t.success}</h2>
+                            <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'} font-medium`}>{t.thanks}</p>
                         </div>
                     ) : (
                         <>
                             {/* Body */}
                             <div className="flex-1 px-6 overflow-y-auto no-scrollbar pb-32">
                                 <div className="text-center mt-6 mb-8">
-                                    <h1 className="text-3xl font-black text-gray-900 uppercase tracking-tight" dangerouslySetInnerHTML={{ __html: t.myCart }} />
-                                    <div className="h-1 w-12 bg-gray-900 mx-auto mt-2 rounded-full opacity-10" />
+                                    <h1 className={`text-3xl font-black uppercase tracking-tight ${isDarkMode ? 'text-white' : 'text-gray-900'}`} dangerouslySetInnerHTML={{ __html: t.myCart }} />
+                                    <div className={`h-1 w-12 mx-auto mt-2 rounded-full opacity-10 ${isDarkMode ? 'bg-white' : 'bg-gray-900'}`} />
                                 </div>
 
                                 {cartItems.length === 0 ? (
@@ -185,27 +187,27 @@ const Checkout = ({
 
                                                 {/* Info */}
                                                 <div className="flex-1 min-w-0">
-                                                    <h3 className="font-bold text-gray-900 text-lg leading-tight mb-1">{item.name}</h3>
+                                                    <h3 className={`font-bold text-lg leading-tight mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{item.name}</h3>
                                                     <p className="text-gray-400 font-bold text-sm">
-                                                        <span className="text-gray-900">${Number(item.price).toFixed(2)}</span>
+                                                        <span className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}>${Number(item.price).toFixed(2)}</span>
                                                         <span className="ml-2">x {item.quantity}</span>
                                                     </p>
                                                 </div>
 
                                                 {/* Vertical +/- Controls */}
-                                                <div className="flex flex-col items-center bg-gray-100 rounded-xl py-1 px-1 border border-gray-200">
+                                                <div className={`flex flex-col items-center rounded-xl py-1 px-1 border ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-gray-100 border-gray-200'}`}>
                                                     <button
                                                         onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)}
-                                                        className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-900 hover:bg-white rounded-lg transition-all"
+                                                        className={`w-7 h-7 flex items-center justify-center rounded-lg transition-all ${isDarkMode ? 'text-white hover:bg-white/10' : 'text-gray-400 hover:text-gray-900 hover:bg-white'}`}
                                                     >
                                                         <span className="text-lg font-bold">+</span>
                                                     </button>
                                                     <div className="h-4 flex items-center justify-center">
-                                                        <span className="text-[10px] font-black text-gray-900">{item.quantity}</span>
+                                                        <span className={`text-[10px] font-black ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{item.quantity}</span>
                                                     </div>
                                                     <button
                                                         onClick={() => updateQuantity(item.id, item.size, Math.max(0, item.quantity - 1))}
-                                                        className="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-gray-900 hover:bg-white rounded-lg transition-all"
+                                                        className={`w-7 h-7 flex items-center justify-center rounded-lg transition-all ${isDarkMode ? 'text-white hover:bg-white/10' : 'text-gray-400 hover:text-gray-900 hover:bg-white'}`}
                                                     >
                                                         <span className="text-lg font-bold">-</span>
                                                     </button>
@@ -221,11 +223,11 @@ const Checkout = ({
                             <motion.div
                                 initial={{ y: '100%' }}
                                 animate={{ y: 0 }}
-                                className="bg-white rounded-t-[3rem] px-8 pt-8 pb-10 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] space-y-4 border-t border-gray-50"
+                                className={`rounded-t-[3rem] px-8 pt-8 pb-10 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] space-y-4 border-t ${isDarkMode ? 'bg-[#1a1c23] border-white/5' : 'bg-white border-gray-50'}`}
                             >
                                 <div className="flex justify-between items-center">
-                                    <span className="text-gray-400 font-bold">{t.subtotal}</span>
-                                    <span className="text-gray-900 font-black text-lg">${subtotal.toFixed(2)}</span>
+                                    <span className={`${isDarkMode ? 'text-gray-400' : 'text-gray-400'} font-bold`}>{t.subtotal}</span>
+                                    <span className={`${isDarkMode ? 'text-white' : 'text-gray-900'} font-black text-lg`}>${subtotal.toFixed(2)}</span>
                                 </div>
                                 {orderDiscount > 0 && (
                                     <div className="flex justify-between items-center text-green-600 dark:text-green-500">
@@ -241,14 +243,14 @@ const Checkout = ({
                                         <span className="text-gray-400 font-bold">
                                             {t.taxes} ({taxConfig.taxPercentage}%)
                                         </span>
-                                        <span className="text-gray-900 font-black text-lg">${tax.toFixed(2)}</span>
+                                        <span className={`${isDarkMode ? 'text-white' : 'text-gray-900'} font-black text-lg`}>${tax.toFixed(2)}</span>
                                     </div>
                                 )}
 
-                                <div className="h-px bg-dashed bg-gray-100 my-2 border-t-2 border-dashed border-gray-100" />
+                                <div className={`h-px bg-dashed my-2 border-t-2 border-dashed ${isDarkMode ? 'bg-white/10 border-white/10' : 'bg-gray-100 border-gray-100'}`} />
                                 <div className="flex justify-between items-center pb-2">
-                                    <span className="text-gray-900 text-xl font-black">{t.total}</span>
-                                    <span className="text-gray-900 text-2xl font-black">${total.toFixed(2)}</span>
+                                    <span className={`${isDarkMode ? 'text-white' : 'text-gray-900'} text-xl font-black`}>{t.total}</span>
+                                    <span className={`${isDarkMode ? 'text-white' : 'text-gray-900'} text-2xl font-black`}>${total.toFixed(2)}</span>
                                 </div>
 
                                 <motion.button

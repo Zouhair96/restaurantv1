@@ -23,7 +23,7 @@ import TestMenu from './pages/TestMenu'
 import PublicMenuPizza1 from './pages/PublicMenuPizza1'
 import PublicMenuTestemplate from './pages/PublicMenuTestemplate'
 import ManageMenu from './pages/ManageMenu'
-import PublicMenuTestemplate2 from './pages/PublicMenuTestemplate2'
+
 
 
 import ScrollToTop from './components/ScrollToTop'
@@ -73,7 +73,7 @@ function App() {
                   <Route path="/testme" element={<TestMenu />} />
                   <Route path="/menu-pizza1" element={<PublicMenuPizza1 />} />
                   <Route path="/menu-testemplate" element={<PublicMenuTestemplate />} />
-                  <Route path="/menu-testemplate2" element={<PublicMenuTestemplate2 />} />
+
 
                   <Route path="/menu/:templateKey" element={<PublicMenu />} />
 
