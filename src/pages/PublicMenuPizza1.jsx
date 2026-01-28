@@ -393,7 +393,21 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
 
                 {/* Hero Image & Animation Container */}
                 <div className="flex-1 flex items-center justify-center p-2 relative min-h-[220px]">
-                    <motion.div animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] bg-orange-50/50 rounded-full blur-[80px] -z-10 pointer-events-none" />
+                    {/* Dynamic Blurred Background */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] -z-10 bg-orange-50/20 rounded-full flex items-center justify-center pointer-events-none">
+                        <AnimatePresence mode="popLayout">
+                            <motion.img
+                                key={`bg-${selectedItem.id}`}
+                                src={selectedItem.image}
+                                initial={{ rotate: 90, opacity: 0, scale: 0.8, x: 200 }}
+                                animate={{ rotate: 0, opacity: 0.4, scale: 1.5, x: 0 }}
+                                exit={{ rotate: -90, opacity: 0, scale: 0.8, x: -200 }}
+                                transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                                className="absolute w-full h-full object-cover rounded-full blur-[80px] opacity-40 mix-blend-multiply"
+                                alt=""
+                            />
+                        </AnimatePresence>
+                    </div>
 
                     <div className="w-56 h-56 sm:w-64 sm:h-64 md:w-96 md:h-96 relative z-10 aspect-square shrink-0">
                         <AnimatePresence mode="popLayout">
