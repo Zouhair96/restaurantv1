@@ -224,9 +224,9 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
                                             {promo.backgroundType === 'image' ? (
                                                 <>
                                                     {isMediaVideo(promo.promoImage) ? (
-                                                        <video src={promo.promoImage} autoPlay muted loop playsInline className="w-full h-full object-cover" />
+                                                        <video src={promo.promoImage} autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover" />
                                                     ) : (
-                                                        <img src={promo.promoImage} alt="" className="w-full h-full object-cover" />
+                                                        <img src={promo.promoImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
                                                     )}
                                                     <div className={`absolute inset-0 bg-gradient-to-r ${promo.decorationPosition === 'left' ? 'from-transparent via-black/20 to-black/80' : 'from-black/80 via-black/20 to-transparent'}`} />
                                                 </>

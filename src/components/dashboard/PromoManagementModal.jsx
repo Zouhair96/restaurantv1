@@ -87,6 +87,20 @@ const PromoManagementModal = ({
         }
     };
 
+    const handleFileUpload = async (file, field) => {
+        if (!file) return;
+        if (file.type.startsWith('video/')) {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (e) => {
+                setFormData({ ...formData, [field]: e.target.result });
+            };
+        } else {
+            const compressed = await compressImage(file);
+            setFormData({ ...formData, [field]: compressed });
+        }
+    };
+
     const compressImage = async (file) => {
         return new Promise((resolve) => {
             const reader = new FileReader();
@@ -108,6 +122,11 @@ const PromoManagementModal = ({
                 };
             };
         });
+    };
+
+    const isMediaVideo = (url) => {
+        if (!url) return false;
+        return url.match(/\.(mp4|webm|ogg|mov|data:video)/i);
     };
 
     const toggleDayOfWeek = (day) => {
@@ -233,7 +252,11 @@ const PromoManagementModal = ({
                                             {/* Promo Image */}
                                             {promo.promoImage && (
                                                 <div className="mb-4 h-32 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800">
-                                                    <img src={promo.promoImage} alt={promo.name} className="w-full h-full object-cover" />
+                                                    {isMediaVideo(promo.promoImage) ? (
+                                                        <video src={promo.promoImage} autoPlay muted loop className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <img src={promo.promoImage} alt={promo.name} className="w-full h-full object-cover" />
+                                                    )}
                                                 </div>
                                             )}
 
@@ -410,18 +433,16 @@ const PromoManagementModal = ({
                                                 onClick={() => document.getElementById('promo-image-upload').click()}
                                             >
                                                 {formData.promoImage ? (
-                                                    <img src={formData.promoImage} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity" alt="Promo" />
+                                                    isMediaVideo(formData.promoImage) ? (
+                                                        <video src={formData.promoImage} autoPlay muted loop className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity" />
+                                                    ) : (
+                                                        <img src={formData.promoImage} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity" alt="Promo" />
+                                                    )
                                                 ) : (
                                                     <HiPhoto className="w-10 h-10 mb-2 opacity-30" />
                                                 )}
                                                 <span className="text-xs font-black uppercase tracking-widest relative z-10">Upload Background</span>
-                                                <input type="file" id="promo-image-upload" className="hidden" accept="image/*" onChange={async (e) => {
-                                                    const file = e.target.files[0];
-                                                    if (file) {
-                                                        const compressed = await compressImage(file);
-                                                        setFormData({ ...formData, promoImage: compressed });
-                                                    }
-                                                }} />
+                                                <input type="file" id="promo-image-upload" className="hidden" accept="image/*,video/*" onChange={(e) => handleFileUpload(e.target.files[0], 'promoImage')} />
                                             </div>
                                         </div>
                                     ) : (
@@ -452,17 +473,15 @@ const PromoManagementModal = ({
                                                         onClick={() => document.getElementById('decoration-upload').click()}
                                                     >
                                                         {formData.decorationImage ? (
-                                                            <img src={formData.decorationImage} className="w-full h-full object-cover" alt="" />
+                                                            isMediaVideo(formData.decorationImage) ? (
+                                                                <video src={formData.decorationImage} autoPlay muted loop className="w-full h-full object-cover" />
+                                                            ) : (
+                                                                <img src={formData.decorationImage} className="w-full h-full object-cover" alt="" />
+                                                            )
                                                         ) : (
                                                             <HiPlus className="text-gray-300" />
                                                         )}
-                                                        <input type="file" id="decoration-upload" className="hidden" accept="image/*" onChange={async (e) => {
-                                                            const file = e.target.files[0];
-                                                            if (file) {
-                                                                const compressed = await compressImage(file);
-                                                                setFormData({ ...formData, decorationImage: compressed });
-                                                            }
-                                                        }} />
+                                                        <input type="file" id="decoration-upload" className="hidden" accept="image/*,video/*" onChange={(e) => handleFileUpload(e.target.files[0], 'decorationImage')} />
                                                     </div>
                                                     <div className="flex-1">
                                                         <div className="flex gap-1 bg-gray-100 dark:bg-white/5 p-1 rounded-lg">
