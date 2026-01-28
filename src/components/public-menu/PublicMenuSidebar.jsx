@@ -23,6 +23,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
         password: ''
     });
     const [showHistory, setShowHistory] = useState(false);
+    const [selectedOrder, setSelectedOrder] = useState(null);
 
     const lang = language.toLowerCase();
 
@@ -87,7 +88,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    email: formData.email,
+                    email: formData.email.replace(/\s+/g, ''),
                     password: formData.password,
                     restaurantName
                 })
@@ -511,11 +512,12 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                                                 return (
                                                                     <motion.div
                                                                         key={order.id}
+                                                                        onClick={() => setSelectedOrder(order)}
                                                                         variants={{
                                                                             hidden: { opacity: 0, y: 10 },
                                                                             visible: { opacity: 1, y: 0 }
                                                                         }}
-                                                                        className={`border rounded-2xl p-4 transition-all group ${isDarkMode
+                                                                        className={`border rounded-2xl p-4 transition-all group cursor-pointer ${isDarkMode
                                                                             ? 'bg-white/5 border-white/10 hover:border-white/20'
                                                                             : 'bg-white border-gray-100 hover:border-gray-200 hover:shadow-md'
                                                                             } ${isActive ? 'ring-2 ring-offset-2 ring-offset-transparent' : ''}`}
@@ -594,6 +596,99 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                             </div>
                         </div>
                     </motion.div>
+                    {/* Order Details Modal */}
+                    {selectedOrder && (
+                        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={() => setSelectedOrder(null)}
+                                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                            />
+                            <motion.div
+                                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                                animate={{ scale: 1, opacity: 1, y: 0 }}
+                                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                                className={`relative w-full max-w-md rounded-2xl shadow-2xl overflow-hidden max-h-[80vh] flex flex-col ${isDarkMode ? 'bg-[#1a1c23] text-white' : 'bg-white text-gray-900'}`}
+                            >
+                                {/* Modal Header */}
+                                <div className={`p-4 border-b flex items-center justify-between ${isDarkMode ? 'border-white/10' : 'border-gray-100'}`}>
+                                    <div>
+                                        <h3 className="font-bold text-lg">Order Details</h3>
+                                        <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>#{String(selectedOrder.id).slice(0, 8)} • {new Date(selectedOrder.created_at).toLocaleString()}</p>
+                                    </div>
+                                    <button
+                                        onClick={() => setSelectedOrder(null)}
+                                        className={`p-2 rounded-full transition-colors ${isDarkMode ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`}
+                                    >
+                                        <HiXMark size={24} />
+                                    </button>
+                                </div>
+
+                                {/* Modal Content - Scrollable */}
+                                <div className="p-4 overflow-y-auto flex-1 space-y-4">
+                                    {/* Status Badge */}
+                                    <div className={`p-3 rounded-xl flex items-center justify-between ${isDarkMode ? 'bg-white/5' : 'bg-gray-50'}`}>
+                                        <span className="text-sm font-medium opacity-70">Status</span>
+                                        <span
+                                            className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider"
+                                            style={selectedOrder.status === 'completed' ? { backgroundColor: '#22c55e33', color: '#22c55e' } :
+                                                selectedOrder.status === 'cancelled' ? { backgroundColor: '#ef444433', color: '#ef4444' } :
+                                                    { backgroundColor: `${themeColor}33`, color: themeColor }}
+                                        >
+                                            {selectedOrder.status}
+                                        </span>
+                                    </div>
+
+                                    {/* Items List */}
+                                    <div>
+                                        <h4 className="font-bold text-sm mb-3 opacity-80 uppercase tracking-widest">Items</h4>
+                                        <div className="space-y-3">
+                                            {(selectedOrder.items || []).map((item, idx) => (
+                                                <div key={idx} className="flex items-start gap-3">
+                                                    <div className="w-6 h-6 rounded bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-xs font-bold shrink-0">
+                                                        {item.quantity}x
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <p className="text-sm font-bold leading-tight">{typeof item.name === 'object' ? (item.name[lang] || item.name['en']) : item.name}</p>
+                                                        {item.selectedOptions && Object.values(item.selectedOptions).flat().length > 0 && (
+                                                            <p className="text-xs opacity-60 mt-1">
+                                                                {Object.values(item.selectedOptions).flat().join(', ')}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                    <p className="text-sm font-bold">
+                                                        ${(parseFloat(item.price) * item.quantity).toFixed(2)}
+                                                    </p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Divider */}
+                                    <div className={`h-px w-full ${isDarkMode ? 'bg-white/10' : 'bg-gray-100'}`} />
+
+                                    {/* Summary */}
+                                    <div className="space-y-1 text-sm">
+                                        <div className="flex justify-between opacity-70">
+                                            <span>Subtotal</span>
+                                            <span>${Number(selectedOrder.total_price).toFixed(2)}</span>
+                                        </div>
+                                        {/* Add tax/delivery if available in order object */}
+                                    </div>
+                                </div>
+
+                                {/* Modal Footer - Total */}
+                                <div className={`p-4 border-t ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-100'}`}>
+                                    <div className="flex justify-between items-center">
+                                        <span className="font-bold text-lg">Total</span>
+                                        <span className="font-black text-xl" style={{ color: themeColor }}>${Number(selectedOrder.total_price).toFixed(2)}</span>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </div>
+                    )}
                 </>
             )}
         </AnimatePresence>

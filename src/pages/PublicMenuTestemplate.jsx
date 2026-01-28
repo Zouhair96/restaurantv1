@@ -306,7 +306,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                 }}
             >
                 <div
-                    className="flex-1 overflow-y-auto pb-24 scroll-smooth"
+                    className="flex-1 overflow-y-auto pb-24 scroll-smooth no-scrollbar"
                     ref={scrollContainerRef}
                     onScroll={handleScroll}
                 >
@@ -498,11 +498,12 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                                             <motion.div
                                                 key={item.id}
                                                 variants={itemVariants}
+                                                initial="hidden"
+                                                whileInView="visible"
+                                                viewport={{ once: true, margin: "-50px" }}
                                                 whileHover={{ scale: 1.02 }}
                                                 whileTap={{ scale: 0.95 }}
                                                 layout
-                                                initial={{ opacity: 0, scale: 0.8 }}
-                                                animate={{ opacity: 1, scale: 1 }}
                                                 exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
                                                 onClick={() => handleItemClick(item)}
                                                 className="bg-white rounded-[1.5rem] p-3 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-shadow cursor-pointer flex flex-col items-center text-center relative overflow-hidden group"
@@ -668,7 +669,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
 
                             {/* Metadata removed as per user request */}
 
-                            <div className="flex-1 overflow-y-auto mb-6">
+                            <div className="flex-1 overflow-y-auto mb-6 no-scrollbar">
                                 {(() => {
                                     const { promo } = getDiscountedPrice(config.promotions || [], selectedItem);
                                     if (promo) {
