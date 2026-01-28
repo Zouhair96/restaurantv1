@@ -104,6 +104,13 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
     });
 
     const activePromo = selectedPromoId ? (config.promotions || []).find(p => p.id === selectedPromoId) : null;
+
+    // Helper to detect video files
+    const isMediaVideo = (url) => {
+        if (!url) return false;
+        return url.match(/\.(mp4|webm|ogg|mov)$ /i);
+    };
+
     const categories = ['All', ...new Set(menuItems.map(i => localize(i, 'category')).filter(Boolean))];
     const filteredItems = menuItems.filter(item => {
         if (!item) return false;
@@ -176,7 +183,7 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
             <main className="flex-1 overflow-y-auto no-scrollbar pb-24 px-6 pt-6">
                 {/* Banner Promotions */}
                 {config.promotions && config.promotions.length > 0 && !selectedPromoId && (
-                    <div className="mb-8">
+                    <div className="mb-4">
                         <div className="relative h-44 rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 bg-[#12141a]">
                             <AnimatePresence mode="wait">
                                 {getPromosByDisplayStyle(config.promotions, 'banner').map((promo, idx) => idx === currentBannerIndex && (
@@ -193,28 +200,36 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
                                     >
                                         {promo.backgroundType === 'image' ? (
                                             <>
-                                                <img src={promo.promoImage} alt="" className="w-full h-full object-cover" />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+                                                {isMediaVideo(promo.promoImage) ? (
+                                                    <video src={promo.promoImage} autoPlay muted loop playsInline className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <img src={promo.promoImage} alt="" className="w-full h-full object-cover" />
+                                                )}
+                                                <div className={`absolute inset-0 bg-gradient-to-t ${promo.decorationPosition === 'left' ? 'from-transparent via-black/30 to-black/90' : 'from-black/90 via-black/30 to-transparent'}`} />
                                             </>
                                         ) : (
                                             <>
                                                 {promo.decorationImage && (
-                                                    <motion.img
+                                                    <motion.div
                                                         initial={{ scale: 0.8, opacity: 0, x: promo.decorationPosition === 'left' ? -20 : 20 }}
                                                         animate={{ scale: 1, opacity: 1, x: 0 }}
-                                                        src={promo.decorationImage}
-                                                        alt=""
-                                                        className={`absolute top-0 h-full w-auto object-contain pointer-events-none z-10 ${promo.decorationPosition === 'left' ? 'left-0' : 'right-0'}`}
-                                                    />
+                                                        className={`absolute top-0 h-full w-1/2 pointer-events-none z-10 flex items-center justify-center ${promo.decorationPosition === 'left' ? 'left-0' : 'right-0'}`}
+                                                    >
+                                                        {isMediaVideo(promo.decorationImage) ? (
+                                                            <video src={promo.decorationImage} autoPlay muted loop playsInline className="h-[80%] w-auto object-contain" />
+                                                        ) : (
+                                                            <img src={promo.decorationImage} alt="" className="h-[80%] w-auto object-contain drop-shadow-2xl" />
+                                                        )}
+                                                    </motion.div>
                                                 )}
                                             </>
                                         )}
 
                                         <div className={`relative h-full p-8 flex flex-col justify-end text-white z-20 ${promo.decorationPosition === 'left' ? 'items-end text-right' : 'items-start text-left'}`}>
                                             <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
-                                                <div className="p-1 px-3 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-black w-fit mb-2 uppercase tracking-[0.2em] opacity-80 ${promo.decorationPosition === 'left' ? 'ml-auto' : ''}">Promotion</div>
-                                                <h3 className="text-2xl font-black uppercase tracking-tight leading-none mb-1">{promo.name}</h3>
-                                                <p className="text-sm font-bold opacity-80 italic">{promo.promoText}</p>
+                                                <div className="p-1 px-3 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-black w-fit mb-2 uppercase tracking-[0.2em] opacity-80 drop-shadow-md">Promotion</div>
+                                                <h3 className="text-2xl font-black uppercase tracking-tight leading-none mb-1 drop-shadow-lg" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>{promo.name}</h3>
+                                                <p className="text-sm font-bold opacity-80 italic drop-shadow-md">{promo.promoText}</p>
                                             </motion.div>
                                         </div>
                                     </motion.div>
