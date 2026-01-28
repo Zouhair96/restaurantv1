@@ -311,23 +311,25 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                 >
 
                     {/* Search Bar */}
-                    <div className="px-6 mt-6 flex gap-4">
-                        <div className="flex-1 bg-white rounded-2xl flex items-center px-4 py-3 shadow-sm">
-                            <HiMagnifyingGlass className="w-6 h-6 text-gray-400 mr-2" />
-                            <input
-                                type="text"
-                                placeholder={t('auth.menu.search')}
-                                className="flex-1 bg-transparent outline-none text-gray-700 placeholder-gray-400"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
+                    <div className="flex justify-center w-full">
+                        <div className="px-6 mt-6 flex gap-4 w-full max-w-7xl">
+                            <div className="flex-1 bg-white rounded-2xl flex items-center px-4 py-3 shadow-sm border border-gray-100">
+                                <HiMagnifyingGlass className="w-6 h-6 text-gray-400 mr-2" />
+                                <input
+                                    type="text"
+                                    placeholder={t('auth.menu.search')}
+                                    className="flex-1 bg-transparent outline-none text-gray-700 placeholder-gray-400"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                />
+                            </div>
                         </div>
                     </div>
 
                     {/* Promotion Banner */}
                     {config.promotions && getPromosByDisplayStyle(config.promotions, 'banner').length > 0 && !selectedPromoId && (
-                        <div className="px-6 mb-8 mt-2 relative z-30">
-                            <div className="relative h-32 md:h-36 rounded-[2.5rem] overflow-hidden shadow-2xl border border-gray-100 bg-gray-900">
+                        <div className="px-6 mb-8 mt-2 relative z-30 flex justify-center">
+                            <div className="relative w-full max-w-7xl h-32 md:h-56 lg:h-72 xl:h-80 rounded-[2.5rem] overflow-hidden shadow-2xl border border-gray-100 bg-gray-900">
                                 <AnimatePresence mode="wait">
                                     {getPromosByDisplayStyle(config.promotions, 'banner').map((promo, idx) => idx === currentBannerIndex && (
                                         <motion.div
@@ -454,107 +456,111 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                         return null;
                     })()}
                     {/* Categories */}
-                    <div className="px-6 mt-8 flex gap-6 overflow-x-auto no-scrollbar pb-2">
-                        {categories.map((cat, index) => (
-                            <button
-                                key={index}
-                                onClick={() => setActiveCategory(cat)}
-                                className={`whitespace-nowrap font-medium transition-colors ${activeCategory === cat ? 'text-theme scale-105' : 'text-gray-400 hover:text-gray-600'}`}
-                                style={activeCategory === cat ? { color: config.themeColor } : {}}
-                            >
-                                {cat === 'All' ? t('auth.menu.all') : cat}
-                            </button>
-                        ))}
+                    <div className="flex justify-center w-full">
+                        <div className="px-6 mt-8 flex gap-6 overflow-x-auto no-scrollbar pb-2 w-full max-w-7xl">
+                            {categories.map((cat, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => setActiveCategory(cat)}
+                                    className={`whitespace-nowrap font-black uppercase tracking-widest text-[10px] md:text-xs transition-all ${activeCategory === cat ? 'text-theme scale-110' : 'text-gray-400 hover:text-gray-600'}`}
+                                    style={activeCategory === cat ? { color: config.themeColor } : {}}
+                                >
+                                    {cat === 'All' ? t('auth.menu.all') : cat}
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
-                    <div className="px-5 mt-6 pb-24">
-                        <motion.div
-                            className="grid grid-cols-2 gap-3"
-                            variants={containerVariants}
-                            initial="hidden"
-                            animate="visible"
-                            key={activeCategory}
-                        >
-                            <AnimatePresence mode="popLayout">
-                                {filteredMenuItems.length === 0 ? (
-                                    <div className="col-span-2 flex flex-col items-center justify-center py-20 text-center">
-                                        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-6">
-                                            <HiTag className="w-10 h-10 text-gray-300" />
-                                        </div>
-                                        <h3 className="text-lg font-black text-gray-900 uppercase tracking-tight mb-2">Sorry, nothing in promo here, soon</h3>
-                                        <p className="text-sm text-gray-400 font-medium max-w-[200px] mx-auto opacity-70">There are no items matching this category and promotion combination.</p>
-                                    </div>
-                                ) : filteredMenuItems.map((item) => {
-                                    const { finalPrice, discount, originalPrice, promo } = getDiscountedPrice(config.promotions || [], item);
-                                    const hasDiscount = discount > 0;
-
-                                    return (
-                                        <motion.div
-                                            key={item.id}
-                                            variants={itemVariants}
-                                            whileHover={{ scale: 1.02 }}
-                                            whileTap={{ scale: 0.95 }}
-                                            layout
-                                            initial={{ opacity: 0, scale: 0.8 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
-                                            onClick={() => handleItemClick(item)}
-                                            className="bg-white rounded-[1.5rem] p-3 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-shadow cursor-pointer flex flex-col items-center text-center relative overflow-hidden group"
-                                        >
-                                            {hasDiscount && (
-                                                <div
-                                                    className="absolute top-0 left-0 px-3 py-1 rounded-br-2xl text-[10px] font-black text-white z-10 shadow-sm"
-                                                    style={{ backgroundColor: config.themeColor }}
-                                                >
-                                                    {promo.discountType === 'percentage'
-                                                        ? `${promo.discountValue}% OFF`
-                                                        : `$${promo.discountValue} OFF`}
-                                                </div>
-                                            )}
-
-                                            <button className="absolute top-3 right-3 text-gray-300 hover:text-red-500 transition-colors z-10">
-                                                <HiOutlineHeart className="w-5 h-5" />
-                                            </button>
-
-                                            <motion.div layoutId={`item-image-${item.id}`} className="w-28 h-28 rounded-full shadow-lg mt-1 mb-2 group-hover:scale-105 transition-transform duration-300">
-                                                <img src={item.image} alt={localize(item, 'name')} className="w-full h-full object-cover rounded-full" />
-                                            </motion.div>
-
-                                            <h3 className="font-bold text-gray-900 text-sm leading-tight mb-1 w-full truncate px-1">{localize(item, 'name')}</h3>
-
-                                            <div className="w-full flex items-center justify-between mt-auto pl-1">
-                                                <div className="flex flex-col items-start">
-                                                    {hasDiscount && (
-                                                        <span className="text-[10px] text-gray-400 line-through font-bold">
-                                                            ${parseFloat(originalPrice).toFixed(2)}
-                                                        </span>
-                                                    )}
-                                                    <span className="text-base font-black text-gray-900">
-                                                        ${parseFloat(finalPrice).toFixed(2)}
-                                                    </span>
-                                                </div>
+                    <div className="flex justify-center w-full">
+                        <div className="px-5 mt-6 pb-24 w-full max-w-7xl">
+                            <motion.div
+                                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6"
+                                variants={containerVariants}
+                                initial="hidden"
+                                animate="visible"
+                                key={activeCategory}
+                            >
+                                <AnimatePresence mode="popLayout">
+                                    {filteredMenuItems.length === 0 ? (
+                                        <div className="col-span-2 flex flex-col items-center justify-center py-20 text-center">
+                                            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+                                                <HiTag className="w-10 h-10 text-gray-300" />
                                             </div>
+                                            <h3 className="text-lg font-black text-gray-900 uppercase tracking-tight mb-2">Sorry, nothing in promo here, soon</h3>
+                                            <p className="text-sm text-gray-400 font-medium max-w-[200px] mx-auto opacity-70">There are no items matching this category and promotion combination.</p>
+                                        </div>
+                                    ) : filteredMenuItems.map((item) => {
+                                        const { finalPrice, discount, originalPrice, promo } = getDiscountedPrice(config.promotions || [], item);
+                                        const hasDiscount = discount > 0;
 
-                                            {/* Add Button - Bottom Right Corner */}
-                                            <button
-                                                className="absolute bottom-0 right-0 w-10 h-10 bg-theme flex items-center justify-center text-white rounded-tl-[1.2rem] hover:opacity-90 active:scale-95 transition-all"
-                                                style={{
-                                                    backgroundColor: config.themeColor,
-                                                    boxShadow: `0 8px 20px -4px ${config.themeColor}aa`
-                                                }}
-                                                onClick={(e) => {
-                                                    e.stopPropagation(); // Prevent opening modal
-                                                    addToCart({ ...item, price: finalPrice, quantity: 1 });
-                                                    triggerCartAnimation(item, e);
-                                                }}
+                                        return (
+                                            <motion.div
+                                                key={item.id}
+                                                variants={itemVariants}
+                                                whileHover={{ scale: 1.02 }}
+                                                whileTap={{ scale: 0.95 }}
+                                                layout
+                                                initial={{ opacity: 0, scale: 0.8 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
+                                                onClick={() => handleItemClick(item)}
+                                                className="bg-white rounded-[1.5rem] p-3 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-lg transition-shadow cursor-pointer flex flex-col items-center text-center relative overflow-hidden group"
                                             >
-                                                <HiPlus className="w-5 h-5" />
-                                            </button>
-                                        </motion.div>
-                                    );
-                                })}
-                            </AnimatePresence>
-                        </motion.div>
+                                                {hasDiscount && (
+                                                    <div
+                                                        className="absolute top-0 left-0 px-3 py-1 rounded-br-2xl text-[10px] font-black text-white z-10 shadow-sm"
+                                                        style={{ backgroundColor: config.themeColor }}
+                                                    >
+                                                        {promo.discountType === 'percentage'
+                                                            ? `${promo.discountValue}% OFF`
+                                                            : `$${promo.discountValue} OFF`}
+                                                    </div>
+                                                )}
+
+                                                <button className="absolute top-3 right-3 text-gray-300 hover:text-red-500 transition-colors z-10">
+                                                    <HiOutlineHeart className="w-5 h-5" />
+                                                </button>
+
+                                                <motion.div layoutId={`item-image-${item.id}`} className="w-28 h-28 rounded-full shadow-lg mt-1 mb-2 group-hover:scale-105 transition-transform duration-300">
+                                                    <img src={item.image} alt={localize(item, 'name')} className="w-full h-full object-cover rounded-full" />
+                                                </motion.div>
+
+                                                <h3 className="font-bold text-gray-900 text-sm leading-tight mb-1 w-full truncate px-1">{localize(item, 'name')}</h3>
+
+                                                <div className="w-full flex items-center justify-between mt-auto pl-1">
+                                                    <div className="flex flex-col items-start">
+                                                        {hasDiscount && (
+                                                            <span className="text-[10px] text-gray-400 line-through font-bold">
+                                                                ${parseFloat(originalPrice).toFixed(2)}
+                                                            </span>
+                                                        )}
+                                                        <span className="text-base font-black text-gray-900">
+                                                            ${parseFloat(finalPrice).toFixed(2)}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Add Button - Bottom Right Corner */}
+                                                <button
+                                                    className="absolute bottom-0 right-0 w-10 h-10 bg-theme flex items-center justify-center text-white rounded-tl-[1.2rem] hover:opacity-90 active:scale-95 transition-all"
+                                                    style={{
+                                                        backgroundColor: config.themeColor,
+                                                        boxShadow: `0 8px 20px -4px ${config.themeColor}aa`
+                                                    }}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation(); // Prevent opening modal
+                                                        addToCart({ ...item, price: finalPrice, quantity: 1 });
+                                                        triggerCartAnimation(item, e);
+                                                    }}
+                                                >
+                                                    <HiPlus className="w-5 h-5" />
+                                                </button>
+                                            </motion.div>
+                                        );
+                                    })}
+                                </AnimatePresence>
+                            </motion.div>
+                        </div>
                     </div>
                 </div>
             </motion.div >

@@ -183,8 +183,8 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
             <main className="flex-1 overflow-y-auto no-scrollbar pb-24 px-6 pt-6">
                 {/* Banner Promotions */}
                 {config.promotions && getPromosByDisplayStyle(config.promotions, 'banner').length > 0 && !selectedPromoId && (
-                    <div className="mb-4">
-                        <div className="relative h-44 rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 bg-[#12141a]">
+                    <div className="mb-4 flex justify-center w-full">
+                        <div className="relative w-full max-w-7xl h-44 md:h-64 lg:h-80 xl:h-96 rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 bg-[#12141a]">
                             <AnimatePresence mode="wait">
                                 {getPromosByDisplayStyle(config.promotions, 'banner').map((promo, idx) => idx === currentBannerIndex && (
                                     <motion.div
@@ -285,77 +285,81 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
                 </header>
 
                 {/* Categories */}
-                <div className="flex gap-4 overflow-x-auto no-scrollbar mb-8">
-                    {categories.map((cat) => (
-                        <button
-                            key={cat}
-                            onClick={() => setActiveCategory(cat)}
-                            className={`px-6 py-4 rounded-3xl font-black uppercase tracking-widest text-xs transition-all ${activeCategory === cat
-                                ? 'bg-[#F97316] text-white shadow-xl shadow-orange-500/20'
-                                : 'bg-white/5 text-white/40 hover:bg-white/10'
-                                }`}
-                        >
-                            {cat === 'All' ? t('auth.menu.all') : cat}
-                        </button>
-                    ))}
+                <div className="flex justify-center w-full">
+                    <div className="flex gap-4 overflow-x-auto no-scrollbar mb-8 w-full max-w-7xl">
+                        {categories.map((cat) => (
+                            <button
+                                key={cat}
+                                onClick={() => setActiveCategory(cat)}
+                                className={`px-6 py-4 rounded-3xl font-black uppercase tracking-widest text-xs transition-all ${activeCategory === cat
+                                    ? 'bg-[#F97316] text-white shadow-xl shadow-orange-500/20'
+                                    : 'bg-white/5 text-white/40 hover:bg-white/10'
+                                    }`}
+                            >
+                                {cat === 'All' ? t('auth.menu.all') : cat}
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Products Grid */}
-                <div className="grid grid-cols-2 gap-6">
-                    {filteredItems.length === 0 ? (
-                        <div className="col-span-2 flex flex-col items-center justify-center py-20 text-center bg-white/5 rounded-[2.5rem] border border-white/5">
-                            <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-6">
-                                <HiTag className="w-10 h-10 text-white/20" />
+                <div className="flex justify-center w-full">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 w-full max-w-7xl">
+                        {filteredItems.length === 0 ? (
+                            <div className="col-span-2 sm:col-span-3 md:col-span-4 lg:col-span-5 xl:col-span-6 flex flex-col items-center justify-center py-20 text-center bg-white/5 rounded-[2.5rem] border border-white/5">
+                                <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-6">
+                                    <HiTag className="w-10 h-10 text-white/20" />
+                                </div>
+                                <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-2">Sorry, nothing in promo here, soon</h3>
+                                <p className="text-sm text-white/40 font-bold max-w-[240px] mx-auto uppercase tracking-widest leading-relaxed">We couldn't find any items matching your selected category and active offers.</p>
                             </div>
-                            <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-2">Sorry, nothing in promo here, soon</h3>
-                            <p className="text-sm text-white/40 font-bold max-w-[240px] mx-auto uppercase tracking-widest leading-relaxed">We couldn't find any items matching your selected category and active offers.</p>
-                        </div>
-                    ) : filteredItems.map((item) => {
-                        const { finalPrice, discount, originalPrice, promo } = getDiscountedPrice(config.promotions || [], item);
-                        const hasDiscount = discount > 0;
+                        ) : filteredItems.map((item) => {
+                            const { finalPrice, discount, originalPrice, promo } = getDiscountedPrice(config.promotions || [], item);
+                            const hasDiscount = discount > 0;
 
-                        return (
-                            <motion.div
-                                key={item.id}
-                                onClick={() => handleItemClick(item)}
-                                className="bg-white/5 rounded-[2.5rem] p-5 relative group cursor-pointer hover:bg-white/10 transition-colors"
-                                whileHover={{ y: -5 }}
-                            >
-                                {hasDiscount && (
-                                    <div className="absolute -top-2 -left-2 bg-[#F97316] text-white text-[10px] font-black px-3 py-1.5 rounded-2xl z-10 shadow-xl rotate-[-5deg]">
-                                        {promo.discountType === 'percentage' ? `${promo.discountValue}% OFF` : `$${promo.discountValue} OFF`}
-                                    </div>
-                                )}
-                                <button className="absolute top-5 right-5 text-white/20 hover:text-red-500 transition-colors z-10">
-                                    <HiHeart className="w-5 h-5" />
-                                </button>
-                                <div className="relative mb-6">
-                                    <div className="absolute inset-0 bg-orange-500/10 blur-3xl rounded-full scale-150 group-hover:bg-orange-500/20 transition-all"></div>
-                                    <img src={item.image} alt={localize(item, 'name')} className="w-full h-32 object-contain relative z-10 drop-shadow-2xl group-hover:scale-110 transition-transform duration-500" />
-                                </div>
-                                <h3 className="text-white font-black uppercase tracking-tight text-sm mb-1 truncate">{localize(item, 'name')}</h3>
-                                <div className="flex items-center gap-2 mb-4">
-                                    <HiStar className="text-orange-500 w-3 h-3" />
-                                    <span className="text-white/40 text-[10px] font-black">{item.rating}</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <div className="flex flex-col">
-                                        {hasDiscount && <span className="text-white/20 line-through text-[10px] font-black">${parseFloat(originalPrice).toFixed(2)}</span>}
-                                        <span className="text-white font-black text-xl tracking-tighter">${parseFloat(finalPrice).toFixed(2)}</span>
-                                    </div>
-                                    <button
-                                        className="w-10 h-10 bg-[#F97316] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-orange-500/40 hover:scale-110 active:scale-95 transition-all"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleAddToCartFromList(item, finalPrice);
-                                        }}
-                                    >
-                                        <HiPlus className="w-6 h-6" />
+                            return (
+                                <motion.div
+                                    key={item.id}
+                                    onClick={() => handleItemClick(item)}
+                                    className="bg-white/5 rounded-[2.5rem] p-5 relative group cursor-pointer hover:bg-white/10 transition-colors"
+                                    whileHover={{ y: -5 }}
+                                >
+                                    {hasDiscount && (
+                                        <div className="absolute -top-2 -left-2 bg-[#F97316] text-white text-[10px] font-black px-3 py-1.5 rounded-2xl z-10 shadow-xl rotate-[-5deg]">
+                                            {promo.discountType === 'percentage' ? `${promo.discountValue}% OFF` : `$${promo.discountValue} OFF`}
+                                        </div>
+                                    )}
+                                    <button className="absolute top-5 right-5 text-white/20 hover:text-red-500 transition-colors z-10">
+                                        <HiHeart className="w-5 h-5" />
                                     </button>
-                                </div>
-                            </motion.div>
-                        );
-                    })}
+                                    <div className="relative mb-6">
+                                        <div className="absolute inset-0 bg-orange-500/10 blur-3xl rounded-full scale-150 group-hover:bg-orange-500/20 transition-all"></div>
+                                        <img src={item.image} alt={localize(item, 'name')} className="w-full h-32 object-contain relative z-10 drop-shadow-2xl group-hover:scale-110 transition-transform duration-500" />
+                                    </div>
+                                    <h3 className="text-white font-black uppercase tracking-tight text-sm mb-1 truncate">{localize(item, 'name')}</h3>
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <HiStar className="text-orange-500 w-3 h-3" />
+                                        <span className="text-white/40 text-[10px] font-black">{item.rating}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex flex-col">
+                                            {hasDiscount && <span className="text-white/20 line-through text-[10px] font-black">${parseFloat(originalPrice).toFixed(2)}</span>}
+                                            <span className="text-white font-black text-xl tracking-tighter">${parseFloat(finalPrice).toFixed(2)}</span>
+                                        </div>
+                                        <button
+                                            className="w-10 h-10 bg-[#F97316] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-orange-500/40 hover:scale-110 active:scale-95 transition-all"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleAddToCartFromList(item, finalPrice);
+                                            }}
+                                        >
+                                            <HiPlus className="w-6 h-6" />
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            );
+                        })}
+                    </div>
                 </div>
             </main>
 
