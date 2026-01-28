@@ -294,6 +294,81 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                         </div>
                     </div>
 
+                    {/* Promotion Banner */}
+                    {config.promotions && getPromosByDisplayStyle(config.promotions, 'banner').length > 0 && !selectedPromoId && (
+                        <div className="mb-6 relative z-30 flex justify-center w-full">
+                            <div className="relative w-full max-w-7xl h-28 md:h-48 lg:h-64 rounded-[2rem] overflow-hidden shadow-xl shadow-gray-200/50 group border border-gray-100 bg-gray-900">
+                                <AnimatePresence mode="wait">
+                                    {getPromosByDisplayStyle(config.promotions, 'banner').map((promo, idx) => idx === currentBannerIndex && (
+                                        <motion.div
+                                            key={promo.id}
+                                            initial={{ opacity: 0, x: 20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: -20 }}
+                                            className="absolute inset-0 cursor-pointer"
+                                            onClick={() => setSelectedPromoId(promo.id)}
+                                            style={{
+                                                backgroundColor: promo.backgroundType === 'image' ? 'transparent' : (promo.backgroundColor || config.themeColor)
+                                            }}
+                                        >
+                                            {promo.backgroundType === 'image' ? (
+                                                <>
+                                                    {isMediaVideo(promo.promoImage) ? (
+                                                        <video src={promo.promoImage} autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover" />
+                                                    ) : (
+                                                        <img src={promo.promoImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                                                    )}
+                                                    <div className={`absolute inset-0 bg-gradient-to-r ${promo.decorationPosition === 'left' ? 'from-transparent via-black/20 to-black/80' : 'from-black/80 via-black/20 to-transparent'}`} />
+                                                </>
+                                            ) : (
+                                                <>
+                                                    {promo.decorationImage && (
+                                                        <motion.div
+                                                            initial={{ scale: 0.8, opacity: 0, x: promo.decorationPosition === 'left' ? -20 : 20 }}
+                                                            animate={{ scale: 1, opacity: 1, x: 0 }}
+                                                            className={`absolute top-0 h-full w-1/2 pointer-events-none z-10 flex items-center justify-center ${promo.decorationPosition === 'left' ? 'left-0' : 'right-0'}`}
+                                                        >
+                                                            {isMediaVideo(promo.decorationImage) ? (
+                                                                <video src={promo.decorationImage} autoPlay muted loop playsInline className="h-[80%] w-auto object-contain" />
+                                                            ) : (
+                                                                <img src={promo.decorationImage} alt="" className="h-[80%] w-auto object-contain drop-shadow-2xl" />
+                                                            )}
+                                                        </motion.div>
+                                                    )}
+                                                </>
+                                            )}
+
+                                            <div className={`relative h-full px-8 flex items-center z-20 ${promo.discountPosition === 'right' ? 'flex-row' : 'flex-row-reverse'} justify-between gap-6 w-full`}>
+                                                {/* Text Content */}
+                                                <div className={`flex flex-col justify-center ${promo.discountPosition === 'right' ? 'items-start text-left' : 'items-end text-right'} flex-1`}>
+                                                    <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
+                                                        <span className="text-[10px] md:text-sm font-black uppercase tracking-[0.2em] opacity-80 mb-1 block drop-shadow-md" style={{ color: promo.textColor || '#ffffff' }}>Special Offer</span>
+                                                        <h3 className="text-xl md:text-4xl lg:text-5xl xl:text-6xl font-black uppercase tracking-tight leading-none mb-2 drop-shadow-lg" style={{ color: promo.nameColor || '#ffffff', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>{promo.name}</h3>
+                                                        <p className="text-xs md:text-lg font-bold opacity-90 line-clamp-1 italic drop-shadow-md" style={{ color: promo.textColor || '#ffffff' }}>{promo.promoText}</p>
+                                                    </motion.div>
+                                                </div>
+
+                                                {/* Prominent Discount Badge */}
+                                                {promo.showDiscountOnBanner !== false && (
+                                                    <motion.div
+                                                        initial={{ scale: 0, rotate: -20 }}
+                                                        animate={{ scale: 1, rotate: promo.discountPosition === 'right' ? 5 : -5 }}
+                                                        className="shrink-0 flex flex-col items-center justify-center p-4"
+                                                    >
+                                                        <span className="text-4xl md:text-7xl lg:text-8xl xl:text-9xl font-black tracking-tighter leading-none" style={{ color: promo.discountColor || '#ffffff' }}>
+                                                            {promo.discountType === 'percentage' ? `${promo.discountValue}%` : `$${promo.discountValue}`}
+                                                        </span>
+                                                        <span className="text-[10px] md:text-xl font-black uppercase tracking-widest opacity-60 mt-2" style={{ color: promo.discountColor || '#ffffff' }}>OFF</span>
+                                                    </motion.div>
+                                                )}
+                                            </div>
+                                        </motion.div>
+                                    ))}
+                                </AnimatePresence>
+                            </div>
+                        </div>
+                    )}
+
                     {activePromo ? (
                         <div className="flex items-center gap-2 mb-6 animate-fade-in">
                             <span className="p-1.5 rounded-lg bg-red-50 text-red-500"><HiTag className="w-4 h-4" /></span>
@@ -315,81 +390,6 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                         </div>
                     )}
                 </div>
-
-                {/* Promotion Banner */}
-                {config.promotions && getPromosByDisplayStyle(config.promotions, 'banner').length > 0 && !selectedPromoId && (
-                    <div className="px-5 mb-4 relative z-30 flex justify-center w-full">
-                        <div className="relative w-full max-w-7xl h-28 md:h-48 lg:h-64 rounded-[2rem] overflow-hidden shadow-xl shadow-gray-200/50 group border border-gray-100 bg-gray-900">
-                            <AnimatePresence mode="wait">
-                                {getPromosByDisplayStyle(config.promotions, 'banner').map((promo, idx) => idx === currentBannerIndex && (
-                                    <motion.div
-                                        key={promo.id}
-                                        initial={{ opacity: 0, x: 20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -20 }}
-                                        className="absolute inset-0 cursor-pointer"
-                                        onClick={() => setSelectedPromoId(promo.id)}
-                                        style={{
-                                            backgroundColor: promo.backgroundType === 'image' ? 'transparent' : (promo.backgroundColor || config.themeColor)
-                                        }}
-                                    >
-                                        {promo.backgroundType === 'image' ? (
-                                            <>
-                                                {isMediaVideo(promo.promoImage) ? (
-                                                    <video src={promo.promoImage} autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover" />
-                                                ) : (
-                                                    <img src={promo.promoImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
-                                                )}
-                                                <div className={`absolute inset-0 bg-gradient-to-r ${promo.decorationPosition === 'left' ? 'from-transparent via-black/20 to-black/80' : 'from-black/80 via-black/20 to-transparent'}`} />
-                                            </>
-                                        ) : (
-                                            <>
-                                                {promo.decorationImage && (
-                                                    <motion.div
-                                                        initial={{ scale: 0.8, opacity: 0, x: promo.decorationPosition === 'left' ? -20 : 20 }}
-                                                        animate={{ scale: 1, opacity: 1, x: 0 }}
-                                                        className={`absolute top-0 h-full w-1/2 pointer-events-none z-10 flex items-center justify-center ${promo.decorationPosition === 'left' ? 'left-0' : 'right-0'}`}
-                                                    >
-                                                        {isMediaVideo(promo.decorationImage) ? (
-                                                            <video src={promo.decorationImage} autoPlay muted loop playsInline className="h-[80%] w-auto object-contain" />
-                                                        ) : (
-                                                            <img src={promo.decorationImage} alt="" className="h-[80%] w-auto object-contain drop-shadow-2xl" />
-                                                        )}
-                                                    </motion.div>
-                                                )}
-                                            </>
-                                        )}
-
-                                        <div className={`relative h-full px-8 flex items-center z-20 ${promo.discountPosition === 'right' ? 'flex-row' : 'flex-row-reverse'} justify-between gap-6 w-full`}>
-                                            {/* Text Content */}
-                                            <div className={`flex flex-col justify-center ${promo.discountPosition === 'right' ? 'items-start text-left' : 'items-end text-right'} flex-1`}>
-                                                <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
-                                                    <span className="text-[10px] md:text-sm font-black uppercase tracking-[0.2em] opacity-80 mb-1 block drop-shadow-md" style={{ color: promo.textColor || '#ffffff' }}>Special Offer</span>
-                                                    <h3 className="text-xl md:text-4xl lg:text-5xl xl:text-6xl font-black uppercase tracking-tight leading-none mb-2 drop-shadow-lg" style={{ color: promo.nameColor || '#ffffff', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>{promo.name}</h3>
-                                                    <p className="text-xs md:text-lg font-bold opacity-90 line-clamp-1 italic drop-shadow-md" style={{ color: promo.textColor || '#ffffff' }}>{promo.promoText}</p>
-                                                </motion.div>
-                                            </div>
-
-                                            {/* Prominent Discount Badge */}
-                                            {promo.showDiscountOnBanner !== false && (
-                                                <motion.div
-                                                    initial={{ scale: 0, rotate: -20 }}
-                                                    animate={{ scale: 1, rotate: promo.discountPosition === 'right' ? 5 : -5 }}
-                                                    className="shrink-0 flex flex-col items-center justify-center p-4"
-                                                >
-                                                    <span className="text-4xl md:text-7xl lg:text-8xl xl:text-9xl font-black tracking-tighter leading-none" style={{ color: promo.discountColor || '#ffffff' }}>
-                                                        {promo.discountType === 'percentage' ? `${promo.discountValue}%` : `$${promo.discountValue}`}
-                                                    </span>
-                                                    <span className="text-[10px] md:text-xl font-black uppercase tracking-widest opacity-60 mt-2" style={{ color: promo.discountColor || '#ffffff' }}>OFF</span>
-                                                </motion.div>
-                                            )}
-                                        </div>
-                                    </motion.div>
-                                ))}
-                            </AnimatePresence>
-                        </div>
-                    </div>
-                )}
 
                 {/* Hero Image & Animation Container */}
                 <div className="flex-1 flex items-center justify-center p-2 relative min-h-[220px]">
