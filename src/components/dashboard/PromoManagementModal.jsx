@@ -94,6 +94,13 @@ const PromoManagementModal = ({
 
     const handleFileUpload = async (file, field) => {
         if (!file) return;
+
+        // 3MB Size Limit Check
+        if (file.size > 3 * 1024 * 1024) {
+            alert("File is too large (Max 3MB). Please use a smaller file or paste a URL.");
+            return;
+        }
+
         if (file.type.startsWith('video/')) {
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -476,7 +483,7 @@ const PromoManagementModal = ({
                                         <div>
                                             <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Full Background Image</label>
                                             <div
-                                                className="relative w-full h-40 border-2 border-dashed border-gray-100 dark:border-white/10 rounded-3xl flex flex-col items-center justify-center text-gray-400 hover:border-indigo-500 hover:bg-indigo-50/30 transition-all cursor-pointer overflow-hidden group"
+                                                className="relative w-full h-40 border-2 border-dashed border-gray-100 dark:border-white/10 rounded-3xl flex flex-col items-center justify-center text-gray-400 hover:border-indigo-500 hover:bg-indigo-50/30 transition-all cursor-pointer overflow-hidden group mb-3"
                                                 onClick={() => document.getElementById('promo-image-upload').click()}
                                             >
                                                 {formData.promoImage ? (
@@ -488,9 +495,21 @@ const PromoManagementModal = ({
                                                 ) : (
                                                     <HiPhoto className="w-10 h-10 mb-2 opacity-30" />
                                                 )}
-                                                <span className="text-xs font-black uppercase tracking-widest relative z-10">Upload Image/Video</span>
+                                                <span className="text-xs font-black uppercase tracking-widest relative z-10">Upload Image/Video (Max 3MB)</span>
                                                 <input type="file" id="promo-image-upload" className="hidden" accept="image/*,video/*" onChange={(e) => handleFileUpload(e.target.files[0], 'promoImage')} />
                                             </div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="flex-1 h-[1px] bg-gray-100 dark:bg-white/10"></div>
+                                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">OR PASTE URL</span>
+                                                <div className="flex-1 h-[1px] bg-gray-100 dark:bg-white/10"></div>
+                                            </div>
+                                            <input
+                                                type="text"
+                                                placeholder="https://example.com/video.mp4"
+                                                value={formData.promoImage}
+                                                onChange={(e) => setFormData({ ...formData, promoImage: e.target.value })}
+                                                className="w-full mt-2 px-4 py-2 text-xs rounded-xl border border-gray-100 dark:border-white/10 bg-white dark:bg-white/5 outline-none"
+                                            />
                                         </div>
                                     ) : (
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -530,7 +549,7 @@ const PromoManagementModal = ({
                                                         )}
                                                         <input type="file" id="decoration-upload" className="hidden" accept="image/*,video/*" onChange={(e) => handleFileUpload(e.target.files[0], 'decorationImage')} />
                                                     </div>
-                                                    <div className="flex-1">
+                                                    <div className="flex-1 space-y-2">
                                                         <div className="flex gap-1 bg-gray-100 dark:bg-white/5 p-1 rounded-lg">
                                                             {['left', 'right'].map(pos => (
                                                                 <button
@@ -542,6 +561,13 @@ const PromoManagementModal = ({
                                                                 </button>
                                                             ))}
                                                         </div>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Paste URL..."
+                                                            value={formData.decorationImage && !formData.decorationImage.startsWith('data:') ? formData.decorationImage : ''}
+                                                            onChange={(e) => setFormData({ ...formData, decorationImage: e.target.value })}
+                                                            className="w-full px-2 py-1 text-[10px] rounded-lg border border-gray-100 dark:border-white/10 bg-white dark:bg-white/5 outline-none"
+                                                        />
                                                     </div>
                                                 </div>
                                             </div>
