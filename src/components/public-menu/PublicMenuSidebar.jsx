@@ -208,19 +208,22 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                             : 'bg-white border-gray-200'}`}
                     >
                         {/* Header */}
-                        <div className={`p-6 border-b flex items-center justify-between transition-colors ${isDarkMode
+                        <div className={`p-6 border-b flex items-center justify-between transition-colors relative ${isDarkMode
                             ? 'bg-[#1a1c23] border-white/5'
                             : 'bg-gray-50 border-gray-100'}`}>
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${themeColor}20`, color: themeColor }}>
-                                    <HiOutlineUserCircle size={24} />
-                                </div>
-                                <div>
-                                    <h2 className={`font-black text-lg transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{t('auth.orderHistory')}</h2>
-                                    <p className={`text-xs uppercase tracking-widest font-bold transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{displayName || restaurantName}</p>
-                                </div>
+
+                            {/* Centered Name */}
+                            <div className="absolute left-0 right-0 top-0 bottom-0 flex items-center justify-center pointer-events-none">
+                                <h2 className={`font-black text-lg uppercase tracking-widest transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                                    {displayName || restaurantName}
+                                </h2>
                             </div>
-                            <div className="flex items-center gap-2">
+
+                            <div className="flex items-center gap-3 relative z-10 opacity-0 pointer-events-none"> {/* Hidden spacer to maintain layout if needed, or just remove */}
+                                <div className="w-10 h-10" />
+                            </div>
+
+                            <div className="flex items-center gap-2 relative z-10 ms-auto">
                                 <button
                                     onClick={toggleLanguage}
                                     className={`p-2 rounded-xl transition-all border font-bold text-xs w-10 flex items-center justify-center ${isDarkMode
@@ -242,7 +245,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                             </div>
                         </div>
 
-                        <div className="p-6 overflow-y-auto h-[calc(100vh-170px)]">
+                        <div className="p-6 overflow-y-auto h-[calc(100vh-170px)] no-scrollbar">
                             {error && (
                                 <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-sm font-medium">
                                     {error}
@@ -453,9 +456,47 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                             {view === 'profile' && clientUser && (
                                 <div className="animate-fade-in space-y-8">
                                     {/* User Summary */}
-                                    <div className={`p-6 rounded-2xl border transition-colors ${isDarkMode
+                                    <div className={`p-6 rounded-2xl border transition-colors flex flex-col items-center text-center ${isDarkMode
                                         ? 'bg-white/5 border-white/10'
                                         : 'bg-gray-50 border-gray-100'}`}>
+
+                                        {/* Profile Photo Uploader */}
+                                        <div className="relative mb-4 group cursor-pointer">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={(e) => {
+                                                    const file = e.target.files[0];
+                                                    if (file) {
+                                                        const reader = new FileReader();
+                                                        reader.onloadend = () => {
+                                                            const newUser = { ...clientUser, photo: reader.result };
+                                                            setClientUser(newUser);
+                                                            localStorage.setItem('client_user', JSON.stringify(newUser));
+                                                        };
+                                                        reader.readAsDataURL(file);
+                                                    }
+                                                }}
+                                                className="absolute inset-0 w-full h-full opacity-0 z-20 cursor-pointer"
+                                            />
+                                            <div className="w-24 h-24 rounded-full overflow-hidden flex items-center justify-center relative shadow-lg"
+                                                style={{ backgroundColor: `${themeColor}20` }}>
+                                                {clientUser.photo ? (
+                                                    <img src={clientUser.photo} alt="Profile" className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <HiUser size={48} style={{ color: themeColor }} />
+                                                )}
+
+                                                {/* Overlay on Hover */}
+                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold pointer-events-none">
+                                                    Change
+                                                </div>
+                                            </div>
+                                            <div className="absolute bottom-0 right-0 bg-white dark:bg-gray-800 p-1.5 rounded-full shadow-md z-10 text-xs">
+                                                ✏️
+                                            </div>
+                                        </div>
+
                                         <h4 className={`font-black text-xl mb-1 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{clientUser.name}</h4>
                                         <p className={`text-sm mb-6 transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{clientUser.email}</p>
                                         <button
@@ -568,7 +609,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                         </div>
 
                         {/* Social Footer */}
-                        <div className={`p-6 border-t mt-auto flex flex-col items-center gap-4 transition-colors ${isDarkMode
+                        <div className={`p-6 border-t mt-auto flex flex-col items-center gap-4 transition-colors shrink-0 ${isDarkMode
                             ? 'bg-[#1a1c23] border-white/5'
                             : 'bg-gray-50 border-gray-100'}`}>
                             <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
