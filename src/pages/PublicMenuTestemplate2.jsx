@@ -229,9 +229,9 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
                                             {/* Text Content */}
                                             <div className={`flex flex-col justify-center ${promo.discountPosition === 'right' ? 'items-start text-left' : 'items-end text-right'} flex-1`}>
                                                 <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
-                                                    <div className="p-1 px-3 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-black w-fit mb-2 uppercase tracking-[0.2em] opacity-80 drop-shadow-md" style={{ color: promo.textColor || '#ffffff' }}>Promotion</div>
-                                                    <h3 className="text-2xl font-black uppercase tracking-tight leading-none mb-1 drop-shadow-lg" style={{ color: promo.nameColor || '#ffffff', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>{promo.name}</h3>
-                                                    <p className="text-sm font-bold opacity-80 italic drop-shadow-md" style={{ color: promo.textColor || '#ffffff' }}>{promo.promoText}</p>
+                                                    <div className="p-1 px-3 bg-white/20 backdrop-blur-md rounded-full text-[10px] md:text-sm font-black w-fit mb-2 uppercase tracking-[0.2em] opacity-80 drop-shadow-md" style={{ color: promo.textColor || '#ffffff' }}>Promotion</div>
+                                                    <h3 className="text-xl md:text-4xl lg:text-5xl xl:text-6xl font-black uppercase tracking-tight leading-none mb-2 drop-shadow-lg" style={{ color: promo.nameColor || '#ffffff', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>{promo.name}</h3>
+                                                    <p className="text-sm md:text-lg font-bold opacity-80 italic drop-shadow-md" style={{ color: promo.textColor || '#ffffff' }}>{promo.promoText}</p>
                                                 </motion.div>
                                             </div>
 
@@ -242,10 +242,10 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
                                                     animate={{ scale: 1, rotate: promo.discountPosition === 'right' ? 5 : -5 }}
                                                     className="shrink-0 flex flex-col items-center justify-center p-4 min-w-[100px]"
                                                 >
-                                                    <span className="text-3xl font-black tracking-tighter leading-none" style={{ color: promo.discountColor || '#ffffff' }}>
+                                                    <span className="text-4xl md:text-7xl lg:text-8xl xl:text-9xl font-black tracking-tighter leading-none" style={{ color: promo.discountColor || '#ffffff' }}>
                                                         {promo.discountType === 'percentage' ? `${promo.discountValue}%` : `$${promo.discountValue}`}
                                                     </span>
-                                                    <span className="text-[10px] font-black uppercase tracking-widest opacity-60 mt-1" style={{ color: promo.discountColor || '#ffffff' }}>OFF</span>
+                                                    <span className="text-[10px] md:text-xl font-black uppercase tracking-widest opacity-60 mt-2" style={{ color: promo.discountColor || '#ffffff' }}>OFF</span>
                                                 </motion.div>
                                             )}
                                         </div>

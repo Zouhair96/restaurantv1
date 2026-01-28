@@ -252,9 +252,9 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
                                                 {/* Text Content */}
                                                 <div className={`flex flex-col justify-center ${promo.discountPosition === 'right' ? 'items-start text-left' : 'items-end text-right'} flex-1`}>
                                                     <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
-                                                        <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 mb-1 block drop-shadow-md" style={{ color: promo.textColor || '#ffffff' }}>Special Offer</span>
-                                                        <h3 className="text-lg font-black uppercase tracking-tight leading-none mb-1 drop-shadow-lg" style={{ color: promo.nameColor || '#ffffff', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>{promo.name}</h3>
-                                                        <p className="text-xs font-bold opacity-90 line-clamp-1 italic drop-shadow-md" style={{ color: promo.textColor || '#ffffff' }}>{promo.promoText}</p>
+                                                        <span className="text-[10px] md:text-sm font-black uppercase tracking-[0.2em] opacity-80 mb-1 block drop-shadow-md" style={{ color: promo.textColor || '#ffffff' }}>Special Offer</span>
+                                                        <h3 className="text-xl md:text-4xl lg:text-5xl xl:text-6xl font-black uppercase tracking-tight leading-none mb-2 drop-shadow-lg" style={{ color: promo.nameColor || '#ffffff', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>{promo.name}</h3>
+                                                        <p className="text-xs md:text-lg font-bold opacity-90 line-clamp-1 italic drop-shadow-md" style={{ color: promo.textColor || '#ffffff' }}>{promo.promoText}</p>
                                                     </motion.div>
                                                 </div>
 
@@ -265,10 +265,10 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
                                                         animate={{ scale: 1, rotate: promo.discountPosition === 'right' ? 5 : -5 }}
                                                         className="shrink-0 flex flex-col items-center justify-center p-3 min-w-[80px]"
                                                     >
-                                                        <span className="text-2xl font-black tracking-tighter" style={{ color: promo.discountColor || '#ffffff' }}>
+                                                        <span className="text-4xl md:text-7xl lg:text-8xl xl:text-9xl font-black tracking-tighter leading-none" style={{ color: promo.discountColor || '#ffffff' }}>
                                                             {promo.discountType === 'percentage' ? `${promo.discountValue}%` : `$${promo.discountValue}`}
                                                         </span>
-                                                        <span className="text-[10px] font-black uppercase tracking-widest opacity-60" style={{ color: promo.discountColor || '#ffffff' }}>OFF</span>
+                                                        <span className="text-[10px] md:text-xl font-black uppercase tracking-widest opacity-60 mt-2" style={{ color: promo.discountColor || '#ffffff' }}>OFF</span>
                                                     </motion.div>
                                                 )}
                                             </div>
