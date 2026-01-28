@@ -374,7 +374,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                                 <motion.div
                                                     initial={{ scale: 0, rotate: -20 }}
                                                     animate={{ scale: 1, rotate: promo.discountPosition === 'right' ? 5 : -5 }}
-                                                    className="shrink-0 flex flex-col items-center justify-center p-4 bg-white/10 backdrop-blur-md rounded-[2rem] border border-white/20 shadow-2xl"
+                                                    className="shrink-0 flex flex-col items-center justify-center p-4"
                                                 >
                                                     <span className="text-3xl md:text-5xl font-black tracking-tighter" style={{ color: promo.discountColor || '#ffffff' }}>
                                                         {promo.discountType === 'percentage' ? `${promo.discountValue}%` : `$${promo.discountValue}`}

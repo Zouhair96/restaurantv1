@@ -263,7 +263,7 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
                                                     <motion.div
                                                         initial={{ scale: 0, rotate: -20 }}
                                                         animate={{ scale: 1, rotate: promo.discountPosition === 'right' ? 5 : -5 }}
-                                                        className="shrink-0 flex flex-col items-center justify-center p-3 bg-white/10 backdrop-blur-md rounded-3xl border border-white/20 shadow-2xl min-w-[80px]"
+                                                        className="shrink-0 flex flex-col items-center justify-center p-3 min-w-[80px]"
                                                     >
                                                         <span className="text-2xl font-black tracking-tighter" style={{ color: promo.discountColor || '#ffffff' }}>
                                                             {promo.discountType === 'percentage' ? `${promo.discountValue}%` : `$${promo.discountValue}`}
