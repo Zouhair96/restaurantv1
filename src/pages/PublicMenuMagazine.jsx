@@ -7,6 +7,8 @@ import Checkout from '../components/menu/Checkout';
 import Cart from '../components/menu/Cart';
 import WelcomeSequence from '../components/public-menu/WelcomeSequence';
 import { useLanguage } from '../context/LanguageContext';
+import { isPromoActive, getDiscountedPrice, getPromosByDisplayStyle, getPromoFilteredItems, calculateOrderDiscount } from '../utils/promoUtils';
+import { HiTag } from 'react-icons/hi2';
 
 const PublicMenuMagazine = ({ restaurantName: propRestaurantName, templateKey: propTemplateKey }) => {
     const { restaurantName: urlRestaurantName, templateKey: urlTemplateKey } = useParams();
@@ -66,9 +68,24 @@ const PublicMenuMagazine = ({ restaurantName: propRestaurantName, templateKey: p
                         <h3 className="text-3xl font-black uppercase mb-2 leading-tight">{localize(item, 'name')}</h3>
                         <p className="text-sm font-medium mb-6 leading-relaxed opacity-70" dangerouslySetInnerHTML={{ __html: localize(item, 'description') }} />
                         <div className="flex items-center justify-between border-t-2 border-current pt-4">
-                            <span className="text-2xl font-black">${parseFloat(item.price).toFixed(2)}</span>
+                            <div className="flex flex-col">
+                                {(() => {
+                                    const { finalPrice, discount, originalPrice, promo } = getDiscountedPrice(config.promotions || [], item);
+                                    return (
+                                        <>
+                                            {discount > 0 && <span className="text-sm text-gray-400 line-through font-bold">${parseFloat(originalPrice).toFixed(2)}</span>}
+                                            <span className="text-2xl font-black">${parseFloat(finalPrice).toFixed(2)}</span>
+                                            {promo && <span className="text-[10px] font-black uppercase text-pink-500 italic mt-1">🏷️ {promo.name}</span>}
+                                        </>
+                                    );
+                                })()}
+                            </div>
                             <button
-                                onClick={() => { addToCart({ ...item, quantity: 1 }); setIsCartOpen(true); }}
+                                onClick={() => {
+                                    const { finalPrice } = getDiscountedPrice(config.promotions || [], item);
+                                    addToCart({ ...item, price: finalPrice, quantity: 1 });
+                                    setIsCartOpen(true);
+                                }}
                                 className="w-12 h-12 bg-black text-white group-hover:bg-white group-hover:text-black flex items-center justify-center rounded-full transition-colors border border-current"
                             >
                                 <HiShoppingBag className="w-5 h-5" />
@@ -90,9 +107,14 @@ const PublicMenuMagazine = ({ restaurantName: propRestaurantName, templateKey: p
                 onClose={() => setIsCheckoutOpen(false)}
                 restaurantName={restaurantName}
                 themeColor={config.themeColor}
+                promotions={config.promotions || []}
+                taxConfig={{ applyTax: config.applyTax, taxPercentage: config.taxPercentage }}
             />
 
-            <Cart onCheckout={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }} />
+            <Cart
+                promotions={config.promotions || []}
+                onCheckout={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }}
+            />
 
             <WelcomeSequence
                 restaurantName={isMasterView ? 'Magazine' : config.restaurantName || restaurantName}

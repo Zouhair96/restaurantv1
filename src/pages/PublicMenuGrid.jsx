@@ -401,7 +401,10 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
                 taxConfig={{ applyTax: config.applyTax, taxPercentage: config.taxPercentage }}
             />
 
-            <Cart onCheckout={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }} />
+            <Cart
+                promotions={config.promotions || []}
+                onCheckout={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }}
+            />
 
             {/* Badge Promotions List Modal */}
             <AnimatePresence>

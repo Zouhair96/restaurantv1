@@ -7,6 +7,8 @@ import Checkout from '../components/menu/Checkout';
 import Cart from '../components/menu/Cart';
 import WelcomeSequence from '../components/public-menu/WelcomeSequence';
 import { useLanguage } from '../context/LanguageContext';
+import { isPromoActive, getDiscountedPrice, getPromosByDisplayStyle, getPromoFilteredItems, calculateOrderDiscount } from '../utils/promoUtils';
+import { HiTag } from 'react-icons/hi2';
 
 const PublicMenuMinimal = ({ restaurantName: propRestaurantName, templateKey: propTemplateKey }) => {
     const { restaurantName: urlRestaurantName, templateKey: urlTemplateKey } = useParams();
@@ -66,9 +68,26 @@ const PublicMenuMinimal = ({ restaurantName: propRestaurantName, templateKey: pr
                         <h3 className="text-2xl font-light tracking-widest uppercase mb-3">{localize(item, 'name')}</h3>
                         <p className="text-stone-500 font-serif italic mb-6 leading-relaxed px-4" dangerouslySetInnerHTML={{ __html: localize(item, 'description') }} />
                         <div className="flex flex-col items-center gap-6">
-                            <span className="text-xl font-light tracking-widest text-stone-400">/ ${parseFloat(item.price).toFixed(2)} /</span>
+                            <div className="flex flex-col items-center gap-1">
+                                {(() => {
+                                    const { finalPrice, discount, originalPrice, promo } = getDiscountedPrice(config.promotions || [], item);
+                                    return (
+                                        <>
+                                            <span className="text-xl font-light tracking-widest text-stone-400">
+                                                / {discount > 0 && <span className="line-through opacity-50 mr-2">${parseFloat(originalPrice).toFixed(2)}</span>}
+                                                ${parseFloat(finalPrice).toFixed(2)} /
+                                            </span>
+                                            {promo && <span className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400 mt-1 italic opacity-60">🏷️ {promo.name}</span>}
+                                        </>
+                                    );
+                                })()}
+                            </div>
                             <button
-                                onClick={() => { addToCart({ ...item, quantity: 1 }); setIsCartOpen(true); }}
+                                onClick={() => {
+                                    const { finalPrice } = getDiscountedPrice(config.promotions || [], item);
+                                    addToCart({ ...item, price: finalPrice, quantity: 1 });
+                                    setIsCartOpen(true);
+                                }}
                                 className="px-10 py-3 border border-stone-300 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-stone-900 hover:text-white hover:border-stone-900 transition-all duration-500"
                             >
                                 Order Selection
@@ -95,9 +114,14 @@ const PublicMenuMinimal = ({ restaurantName: propRestaurantName, templateKey: pr
                 onClose={() => setIsCheckoutOpen(false)}
                 restaurantName={restaurantName}
                 themeColor={config.themeColor}
+                promotions={config.promotions || []}
+                taxConfig={{ applyTax: config.applyTax, taxPercentage: config.taxPercentage }}
             />
 
-            <Cart onCheckout={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }} />
+            <Cart
+                promotions={config.promotions || []}
+                onCheckout={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }}
+            />
 
             <WelcomeSequence
                 restaurantName={isMasterView ? 'Minimal' : config.restaurantName || restaurantName}

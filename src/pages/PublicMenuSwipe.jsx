@@ -7,6 +7,8 @@ import Checkout from '../components/menu/Checkout';
 import Cart from '../components/menu/Cart';
 import WelcomeSequence from '../components/public-menu/WelcomeSequence';
 import { useLanguage } from '../context/LanguageContext';
+import { isPromoActive, getDiscountedPrice, getPromosByDisplayStyle, getPromoFilteredItems, calculateOrderDiscount } from '../utils/promoUtils';
+import { HiTag } from 'react-icons/hi2';
 
 const PublicMenuSwipe = ({ restaurantName: propRestaurantName, templateKey: propTemplateKey }) => {
     const { restaurantName: urlRestaurantName, templateKey: urlTemplateKey } = useParams();
@@ -48,7 +50,8 @@ const PublicMenuSwipe = ({ restaurantName: propRestaurantName, templateKey: prop
     };
 
     const handleAddToCart = () => {
-        addToCart({ ...menuItems[currentIndex], quantity: 1 });
+        const { finalPrice } = getDiscountedPrice(config.promotions || [], currentItem);
+        addToCart({ ...currentItem, price: finalPrice, quantity: 1 });
         setIsCartOpen(true);
     };
 
@@ -77,7 +80,18 @@ const PublicMenuSwipe = ({ restaurantName: propRestaurantName, templateKey: prop
                         <span className="bg-white/20 backdrop-blur-md text-white px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase mb-2 inline-block border border-white/20">{localize(currentItem, 'category')}</span>
                         <h3 className="text-3xl font-black text-white leading-tight mb-2 uppercase tracking-tight">{localize(currentItem, 'name')}</h3>
                         <p className="text-gray-300 text-sm font-medium line-clamp-2 mb-4 leading-relaxed" dangerouslySetInnerHTML={{ __html: localize(currentItem, 'description') }} />
-                        <div className="text-3xl font-black text-white">${parseFloat(currentItem.price).toFixed(2)}</div>
+                        <div className="flex flex-col">
+                            {(() => {
+                                const { finalPrice, discount, originalPrice, promo } = getDiscountedPrice(config.promotions || [], currentItem);
+                                return (
+                                    <>
+                                        {discount > 0 && <span className="text-sm text-gray-400 line-through font-bold">${parseFloat(originalPrice).toFixed(2)}</span>}
+                                        <div className="text-3xl font-black text-white">${parseFloat(finalPrice).toFixed(2)}</div>
+                                        {promo && <span className="text-[10px] font-black uppercase text-orange-500 italic mt-1">🏷️ {promo.name}</span>}
+                                    </>
+                                );
+                            })()}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -115,10 +129,15 @@ const PublicMenuSwipe = ({ restaurantName: propRestaurantName, templateKey: prop
                 isOpen={isCheckoutOpen}
                 onClose={() => setIsCheckoutOpen(false)}
                 restaurantName={restaurantName}
-                themeColor="#ffffff"
+                themeColor={config.themeColor || "#ffffff"}
+                promotions={config.promotions || []}
+                taxConfig={{ applyTax: config.applyTax, taxPercentage: config.taxPercentage }}
             />
 
-            <Cart onCheckout={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }} />
+            <Cart
+                promotions={config.promotions || []}
+                onCheckout={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }}
+            />
 
             <WelcomeSequence
                 restaurantName={isMasterView ? 'Swipe Mode' : config.restaurantName || restaurantName}

@@ -10,6 +10,7 @@ import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
 import PersistentOrderTracker from '../components/PersistentOrderTracker';
 import { useClientAuth } from '../context/ClientAuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import { isPromoActive, getDiscountedPrice, getPromosByDisplayStyle, getPromoFilteredItems, calculateOrderDiscount } from '../utils/promoUtils';
 import { HiOutlineUserCircle, HiOutlineLogout, HiOutlineLogin, HiOutlineClipboardList, HiOutlineUserAdd, HiOutlineShoppingBag, HiOutlineClipboard } from 'react-icons/hi';
 import { HiXMark, HiOutlineClipboardDocumentList } from 'react-icons/hi2';
 
@@ -152,14 +153,26 @@ const PublicMenuList = ({ restaurantName: propRestaurantName, templateKey: propT
                                 <div>
                                     <div className="flex justify-between items-start">
                                         <h3 className="text-xl font-black text-gray-800 uppercase tracking-tight">{localize(item, 'name')}</h3>
-                                        <motion.span
-                                            key={item.price}
-                                            initial={{ scale: 1.2, color: config.themeColor }}
-                                            animate={{ scale: 1, color: config.themeColor }}
-                                            className="text-xl font-black"
-                                        >
-                                            ${parseFloat(item.price).toFixed(2)}
-                                        </motion.span>
+                                        <div className="flex flex-col items-end">
+                                            {(() => {
+                                                const { finalPrice, discount, originalPrice, promo } = getDiscountedPrice(config.promotions || [], item);
+                                                return (
+                                                    <>
+                                                        {discount > 0 && <span className="text-xs text-gray-400 line-through font-bold">${parseFloat(originalPrice).toFixed(2)}</span>}
+                                                        <motion.span
+                                                            key={finalPrice}
+                                                            initial={{ scale: 1.2, color: config.themeColor }}
+                                                            animate={{ scale: 1, color: config.themeColor }}
+                                                            className="text-xl font-black"
+                                                            style={{ color: config.themeColor }}
+                                                        >
+                                                            ${parseFloat(finalPrice).toFixed(2)}
+                                                        </motion.span>
+                                                        {promo && <span className="text-[10px] text-theme font-black uppercase tracking-tighter" style={{ color: config.themeColor }}>🏷️ {promo.name}</span>}
+                                                    </>
+                                                );
+                                            })()}
+                                        </div>
                                     </div>
                                     <p className="text-gray-400 text-sm mt-1 leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: localize(item, 'description') }} />
                                 </div>
@@ -168,7 +181,11 @@ const PublicMenuList = ({ restaurantName: propRestaurantName, templateKey: propT
                                     <motion.button
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
-                                        onClick={() => { addToCart({ ...item, quantity: 1 }); setIsCartOpen(true); }}
+                                        onClick={() => {
+                                            const { finalPrice } = getDiscountedPrice(config.promotions || [], item);
+                                            addToCart({ ...item, price: finalPrice, quantity: 1 });
+                                            setIsCartOpen(true);
+                                        }}
                                         className="px-6 py-3 rounded-2xl bg-gray-900 text-white text-xs font-black uppercase tracking-widest transition-all shadow-lg"
                                         style={{ backgroundColor: config.themeColor }}
                                     >
@@ -195,9 +212,14 @@ const PublicMenuList = ({ restaurantName: propRestaurantName, templateKey: propT
                 onClose={() => setIsCheckoutOpen(false)}
                 restaurantName={restaurantName}
                 themeColor={config.themeColor}
+                promotions={config.promotions || []}
+                taxConfig={{ applyTax: config.applyTax, taxPercentage: config.taxPercentage }}
             />
 
-            <Cart onCheckout={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }} />
+            <Cart
+                promotions={config.promotions || []}
+                onCheckout={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }}
+            />
 
             <WelcomeSequence
                 restaurantName={isMasterView ? 'Master List' : config.restaurantName || restaurantName}

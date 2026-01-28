@@ -1,9 +1,14 @@
 import React from 'react';
 import { HiXMark, HiPlus, HiMinus, HiShoppingCart, HiTrash } from 'react-icons/hi2';
 import { useCart } from '../../context/CartContext';
+import { calculateOrderDiscount } from '../../utils/promoUtils';
 
-const Cart = ({ onCheckout }) => {
+const Cart = ({ onCheckout, promotions = [] }) => {
     const { cartItems, isCartOpen, toggleCart, updateQuantity, removeFromCart, getCartTotal, getCartCount } = useCart();
+
+    const subtotal = getCartTotal();
+    const { discount: orderDiscount, promo: orderPromo } = calculateOrderDiscount(promotions, subtotal);
+    const total = subtotal - orderDiscount;
 
     return (
         <>
@@ -108,14 +113,31 @@ const Cart = ({ onCheckout }) => {
                 {/* Footer */}
                 {cartItems.length > 0 && (
                     <div className="border-t border-gray-200 dark:border-gray-700 p-6 space-y-4">
-                        {/* Total */}
-                        <div className="flex items-center justify-between">
-                            <span className="text-lg font-bold text-gray-900 dark:text-white">
-                                Total
-                            </span>
-                            <span className="text-2xl font-black text-orange-500">
-                                {Number(getCartTotal()).toFixed(2)}€
-                            </span>
+                        {/* Total Section */}
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 font-bold italic">
+                                <span>Sous-total</span>
+                                <span>{subtotal.toFixed(2)}€</span>
+                            </div>
+
+                            {orderDiscount > 0 && (
+                                <div className="flex items-center justify-between text-sm text-green-600 dark:text-green-500 font-black uppercase tracking-tight">
+                                    <div className="flex flex-col">
+                                        <span>{orderPromo?.name}</span>
+                                        <span className="text-[9px] opacity-60">Offre appliquée</span>
+                                    </div>
+                                    <span>-{orderDiscount.toFixed(2)}€</span>
+                                </div>
+                            )}
+
+                            <div className="flex items-center justify-between pt-2">
+                                <span className="text-lg font-black text-gray-900 dark:text-white uppercase tracking-tighter">
+                                    Total
+                                </span>
+                                <span className="text-2xl font-black text-orange-500">
+                                    {total.toFixed(2)}€
+                                </span>
+                            </div>
                         </div>
 
                         {/* Checkout Button */}

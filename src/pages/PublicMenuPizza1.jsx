@@ -11,7 +11,7 @@ import { useClientAuth } from '../context/ClientAuthContext';
 import PersistentOrderTracker from '../components/PersistentOrderTracker';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
-import { isPromoActive, getDiscountedPrice, getPromosByDisplayStyle, getPromoFilteredItems } from '../utils/promoUtils';
+import { isPromoActive, getDiscountedPrice, getPromosByDisplayStyle, getPromoFilteredItems, calculateOrderDiscount } from '../utils/promoUtils';
 import { HiTag, HiChevronLeft, HiChevronRight, HiArrowUturnLeft } from 'react-icons/hi2';
 
 const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
@@ -520,9 +520,35 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                         )}
                     </div>
                     <div className="p-6 border-t border-gray-100 bg-gray-50/50">
-                        <div className="flex justify-between mb-2 text-sm text-gray-500"><span>{t('auth.checkout.subtotal')}</span><span>${parseFloat(getCartTotal() || 0).toFixed(2)}</span></div>
-                        <div className="flex justify-between mb-6"><span className="text-gray-900 font-bold text-lg">{t('auth.checkout.total')}</span><span className="font-black text-2xl text-gray-900">${parseFloat(getCartTotal() || 0).toFixed(2)}</span></div>
-                        <button onClick={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }} className="w-full bg-gray-900 text-white font-bold py-4 rounded-xl shadow-lg">{t('auth.checkout.title')}</button>
+                        {(() => {
+                            const subtotal = getCartTotal();
+                            const { discount: orderDiscount, promo: orderPromo } = calculateOrderDiscount(config.promotions || [], subtotal);
+                            const total = subtotal - orderDiscount;
+                            return (
+                                <>
+                                    <div className="flex justify-between mb-2 text-sm text-gray-500 italic">
+                                        <span>{t('auth.checkout.subtotal')}</span>
+                                        <span>${subtotal.toFixed(2)}</span>
+                                    </div>
+                                    {orderDiscount > 0 && (
+                                        <div className="flex justify-between mb-2 text-sm text-orange-600 dark:text-orange-500 font-black uppercase tracking-tight">
+                                            <div className="flex flex-col">
+                                                <span>{orderPromo?.name || 'Promo Discount'}</span>
+                                                <span className="text-[9px] opacity-60">Order-level offer applied</span>
+                                            </div>
+                                            <span>-${orderDiscount.toFixed(2)}</span>
+                                        </div>
+                                    )}
+                                    <div className="flex justify-between mb-6">
+                                        <span className="text-gray-900 font-bold text-lg">{t('auth.checkout.total')}</span>
+                                        <span className="font-black text-2xl text-gray-900" style={{ color: total < subtotal ? config.themeColor : '#111827' }}>
+                                            ${total.toFixed(2)}
+                                        </span>
+                                    </div>
+                                </>
+                            );
+                        })()}
+                        <button onClick={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }} className="w-full bg-gray-900 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-2xl transition-all active:scale-95">{t('auth.checkout.title')}</button>
                     </div>
                 </div>
             </div>
