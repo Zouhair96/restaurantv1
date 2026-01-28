@@ -368,12 +368,29 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                                                 </>
                                             )}
 
-                                            <div className={`relative h-full px-8 flex flex-col justify-center text-white z-20 ${promo.decorationPosition === 'left' ? 'items-end text-right' : 'items-start text-left'}`}>
-                                                <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
-                                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 mb-1 block drop-shadow-md">Special Offer</span>
-                                                    <h3 className="text-xl font-black uppercase tracking-tight leading-none mb-1 drop-shadow-lg" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>{promo.name}</h3>
-                                                    <p className="text-xs font-bold opacity-90 line-clamp-1 italic drop-shadow-md">{promo.promoText}</p>
-                                                </motion.div>
+                                            <div className={`relative h-full px-8 flex items-center z-20 ${promo.discountPosition === 'right' ? 'flex-row' : 'flex-row-reverse'} justify-between gap-6 w-full`}>
+                                                {/* Text Content */}
+                                                <div className={`flex flex-col justify-center ${promo.discountPosition === 'right' ? 'items-start text-left' : 'items-end text-right'} flex-1`}>
+                                                    <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
+                                                        <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 mb-1 block drop-shadow-md" style={{ color: promo.textColor || '#ffffff' }}>Special Offer</span>
+                                                        <h3 className="text-xl font-black uppercase tracking-tight leading-none mb-1 drop-shadow-lg" style={{ color: promo.nameColor || '#ffffff', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>{promo.name}</h3>
+                                                        <p className="text-xs font-bold opacity-90 line-clamp-1 italic drop-shadow-md" style={{ color: promo.textColor || '#ffffff' }}>{promo.promoText}</p>
+                                                    </motion.div>
+                                                </div>
+
+                                                {/* Prominent Discount Badge */}
+                                                {promo.showDiscountOnBanner !== false && (
+                                                    <motion.div
+                                                        initial={{ scale: 0, rotate: -20 }}
+                                                        animate={{ scale: 1, rotate: promo.discountPosition === 'right' ? 5 : -5 }}
+                                                        className="shrink-0 flex flex-col items-center justify-center p-3 md:p-4 bg-white/10 backdrop-blur-md rounded-[2rem] border border-white/20 shadow-2xl"
+                                                    >
+                                                        <span className="text-3xl md:text-5xl font-black tracking-tighter" style={{ color: promo.discountColor || '#ffffff' }}>
+                                                            {promo.discountType === 'percentage' ? `${promo.discountValue}%` : `$${promo.discountValue}`}
+                                                        </span>
+                                                        <span className="text-[10px] font-black uppercase tracking-widest opacity-60" style={{ color: promo.discountColor || '#ffffff' }}>OFF</span>
+                                                    </motion.div>
+                                                )}
                                             </div>
                                         </motion.div>
                                     ))}

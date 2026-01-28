@@ -35,6 +35,11 @@ const PromoManagementModal = ({
                 itemIds: [],
                 categories: []
             },
+            nameColor: '#ffffff',
+            textColor: '#ffffff',
+            discountColor: '#ffffff',
+            discountPosition: 'left',
+            showDiscountOnBanner: true,
             schedule: {
                 startDate: '',
                 endDate: '',
@@ -377,6 +382,48 @@ const PromoManagementModal = ({
                                         placeholder="e.g., Get 20% off all items this summer!"
                                         className="w-full px-5 py-4 rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-[#24262d] text-gray-900 dark:text-white font-medium italic focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none"
                                     />
+                                </div>
+
+                                {/* Quick Colors & Style */}
+                                <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-indigo-50/50 dark:bg-white/5 rounded-3xl border border-indigo-100/50 dark:border-white/10">
+                                    <div className="space-y-4">
+                                        <h4 className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-[0.2em]">Banner Text Colors</h4>
+                                        <div className="grid grid-cols-3 gap-4">
+                                            <div className="flex flex-col gap-2">
+                                                <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Name</label>
+                                                <input type="color" value={formData.nameColor || '#ffffff'} onChange={(e) => setFormData({ ...formData, nameColor: e.target.value })} className="w-full h-10 rounded-xl cursor-pointer border-none" />
+                                            </div>
+                                            <div className="flex flex-col gap-2">
+                                                <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Message</label>
+                                                <input type="color" value={formData.textColor || '#ffffff'} onChange={(e) => setFormData({ ...formData, textColor: e.target.value })} className="w-full h-10 rounded-xl cursor-pointer border-none" />
+                                            </div>
+                                            <div className="flex flex-col gap-2">
+                                                <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Discount</label>
+                                                <input type="color" value={formData.discountColor || '#ffffff'} onChange={(e) => setFormData({ ...formData, discountColor: e.target.value })} className="w-full h-10 rounded-xl cursor-pointer border-none" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-4">
+                                        <h4 className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-[0.2em]">Discount Display</h4>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <span className="text-xs font-bold text-gray-600 dark:text-gray-300">Show on Banner</span>
+                                            <input type="checkbox" checked={formData.showDiscountOnBanner} onChange={(e) => setFormData({ ...formData, showDiscountOnBanner: e.target.checked })} className="w-5 h-5 accent-indigo-600" />
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={() => setFormData({ ...formData, discountPosition: 'left' })}
+                                                className={`flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${formData.discountPosition === 'left' ? 'bg-indigo-600 text-white shadow-md' : 'bg-white dark:bg-white/5 text-gray-400'}`}
+                                            >
+                                                Left
+                                            </button>
+                                            <button
+                                                onClick={() => setFormData({ ...formData, discountPosition: 'right' })}
+                                                className={`flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${formData.discountPosition === 'right' ? 'bg-indigo-600 text-white shadow-md' : 'bg-white dark:bg-white/5 text-gray-400'}`}
+                                            >
+                                                Right
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {/* Display Style and Background Type */}
