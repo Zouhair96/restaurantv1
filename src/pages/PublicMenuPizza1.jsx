@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, HiBars3, HiBuildingStorefront, HiXMark, HiTrash, HiOutlineClipboardDocumentList, HiUser } from 'react-icons/hi2';
+import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, HiBars3, HiBuildingStorefront, HiXMark, HiTrash, HiOutlineClipboardDocumentList, HiUser, HiMagnifyingGlass } from 'react-icons/hi2';
 import { FaInstagram, FaFacebookF, FaTiktok, FaGoogle } from 'react-icons/fa6';
 import { FaSnapchatGhost } from 'react-icons/fa';
 import { Link, useParams } from 'react-router-dom';
@@ -52,6 +52,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
     const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
     const [showBadgePromos, setShowBadgePromos] = useState(false);
     const [selectedPromoId, setSelectedPromoId] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
 
     const {
         cartItems,
@@ -164,7 +165,10 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
             promoMatch = getPromoFilteredItems(activePromo, menuItems).some(promoItem => String(promoItem.id) === String(item.id));
         }
 
-        return categoryMatch && promoMatch;
+        // Search filter
+        const nameMatch = localize(item, 'name').toLowerCase().includes(searchQuery.toLowerCase());
+
+        return categoryMatch && promoMatch && nameMatch;
     });
 
     // Removed auto-item select on promo change as requested by user
@@ -189,7 +193,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
             `}</style>
 
             {/* Left Sidebar / Thumbnail List */}
-            <div className="relative shrink-0 z-40 bg-white/50 backdrop-blur-sm w-20 md:w-36 lg:w-44 h-full flex flex-col items-center">
+            <div className="relative shrink-0 z-40 bg-white/50 backdrop-blur-sm w-24 md:w-36 lg:w-44 h-full flex flex-col items-center">
                 <div className="flex-1 w-full overflow-y-auto scroll-smooth no-scrollbar py-6 flex flex-col items-center">
                     <button
                         onClick={() => setShowAuthSidebar(true)}
@@ -234,14 +238,14 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                 className="relative group w-full flex flex-col items-center justify-center transition-all duration-300"
                             >
                                 <div
-                                    className={`w-14 h-14 md:w-28 md:h-28 lg:w-36 lg:h-36 flex items-center justify-center transition-all duration-300 ${selectedItem?.id === item.id ? 'rounded-[1.2rem] md:rounded-[2rem] p-2 md:p-4' : 'rounded-full p-0 scale-90 opacity-70 hover:opacity-100 hover:scale-100'}`}
+                                    className={`w-18 h-18 md:w-28 md:h-28 lg:w-36 lg:h-36 flex items-center justify-center transition-all duration-300 ${selectedItem?.id === item.id ? 'rounded-[1.5rem] md:rounded-[2rem] p-3 md:p-4' : 'rounded-full p-0 scale-90 opacity-70 hover:opacity-100 hover:scale-100'}`}
                                     style={selectedItem?.id === item.id ? { backgroundColor: `${config.themeColor}15`, color: config.themeColor } : {}}
                                 >
                                     <img
                                         src={item.image}
                                         alt={localize(item, 'name')}
                                         className="w-full h-full object-cover rounded-full shadow-md"
-                                        style={selectedItem?.id === item.id ? { boxShadow: `0 8px 20px -5px ${config.themeColor}50` } : {}}
+                                        style={selectedItem?.id === item.id ? { boxShadow: `0 10px 25px -5px ${config.themeColor}50` } : {}}
                                     />
                                 </div>
                             </motion.button>
@@ -296,127 +300,149 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                         </div>
                     </div>
 
-
-
-                    {activePromo ? (
-                        <div className="flex items-center gap-2 mb-6 animate-fade-in">
-                            <span className="p-1.5 rounded-lg bg-red-50 text-red-500"><HiTag className="w-4 h-4" /></span>
-                            <span className="text-xs font-black uppercase tracking-widest text-gray-400">Filtering: </span>
-                            <span className="text-sm font-black text-gray-900 border-b-2 border-red-500">{activePromo.name}</span>
-                        </div>
-                    ) : (
-                        <div className="flex items-center justify-start gap-4 md:gap-8 text-sm md:text-base mb-2 overflow-x-auto no-scrollbar py-1">
-                            {['All', ...new Set(menuItems.map(i => localize(i, 'category')).filter(Boolean))].map((category) => (
+                    {/* Search Bar */}
+                    <div className="relative mb-6 max-w-xl">
+                        <div className="relative flex items-center bg-gray-50/50 backdrop-blur-sm rounded-[1.2rem] px-4 py-3 border border-gray-100 focus-within:border-orange-200 focus-within:ring-4 focus-within:ring-orange-500/5 transition-all group">
+                            <HiMagnifyingGlass className="w-5 h-5 text-gray-300 group-focus-within:text-orange-500 transition-colors shrink-0" />
+                            <input
+                                type="text"
+                                placeholder={t('menu.searchPlaceholder') || 'Search for your favorite...'}
+                                className="bg-transparent border-none focus:ring-0 w-full ml-3 text-sm font-bold text-gray-900 placeholder:text-gray-300 placeholder:font-normal"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                            {searchQuery && (
                                 <button
-                                    key={category}
-                                    onClick={() => handleCategorySelect(category)}
-                                    className={`font-bold pb-1 whitespace-nowrap transition-colors ${activeCategory === category ? 'text-gray-900 border-b-2' : 'text-gray-400 hover-text-theme'}`}
-                                    style={activeCategory === category ? { borderColor: config.themeColor } : {}}
+                                    onClick={() => setSearchQuery('')}
+                                    className="text-gray-300 hover:text-gray-900 p-1 transition-colors"
                                 >
-                                    {category === 'All' ? t('auth.menu.all') : category}
+                                    <HiXMark className="w-5 h-5" />
                                 </button>
-                            ))}
+                            )}
                         </div>
-                    )}
-
-                    {/* Promotion Banner */}
-                    {config.promotions && getPromosByDisplayStyle(config.promotions, 'banner').length > 0 && !selectedPromoId && (
-                        <div className="mx-[-20px] my-6 relative z-30 flex justify-center w-[calc(100%+40px)]">
-                            <div className="relative w-full max-w-7xl h-28 md:h-48 lg:h-64 rounded-[2rem] overflow-hidden shadow-xl shadow-gray-200/50 group border border-gray-100 bg-gray-900">
-                                <AnimatePresence mode="wait">
-                                    {getPromosByDisplayStyle(config.promotions, 'banner').map((promo, idx) => idx === currentBannerIndex && (
-                                        <motion.div
-                                            key={promo.id}
-                                            initial={{ opacity: 0, x: 20 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            exit={{ opacity: 0, x: -20 }}
-                                            className="absolute inset-0 cursor-pointer"
-                                            onClick={() => setSelectedPromoId(promo.id)}
-                                            style={{
-                                                backgroundColor: promo.backgroundType === 'image' ? 'transparent' : (promo.backgroundColor || config.themeColor)
-                                            }}
-                                        >
-                                            {promo.backgroundType === 'image' ? (
-                                                <>
-                                                    {isMediaVideo(promo.promoImage) ? (
-                                                        <video src={promo.promoImage} autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover" />
-                                                    ) : (
-                                                        <img src={promo.promoImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
-                                                    )}
-                                                    <div className={`absolute inset-0 bg-gradient-to-r ${promo.decorationPosition === 'left' ? 'from-transparent via-black/20 to-black/80' : 'from-black/80 via-black/20 to-transparent'}`} />
-                                                </>
-                                            ) : (
-                                                <>
-                                                    {promo.decorationImage && (
-                                                        <motion.div
-                                                            initial={{ scale: 0.8, opacity: 0, x: promo.decorationPosition === 'left' ? -20 : 20 }}
-                                                            animate={{ scale: 1, opacity: 1, x: 0 }}
-                                                            className={`absolute top-0 h-full w-1/2 pointer-events-none z-10 flex items-center justify-center ${promo.decorationPosition === 'left' ? 'left-0' : 'right-0'}`}
-                                                        >
-                                                            {isMediaVideo(promo.decorationImage) ? (
-                                                                <video src={promo.decorationImage} autoPlay muted loop playsInline className="h-[80%] w-auto object-contain" />
-                                                            ) : (
-                                                                <img src={promo.decorationImage} alt="" className="h-[80%] w-auto object-contain drop-shadow-2xl" />
-                                                            )}
-                                                        </motion.div>
-                                                    )}
-                                                </>
-                                            )}
-
-                                            <div className="relative h-full px-8 flex flex-col items-center justify-center z-20 gap-2 w-full text-center">
-                                                {/* Text Content */}
-                                                <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="flex flex-col items-center">
-                                                    <span className="text-[10px] md:text-sm font-black uppercase tracking-[0.2em] opacity-80 mb-1 block drop-shadow-md" style={{ color: promo.textColor || '#ffffff' }}>Special Offer</span>
-                                                    <h3 className="text-xl md:text-4xl lg:text-5xl xl:text-6xl font-black uppercase tracking-tight leading-none mb-2 drop-shadow-lg" style={{ color: promo.nameColor || '#ffffff', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>{promo.name}</h3>
-                                                    <p className="text-xs md:text-lg font-bold opacity-90 line-clamp-1 italic drop-shadow-md" style={{ color: promo.textColor || '#ffffff' }}>{promo.promoText}</p>
-                                                </motion.div>
-
-                                                {/* Prominent Discount Badge */}
-                                                {promo.showDiscountOnBanner !== false && (
-                                                    <motion.div
-                                                        initial={{ scale: 0, rotate: -20 }}
-                                                        animate={{ scale: 1, rotate: 0 }}
-                                                        className="flex items-baseline gap-2"
-                                                    >
-                                                        <span className="text-2xl md:text-4xl font-black tracking-tighter" style={{ color: promo.discountColor || '#ffffff' }}>
-                                                            {promo.discountType === 'percentage' ? `${promo.discountValue}%` : `$${promo.discountValue}`}
-                                                        </span>
-                                                        <span className="text-[10px] md:text-sm font-black uppercase tracking-widest opacity-60" style={{ color: promo.discountColor || '#ffffff' }}>OFF</span>
-                                                    </motion.div>
-                                                )}
-                                            </div>
-                                        </motion.div>
-                                    ))}
-                                </AnimatePresence>
-                            </div>
-                        </div>
-                    )}
+                    </div>
                 </div>
 
-                {/* Hero Image & Animation Container */}
-                <div className="flex-1 flex items-center justify-end p-2 relative min-h-[180px] md:min-h-[220px] overflow-hidden">
-                    <div className="w-[100vw] h-[100vw] sm:w-[80vw] sm:h-[80vw] md:w-[80vw] md:h-[80vw] relative z-10 aspect-square shrink-0 translate-x-[35%] md:translate-x-[40%]">
-                        <AnimatePresence mode="popLayout">
-                            <motion.div
-                                key={selectedItem.id}
-                                initial={{ rotate: 90, opacity: 0, scale: 0.8, x: 200 }}
-                                animate={{ rotate: 0, opacity: 1, scale: 1, x: 0 }}
-                                exit={{ rotate: -90, opacity: 0, scale: 0.8, x: -200 }}
-                                transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                                className="absolute inset-0 w-full h-full rounded-full overflow-hidden border-none shadow-none z-10"
-                                style={{ transformOrigin: 'center center' }}
-                            >
-                                <motion.img whileHover={{ scale: 1.05, rotate: 5 }} src={selectedItem.image} alt={localize(selectedItem, 'name')} className="w-full h-full object-cover shadow-2xl rounded-full" />
-                                <div className="absolute inset-0 flex justify-center pointer-events-none">
-                                    <div className="flex gap-4 opacity-30 mt-4">
-                                        {[0, 1, 2].map((i) => (
-                                            <motion.div key={i} animate={{ y: [-10, -40], opacity: [0, 1, 0], scale: [1, 1.5] }} transition={{ duration: 2 + i * 0.5, repeat: Infinity, delay: i * 0.4 }} className="w-2 h-12 bg-gradient-to-t from-gray-200 to-transparent blur-md rounded-full" />
-                                        ))}
-                                    </div>
-                                </div>
-                            </motion.div>
-                        </AnimatePresence>
+
+
+                {activePromo ? (
+                    <div className="flex items-center gap-2 mb-6 animate-fade-in">
+                        <span className="p-1.5 rounded-lg bg-red-50 text-red-500"><HiTag className="w-4 h-4" /></span>
+                        <span className="text-xs font-black uppercase tracking-widest text-gray-400">Filtering: </span>
+                        <span className="text-sm font-black text-gray-900 border-b-2 border-red-500">{activePromo.name}</span>
                     </div>
+                ) : (
+                    <div className="flex items-center justify-start gap-4 md:gap-8 text-sm md:text-base mb-2 overflow-x-auto no-scrollbar py-1">
+                        {['All', ...new Set(menuItems.map(i => localize(i, 'category')).filter(Boolean))].map((category) => (
+                            <button
+                                key={category}
+                                onClick={() => handleCategorySelect(category)}
+                                className={`font-bold pb-1 whitespace-nowrap transition-colors ${activeCategory === category ? 'text-gray-900 border-b-2' : 'text-gray-400 hover-text-theme'}`}
+                                style={activeCategory === category ? { borderColor: config.themeColor } : {}}
+                            >
+                                {category === 'All' ? t('auth.menu.all') : category}
+                            </button>
+                        ))}
+                    </div>
+                )}
+
+                {/* Promotion Banner */}
+                {config.promotions && getPromosByDisplayStyle(config.promotions, 'banner').length > 0 && !selectedPromoId && (
+                    <div className="mx-[-20px] my-6 relative z-30 flex justify-center w-[calc(100%+40px)]">
+                        <div className="relative w-full max-w-7xl h-28 md:h-48 lg:h-64 rounded-[2rem] overflow-hidden shadow-xl shadow-gray-200/50 group border border-gray-100 bg-gray-900">
+                            <AnimatePresence mode="wait">
+                                {getPromosByDisplayStyle(config.promotions, 'banner').map((promo, idx) => idx === currentBannerIndex && (
+                                    <motion.div
+                                        key={promo.id}
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -20 }}
+                                        className="absolute inset-0 cursor-pointer"
+                                        onClick={() => setSelectedPromoId(promo.id)}
+                                        style={{
+                                            backgroundColor: promo.backgroundType === 'image' ? 'transparent' : (promo.backgroundColor || config.themeColor)
+                                        }}
+                                    >
+                                        {promo.backgroundType === 'image' ? (
+                                            <>
+                                                {isMediaVideo(promo.promoImage) ? (
+                                                    <video src={promo.promoImage} autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover" />
+                                                ) : (
+                                                    <img src={promo.promoImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                                                )}
+                                                <div className={`absolute inset-0 bg-gradient-to-r ${promo.decorationPosition === 'left' ? 'from-transparent via-black/20 to-black/80' : 'from-black/80 via-black/20 to-transparent'}`} />
+                                            </>
+                                        ) : (
+                                            <>
+                                                {promo.decorationImage && (
+                                                    <motion.div
+                                                        initial={{ scale: 0.8, opacity: 0, x: promo.decorationPosition === 'left' ? -20 : 20 }}
+                                                        animate={{ scale: 1, opacity: 1, x: 0 }}
+                                                        className={`absolute top-0 h-full w-1/2 pointer-events-none z-10 flex items-center justify-center ${promo.decorationPosition === 'left' ? 'left-0' : 'right-0'}`}
+                                                    >
+                                                        {isMediaVideo(promo.decorationImage) ? (
+                                                            <video src={promo.decorationImage} autoPlay muted loop playsInline className="h-[80%] w-auto object-contain" />
+                                                        ) : (
+                                                            <img src={promo.decorationImage} alt="" className="h-[80%] w-auto object-contain drop-shadow-2xl" />
+                                                        )}
+                                                    </motion.div>
+                                                )}
+                                            </>
+                                        )}
+
+                                        <div className="relative h-full px-8 flex flex-col items-center justify-center z-20 gap-2 w-full text-center">
+                                            {/* Text Content */}
+                                            <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="flex flex-col items-center">
+                                                <span className="text-[10px] md:text-sm font-black uppercase tracking-[0.2em] opacity-80 mb-1 block drop-shadow-md" style={{ color: promo.textColor || '#ffffff' }}>Special Offer</span>
+                                                <h3 className="text-xl md:text-4xl lg:text-5xl xl:text-6xl font-black uppercase tracking-tight leading-none mb-2 drop-shadow-lg" style={{ color: promo.nameColor || '#ffffff', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>{promo.name}</h3>
+                                                <p className="text-xs md:text-lg font-bold opacity-90 line-clamp-1 italic drop-shadow-md" style={{ color: promo.textColor || '#ffffff' }}>{promo.promoText}</p>
+                                            </motion.div>
+
+                                            {/* Prominent Discount Badge */}
+                                            {promo.showDiscountOnBanner !== false && (
+                                                <motion.div
+                                                    initial={{ scale: 0, rotate: -20 }}
+                                                    animate={{ scale: 1, rotate: 0 }}
+                                                    className="flex items-baseline gap-2"
+                                                >
+                                                    <span className="text-2xl md:text-4xl font-black tracking-tighter" style={{ color: promo.discountColor || '#ffffff' }}>
+                                                        {promo.discountType === 'percentage' ? `${promo.discountValue}%` : `$${promo.discountValue}`}
+                                                    </span>
+                                                    <span className="text-[10px] md:text-sm font-black uppercase tracking-widest opacity-60" style={{ color: promo.discountColor || '#ffffff' }}>OFF</span>
+                                                </motion.div>
+                                            )}
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </AnimatePresence>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Hero Image & Animation Container */}
+            <div className="flex-1 flex items-center justify-end p-2 relative min-h-[180px] md:min-h-[220px] overflow-hidden">
+                <div className="w-[100vw] h-[100vw] sm:w-[80vw] sm:h-[80vw] md:w-[80vw] md:h-[80vw] relative z-10 aspect-square shrink-0 translate-x-[35%] md:translate-x-[40%]">
+                    <AnimatePresence mode="popLayout">
+                        <motion.div
+                            key={selectedItem.id}
+                            initial={{ rotate: 90, opacity: 0, scale: 0.8, x: 200 }}
+                            animate={{ rotate: 0, opacity: 1, scale: 1, x: 0 }}
+                            exit={{ rotate: -90, opacity: 0, scale: 0.8, x: -200 }}
+                            transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                            className="absolute inset-0 w-full h-full rounded-full overflow-hidden border-none shadow-none z-10"
+                            style={{ transformOrigin: 'center center' }}
+                        >
+                            <motion.img whileHover={{ scale: 1.05, rotate: 5 }} src={selectedItem.image} alt={localize(selectedItem, 'name')} className="w-full h-full object-cover shadow-2xl rounded-full" />
+                            <div className="absolute inset-0 flex justify-center pointer-events-none">
+                                <div className="flex gap-4 opacity-30 mt-4">
+                                    {[0, 1, 2].map((i) => (
+                                        <motion.div key={i} animate={{ y: [-10, -40], opacity: [0, 1, 0], scale: [1, 1.5] }} transition={{ duration: 2 + i * 0.5, repeat: Infinity, delay: i * 0.4 }} className="w-2 h-12 bg-gradient-to-t from-gray-200 to-transparent blur-md rounded-full" />
+                                    ))}
+                                </div>
+                            </div>
+                        </motion.div>
+                    </AnimatePresence>
                 </div>
             </div>
             {/* Details Card */}
