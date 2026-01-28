@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { HiPencil, HiTrash, HiXMark, HiCloudArrowUp, HiPhoto, HiPlus, HiCog6Tooth, HiArrowLeft, HiRocketLaunch, HiEye, HiEyeSlash, HiTag } from 'react-icons/hi2';
+import { FaInstagram, FaFacebookF, FaTiktok, FaSnapchatGhost, FaGoogle } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import ReactQuill from 'react-quill-new';
@@ -25,7 +26,16 @@ const ManageMenu = ({ isAdminView = false }) => {
         promoDuration: 5,
         promotions: [], // Promotion management
         applyTax: false,
-        taxPercentage: 0
+        promotions: [], // Promotion management
+        applyTax: false,
+        taxPercentage: 0,
+        socialMedia: {
+            instagram: { show: false, url: '' },
+            facebook: { show: false, url: '' },
+            tiktok: { show: false, url: '' },
+            snapchat: { show: false, url: '' },
+            google: { show: false, url: '' }
+        }
     });
 
     const [isLoading, setIsLoading] = useState(true);
@@ -704,6 +714,56 @@ const ManageMenu = ({ isAdminView = false }) => {
                                     </div>
                                 )}
                             </div>
+
+                            {/* Social Media Section */}
+                            <div>
+                                <h4 className="font-black text-xs uppercase tracking-widest text-gray-400 mb-4 mt-6 border-t border-gray-100 dark:border-white/5 pt-6">Social Media Links</h4>
+                                <div className="space-y-3">
+                                    {[
+                                        { key: 'instagram', icon: FaInstagram, label: 'Instagram', color: '#E1306C' },
+                                        { key: 'facebook', icon: FaFacebookF, label: 'Facebook', color: '#1877F2' },
+                                        { key: 'tiktok', icon: FaTiktok, label: 'TikTok', color: '#000000' },
+                                        { key: 'snapchat', icon: FaSnapchatGhost, label: 'Snapchat', color: '#FFFC00' },
+                                        { key: 'google', icon: FaGoogle, label: 'Google Reviews', color: '#4285F4' }
+                                    ].map((social) => (
+                                        <div key={social.key} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5">
+                                            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-sm" style={{ backgroundColor: social.key === 'snapchat' ? '#FFFC00' : social.color }}>
+                                                <social.icon className={`w-5 h-5 ${social.key === 'snapchat' ? 'text-black' : 'text-white'}`} />
+                                            </div>
+                                            <div className="flex-1">
+                                                <input
+                                                    type="text"
+                                                    placeholder={`${social.label} URL`}
+                                                    value={menuConfig.socialMedia?.[social.key]?.url || ''}
+                                                    onChange={(e) => setMenuConfig({
+                                                        ...menuConfig,
+                                                        socialMedia: {
+                                                            ...menuConfig.socialMedia,
+                                                            [social.key]: { ...(menuConfig.socialMedia?.[social.key] || {}), url: e.target.value }
+                                                        }
+                                                    })}
+                                                    className="w-full bg-transparent text-sm font-bold text-gray-700 dark:text-gray-300 placeholder-gray-400 outline-none"
+                                                />
+                                            </div>
+                                            <label className="relative inline-flex items-center cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={menuConfig.socialMedia?.[social.key]?.show || false}
+                                                    onChange={(e) => setMenuConfig({
+                                                        ...menuConfig,
+                                                        socialMedia: {
+                                                            ...menuConfig.socialMedia,
+                                                            [social.key]: { ...(menuConfig.socialMedia?.[social.key] || {}), show: e.target.checked }
+                                                        }
+                                                    })}
+                                                    className="sr-only peer"
+                                                />
+                                                <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-green-500"></div>
+                                            </label>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
                         <div className="p-8 border-t border-gray-100 dark:border-white/5 flex gap-3">
                             <button onClick={() => setIsSettingsModalOpen(false)} className="flex-1 py-4 font-bold text-gray-500">Cancel</button>
@@ -717,7 +777,7 @@ const ManageMenu = ({ isAdminView = false }) => {
                 .no-scrollbar::-webkit-scrollbar { display: none; }
                 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
             `}</style>
-        </div>
+        </div >
     );
 };
 

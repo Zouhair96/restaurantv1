@@ -9,7 +9,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { translations } from '../../translations';
 import PersistentOrderTracker from '../PersistentOrderTracker';
 
-const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, designConfig, isDarkMode, setIsDarkMode, themeColor = '#f97316' }) => {
+const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, designConfig, isDarkMode, setIsDarkMode, themeColor = '#f97316', socialMedia }) => {
     const { user: authUser, logout: authLogout, activeOrderId, activeOrder, handleCloseTracker } = useClientAuth();
     const { language, toggleLanguage, t } = useLanguage();
     const [view, setView] = useState('welcome');
@@ -617,12 +617,18 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                             </span>
                             <div className="flex items-center justify-center gap-4">
                                 {[
-                                    { Icon: FaInstagram, color: '#E1306C', label: 'Instagram', href: '#' },
-                                    { Icon: FaFacebookF, color: '#1877F2', label: 'Facebook', href: '#' },
-                                    { Icon: FaTiktok, color: '#000000', label: 'TikTok', href: '#' },
-                                    { Icon: FaSnapchatGhost, color: '#FFFC00', label: 'Snapchat', href: '#' },
-                                    { Icon: FaGoogle, color: '#4285F4', label: 'Google Reviews', href: '#' }
-                                ].map((social, idx) => (
+                                    { key: 'instagram', Icon: FaInstagram, color: '#E1306C', label: 'Instagram' },
+                                    { key: 'facebook', Icon: FaFacebookF, color: '#1877F2', label: 'Facebook' },
+                                    { key: 'tiktok', Icon: FaTiktok, color: '#000000', label: 'TikTok' },
+                                    { key: 'snapchat', Icon: FaSnapchatGhost, color: '#FFFC00', label: 'Snapchat' },
+                                    { key: 'google', Icon: FaGoogle, color: '#4285F4', label: 'Google Reviews' }
+                                ].filter(social => {
+                                    if (!socialMedia) return true; // Show all if no config (backward compatibility)
+                                    return socialMedia[social.key]?.show;
+                                }).map(social => ({
+                                    ...social,
+                                    href: socialMedia?.[social.key]?.url || '#'
+                                })).map((social, idx) => (
                                     <motion.a
                                         key={idx}
                                         href={social.href}
