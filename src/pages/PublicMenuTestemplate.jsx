@@ -9,7 +9,8 @@ import Checkout from '../components/menu/Checkout'; // Import Checkout
 import PersistentOrderTracker from '../components/PersistentOrderTracker';
 import { useClientAuth } from '../context/ClientAuthContext';
 import { useLanguage } from '../context/LanguageContext';
-import { isPromoActive, getDiscountedPrice, getPromosByDisplayStyle } from '../utils/promoUtils';
+import { isPromoActive, getDiscountedPrice, getPromosByDisplayStyle, getPromoFilteredItems } from '../utils/promoUtils';
+import { HiTag, HiChevronLeft, HiChevronRight, HiArrowUturnLeft } from 'react-icons/hi2';
 
 const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
     const { restaurantName: urlRestaurantName } = useParams();
@@ -36,6 +37,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
     const [animatingItems, setAnimatingItems] = useState([]); // For fly-to-cart effect
     const [currentBannerIndex, setCurrentBannerIndex] = useState(0); // For banner carousel
     const [showBadgePromos, setShowBadgePromos] = useState(false); // For floating badge modal
+    const [selectedPromoId, setSelectedPromoId] = useState(null);
     const cartControls = useAnimation(); // For vibration effect
     const dragY = useMotionValue(0);
     const homeOpacity = useTransform(dragY, [-200, 0, 200], [1, 0.4, 1]);
@@ -107,15 +109,21 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
 
     const [searchQuery, setSearchQuery] = useState('');
 
-    const handleItemClick = (item) => {
-        setSelectedItem(item);
-        setQuantity(1);
-        setIsLiked(false);
-    };
-
     const handleCloseDetail = () => {
         setSelectedItem(null);
     };
+
+    const activePromo = selectedPromoId ? (config.promotions || []).find(p => p.id === selectedPromoId) : null;
+    const filteredMenuItems = activePromo ? getPromoFilteredItems(activePromo, menuItems) : menuItems.filter(item =>
+        (activeCategory === 'All' || localize(item, 'category') === activeCategory) &&
+        (localize(item, 'name').toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+
+    useEffect(() => {
+        if (activePromo && filteredMenuItems.length > 0) {
+            handleItemClick(filteredMenuItems[0]);
+        }
+    }, [selectedPromoId]);
 
     const triggerCartAnimation = async (item, event) => {
         // Trigger vibration
@@ -299,91 +307,77 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                     </div>
 
                     {/* Banner Carousel Promotions */}
-                    {(() => {
-                        const bannerPromos = getPromosByDisplayStyle(config.promotions || [], 'banner');
-                        if (bannerPromos.length > 0) {
-                            const currentPromo = bannerPromos[currentBannerIndex % bannerPromos.length];
-                            return (
-                                <div className="px-6 mt-6">
-                                    <div className="relative bg-gradient-to-r rounded-3xl overflow-hidden shadow-xl" style={{
-                                        background: `linear-gradient(135deg, ${config.themeColor}dd, ${config.themeColor})`
-                                    }}>
-                                        <AnimatePresence mode="wait">
-                                            <motion.div
-                                                key={currentBannerIndex}
-                                                initial={{ opacity: 0, x: 100 }}
-                                                animate={{ opacity: 1, x: 0 }}
-                                                exit={{ opacity: 0, x: -100 }}
-                                                transition={{ duration: 0.5 }}
-                                                className="flex items-center p-6 gap-4"
-                                            >
-                                                {currentPromo.promoImage && (
-                                                    <img
-                                                        src={currentPromo.promoImage}
-                                                        alt={currentPromo.name}
-                                                        className="w-20 h-20 rounded-2xl object-cover shadow-lg"
-                                                    />
-                                                )}
-                                                <div className="flex-1">
-                                                    <div className="flex items-center gap-2 mb-1">
-                                                        <HiTag className="w-5 h-5 text-white" />
-                                                        <span className="text-white/90 text-xs font-bold uppercase tracking-widest">Special Offer</span>
-                                                    </div>
-                                                    <h3 className="text-white font-black text-lg mb-1">{currentPromo.name}</h3>
-                                                    <p className="text-white/90 text-sm italic mb-2">{currentPromo.promoText}</p>
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-white font-black text-sm">
-                                                            {currentPromo.discountType === 'percentage'
-                                                                ? `${currentPromo.discountValue}% OFF`
-                                                                : `$${currentPromo.discountValue} OFF`}
-                                                        </span>
-                                                        {currentPromo.requiresCode && (
-                                                            <span className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-white text-xs font-bold">
-                                                                Code: {currentPromo.promoCode}
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </motion.div>
-                                        </AnimatePresence>
-
-                                        {/* Navigation Arrows */}
-                                        {bannerPromos.length > 1 && (
-                                            <>
-                                                <button
-                                                    onClick={() => setCurrentBannerIndex((currentBannerIndex - 1 + bannerPromos.length) % bannerPromos.length)}
-                                                    className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all"
-                                                >
-                                                    <HiChevronLeft className="w-5 h-5" />
-                                                </button>
-                                                <button
-                                                    onClick={() => setCurrentBannerIndex((currentBannerIndex + 1) % bannerPromos.length)}
-                                                    className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all"
-                                                >
-                                                    <HiChevronRight className="w-5 h-5" />
-                                                </button>
-
-                                                {/* Dots Indicator */}
-                                                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-                                                    {bannerPromos.map((_, idx) => (
-                                                        <button
-                                                            key={idx}
-                                                            onClick={() => setCurrentBannerIndex(idx)}
-                                                            className={`w-1.5 h-1.5 rounded-full transition-all ${idx === currentBannerIndex % bannerPromos.length
-                                                                ? 'bg-white w-4'
-                                                                : 'bg-white/40'
-                                                                }`}
+                    {config.promotions && config.promotions.length > 0 && !selectedPromoId && (
+                        <div className="px-6 mt-6">
+                            <div className="relative h-32 rounded-3xl overflow-hidden shadow-xl border border-gray-100 bg-white">
+                                <AnimatePresence mode="wait">
+                                    {getPromosByDisplayStyle(config.promotions, 'banner').map((promo, idx) => idx === currentBannerIndex && (
+                                        <motion.div
+                                            key={promo.id}
+                                            initial={{ opacity: 0, x: 20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: -20 }}
+                                            className="absolute inset-0 cursor-pointer"
+                                            onClick={() => setSelectedPromoId(promo.id)}
+                                            style={{
+                                                backgroundColor: promo.backgroundType === 'image' ? 'transparent' : (promo.backgroundColor || config.themeColor)
+                                            }}
+                                        >
+                                            {promo.backgroundType === 'image' ? (
+                                                <>
+                                                    <img src={promo.promoImage} alt="" className="w-full h-full object-cover" />
+                                                    <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent" />
+                                                </>
+                                            ) : (
+                                                <>
+                                                    {promo.decorationImage && (
+                                                        <motion.img
+                                                            initial={{ scale: 0.8, opacity: 0 }}
+                                                            animate={{ scale: 1, opacity: 0.9 }}
+                                                            src={promo.decorationImage}
+                                                            alt=""
+                                                            className={`absolute top-1/2 -translate-y-1/2 w-28 h-28 object-contain pointer-events-none ${promo.decorationPosition === 'left' ? 'left-4' : 'right-4'}`}
                                                         />
-                                                    ))}
-                                                </div>
-                                            </>
-                                        )}
+                                                    )}
+                                                </>
+                                            )}
+
+                                            <div className="relative h-full px-8 flex flex-col justify-center text-white">
+                                                <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
+                                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 mb-1 block">Special Offer</span>
+                                                    <h3 className="text-xl font-black uppercase tracking-tight leading-none mb-1">{promo.name}</h3>
+                                                    <p className="text-xs font-bold opacity-90 line-clamp-1 italic">{promo.promoText}</p>
+                                                </motion.div>
+                                            </div>
+                                        </motion.div>
+                                    ))}
+                                </AnimatePresence>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Active Promo Identifier */}
+                    {activePromo && (
+                        <div className="px-6 mt-6">
+                            <div className="bg-white rounded-2xl p-4 flex items-center justify-between shadow-sm border border-theme/20" style={{ borderColor: `${config.themeColor}33` }}>
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-theme/10 rounded-xl" style={{ backgroundColor: `${config.themeColor}11`, color: config.themeColor }}>
+                                        <HiTag className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 leading-none mb-1">Active Filter</p>
+                                        <h3 className="font-black text-gray-900 leading-none">{activePromo.name}</h3>
                                     </div>
                                 </div>
-                            );
-                        }
-                        return null;
-                    })()}
+                                <button
+                                    onClick={() => setSelectedPromoId(null)}
+                                    className="p-2 rounded-xl bg-gray-900 text-white active:scale-95 transition-all"
+                                >
+                                    <HiArrowUturnLeft className="w-4 h-4" />
+                                </button>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Floating Badge Promotions Button */}
                     {(() => {
@@ -431,10 +425,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                             key={activeCategory}
                         >
                             <AnimatePresence mode="popLayout">
-                                {menuItems.filter(item =>
-                                    (activeCategory === 'All' || localize(item, 'category') === activeCategory) &&
-                                    (localize(item, 'name').toLowerCase().includes(searchQuery.toLowerCase()))
-                                ).map((item) => {
+                                {filteredMenuItems.map((item) => {
                                     const { finalPrice, discount, originalPrice, promo } = getDiscountedPrice(config.promotions || [], item);
                                     const hasDiscount = discount > 0;
 
@@ -704,7 +695,11 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                                     {getPromosByDisplayStyle(config.promotions || [], 'badge').map((promo) => (
                                         <div
                                             key={promo.id}
-                                            className="p-5 rounded-3xl border-2 flex flex-col gap-3 transition-all"
+                                            onClick={() => {
+                                                setSelectedPromoId(promo.id);
+                                                setShowBadgePromos(false);
+                                            }}
+                                            className="p-5 rounded-3xl border-2 flex flex-col gap-3 transition-all cursor-pointer hover:shadow-md active:scale-95"
                                             style={{ borderColor: `${config.themeColor}22`, backgroundColor: `${config.themeColor}08` }}
                                         >
                                             <div className="flex items-center gap-4">
@@ -732,6 +727,9 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                                                     <span className="font-black tracking-widest text-theme uppercase" style={{ color: config.themeColor }}>{promo.promoCode}</span>
                                                 </div>
                                             )}
+                                            <div className="text-[10px] font-black text-theme uppercase tracking-widest text-center mt-2 border-t border-gray-100 pt-2" style={{ color: config.themeColor }}>
+                                                Click to view items ➔
+                                            </div>
                                         </div>
                                     ))}
                                 </div>

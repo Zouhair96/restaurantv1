@@ -26,6 +26,10 @@ const PromoManagementModal = ({
             requiresCode: false,
             promoCode: '',
             displayStyle: 'banner',
+            backgroundType: 'color',
+            backgroundColor: '', // will default to themeColor if empty
+            decorationImage: '',
+            decorationPosition: 'right',
             scope: {
                 type: 'all',
                 itemIds: [],
@@ -352,60 +356,131 @@ const PromoManagementModal = ({
                                     />
                                 </div>
 
-                                {/* Display Style */}
-                                <div className="md:col-span-2">
-                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Display Style on Public Menu</label>
-                                    <div className="flex gap-3">
-                                        <button
-                                            onClick={() => setFormData({ ...formData, displayStyle: 'banner' })}
-                                            className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all ${formData.displayStyle === 'banner'
-                                                    ? 'text-white shadow-lg'
-                                                    : 'bg-gray-100 dark:bg-white/5 text-gray-500'
-                                                }`}
-                                            style={formData.displayStyle === 'banner' ? { backgroundColor: themeColor } : {}}
-                                        >
-                                            🎪 Banner Carousel
-                                        </button>
-                                        <button
-                                            onClick={() => setFormData({ ...formData, displayStyle: 'badge' })}
-                                            className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all ${formData.displayStyle === 'badge'
-                                                    ? 'text-white shadow-lg'
-                                                    : 'bg-gray-100 dark:bg-white/5 text-gray-500'
-                                                }`}
-                                            style={formData.displayStyle === 'badge' ? { backgroundColor: themeColor } : {}}
-                                        >
-                                            🎁 Floating Badge
-                                        </button>
+                                {/* Display Style and Background Type */}
+                                <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-gray-50 dark:bg-white/5 rounded-3xl border border-gray-100 dark:border-white/10">
+                                    <div>
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Display Style</label>
+                                        <div className="flex gap-2">
+                                            {['banner', 'badge'].map((style) => (
+                                                <button
+                                                    key={style}
+                                                    onClick={() => setFormData({ ...formData, displayStyle: style })}
+                                                    className={`flex-1 py-3 px-4 rounded-xl font-bold text-xs transition-all ${formData.displayStyle === style
+                                                        ? 'text-white shadow-lg'
+                                                        : 'bg-white dark:bg-white/5 text-gray-500'
+                                                        }`}
+                                                    style={formData.displayStyle === style ? { backgroundColor: themeColor } : {}}
+                                                >
+                                                    {style === 'banner' ? '🎪 Banner' : '🎁 Badge'}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Background Type</label>
+                                        <div className="flex gap-2">
+                                            {[
+                                                { id: 'color', label: '🎨 Color' },
+                                                { id: 'image', label: '🖼️ Image' }
+                                            ].map((type) => (
+                                                <button
+                                                    key={type.id}
+                                                    onClick={() => setFormData({ ...formData, backgroundType: type.id })}
+                                                    className={`flex-1 py-3 px-4 rounded-xl font-bold text-xs transition-all ${formData.backgroundType === type.id
+                                                        ? 'text-white shadow-lg'
+                                                        : 'bg-white dark:bg-white/5 text-gray-500'
+                                                        }`}
+                                                    style={formData.backgroundType === type.id ? { backgroundColor: themeColor } : {}}
+                                                >
+                                                    {type.label}
+                                                </button>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
 
-                                {/* Promo Image */}
-                                <div className="md:col-span-2">
-                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Promo Image</label>
-                                    <div
-                                        className="relative w-full h-40 border-2 border-dashed border-gray-100 dark:border-white/10 rounded-3xl flex flex-col items-center justify-center text-gray-400 hover:border-indigo-500 hover:bg-indigo-50/30 transition-all cursor-pointer overflow-hidden group"
-                                        onClick={() => document.getElementById('promo-image-upload').click()}
-                                    >
-                                        {formData.promoImage ? (
-                                            <img src={formData.promoImage} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity" alt="Promo" />
-                                        ) : (
-                                            <HiCloudArrowUp className="w-10 h-10 mb-2 opacity-30" />
-                                        )}
-                                        <span className="text-xs font-black uppercase tracking-widest relative z-10 text-gray-500">Upload Image</span>
-                                        <input
-                                            type="file"
-                                            id="promo-image-upload"
-                                            className="hidden"
-                                            accept="image/*"
-                                            onChange={async (e) => {
-                                                const file = e.target.files[0];
-                                                if (file) {
-                                                    const compressed = await compressImage(file);
-                                                    setFormData({ ...formData, promoImage: compressed });
-                                                }
-                                            }}
-                                        />
-                                    </div>
+                                {/* Custom Background Controls */}
+                                <div className="md:col-span-2 space-y-6">
+                                    {formData.backgroundType === 'image' ? (
+                                        <div>
+                                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Full Background Image</label>
+                                            <div
+                                                className="relative w-full h-40 border-2 border-dashed border-gray-100 dark:border-white/10 rounded-3xl flex flex-col items-center justify-center text-gray-400 hover:border-indigo-500 hover:bg-indigo-50/30 transition-all cursor-pointer overflow-hidden group"
+                                                onClick={() => document.getElementById('promo-image-upload').click()}
+                                            >
+                                                {formData.promoImage ? (
+                                                    <img src={formData.promoImage} className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity" alt="Promo" />
+                                                ) : (
+                                                    <HiPhoto className="w-10 h-10 mb-2 opacity-30" />
+                                                )}
+                                                <span className="text-xs font-black uppercase tracking-widest relative z-10">Upload Background</span>
+                                                <input type="file" id="promo-image-upload" className="hidden" accept="image/*" onChange={async (e) => {
+                                                    const file = e.target.files[0];
+                                                    if (file) {
+                                                        const compressed = await compressImage(file);
+                                                        setFormData({ ...formData, promoImage: compressed });
+                                                    }
+                                                }} />
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div>
+                                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Background Color</label>
+                                                <div className="flex gap-3 items-center">
+                                                    <input
+                                                        type="color"
+                                                        value={formData.backgroundColor || themeColor}
+                                                        onChange={(e) => setFormData({ ...formData, backgroundColor: e.target.value })}
+                                                        className="w-12 h-12 rounded-xl overflow-hidden border-none cursor-pointer"
+                                                    />
+                                                    <input
+                                                        type="text"
+                                                        value={formData.backgroundColor || themeColor}
+                                                        onChange={(e) => setFormData({ ...formData, backgroundColor: e.target.value })}
+                                                        placeholder="#HEX"
+                                                        className="flex-1 px-4 py-3 rounded-xl border border-gray-100 dark:border-white/10 bg-white dark:bg-[#24262d] font-mono text-xs font-bold"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Decoration Image (Optional)</label>
+                                                <div className="flex gap-4">
+                                                    <div
+                                                        className="relative w-12 h-12 border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center cursor-pointer overflow-hidden shrink-0"
+                                                        onClick={() => document.getElementById('decoration-upload').click()}
+                                                    >
+                                                        {formData.decorationImage ? (
+                                                            <img src={formData.decorationImage} className="w-full h-full object-cover" alt="" />
+                                                        ) : (
+                                                            <HiPlus className="text-gray-300" />
+                                                        )}
+                                                        <input type="file" id="decoration-upload" className="hidden" accept="image/*" onChange={async (e) => {
+                                                            const file = e.target.files[0];
+                                                            if (file) {
+                                                                const compressed = await compressImage(file);
+                                                                setFormData({ ...formData, decorationImage: compressed });
+                                                            }
+                                                        }} />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <div className="flex gap-1 bg-gray-100 dark:bg-white/5 p-1 rounded-lg">
+                                                            {['left', 'right'].map(pos => (
+                                                                <button
+                                                                    key={pos}
+                                                                    onClick={() => setFormData({ ...formData, decorationPosition: pos })}
+                                                                    className={`flex-1 py-1.5 rounded-md text-[10px] font-black uppercase tracking-tighter transition-all ${formData.decorationPosition === pos ? 'bg-white dark:bg-gray-800 shadow-sm text-gray-900 dark:text-white' : 'text-gray-400'}`}
+                                                                >
+                                                                    {pos}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Promo Code Section */}

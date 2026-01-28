@@ -11,8 +11,8 @@ import { useClientAuth } from '../context/ClientAuthContext';
 import PersistentOrderTracker from '../components/PersistentOrderTracker';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
-import { isPromoActive, getDiscountedPrice, getPromosByDisplayStyle } from '../utils/promoUtils';
-import { HiTag, HiChevronLeft, HiChevronRight } from 'react-icons/hi2';
+import { isPromoActive, getDiscountedPrice, getPromosByDisplayStyle, getPromoFilteredItems } from '../utils/promoUtils';
+import { HiTag, HiChevronLeft, HiChevronRight, HiArrowUturnLeft } from 'react-icons/hi2';
 
 const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
     const { user: clientUser, activeOrderId, activeOrder, handleCloseTracker, isTopTrackerHidden } = useClientAuth();
@@ -51,6 +51,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
     const [activeCategory, setActiveCategory] = useState('All');
     const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
     const [showBadgePromos, setShowBadgePromos] = useState(false);
+    const [selectedPromoId, setSelectedPromoId] = useState(null);
 
     const {
         cartItems,
@@ -141,6 +142,15 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
         setLiked(false);
     };
 
+    const activePromo = selectedPromoId ? (config.promotions || []).find(p => p.id === selectedPromoId) : null;
+    const filteredMenuItems = activePromo ? getPromoFilteredItems(activePromo, menuItems) : menuItems.filter(item => item && (activeCategory === 'All' || item.category === activeCategory));
+
+    useEffect(() => {
+        if (activePromo && filteredMenuItems.length > 0) {
+            handleItemSelect(filteredMenuItems[0]);
+        }
+    }, [selectedPromoId]);
+
     if (!selectedItem) {
         if (isLoading) return <div className="min-h-screen flex items-center justify-center text-green-500">{t('auth.menu.loading')}</div>;
     }
@@ -184,7 +194,18 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                         variants={{ visible: { transition: { staggerChildren: 0.05 } } }}
                         className="space-y-6 w-full px-3 flex flex-col items-center pb-20"
                     >
-                        {menuItems.filter(item => item && (activeCategory === 'All' || item.category === activeCategory)).map((item) => (
+                        {activePromo && (
+                            <motion.button
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                onClick={() => setSelectedPromoId(null)}
+                                className="w-12 h-12 rounded-2xl bg-gray-900 text-white flex items-center justify-center shadow-lg mb-4 active:scale-95 transition-all"
+                                title="Back to All Menu"
+                            >
+                                <HiArrowUturnLeft className="w-6 h-6" />
+                            </motion.button>
+                        )}
+                        {filteredMenuItems.map((item) => (
                             <motion.button
                                 key={item.id}
                                 variants={{ hidden: { opacity: 0, x: -20 }, visible: { opacity: 1, x: 0 } }}
@@ -250,19 +271,77 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-start gap-4 md:gap-8 text-sm md:text-base mb-2 overflow-x-auto no-scrollbar py-1">
-                        {['All', ...new Set(menuItems.map(i => localize(i, 'category')).filter(Boolean))].map((category) => (
-                            <button
-                                key={category}
-                                onClick={() => handleCategorySelect(category)}
-                                className={`font-bold pb-1 whitespace-nowrap transition-colors ${activeCategory === category ? 'text-gray-900 border-b-2' : 'text-gray-400 hover-text-theme'}`}
-                                style={activeCategory === category ? { borderColor: config.themeColor } : {}}
-                            >
-                                {category === 'All' ? t('auth.menu.all') : category}
-                            </button>
-                        ))}
-                    </div>
+                    {activePromo ? (
+                        <div className="flex items-center gap-2 mb-6 animate-fade-in">
+                            <span className="p-1.5 rounded-lg bg-red-50 text-red-500"><HiTag className="w-4 h-4" /></span>
+                            <span className="text-xs font-black uppercase tracking-widest text-gray-400">Filtering: </span>
+                            <span className="text-sm font-black text-gray-900 border-b-2 border-red-500">{activePromo.name}</span>
+                        </div>
+                    ) : (
+                        <div className="flex items-center justify-start gap-4 md:gap-8 text-sm md:text-base mb-2 overflow-x-auto no-scrollbar py-1">
+                            {['All', ...new Set(menuItems.map(i => localize(i, 'category')).filter(Boolean))].map((category) => (
+                                <button
+                                    key={category}
+                                    onClick={() => handleCategorySelect(category)}
+                                    className={`font-bold pb-1 whitespace-nowrap transition-colors ${activeCategory === category ? 'text-gray-900 border-b-2' : 'text-gray-400 hover-text-theme'}`}
+                                    style={activeCategory === category ? { borderColor: config.themeColor } : {}}
+                                >
+                                    {category === 'All' ? t('auth.menu.all') : category}
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
+
+                {/* Promotion Banner */}
+                {config.promotions && config.promotions.length > 0 && !selectedPromoId && (
+                    <div className="px-5 mb-4 relative z-30">
+                        <div className="relative h-28 md:h-32 rounded-[2rem] overflow-hidden shadow-xl shadow-gray-200/50 group border border-gray-100">
+                            <AnimatePresence mode="wait">
+                                {getPromosByDisplayStyle(config.promotions, 'banner').map((promo, idx) => idx === currentBannerIndex && (
+                                    <motion.div
+                                        key={promo.id}
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -20 }}
+                                        className="absolute inset-0 cursor-pointer"
+                                        onClick={() => setSelectedPromoId(promo.id)}
+                                        style={{
+                                            backgroundColor: promo.backgroundType === 'image' ? 'transparent' : (promo.backgroundColor || config.themeColor)
+                                        }}
+                                    >
+                                        {promo.backgroundType === 'image' ? (
+                                            <>
+                                                <img src={promo.promoImage} alt="" className="w-full h-full object-cover" />
+                                                <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent" />
+                                            </>
+                                        ) : (
+                                            <>
+                                                {promo.decorationImage && (
+                                                    <motion.img
+                                                        initial={{ scale: 0.8, opacity: 0 }}
+                                                        animate={{ scale: 1, opacity: 0.9 }}
+                                                        src={promo.decorationImage}
+                                                        alt=""
+                                                        className={`absolute top-1/2 -translate-y-1/2 w-28 h-28 object-contain pointer-events-none ${promo.decorationPosition === 'left' ? 'left-4' : 'right-4'}`}
+                                                    />
+                                                )}
+                                            </>
+                                        )}
+
+                                        <div className="relative h-full px-8 flex flex-col justify-center text-white">
+                                            <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
+                                                <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 mb-1 block">Special Offer</span>
+                                                <h3 className="text-xl md:text-2xl font-black uppercase tracking-tight leading-none mb-1">{promo.name}</h3>
+                                                <p className="text-xs font-bold opacity-90 line-clamp-1 italic">{promo.promoText}</p>
+                                            </motion.div>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </AnimatePresence>
+                        </div>
+                    </div>
+                )}
 
                 {/* Hero Image & Animation Container */}
                 <div className="flex-1 flex items-center justify-center p-2 relative min-h-[220px]">
@@ -395,6 +474,36 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                 taxConfig={{ applyTax: config.applyTax, taxPercentage: config.taxPercentage }}
             />
 
+            {/* Top Fixed Floating Badge */}
+            {getPromosByDisplayStyle(config.promotions || [], 'badge').length > 0 && (
+                <div className="fixed top-24 right-4 z-[55] pointer-events-none">
+                    <motion.button
+                        initial={{ x: 100, opacity: 0, rotate: -10 }}
+                        animate={{ x: 0, opacity: 1, rotate: 0 }}
+                        whileHover={{ scale: 1.1, rotate: 5 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => setShowBadgePromos(true)}
+                        className="pointer-events-auto w-14 h-14 rounded-2xl bg-white shadow-2xl flex items-center justify-center border-2 border-theme relative group"
+                        style={{ borderColor: config.themeColor }}
+                    >
+                        <motion.div
+                            animate={{ scale: [1, 1.2, 1], rotate: [0, 5, -5, 0] }}
+                            transition={{ duration: 4, repeat: Infinity }}
+                        >
+                            <HiTag className="w-7 h-7 text-theme" style={{ color: config.themeColor }} />
+                        </motion.div>
+                        <span className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+                            {getPromosByDisplayStyle(config.promotions || [], 'badge').length}
+                        </span>
+
+                        {/* Tooltip */}
+                        <div className="absolute right-full mr-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-gray-900 text-white text-[10px] font-black uppercase tracking-widest rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap hidden md:block">
+                            Offers Active!
+                        </div>
+                    </motion.button>
+                </div>
+            )}
+
             {/* Badge Promotions List Modal */}
             <AnimatePresence>
                 {showBadgePromos && (
@@ -411,7 +520,14 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
 
                                 <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 no-scrollbar">
                                     {getPromosByDisplayStyle(config.promotions || [], 'badge').map((promo) => (
-                                        <div key={promo.id} className="p-5 rounded-3xl bg-orange-50 border border-orange-100 flex flex-col gap-3">
+                                        <div
+                                            key={promo.id}
+                                            onClick={() => {
+                                                setSelectedPromoId(promo.id);
+                                                setShowBadgePromos(false);
+                                            }}
+                                            className="p-5 rounded-3xl bg-orange-50 border border-orange-100 flex flex-col gap-3 cursor-pointer hover:border-orange-300 transition-all active:scale-95"
+                                        >
                                             <div className="flex items-center gap-4">
                                                 {promo.promoImage ? (
                                                     <img src={promo.promoImage} alt="" className="w-16 h-16 rounded-2xl object-cover shadow-sm" />
@@ -432,6 +548,9 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                                     <span className="font-black tracking-widest text-orange-600 uppercase">{promo.promoCode}</span>
                                                 </div>
                                             )}
+                                            <div className="text-[10px] font-black text-orange-600 uppercase tracking-widest text-center mt-2 border-t border-orange-100 pt-2">
+                                                Click to view items ➔
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
@@ -443,7 +562,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                 )}
             </AnimatePresence>
             <WelcomeSequence restaurantName={config.restaurantName} themeColor={config.themeColor} promoConfig={config} />
-        </div >
+        </div>
     );
 };
 

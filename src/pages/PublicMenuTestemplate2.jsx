@@ -11,8 +11,8 @@ import { useLanguage } from '../context/LanguageContext';
 import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
 import Checkout from '../components/menu/Checkout';
 import WelcomeSequence from '../components/public-menu/WelcomeSequence';
-import { isPromoActive, getDiscountedPrice, getPromosByDisplayStyle } from '../utils/promoUtils';
-import { HiTag, HiChevronLeft, HiChevronRight, HiXMark } from 'react-icons/hi2';
+import { isPromoActive, getDiscountedPrice, getPromosByDisplayStyle, getPromoFilteredItems } from '../utils/promoUtils';
+import { HiTag, HiChevronLeft, HiChevronRight, HiXMark, HiArrowUturnLeft } from 'react-icons/hi2';
 
 const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
     const { restaurantName: urlRestaurantName } = useParams();
@@ -36,6 +36,7 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
     const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
     const [showBadgePromos, setShowBadgePromos] = useState(false);
+    const [selectedPromoId, setSelectedPromoId] = useState(null);
 
     // Cart
     const { addToCart, cartItems } = useCart();
@@ -102,8 +103,17 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
         calories: item.calories || `${200 + Math.floor(Math.random() * 400)} kcal`
     });
 
+    const activePromo = selectedPromoId ? (config.promotions || []).find(p => p.id === selectedPromoId) : null;
     const categories = ['All', ...new Set(menuItems.map(i => localize(i, 'category')).filter(Boolean))];
-    const filteredItems = menuItems.filter(item => activeCategory === 'All' || localize(item, 'category') === activeCategory);
+    const filteredItems = activePromo
+        ? getPromoFilteredItems(activePromo, menuItems)
+        : menuItems.filter(item => activeCategory === 'All' || localize(item, 'category') === activeCategory);
+
+    useEffect(() => {
+        if (activePromo && filteredItems.length > 0) {
+            handleItemClick(filteredItems[0]);
+        }
+    }, [selectedPromoId]);
 
     // Handlers
     const handleItemClick = (item) => {
@@ -158,51 +168,75 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
             {/* Main Content */}
             <main className="flex-1 overflow-y-auto no-scrollbar pb-24 px-6 pt-6">
                 {/* Banner Promotions */}
-                {(() => {
-                    const bannerPromos = getPromosByDisplayStyle(config.promotions || [], 'banner');
-                    if (bannerPromos.length > 0) {
-                        const currentPromo = bannerPromos[currentBannerIndex % bannerPromos.length];
-                        return (
-                            <div className="mb-8">
-                                <div className="relative h-44 rounded-[2.5rem] overflow-hidden shadow-2xl group">
-                                    {currentPromo.promoImage && (
-                                        <img src={currentPromo.promoImage} className="absolute inset-0 w-full h-full object-cover" alt="" />
-                                    )}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-8">
-                                        <AnimatePresence mode="wait">
-                                            <motion.div
-                                                key={currentBannerIndex}
-                                                initial={{ opacity: 0, y: 10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                exit={{ opacity: 0, y: -10 }}
-                                            >
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <div className="p-1 px-3 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-black text-white uppercase tracking-[0.2em]">Promotion</div>
-                                                </div>
-                                                <h3 className="text-white text-2xl font-black uppercase tracking-tight mb-1">{currentPromo.name}</h3>
-                                                <div className="flex items-center justify-between">
-                                                    <p className="text-white/70 text-sm font-medium italic">{currentPromo.promoText}</p>
-                                                    <div className="bg-[#F97316] text-white px-4 py-1 rounded-full font-black text-sm shadow-lg">
-                                                        {currentPromo.discountType === 'percentage' ? `${currentPromo.discountValue}% OFF` : `$${currentPromo.discountValue} OFF`}
-                                                    </div>
-                                                </div>
-                                            </motion.div>
-                                        </AnimatePresence>
-                                    </div>
+                {config.promotions && config.promotions.length > 0 && !selectedPromoId && (
+                    <div className="mb-8">
+                        <div className="relative h-44 rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 bg-[#12141a]">
+                            <AnimatePresence mode="wait">
+                                {getPromosByDisplayStyle(config.promotions, 'banner').map((promo, idx) => idx === currentBannerIndex && (
+                                    <motion.div
+                                        key={promo.id}
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -20 }}
+                                        className="absolute inset-0 cursor-pointer"
+                                        onClick={() => setSelectedPromoId(promo.id)}
+                                        style={{
+                                            backgroundColor: promo.backgroundType === 'image' ? 'transparent' : (promo.backgroundColor || config.themeColor)
+                                        }}
+                                    >
+                                        {promo.backgroundType === 'image' ? (
+                                            <>
+                                                <img src={promo.promoImage} alt="" className="w-full h-full object-cover" />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                                            </>
+                                        ) : (
+                                            <>
+                                                {promo.decorationImage && (
+                                                    <motion.img
+                                                        initial={{ scale: 0.8, opacity: 0 }}
+                                                        animate={{ scale: 1, opacity: 0.9 }}
+                                                        src={promo.decorationImage}
+                                                        alt=""
+                                                        className={`absolute top-1/2 -translate-y-1/2 w-40 h-40 object-contain pointer-events-none ${promo.decorationPosition === 'left' ? 'left-4' : 'right-4'}`}
+                                                    />
+                                                )}
+                                            </>
+                                        )}
 
-                                    {bannerPromos.length > 1 && (
-                                        <div className="absolute top-4 right-6 flex gap-1.5">
-                                            {bannerPromos.map((_, i) => (
-                                                <div key={i} className={`h-1.5 rounded-full transition-all ${i === (currentBannerIndex % bannerPromos.length) ? 'w-6 bg-white' : 'w-1.5 bg-white/30'}`} />
-                                            ))}
+                                        <div className="relative h-full p-8 flex flex-col justify-end text-white">
+                                            <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
+                                                <div className="p-1 px-3 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-black w-fit mb-2 uppercase tracking-[0.2em]">Promotion</div>
+                                                <h3 className="text-2xl font-black uppercase tracking-tight leading-none mb-1">{promo.name}</h3>
+                                                <p className="text-sm font-bold opacity-80 italic">{promo.promoText}</p>
+                                            </motion.div>
                                         </div>
-                                    )}
-                                </div>
+                                    </motion.div>
+                                ))}
+                            </AnimatePresence>
+                        </div>
+                    </div>
+                )}
+
+                {/* Active Filter Identifier */}
+                {activePromo && (
+                    <div className="mb-8 p-6 bg-white/5 rounded-[2rem] border border-orange-500/30 flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-orange-500/20 rounded-2xl text-orange-500">
+                                <HiTag className="w-6 h-6" />
                             </div>
-                        );
-                    }
-                    return null;
-                })()}
+                            <div>
+                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-1 leading-none">Filtering by offer</p>
+                                <h3 className="text-lg font-black text-white leading-none uppercase">{activePromo.name}</h3>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => setSelectedPromoId(null)}
+                            className="p-3 bg-white/10 hover:bg-white/20 rounded-2xl text-white transition-all active:scale-95"
+                        >
+                            <HiArrowUturnLeft className="w-5 h-5" />
+                        </button>
+                    </div>
+                )}
 
                 <header className="mb-8">
                     <h1 className="text-4xl font-black text-white uppercase tracking-tighter leading-none mb-2">
@@ -445,7 +479,14 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
 
                                 <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-2 no-scrollbar">
                                     {getPromosByDisplayStyle(config.promotions || [], 'badge').map((promo) => (
-                                        <div key={promo.id} className="p-6 rounded-[2rem] bg-white/5 border border-white/10 flex flex-col gap-4">
+                                        <div
+                                            key={promo.id}
+                                            onClick={() => {
+                                                setSelectedPromoId(promo.id);
+                                                setShowBadgePromos(false);
+                                            }}
+                                            className="p-6 rounded-[2rem] bg-white/5 border border-white/10 flex flex-col gap-4 cursor-pointer hover:bg-white/10 transition-all active:scale-95"
+                                        >
                                             <div className="flex items-center gap-5">
                                                 {promo.promoImage ? (
                                                     <img src={promo.promoImage} alt="" className="w-16 h-16 rounded-2xl object-cover shadow-2xl" />
@@ -466,6 +507,9 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
                                                     <span className="font-black tracking-[0.3em] text-orange-500 uppercase">{promo.promoCode}</span>
                                                 </div>
                                             )}
+                                            <div className="text-[10px] font-black text-orange-500 uppercase tracking-widest text-center mt-2 border-t border-white/5 pt-2">
+                                                Click to view items ➔
+                                            </div>
                                         </div>
                                     ))}
                                 </div>

@@ -157,3 +157,32 @@ export const calculateOrderDiscount = (promotions, orderTotal) => {
 
     return { discount: bestDiscount, promo: bestPromo };
 };
+
+/**
+ * Get items that are covered by a specific promotion
+ */
+export const getPromoFilteredItems = (promo, allItems) => {
+    if (!promo) return [];
+
+    const { scope } = promo;
+
+    switch (scope.type) {
+        case 'all':
+            return allItems;
+
+        case 'items':
+            return allItems.filter(item => scope.itemIds.includes(item.id));
+
+        case 'categories':
+            return allItems.filter(item =>
+                scope.categories.includes(item.category) ||
+                scope.categories.includes(item.category_en)
+            );
+
+        case 'order':
+            return []; // Order promos apply to the total, not specific items
+
+        default:
+            return [];
+    }
+};

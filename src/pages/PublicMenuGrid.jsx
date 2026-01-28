@@ -10,8 +10,8 @@ import WelcomeSequence from '../components/public-menu/WelcomeSequence';
 import { useClientAuth } from '../context/ClientAuthContext';
 import PersistentOrderTracker from '../components/PersistentOrderTracker';
 import { useLanguage } from '../context/LanguageContext';
-import { isPromoActive, getDiscountedPrice, getPromosByDisplayStyle } from '../utils/promoUtils';
-import { HiTag, HiChevronLeft, HiChevronRight } from 'react-icons/hi2';
+import { isPromoActive, getDiscountedPrice, getPromosByDisplayStyle, getPromoFilteredItems } from '../utils/promoUtils';
+import { HiTag, HiChevronLeft, HiChevronRight, HiArrowUturnLeft } from 'react-icons/hi2';
 
 const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propTemplateKey }) => {
     const { user: clientUser, activeOrderId, activeOrder, handleCloseTracker, isTopTrackerHidden } = useClientAuth();
@@ -39,6 +39,7 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
     const [selectedItem, setSelectedItem] = useState(null);
     const [quantity, setQuantity] = useState(1);
     const [activeCategory, setActiveCategory] = useState('All');
+    const [selectedPromoId, setSelectedPromoId] = useState(null);
 
     const { cartItems, addToCart, removeFromCart, updateQuantity, isCartOpen, setIsCartOpen, getCartTotal } = useCart();
 
@@ -101,10 +102,20 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
         }
     }, [menuItems]);
 
+    const activePromo = selectedPromoId ? (config.promotions || []).find(p => p.id === selectedPromoId) : null;
     const categories = ['All', ...new Set(menuItems.map(item => localize(item, 'category')))];
-    const filteredItems = activeCategory === 'All'
-        ? menuItems
-        : menuItems.filter(item => localize(item, 'category') === activeCategory);
+    const filteredItems = activePromo
+        ? getPromoFilteredItems(activePromo, menuItems)
+        : activeCategory === 'All'
+            ? menuItems
+            : menuItems.filter(item => localize(item, 'category') === activeCategory);
+
+    useEffect(() => {
+        if (activePromo && filteredItems.length > 0) {
+            setSelectedItem(filteredItems[0]);
+            setQuantity(1);
+        }
+    }, [selectedPromoId]);
 
     if (isLoading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent"></div></div>;
 
@@ -165,51 +176,73 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
                     </div>
 
                     {/* Banner Promotions */}
-                    {(() => {
-                        const bannerPromos = getPromosByDisplayStyle(config.promotions || [], 'banner');
-                        if (bannerPromos.length > 0) {
-                            const currentPromo = bannerPromos[currentBannerIndex % bannerPromos.length];
-                            return (
-                                <div className="relative h-28 rounded-2xl overflow-hidden shadow-sm group bg-gray-50 border border-gray-100">
-                                    {currentPromo.promoImage && (
-                                        <img src={currentPromo.promoImage} className="absolute inset-0 w-full h-full object-cover opacity-30" alt="" />
-                                    )}
-                                    <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent pointer-events-none" />
+                    {config.promotions && config.promotions.length > 0 && !selectedPromoId && (
+                        <div className="relative h-28 rounded-2xl overflow-hidden shadow-sm group border border-gray-100 bg-white">
+                            <AnimatePresence mode="wait">
+                                {getPromosByDisplayStyle(config.promotions, 'banner').map((promo, idx) => idx === currentBannerIndex && (
+                                    <motion.div
+                                        key={promo.id}
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -20 }}
+                                        className="absolute inset-0 cursor-pointer"
+                                        onClick={() => setSelectedPromoId(promo.id)}
+                                        style={{
+                                            backgroundColor: promo.backgroundType === 'image' ? 'transparent' : (promo.backgroundColor || config.themeColor)
+                                        }}
+                                    >
+                                        {promo.backgroundType === 'image' ? (
+                                            <>
+                                                <img src={promo.promoImage} alt="" className="w-full h-full object-cover" />
+                                                <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent" />
+                                            </>
+                                        ) : (
+                                            <>
+                                                {promo.decorationImage && (
+                                                    <motion.img
+                                                        initial={{ scale: 0.8, opacity: 0 }}
+                                                        animate={{ scale: 1, opacity: 0.9 }}
+                                                        src={promo.decorationImage}
+                                                        alt=""
+                                                        className={`absolute top-1/2 -translate-y-1/2 w-24 h-24 object-contain pointer-events-none opacity-20 ${promo.decorationPosition === 'left' ? 'left-2' : 'right-2'}`}
+                                                    />
+                                                )}
+                                            </>
+                                        )}
 
-                                    <AnimatePresence mode="wait">
-                                        <motion.div
-                                            key={currentBannerIndex}
-                                            initial={{ opacity: 0, x: 20 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            exit={{ opacity: 0, x: -20 }}
-                                            className="relative z-10 p-5 flex flex-col justify-center h-full"
-                                        >
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <HiTag className="text-theme w-4 h-4" />
-                                                <span className="text-[10px] font-black text-theme uppercase tracking-widest">Special offer</span>
-                                            </div>
-                                            <h3 className="text-gray-900 font-black text-lg leading-tight">{currentPromo.name}</h3>
-                                            <div className="flex items-center gap-2">
-                                                <p className="text-gray-500 text-xs italic font-medium truncate max-w-[200px]">{currentPromo.promoText}</p>
-                                                <span className="bg-theme text-white text-[10px] font-black px-2 py-0.5 rounded-lg">
-                                                    {currentPromo.discountType === 'percentage' ? `${currentPromo.discountValue}% OFF` : `$${currentPromo.discountValue} OFF`}
-                                                </span>
-                                            </div>
-                                        </motion.div>
-                                    </AnimatePresence>
-
-                                    {bannerPromos.length > 1 && (
-                                        <div className="absolute bottom-2 right-4 flex gap-1">
-                                            {bannerPromos.map((_, i) => (
-                                                <div key={i} className={`h-1 rounded-full transition-all ${i === (currentBannerIndex % bannerPromos.length) ? 'w-4 bg-theme' : 'w-1 bg-gray-200'}`} />
-                                            ))}
+                                        <div className="relative h-full px-6 flex flex-col justify-center text-white">
+                                            <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
+                                                <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 mb-1 block">Special Offer</span>
+                                                <h3 className="text-lg font-black uppercase tracking-tight leading-none mb-1">{promo.name}</h3>
+                                                <p className="text-xs font-bold opacity-90 line-clamp-1 italic">{promo.promoText}</p>
+                                            </motion.div>
                                         </div>
-                                    )}
+                                    </motion.div>
+                                ))}
+                            </AnimatePresence>
+                        </div>
+                    )}
+
+                    {/* Active Promo Header */}
+                    {activePromo && (
+                        <div className="p-4 bg-white rounded-xl flex items-center justify-between border border-theme/20 shadow-sm" style={{ borderColor: `${config.themeColor}33` }}>
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-theme/10 rounded-lg" style={{ backgroundColor: `${config.themeColor}11`, color: config.themeColor }}>
+                                    <HiTag className="w-5 h-5" />
                                 </div>
-                            );
-                        }
-                        return null;
-                    })()}
+                                <div>
+                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1 leading-none">Filtering by</p>
+                                    <h3 className="font-black text-gray-900 leading-none">{activePromo.name}</h3>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setSelectedPromoId(null)}
+                                className="p-2 bg-gray-900 text-white rounded-lg active:scale-95 transition-all shadow-lg"
+                            >
+                                <HiArrowUturnLeft className="w-4 h-4" />
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 {/* Content */}
@@ -336,7 +369,14 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
                                 </div>
                                 <div className="space-y-4 max-h-[50vh] overflow-y-auto no-scrollbar pr-1">
                                     {getPromosByDisplayStyle(config.promotions || [], 'badge').map(promo => (
-                                        <div key={promo.id} className="p-4 rounded-2xl bg-gray-50 border border-gray-100 flex flex-col gap-3">
+                                        <div
+                                            key={promo.id}
+                                            onClick={() => {
+                                                setSelectedPromoId(promo.id);
+                                                setShowBadgePromos(false);
+                                            }}
+                                            className="p-4 rounded-2xl bg-gray-50 border border-gray-100 flex flex-col gap-3 cursor-pointer hover:border-theme/30 transition-all active:scale-95"
+                                        >
                                             <div className="flex items-center gap-4">
                                                 {promo.promoImage ? (
                                                     <img src={promo.promoImage} alt="" className="w-12 h-12 rounded-xl object-cover shadow-sm" />
@@ -350,6 +390,9 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
                                                 <div className="text-theme font-black text-sm whitespace-nowrap">
                                                     {promo.discountType === 'percentage' ? `${promo.discountValue}%` : `$${promo.discountValue}`}
                                                 </div>
+                                            </div>
+                                            <div className="text-[10px] font-black text-theme uppercase tracking-widest text-center mt-1 border-t border-gray-100 pt-2">
+                                                View Items ➔
                                             </div>
                                         </div>
                                     ))}
