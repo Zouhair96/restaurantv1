@@ -619,7 +619,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                 {[
                                     { Icon: FaInstagram, color: '#E1306C', label: 'Instagram', href: '#' },
                                     { Icon: FaFacebookF, color: '#1877F2', label: 'Facebook', href: '#' },
-                                    { Icon: FaTiktok, color: isDarkMode ? '#FFFFFF' : '#000000', label: 'TikTok', href: '#' },
+                                    { Icon: FaTiktok, color: '#000000', label: 'TikTok', href: '#' },
                                     { Icon: FaSnapchatGhost, color: '#FFFC00', label: 'Snapchat', href: '#' },
                                     { Icon: FaGoogle, color: '#4285F4', label: 'Google Reviews', href: '#' }
                                 ].map((social, idx) => (
@@ -628,10 +628,10 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                         href={social.href}
                                         whileHover={{ scale: 1.2, y: -4 }}
                                         whileTap={{ scale: 0.9 }}
-                                        className="p-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-100 dark:border-white/5"
+                                        className="p-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center bg-white border border-gray-100"
                                         title={social.label}
                                     >
-                                        <social.Icon size={18} style={{ color: social.Icon === FaSnapchatGhost ? '#FFFC00' : (social.Icon === FaTiktok && !isDarkMode ? '#000000' : social.color) }} className={social.Icon === FaSnapchatGhost ? 'filter drop-shadow-[0_0_1px_rgba(0,0,0,0.5)]' : ''} />
+                                        <social.Icon size={18} style={{ color: social.Icon === FaSnapchatGhost ? '#FFFC00' : social.color }} className={social.Icon === FaSnapchatGhost ? 'filter drop-shadow-[0_0_1px_rgba(0,0,0,0.5)]' : ''} />
                                     </motion.a>
                                 ))}
                             </div>
