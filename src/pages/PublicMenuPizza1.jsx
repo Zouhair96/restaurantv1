@@ -408,10 +408,10 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                 key={`bg-${selectedItem.id}`}
                                 src={selectedItem.image}
                                 initial={{ rotate: 90, opacity: 0, scale: 0.8, x: 200 }}
-                                animate={{ rotate: 0, opacity: 0.4, scale: 1.5, x: 0 }}
+                                animate={{ rotate: 0, opacity: 0.5, scale: 1.5, x: 0 }}
                                 exit={{ rotate: -90, opacity: 0, scale: 0.8, x: -200 }}
                                 transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                                className="absolute w-full h-full object-cover rounded-full blur-[80px] opacity-40 mix-blend-multiply"
+                                className="absolute w-full h-full object-cover rounded-full blur-[40px] opacity-50 mix-blend-multiply"
                                 alt=""
                             />
                         </AnimatePresence>
