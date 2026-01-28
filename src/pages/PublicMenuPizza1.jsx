@@ -506,8 +506,11 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
 
             {/* Top Fixed Floating Badge */}
             {getPromosByDisplayStyle(config.promotions || [], 'badge').length > 0 && !selectedPromoId && (
-                <div className="fixed top-6 right-6 z-[80] pointer-events-none">
+                <div className="fixed top-6 right-6 z-[80]">
                     <motion.button
+                        drag
+                        dragMomentum={false}
+                        dragConstraints={{ left: -window.innerWidth + 100, right: 0, top: 0, bottom: window.innerHeight - 100 }}
                         initial={{ x: 100, opacity: 0, rotate: -10 }}
                         animate={{ x: 0, opacity: 1, rotate: 0 }}
                         whileHover={{ scale: 1.1, rotate: 5 }}

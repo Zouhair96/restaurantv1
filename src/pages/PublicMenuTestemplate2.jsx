@@ -348,6 +348,9 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
                 if (badgePromos.length > 0 && !selectedPromoId) {
                     return (
                         <motion.button
+                            drag
+                            dragMomentum={false}
+                            dragConstraints={{ left: -window.innerWidth + 100, right: 0, top: 0, bottom: window.innerHeight - 100 }}
                             onClick={() => {
                                 const badgePromos = getPromosByDisplayStyle(config.promotions || [], 'badge');
                                 if (badgePromos.length === 1) {
