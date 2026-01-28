@@ -203,12 +203,12 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                         animate={{ x: 0 }}
                         exit={{ x: '-100%' }}
                         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                        className={`fixed inset-y-0 left-0 z-[100] w-full sm:w-96 border-r shadow-2xl ${isDarkMode
+                        className={`fixed inset-y-0 left-0 z-[100] w-full sm:w-96 border-r shadow-2xl flex flex-col ${isDarkMode
                             ? 'bg-[#0f1115] border-white/10'
                             : 'bg-white border-gray-200'}`}
                     >
                         {/* Header */}
-                        <div className={`p-6 border-b flex items-center justify-between transition-colors relative ${isDarkMode
+                        <div className={`p-6 border-b flex items-center justify-between transition-colors relative shrink-0 ${isDarkMode
                             ? 'bg-[#1a1c23] border-white/5'
                             : 'bg-gray-50 border-gray-100'}`}>
 
@@ -245,7 +245,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                             </div>
                         </div>
 
-                        <div className="p-6 overflow-y-auto h-[calc(100vh-170px)] no-scrollbar">
+                        <div className="p-6 overflow-y-auto flex-1 min-h-0 no-scrollbar">
                             {error && (
                                 <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-sm font-medium">
                                     {error}
