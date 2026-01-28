@@ -112,6 +112,11 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
         setSelectedItem(null);
     };
 
+    const handleItemClick = (item) => {
+        setSelectedItem(item);
+        setQuantity(1);
+    };
+
     const activePromo = selectedPromoId ? (config.promotions || []).find(p => p.id === selectedPromoId) : null;
     const filteredMenuItems = activePromo ? getPromoFilteredItems(activePromo, menuItems) : menuItems.filter(item =>
         (activeCategory === 'All' || localize(item, 'category') === activeCategory) &&
@@ -341,7 +346,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                                                 </>
                                             )}
 
-                                            <div className="relative h-full px-8 flex flex-col justify-center text-white">
+                                            <div className="relative h-full px-8 flex flex-col justify-center text-white z-20">
                                                 <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
                                                     <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 mb-1 block">Special Offer</span>
                                                     <h3 className="text-xl font-black uppercase tracking-tight leading-none mb-1">{promo.name}</h3>

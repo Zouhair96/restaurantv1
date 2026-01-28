@@ -329,7 +329,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                             </>
                                         )}
 
-                                        <div className="relative h-full px-8 flex flex-col justify-center text-white">
+                                        <div className="relative h-full px-8 flex flex-col justify-center text-white z-20">
                                             <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
                                                 <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 mb-1 block">Special Offer</span>
                                                 <h3 className="text-xl md:text-2xl font-black uppercase tracking-tight leading-none mb-1">{promo.name}</h3>

@@ -203,7 +203,7 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
                                             </>
                                         )}
 
-                                        <div className="relative h-full p-8 flex flex-col justify-end text-white">
+                                        <div className="relative h-full p-8 flex flex-col justify-end text-white z-20">
                                             <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
                                                 <div className="p-1 px-3 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-black w-fit mb-2 uppercase tracking-[0.2em]">Promotion</div>
                                                 <h3 className="text-2xl font-black uppercase tracking-tight leading-none mb-1">{promo.name}</h3>
