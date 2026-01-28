@@ -193,7 +193,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
             `}</style>
 
             {/* Left Sidebar / Thumbnail List */}
-            <div className="relative shrink-0 z-40 bg-white/50 backdrop-blur-sm w-32 md:w-48 lg:w-56 h-full flex flex-col items-center">
+            <div className="relative shrink-0 z-40 bg-white w-28 md:w-48 lg:w-56 h-full flex flex-col items-center">
                 <div className="flex-1 w-full overflow-y-auto scroll-smooth no-scrollbar py-6 flex flex-col items-center">
                     <button
                         onClick={() => setShowAuthSidebar(true)}
@@ -209,7 +209,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                         initial="hidden"
                         animate="visible"
                         variants={{ visible: { transition: { staggerChildren: 0.05 } } }}
-                        className="space-y-6 w-full px-3 flex flex-col items-center pb-20 pt-32"
+                        className="space-y-4 md:space-y-6 w-full px-2 flex flex-col items-center pb-20 pt-16 md:pt-32"
                     >
                         {activePromo && (
                             <motion.button
@@ -238,14 +238,14 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                 className="relative group w-full flex flex-col items-center justify-center transition-all duration-300"
                             >
                                 <div
-                                    className={`w-24 h-24 md:w-36 md:h-36 lg:w-44 lg:h-44 flex items-center justify-center transition-all duration-300 ${selectedItem?.id === item.id ? 'rounded-[2rem] md:rounded-[3rem] p-4 md:p-6' : 'rounded-full p-0 scale-90 opacity-70 hover:opacity-100 hover:scale-100'}`}
+                                    className={`w-20 h-20 md:w-36 md:h-36 lg:w-44 lg:h-44 flex items-center justify-center transition-all duration-300 ${selectedItem?.id === item.id ? 'rounded-[1.5rem] md:rounded-[3rem] p-3 md:p-6' : 'rounded-full p-0 scale-90 opacity-70 hover:opacity-100 hover:scale-100'}`}
                                     style={selectedItem?.id === item.id ? { backgroundColor: `${config.themeColor}15`, color: config.themeColor } : {}}
                                 >
                                     <img
                                         src={item.image}
                                         alt={localize(item, 'name')}
                                         className="w-full h-full object-cover rounded-full shadow-lg"
-                                        style={selectedItem?.id === item.id ? { boxShadow: `0 15px 35px -10px ${config.themeColor}50` } : {}}
+                                        style={selectedItem?.id === item.id ? { boxShadow: `0 12px 30px -8px ${config.themeColor}50` } : {}}
                                     />
                                 </div>
                             </motion.button>
@@ -301,13 +301,13 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                     </div>
 
                     {/* Search Bar */}
-                    <div className="relative mb-6 max-w-xl">
-                        <div className="relative flex items-center bg-gray-50/50 backdrop-blur-sm rounded-[1.2rem] px-4 py-3 border border-gray-100 focus-within:border-orange-200 focus-within:ring-4 focus-within:ring-orange-500/5 transition-all group">
-                            <HiMagnifyingGlass className="w-5 h-5 text-gray-300 group-focus-within:text-orange-500 transition-colors shrink-0" />
+                    <div className="relative mb-6 flex justify-center w-full">
+                        <div className="relative flex items-center bg-gray-50/80 backdrop-blur-sm rounded-full px-5 py-2.5 w-full max-w-[280px] border border-gray-100 focus-within:border-orange-200 transition-all group">
+                            <HiMagnifyingGlass className="w-4 h-4 text-gray-400 group-focus-within:text-orange-500 transition-colors shrink-0" />
                             <input
                                 type="text"
-                                placeholder={t('menu.searchPlaceholder') || 'Search for your favorite...'}
-                                className="bg-transparent border-none focus:ring-0 w-full ml-3 text-sm font-bold text-gray-900 placeholder:text-gray-300 placeholder:font-normal"
+                                placeholder={t('menu.searchPlaceholder') || 'Search...'}
+                                className="bg-transparent border-none focus:ring-0 w-full ml-2 text-sm font-medium text-gray-900 placeholder:text-gray-300"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
@@ -316,7 +316,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                     onClick={() => setSearchQuery('')}
                                     className="text-gray-300 hover:text-gray-900 p-1 transition-colors"
                                 >
-                                    <HiXMark className="w-5 h-5" />
+                                    <HiXMark className="w-4 h-4" />
                                 </button>
                             )}
                         </div>
@@ -332,15 +332,21 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                         <span className="text-sm font-black text-gray-900 border-b-2 border-red-500">{activePromo.name}</span>
                     </div>
                 ) : (
-                    <div className="flex items-center justify-start gap-4 md:gap-8 text-sm md:text-base mb-2 overflow-x-auto no-scrollbar py-1">
+                    <div className="flex items-center justify-center gap-6 md:gap-8 text-sm md:text-base mb-2 overflow-x-auto no-scrollbar py-1 w-full">
                         {['All', ...new Set(menuItems.map(i => localize(i, 'category')).filter(Boolean))].map((category) => (
                             <button
                                 key={category}
                                 onClick={() => handleCategorySelect(category)}
-                                className={`font-bold pb-1 whitespace-nowrap transition-colors ${activeCategory === category ? 'text-gray-900 border-b-2' : 'text-gray-400 hover-text-theme'}`}
-                                style={activeCategory === category ? { borderColor: config.themeColor } : {}}
+                                className={`font-bold pb-2 whitespace-nowrap transition-all relative ${activeCategory === category ? 'text-gray-900' : 'text-gray-300 hover:text-gray-900'}`}
                             >
                                 {category === 'All' ? t('auth.menu.all') : category}
+                                {activeCategory === category && (
+                                    <motion.div
+                                        layoutId="activeCategory"
+                                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-theme rounded-full"
+                                        style={{ backgroundColor: config.themeColor }}
+                                    />
+                                )}
                             </button>
                         ))}
                     </div>
@@ -421,8 +427,8 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
             </div>
 
             {/* Hero Image & Animation Container */}
-            <div className="flex-1 flex items-center justify-end p-2 relative min-h-[180px] md:min-h-[220px] overflow-hidden">
-                <div className="w-[100vw] h-[100vw] sm:w-[80vw] sm:h-[80vw] md:w-[80vw] md:h-[80vw] relative z-10 aspect-square shrink-0 translate-x-[35%] md:translate-x-[40%]">
+            <div className="flex-1 flex items-center justify-center md:justify-end p-2 relative min-h-[160px] md:min-h-[220px] overflow-hidden">
+                <div className="w-[110vw] h-[110vw] sm:w-[90vw] sm:h-[90vw] md:w-[80vw] md:h-[80vw] relative z-10 aspect-square shrink-0 translate-x-[45%] md:translate-x-[40%] mt-[-10%] md:mt-0">
                     <AnimatePresence mode="popLayout">
                         <motion.div
                             key={selectedItem.id}
@@ -459,9 +465,9 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                             <h2 className="text-2xl md:text-5xl font-black text-gray-900 leading-[1.1] mb-1 md:mb-2 uppercase tracking-tight">
                                 {localize(selectedItem, 'name')}
                             </h2>
-                            <div className="flex items-center gap-2 text-gray-300">
-                                <HiBars3 className="w-4 h-3 md:w-5 md:h-4 opacity-50" />
-                                <span className="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.2em] opacity-40">ingredients</span>
+                            <div className="flex items-center gap-2 text-gray-400">
+                                <HiBars3 className="w-4 h-3 md:w-5 md:h-4 opacity-100" />
+                                <span className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.2em]">ingredients</span>
                             </div>
                         </div>
                         <motion.button
@@ -621,14 +627,14 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                     setShowBadgePromos(true);
                                 }
                             }}
-                            className="pointer-events-auto w-14 h-14 rounded-2xl bg-white shadow-2xl flex items-center justify-center border-2 border-theme relative group"
+                            className="pointer-events-auto w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white shadow-2xl flex items-center justify-center border-2 border-theme relative group"
                             style={{ borderColor: config.themeColor }}
                         >
                             <motion.div
                                 animate={{ scale: [1, 1.2, 1], rotate: [0, 5, -5, 0] }}
                                 transition={{ duration: 4, repeat: Infinity }}
                             >
-                                <HiTag className="w-7 h-7 text-theme" style={{ color: config.themeColor }} />
+                                <HiTag className="w-6 h-6 md:w-7 md:h-7 text-theme" style={{ color: config.themeColor }} />
                             </motion.div>
                             <span className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm">
                                 {getPromosByDisplayStyle(config.promotions || [], 'badge').length}
