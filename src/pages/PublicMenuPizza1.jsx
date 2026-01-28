@@ -53,6 +53,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
     const [showBadgePromos, setShowBadgePromos] = useState(false);
     const [selectedPromoId, setSelectedPromoId] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
 
     const {
         cartItems,
@@ -193,7 +194,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
             `}</style>
 
             {/* Left Sidebar / Thumbnail List */}
-            <div className="relative shrink-0 z-40 bg-white w-28 md:w-48 lg:w-56 h-full flex flex-col items-center">
+            <div className="relative shrink-0 z-40 bg-white w-24 md:w-44 lg:w-52 h-full flex flex-col items-center border-r border-gray-50 shadow-sm">
                 <div className="flex-1 w-full overflow-y-auto scroll-smooth no-scrollbar py-6 flex flex-col items-center">
                     <button
                         onClick={() => setShowAuthSidebar(true)}
@@ -285,48 +286,63 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col h-full overflow-hidden relative z-0 pb-48">
                 <div className="px-5 pt-4 pb-1 shrink-0 z-20">
-                    <div className="relative flex items-center justify-center mb-6 min-h-[40px]">
-                        <div className="absolute left-0">
-                            {/* Space for back button if needed, but keeping it clean for now */}
+                    <div className="relative flex items-center justify-between min-h-[44px]">
+                        {/* Center Title/Logo with absolute position to ensure perfect centering */}
+                        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full flex justify-center pointer-events-none">
+                            <div className="pointer-events-auto">
+                                {config.useLogo && config.logoImage ? (
+                                    <img src={config.logoImage} alt={config.restaurantName} className="h-8 md:h-12 w-auto object-contain" />
+                                ) : (
+                                    <h1 className="text-xl md:text-3xl font-black text-gray-900 tracking-tight uppercase truncate max-w-[140px] md:max-w-none text-center">{config.restaurantName}</h1>
+                                )}
+                            </div>
                         </div>
 
-                        <div className="flex-1 flex justify-center px-8">
-                            {config.useLogo && config.logoImage ? (
-                                <img src={config.logoImage} alt={config.restaurantName} className="h-8 md:h-16 w-auto object-contain" />
-                            ) : (
-                                <h1 className="text-xl md:text-2xl font-black text-gray-900 tracking-tight uppercase truncate max-w-[150px] md:max-w-none">{config.restaurantName}</h1>
-                            )}
-                        </div>
+                        {/* Left Side (can be back button or empty) */}
+                        <div className="z-10 w-10"></div>
 
-                        <div className="absolute right-0 flex items-center gap-1">
+                        {/* Right Side Actions */}
+                        <div className="flex items-center gap-1 z-10">
+                            <AnimatePresence mode="wait">
+                                {isSearchOpen ? (
+                                    <motion.div
+                                        initial={{ width: 0, opacity: 0 }}
+                                        animate={{ width: 140, opacity: 1 }}
+                                        exit={{ width: 0, opacity: 0 }}
+                                        className="relative flex items-center bg-gray-50 border border-gray-100 rounded-full px-3 py-1.5"
+                                    >
+                                        <input
+                                            autoFocus
+                                            type="text"
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                            placeholder="Search..."
+                                            className="bg-transparent border-none focus:ring-0 text-[11px] w-full p-0 font-black text-gray-900 placeholder:text-gray-300"
+                                        />
+                                        <button onClick={() => { setIsSearchOpen(false); setSearchQuery(''); }} className="ml-1">
+                                            <HiXMark className="w-4 h-4 text-gray-400 hover:text-gray-900" />
+                                        </button>
+                                    </motion.div>
+                                ) : (
+                                    <motion.button
+                                        initial={{ scale: 0.8, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        onClick={() => setIsSearchOpen(true)}
+                                        className="p-2 text-gray-400 hover:text-gray-900 transition-colors"
+                                    >
+                                        <HiMagnifyingGlass className="w-6 h-6" />
+                                    </motion.button>
+                                )}
+                            </AnimatePresence>
+
                             <button onClick={() => setIsCartOpen(!isCartOpen)} className="p-2 text-gray-400 hover:text-gray-900 transition-colors relative">
                                 <HiShoppingBag className="w-6 h-6" />
-                                {cartItems.length > 0 && <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>}
+                                {cartItems.length > 0 && <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white shadow-sm"></span>}
                             </button>
                         </div>
                     </div>
 
-                    {/* Search Bar */}
-                    <div className="relative mb-6 flex justify-center px-4">
-                        <div className="relative flex items-center bg-gray-50/80 backdrop-blur-sm rounded-full px-4 py-2 w-full max-w-[180px] md:max-w-[280px] border border-gray-100 focus-within:border-orange-200 transition-all group">
-                            <HiMagnifyingGlass className="w-4 h-4 text-gray-400 group-focus-within:text-orange-500 transition-colors shrink-0" />
-                            <input
-                                type="text"
-                                placeholder={t('Search...')}
-                                className="bg-transparent border-none focus:ring-0 w-full ml-1 text-[10px] md:text-sm font-medium text-gray-900 placeholder:text-gray-300"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
-                            {searchQuery && (
-                                <button
-                                    onClick={() => setSearchQuery('')}
-                                    className="text-gray-300 hover:text-gray-900 p-0.5 transition-colors"
-                                >
-                                    <HiXMark className="w-4 h-4" />
-                                </button>
-                            )}
-                        </div>
-                    </div>
+
                 </div>
 
 
@@ -338,7 +354,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                         <span className="text-sm font-black text-gray-900 border-b-2 border-red-500">{activePromo.name}</span>
                     </div>
                 ) : (
-                    <div className="flex items-center justify-center gap-4 text-[10px] md:text-base mb-2 overflow-x-auto no-scrollbar py-1 w-full px-2">
+                    <div className="flex items-center justify-center gap-6 text-[11px] md:text-base mb-6 overflow-x-auto no-scrollbar py-1 w-full px-4">
                         {['All', ...new Set(menuItems.map(i => localize(i, 'category')).filter(Boolean))].map((category) => (
                             <button
                                 key={category}
@@ -434,12 +450,12 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
 
             {/* Hero Image & Animation Container */}
             <div className="flex-1 flex items-center justify-end p-2 relative min-h-[160px] md:min-h-[220px] overflow-hidden pointer-events-none">
-                <div className="w-[110vw] h-[110vw] sm:w-[90vw] sm:h-[90vw] md:w-[80vw] md:h-[80vw] relative z-10 aspect-square shrink-0 translate-x-[50%] md:translate-x-[35%]">
+                <div className="w-[100vw] h-[100vw] sm:w-[90vw] sm:h-[90vw] md:w-[80vw] md:h-[80vw] relative z-10 aspect-square shrink-0 translate-x-[35%] md:translate-x-[40%]">
                     <AnimatePresence mode="popLayout">
                         <motion.div
                             key={selectedItem.id}
                             initial={{ rotate: 90, opacity: 0, scale: 0.8, x: 200 }}
-                            animate={{ rotate: 0, opacity: 1, scale: 1.1, x: 0 }}
+                            animate={{ rotate: 0, opacity: 1, scale: 1, x: 0 }}
                             exit={{ rotate: -90, opacity: 0, scale: 0.8, x: -200 }}
                             transition={{ type: "spring", stiffness: 260, damping: 20 }}
                             className="absolute inset-0 w-full h-full rounded-full overflow-hidden border-none shadow-none z-10"
