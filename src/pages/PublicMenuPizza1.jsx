@@ -131,7 +131,8 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
     };
 
     const handleAddToCart = () => {
-        addToCart({ ...selectedItem, quantity, size: 'Standard' });
+        const { finalPrice } = getDiscountedPrice(config.promotions || [], selectedItem);
+        addToCart({ ...selectedItem, price: finalPrice, quantity, size: 'Standard' });
         setQuantity(1);
     };
 
@@ -440,11 +441,26 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                 </div>
 
                 <div className="px-5 pb-4 flex items-center justify-between mt-1">
-                    <div className="flex items-baseline gap-1">
-                        <span className="text-base font-bold text-theme font-mono">$</span>
-                        <motion.span key={selectedItem.price} initial={{ scale: 1.2, color: config.themeColor }} animate={{ scale: 1, color: "#111827" }} className="text-2xl font-black text-gray-900">
-                            {parseFloat(selectedItem.price || 0).toFixed(2)}
-                        </motion.span>
+                    <div className="flex flex-col">
+                        {(() => {
+                            const { finalPrice, discount, originalPrice, promo } = getDiscountedPrice(config.promotions || [], selectedItem);
+                            return (
+                                <>
+                                    <div className="flex items-baseline gap-1">
+                                        <span className="text-base font-bold text-theme font-mono">$</span>
+                                        <motion.span key={finalPrice} initial={{ scale: 1.2, color: config.themeColor }} animate={{ scale: 1, color: "#111827" }} className="text-2xl font-black text-gray-900">
+                                            {parseFloat(finalPrice).toFixed(2)}
+                                        </motion.span>
+                                    </div>
+                                    {discount > 0 && (
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs text-gray-300 line-through font-bold">${parseFloat(originalPrice).toFixed(2)}</span>
+                                            {promo && <span className="text-[10px] text-theme font-black uppercase">🏷️ {promo.name}</span>}
+                                        </div>
+                                    )}
+                                </>
+                            );
+                        })()}
                     </div>
 
                     <div className="flex items-center gap-4">

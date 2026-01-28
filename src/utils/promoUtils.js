@@ -75,10 +75,13 @@ export const doesPromoApplyToItem = (promo, item) => {
  * Calculate discount amount for an item
  */
 export const calculateDiscount = (promo, price) => {
+    const numericPrice = parseFloat(price) || 0;
+    const numericDiscountValue = parseFloat(promo.discountValue) || 0;
+
     if (promo.discountType === 'percentage') {
-        return (price * promo.discountValue) / 100;
+        return (numericPrice * numericDiscountValue) / 100;
     } else {
-        return Math.min(promo.discountValue, price); // Don't discount more than the price
+        return Math.min(numericDiscountValue, numericPrice); // Don't discount more than the price
     }
 };
 
@@ -109,16 +112,19 @@ export const getBestPromoForItem = (promotions, item) => {
  * Calculate discounted price for an item
  */
 export const getDiscountedPrice = (promotions, item) => {
+    if (!item) return { originalPrice: 0, finalPrice: 0, discount: 0, promo: null };
+
     const bestPromo = getBestPromoForItem(promotions, item);
+    const numericPrice = parseFloat(item.price) || 0;
 
     if (!bestPromo) {
-        return { originalPrice: item.price, finalPrice: item.price, discount: 0, promo: null };
+        return { originalPrice: numericPrice, finalPrice: numericPrice, discount: 0, promo: null };
     }
 
-    const finalPrice = item.price - bestPromo.discount;
+    const finalPrice = numericPrice - bestPromo.discount;
 
     return {
-        originalPrice: item.price,
+        originalPrice: numericPrice,
         finalPrice: Math.max(0, finalPrice),
         discount: bestPromo.discount,
         promo: bestPromo.promo

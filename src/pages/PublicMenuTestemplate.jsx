@@ -181,7 +181,8 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
 
     const handleAddToCart = (e) => {
         if (selectedItem) {
-            addToCart({ ...selectedItem, quantity });
+            const { finalPrice } = getDiscountedPrice(config.promotions || [], selectedItem);
+            addToCart({ ...selectedItem, price: finalPrice, quantity });
             triggerCartAnimation(selectedItem, e);
         }
     };
