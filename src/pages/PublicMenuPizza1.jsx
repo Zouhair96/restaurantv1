@@ -169,7 +169,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
 
     // Removed auto-item select on promo change as requested by user
 
-
+    if (!selectedItem) return null;
 
     return (
         <div className="flex h-screen bg-white text-gray-900 font-sans overflow-hidden relative" style={{ '--theme-color': config.themeColor }}>
