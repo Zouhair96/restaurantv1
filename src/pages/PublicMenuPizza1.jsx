@@ -237,14 +237,14 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                 className="relative group w-full flex flex-col items-center justify-center transition-all duration-300"
                             >
                                 <div
-                                    className={`w-16 h-16 md:w-20 md:h-20 flex items-center justify-center transition-all duration-300 ${selectedItem?.id === item.id ? 'rounded-[1.8rem] p-1.5' : 'rounded-full p-0 scale-90 opacity-70 hover:opacity-100 hover:scale-100'}`}
-                                    style={selectedItem?.id === item.id ? { backgroundColor: `${config.themeColor}20`, color: config.themeColor } : {}}
+                                    className={`w-16 h-16 md:w-20 md:h-20 flex items-center justify-center transition-all duration-300 ${selectedItem?.id === item.id ? 'rounded-[2rem] p-3' : 'rounded-full p-0 scale-90 opacity-70 hover:opacity-100 hover:scale-100'}`}
+                                    style={selectedItem?.id === item.id ? { backgroundColor: `${config.themeColor}15`, color: config.themeColor } : {}}
                                 >
                                     <img
                                         src={item.image}
                                         alt={localize(item, 'name')}
-                                        className="w-full h-full object-cover rounded-full shadow-md"
-                                        style={selectedItem?.id === item.id ? { boxShadow: `0 4px 14px 0 ${config.themeColor}40` } : {}}
+                                        className={`w-full h-full object-cover shadow-md ${selectedItem?.id === item.id ? 'rounded-full' : 'rounded-full'}`}
+                                        style={selectedItem?.id === item.id ? { boxShadow: `0 8px 20px -5px ${config.themeColor}40` } : {}}
                                     />
                                 </div>
                             </motion.button>
@@ -397,24 +397,8 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                 </div>
 
                 {/* Hero Image & Animation Container */}
-                <div className="flex-1 flex items-center justify-center p-2 relative min-h-[220px]">
-                    {/* Dynamic Blurred Background */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] -z-10 bg-orange-50/20 rounded-full flex items-center justify-center pointer-events-none">
-                        <AnimatePresence mode="popLayout">
-                            <motion.img
-                                key={`bg-${selectedItem.id}`}
-                                src={selectedItem.image}
-                                initial={{ rotate: 90, opacity: 0, scale: 0.8, x: 200 }}
-                                animate={{ rotate: 0, opacity: 0.5, scale: 1.5, x: 0 }}
-                                exit={{ rotate: -90, opacity: 0, scale: 0.8, x: -200 }}
-                                transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                                className="absolute w-full h-full object-cover rounded-full blur-[40px] opacity-50 mix-blend-multiply"
-                                alt=""
-                            />
-                        </AnimatePresence>
-                    </div>
-
-                    <div className="w-56 h-56 sm:w-64 sm:h-64 md:w-96 md:h-96 relative z-10 aspect-square shrink-0">
+                <div className="flex-1 flex items-center justify-end p-2 relative min-h-[220px] overflow-hidden">
+                    <div className="w-[120vw] h-[120vw] sm:w-[100vw] sm:h-[100vw] md:w-[80vw] md:h-[80vw] relative z-10 aspect-square shrink-0 translate-x-[40%]">
                         <AnimatePresence mode="popLayout">
                             <motion.div
                                 key={selectedItem.id}
