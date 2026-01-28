@@ -189,7 +189,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
             `}</style>
 
             {/* Left Sidebar / Thumbnail List */}
-            <div className="relative shrink-0 z-40 bg-white/90 backdrop-blur-md md:bg-white/50 w-24 md:w-32 lg:w-40 h-full flex flex-col items-center border-r border-gray-100/50">
+            <div className="relative shrink-0 z-40 bg-white/90 backdrop-blur-md md:bg-white/50 w-28 md:w-40 lg:w-52 h-full flex flex-col items-center border-r border-gray-100/50">
                 <div className="flex-1 w-full overflow-y-auto scroll-smooth no-scrollbar py-6 flex flex-col items-center">
                     <button
                         onClick={() => setShowAuthSidebar(true)}
@@ -237,14 +237,14 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                 className="relative group w-full flex flex-col items-center justify-center transition-all duration-300"
                             >
                                 <div
-                                    className={`w-16 h-16 md:w-20 md:h-20 flex items-center justify-center transition-all duration-300 ${selectedItem?.id === item.id ? 'rounded-[2rem] p-3' : 'rounded-full p-0 scale-90 opacity-70 hover:opacity-100 hover:scale-100'}`}
+                                    className={`w-20 h-20 md:w-28 md:h-28 lg:w-36 lg:h-36 flex items-center justify-center transition-all duration-300 ${selectedItem?.id === item.id ? 'rounded-[2rem] p-4' : 'rounded-full p-0 scale-90 opacity-70 hover:opacity-100 hover:scale-100'}`}
                                     style={selectedItem?.id === item.id ? { backgroundColor: `${config.themeColor}15`, color: config.themeColor } : {}}
                                 >
                                     <img
                                         src={item.image}
                                         alt={localize(item, 'name')}
-                                        className={`w-full h-full object-cover shadow-md ${selectedItem?.id === item.id ? 'rounded-full' : 'rounded-full'}`}
-                                        style={selectedItem?.id === item.id ? { boxShadow: `0 8px 20px -5px ${config.themeColor}40` } : {}}
+                                        className="w-full h-full object-cover rounded-full shadow-md"
+                                        style={selectedItem?.id === item.id ? { boxShadow: `0 12px 30px -10px ${config.themeColor}50` } : {}}
                                     />
                                 </div>
                             </motion.button>
@@ -431,54 +431,67 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 className="fixed bottom-0 left-0 right-0 z-[60] bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.05)] border-t border-gray-50"
             >
-                <div className="px-5 py-3 flex justify-between items-start mb-0">
-                    <div className="flex-1 min-w-0 pr-4">
-                        <h2 className="text-lg md:text-2xl font-black text-gray-900 mb-0.5 truncate h-7 flex items-center">{localize(selectedItem, 'name')}</h2>
-                        <div className="flex items-start gap-2 mb-0 h-10 overflow-hidden">
-                            <p className="text-gray-500 text-xs leading-tight max-w-xs line-clamp-2">{localize(selectedItem, 'description')}</p>
+                <div className="px-6 py-4">
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="flex-1">
+                            <h2 className="text-3xl md:text-5xl font-black text-gray-900 leading-tight mb-2 uppercase tracking-tighter">
+                                {localize(selectedItem, 'name')}
+                            </h2>
+                            <div className="flex items-center gap-2 text-gray-400">
+                                <HiBars3 className="w-5 h-5 opacity-60" />
+                                <span className="text-sm font-bold uppercase tracking-widest opacity-60 italic">ingredients</span>
+                            </div>
                         </div>
-                    </div>
-                    <motion.button whileTap={{ scale: 0.8 }} onClick={() => setLiked(!liked)} className="text-gray-400 hover:text-red-500 transition-colors shrink-0 pt-1">
-                        {liked ? <HiHeart className="w-6 h-6 text-red-500" /> : <HiOutlineHeart className="w-6 h-6" />}
-                    </motion.button>
-                </div>
-
-                <div className="px-5 pb-4 flex items-center justify-between mt-1">
-                    <div className="flex flex-col">
-                        {(() => {
-                            const { finalPrice, discount, originalPrice, promo } = getDiscountedPrice(config.promotions || [], selectedItem);
-                            return (
-                                <>
-                                    <div className="flex items-baseline gap-1">
-                                        <span className="text-base font-bold text-theme font-mono">$</span>
-                                        <motion.span key={finalPrice} initial={{ scale: 1.2, color: config.themeColor }} animate={{ scale: 1, color: "#111827" }} className="text-2xl font-black text-gray-900">
-                                            {parseFloat(finalPrice).toFixed(2)}
-                                        </motion.span>
-                                    </div>
-                                    {discount > 0 && (
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-xs text-gray-300 line-through font-bold">${parseFloat(originalPrice).toFixed(2)}</span>
-                                            {promo && <span className="text-[10px] text-theme font-black uppercase">🏷️ {promo.name}</span>}
-                                        </div>
-                                    )}
-                                </>
-                            );
-                        })()}
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-3 bg-gray-100 rounded-full px-3 py-1.5 h-10">
-                            {quantity > 1 && (
-                                <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="w-5 h-5 flex items-center justify-center text-gray-400 hover-text-theme transition-colors active:scale-95"><HiMinus className="w-4 h-4" /></button>
-                            )}
-                            <AnimatePresence mode="wait">
-                                <motion.span key={quantity} initial={{ y: 5, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -5, opacity: 0 }} className="w-4 text-center font-bold text-gray-900 text-sm">{quantity}</motion.span>
-                            </AnimatePresence>
-                            <button onClick={() => setQuantity(q => q + 1)} className="w-5 h-5 flex items-center justify-center text-gray-400 hover-text-theme transition-colors active:scale-95"><HiPlus className="w-4 h-4" /></button>
-                        </div>
-                        <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleAddToCart} className="bg-white border transition-colors hover:border-theme border-gray-200 text-theme hover-text-theme rounded-[1.2rem] py-2.5 px-6 font-bold text-sm shadow-sm flex items-center justify-center gap-2 h-10" style={{ color: config.themeColor, borderColor: `${config.themeColor}40` }}>
-                            <span>{t('menu.addToCart')}</span><HiShoppingBag className="w-5 h-5" />
+                        <motion.button
+                            whileTap={{ scale: 0.8 }}
+                            onClick={() => setLiked(!liked)}
+                            className="bg-white p-3 rounded-full shadow-sm border border-gray-100 text-gray-400 hover:text-red-500 transition-colors"
+                        >
+                            {liked ? <HiHeart className="w-6 h-6 text-red-500" /> : <HiOutlineHeart className="w-6 h-6" />}
                         </motion.button>
+                    </div>
+
+                    <div className="flex items-center justify-between pb-6">
+                        <div className="flex items-baseline gap-1">
+                            <span className="text-2xl font-black text-theme" style={{ color: config.themeColor }}>$</span>
+                            {(() => {
+                                const { finalPrice } = getDiscountedPrice(config.promotions || [], selectedItem);
+                                return (
+                                    <span className="text-5xl font-black text-gray-900 tracking-tighter">
+                                        {parseFloat(finalPrice).toFixed(2)}
+                                    </span>
+                                );
+                            })()}
+                        </div>
+
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-4 bg-gray-50 rounded-full px-4 py-2 border border-gray-100 shadow-inner">
+                                <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className={`w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-sm text-gray-400 transition-all ${quantity > 1 ? 'hover:text-theme active:scale-90' : 'opacity-20 cursor-not-allowed'}`}>
+                                    <HiMinus className="w-5 h-5" />
+                                </button>
+                                <AnimatePresence mode="wait">
+                                    <motion.span key={quantity} initial={{ scale: 1.2, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} className="w-6 text-center font-black text-gray-900 text-lg">
+                                        {quantity}
+                                    </motion.span>
+                                </AnimatePresence>
+                                <button onClick={() => setQuantity(q => q + 1)} className="w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-sm text-gray-400 hover:text-theme transition-all active:scale-90">
+                                    <HiPlus className="w-5 h-5" />
+                                </button>
+                            </div>
+
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={handleAddToCart}
+                                className="group h-16 px-8 rounded-full border-2 transition-all flex items-center gap-3 overflow-hidden bg-white hover:shadow-xl active:shadow-sm"
+                                style={{ borderColor: config.themeColor, color: config.themeColor }}
+                            >
+                                <span className="font-black text-lg uppercase tracking-tight">Add to</span>
+                                <div className="p-2 rounded-lg bg-current/5 group-hover:rotate-12 transition-transform">
+                                    <HiShoppingBag className="w-6 h-6" />
+                                </div>
+                            </motion.button>
+                        </div>
                     </div>
                 </div>
             </motion.div>
