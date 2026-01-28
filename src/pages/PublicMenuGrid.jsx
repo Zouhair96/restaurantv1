@@ -205,7 +205,7 @@ const PublicMenuGrid = ({ restaurantName: propRestaurantName, templateKey: propT
                     )}
 
                     {/* Promotion Banner */}
-                    {config.promotions && config.promotions.length > 0 && !selectedPromoId && (
+                    {config.promotions && getPromosByDisplayStyle(config.promotions, 'banner').length > 0 && !selectedPromoId && (
                         <div className="px-6 mb-4 relative z-30">
                             <div className="relative h-28 md:h-32 rounded-[2rem] overflow-hidden shadow-xl shadow-gray-200/50 group border border-gray-100 bg-gray-900">
                                 <AnimatePresence mode="wait">

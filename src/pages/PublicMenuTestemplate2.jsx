@@ -182,7 +182,7 @@ const PublicMenuTestemplate2 = ({ restaurantName: propRestaurantName }) => {
             {/* Main Content */}
             <main className="flex-1 overflow-y-auto no-scrollbar pb-24 px-6 pt-6">
                 {/* Banner Promotions */}
-                {config.promotions && config.promotions.length > 0 && !selectedPromoId && (
+                {config.promotions && getPromosByDisplayStyle(config.promotions, 'banner').length > 0 && !selectedPromoId && (
                     <div className="mb-4">
                         <div className="relative h-44 rounded-[2.5rem] overflow-hidden shadow-2xl border border-white/10 bg-[#12141a]">
                             <AnimatePresence mode="wait">

@@ -325,7 +325,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                     </div>
 
                     {/* Promotion Banner */}
-                    {config.promotions && config.promotions.length > 0 && !selectedPromoId && (
+                    {config.promotions && getPromosByDisplayStyle(config.promotions, 'banner').length > 0 && !selectedPromoId && (
                         <div className="px-6 mb-8 mt-2 relative z-30">
                             <div className="relative h-32 md:h-36 rounded-[2.5rem] overflow-hidden shadow-2xl border border-gray-100 bg-gray-900">
                                 <AnimatePresence mode="wait">
