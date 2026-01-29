@@ -24,25 +24,44 @@ export const LoyaltyProvider = ({ children }) => {
         }
     }, []);
 
-    const trackVisit = (restaurantId) => {
-        if (!restaurantId) return;
+    const syncLoyaltyEvent = async (restaurantName, eventType) => {
+        try {
+            await fetch('/.netlify/functions/loyalty-analytics', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    restaurantName,
+                    visitorUuid: clientId,
+                    eventType
+                })
+            });
+        } catch (err) {
+            console.warn('[Loyalty Sync Failed]:', err.message);
+        }
+    };
+
+    const trackVisit = (restaurantName) => {
+        if (!restaurantName) return;
 
         const now = Date.now();
         const updatedData = { ...loyaltyData };
 
-        if (!updatedData[restaurantId]) {
-            updatedData[restaurantId] = { visits: [], lastOfferType: 'NEW' };
+        if (!updatedData[restaurantName]) {
+            updatedData[restaurantName] = { visits: [], lastOfferType: 'NEW' };
         }
 
-        const restaurantLog = updatedData[restaurantId];
+        const restaurantLog = updatedData[restaurantName];
 
         // Only record one visit per 'session' (e.g., once every 4 hours) 
-        // to prevent rapid-refresh spoofing, or per day as per business logic.
         const lastVisit = restaurantLog.visits[restaurantLog.visits.length - 1];
         const FOUR_HOURS = 4 * 60 * 60 * 1000;
 
+        let visitRecorded = false;
         if (!lastVisit || (now - lastVisit > FOUR_HOURS)) {
             restaurantLog.visits.push(now);
+            visitRecorded = true;
+            // Sync Visit to Backend
+            syncLoyaltyEvent(restaurantName, 'visit');
         }
 
         // Cleanup: Remove visits older than 30 days
@@ -50,6 +69,7 @@ export const LoyaltyProvider = ({ children }) => {
         restaurantLog.visits = restaurantLog.visits.filter(v => now - v < THIRTY_DAYS);
 
         // Determine Status
+        const oldStatus = restaurantLog.lastOfferType;
         let status = 'SOFT';
         if (restaurantLog.visits.length === 1) {
             status = 'NEW';
@@ -58,6 +78,11 @@ export const LoyaltyProvider = ({ children }) => {
         }
 
         restaurantLog.lastOfferType = status;
+
+        // If status JUST upgraded to LOYAL, sync that milestone
+        if (status === 'LOYAL' && oldStatus !== 'LOYAL') {
+            syncLoyaltyEvent(restaurantName, 'loyal_status_reached');
+        }
 
         setLoyaltyData(updatedData);
         localStorage.setItem('loyalty_data', JSON.stringify(updatedData));

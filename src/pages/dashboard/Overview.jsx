@@ -15,12 +15,33 @@ const Overview = () => {
         onStatusUpdate: null,
         getStatusColor: null
     })
+    const [loyaltyStats, setLoyaltyStats] = useState({
+        loyal_clients: 0,
+        offers_applied: 0,
+        loyalty_revenue: '0.00'
+    })
 
     useEffect(() => {
         if (user) {
             loadMenus()
+            fetchLoyaltyStats()
         }
     }, [user])
+
+    const fetchLoyaltyStats = async () => {
+        try {
+            const token = localStorage.getItem('token')
+            const response = await fetch('/.netlify/functions/loyalty-analytics', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            if (response.ok) {
+                const data = await response.json()
+                setLoyaltyStats(data)
+            }
+        } catch (error) {
+            console.error('Error fetching loyalty stats:', error)
+        }
+    }
 
     const loadMenus = async () => {
         try {
@@ -142,8 +163,8 @@ const Overview = () => {
                         <span className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Loyal Clients</span>
                     </div>
                     <div className="flex items-baseline gap-2">
-                        <span className="text-4xl font-black text-gray-900 dark:text-white">128</span>
-                        <span className="text-green-500 font-bold text-xs ring-1 ring-green-100 px-2 py-0.5 rounded-full">+12%</span>
+                        <span className="text-4xl font-black text-gray-900 dark:text-white">{loyaltyStats.loyal_clients}</span>
+                        <span className="text-green-500 font-bold text-xs ring-1 ring-green-100 px-2 py-0.5 rounded-full">Real-time</span>
                     </div>
                 </div>
 
@@ -157,8 +178,8 @@ const Overview = () => {
                         <span className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Offers Applied</span>
                     </div>
                     <div className="flex items-baseline gap-2">
-                        <span className="text-4xl font-black text-gray-900 dark:text-white">542</span>
-                        <span className="text-blue-500 font-bold text-xs">This Month</span>
+                        <span className="text-4xl font-black text-gray-900 dark:text-white">{loyaltyStats.offers_applied}</span>
+                        <span className="text-blue-500 font-bold text-xs ring-1 ring-blue-100 px-2 py-0.5 rounded-full">Total</span>
                     </div>
                 </div>
 
@@ -172,8 +193,8 @@ const Overview = () => {
                         <span className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Revenue (Loyalty)</span>
                     </div>
                     <div className="flex items-baseline gap-2">
-                        <span className="text-4xl font-black text-gray-900 dark:text-white">$8.4k</span>
-                        <span className="text-gray-400 font-medium text-xs">Estimated</span>
+                        <span className="text-4xl font-black text-gray-900 dark:text-white">${parseFloat(loyaltyStats.loyalty_revenue).toLocaleString()}</span>
+                        <span className="text-gray-400 font-medium text-xs">Direct Revenue</span>
                     </div>
                 </div>
             </div>

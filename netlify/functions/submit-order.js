@@ -25,7 +25,12 @@ export const handler = async (event, context) => {
     }
 
     try {
-        const { restaurantName, orderType, tableNumber, deliveryAddress, paymentMethod, items, totalPrice } = JSON.parse(event.body);
+        const {
+            restaurantName, orderType, tableNumber, deliveryAddress,
+            paymentMethod, items, totalPrice,
+            loyalty_discount_applied = false,
+            loyalty_discount_amount = 0
+        } = JSON.parse(event.body);
 
         // Optional: Get customer ID from token if present
         let customerId = null;
@@ -107,8 +112,13 @@ export const handler = async (event, context) => {
 
         // Insert order with null-safe parameters
         const orderResult = await query(
-            `INSERT INTO orders (restaurant_id, order_type, table_number, delivery_address, payment_method, items, total_price, status, customer_id, commission_amount, payment_status)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending', $8, $9, $10)
+            `INSERT INTO orders (
+                restaurant_id, order_type, table_number, delivery_address, 
+                payment_method, items, total_price, status, customer_id, 
+                commission_amount, payment_status,
+                loyalty_discount_applied, loyalty_discount_amount
+            )
+             VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending', $8, $9, $10, $11, $12)
              RETURNING id, created_at`,
             [
                 restaurantId,
@@ -120,7 +130,9 @@ export const handler = async (event, context) => {
                 totalPrice,
                 customerId,
                 commissionAmount,
-                paymentMethod === 'cash' ? 'pending_cash' : 'pending'
+                paymentMethod === 'cash' ? 'pending_cash' : 'pending',
+                loyalty_discount_applied,
+                loyalty_discount_amount
             ]
         );
 

@@ -65,7 +65,9 @@ const Checkout = ({
                 items: cartItems,
                 totalPrice: total,
                 discount: orderDiscount,
-                subtotal: subtotal
+                subtotal: subtotal,
+                loyalty_discount_applied: loyaltyDiscount > 0,
+                loyalty_discount_amount: loyaltyDiscount
             };
 
             const token = localStorage.getItem('client_token');
