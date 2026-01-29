@@ -282,8 +282,8 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                 </div>
             </div>
 
-            {/* Main Content Area */}
-            <div className="flex-1 flex flex-col h-full overflow-hidden relative z-0 pb-48">
+            {/* Main Content Area - Combined Header, Categories and Pizza Image */}
+            <div className="flex-1 flex flex-col h-full overflow-y-auto no-scrollbar">
                 <div className="px-5 pt-4 pb-1 shrink-0 z-20">
                     <div className="relative flex items-center justify-between min-h-[44px]">
                         {/* Absolute Centered Title/Logo */}
@@ -440,31 +440,28 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                         </div>
                     </div>
                 )}
-            </div>
 
-            {/* Hero Image & Animation Container */}
-            <div className="flex-1 flex items-center justify-end p-2 relative min-h-[160px] md:min-h-[220px] overflow-hidden pointer-events-none">
-                <div className="w-[100vw] h-[100vw] sm:w-[90vw] sm:h-[90vw] md:w-[75vw] md:h-[75vw] relative z-10 aspect-square shrink-0 translate-x-[0%] md:translate-x-[5%]">
-                    <AnimatePresence mode="popLayout">
-                        <motion.div
-                            key={selectedItem.id}
-                            initial={{ rotate: 90, opacity: 0, scale: 0.8, x: 200 }}
-                            animate={{ rotate: 0, opacity: 1, scale: 1, x: 0 }}
-                            exit={{ rotate: -90, opacity: 0, scale: 0.8, x: -200 }}
-                            transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                            className="absolute inset-0 w-full h-full rounded-full overflow-hidden border-none shadow-none z-10"
-                            style={{ transformOrigin: 'center center' }}
-                        >
-                            <motion.img whileHover={{ scale: 1.05, rotate: 5 }} src={selectedItem.image} alt={localize(selectedItem, 'name')} className="w-full h-full object-cover shadow-2xl rounded-full" />
-                            <div className="absolute inset-0 flex justify-center pointer-events-none">
-                                <div className="flex gap-4 opacity-30 mt-4">
-                                    {[0, 1, 2].map((i) => (
-                                        <motion.div key={i} animate={{ y: [-10, -40], opacity: [0, 1, 0], scale: [1, 1.5] }} transition={{ duration: 2 + i * 0.5, repeat: Infinity, delay: i * 0.4 }} className="w-2 h-12 bg-gradient-to-t from-gray-200 to-transparent blur-md rounded-full" />
-                                    ))}
-                                </div>
-                            </div>
-                        </motion.div>
-                    </AnimatePresence>
+                {/* Hero Image & Animation Container - Now inside the same scrollable column */}
+                <div className="flex items-center justify-center p-4 relative min-h-[300px] pointer-events-none mt-4">
+                    <div className="w-[85vw] h-[85vw] max-w-[500px] max-h-[500px] relative z-10 aspect-square shrink-0">
+                        <AnimatePresence mode="popLayout">
+                            <motion.div
+                                key={selectedItem.id}
+                                initial={{ rotate: 90, opacity: 0, scale: 0.8 }}
+                                animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                                exit={{ rotate: -90, opacity: 0, scale: 0.8 }}
+                                transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                                className="absolute inset-0 w-full h-full rounded-full overflow-hidden border-none z-10"
+                            >
+                                <motion.img
+                                    whileHover={{ scale: 1.05, rotate: 5 }}
+                                    src={selectedItem.image}
+                                    alt={localize(selectedItem, 'name')}
+                                    className="w-full h-full object-cover shadow-2xl rounded-full"
+                                />
+                            </motion.div>
+                        </AnimatePresence>
+                    </div>
                 </div>
             </div>
             {/* Details Card */}
