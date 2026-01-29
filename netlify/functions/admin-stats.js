@@ -5,9 +5,12 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '../../.env' });
 dotenv.config();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-
 export const handler = async (event, context) => {
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+        console.error("JWT_SECRET missing in environment");
+    }
+
     // 1. Check Method
     if (event.httpMethod !== 'GET') {
         return {
@@ -30,7 +33,7 @@ export const handler = async (event, context) => {
     const token = authHeader.split(' ')[1];
 
     try {
-        const decoded = jwt.verify(token, JWT_SECRET);
+        const decoded = jwt.verify(token, secret);
 
         // 3. Check Admin Role
         if (decoded.role !== 'admin') {

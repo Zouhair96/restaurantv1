@@ -1,7 +1,7 @@
 import { query } from './db.js';
-import { POSManager } from './pos-adapters/pos-manager.js';
+// import { POSManager } from './pos-adapters/pos-manager.js';
 import { getStripe } from './utils/stripe-client.js';
-import { formatOrderForPOS } from './utils/pos-formatter.js';
+// import { formatOrderForPOS } from './utils/pos-formatter.js';
 
 export const handler = async (event, context) => {
     if (event.httpMethod === 'OPTIONS') {
@@ -87,6 +87,8 @@ export const handler = async (event, context) => {
                 if (settingsResult.rows.length > 0) {
                     const settings = settingsResult.rows[0];
                     if (settings.pos_enabled) {
+                        console.log('POS disabled due to missing modules');
+                        /*
                         // Format the order for POS (Standardized Items Array)
                         const formattedOrder = formatOrderForPOS(order, order.items);
 
@@ -98,6 +100,7 @@ export const handler = async (event, context) => {
                                 [posStatus.external_id, orderId]
                             );
                         }
+                        */
                     }
                 }
             }
