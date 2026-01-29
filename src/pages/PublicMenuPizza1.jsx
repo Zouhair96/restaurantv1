@@ -251,7 +251,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                 className="relative group w-full flex flex-col items-center justify-center transition-all duration-300"
                             >
                                 <div
-                                    className={`w-10 h-10 md:w-14 md:h-14 rounded-full flex items-center justify-center transition-all duration-500 overflow-hidden ring-offset-2 ${selectedItem?.id === item.id ? 'ring-2 ring-gray-900 shadow-xl scale-110' : 'opacity-60 grayscale hover:grayscale-0 hover:opacity-100'}`}
+                                    className={`w-10 h-10 md:w-14 md:h-14 rounded-full flex items-center justify-center transition-all duration-500 overflow-hidden ring-offset-2 ${selectedItem?.id === item.id ? 'ring-2 ring-gray-900 shadow-xl scale-110' : 'opacity-80 hover:opacity-100'}`}
                                 >
                                     <img
                                         src={item.image}
@@ -424,23 +424,23 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                     </div>
                 )}
 
-                {/* Hero Image Zone - Robust Scaling */}
+                {/* Hero Image Zone - Robust Circular Scaling */}
                 <div className="flex-1 flex items-center justify-center relative z-10 px-4 md:px-8 py-8 md:py-12 min-h-[40vh]">
-                    <div className="w-full max-w-[280px] md:max-w-[500px] lg:max-w-[650px] aspect-square relative shrink-0">
+                    <div className="w-full max-w-[280px] md:max-w-[500px] lg:max-w-[600px] aspect-square relative shrink-0">
                         <AnimatePresence mode="popLayout">
                             <motion.div
                                 key={selectedItem.id}
-                                initial={{ scale: 0.8, rotate: 90, opacity: 0 }}
-                                animate={{ scale: 1, rotate: 0, opacity: 1 }}
-                                exit={{ scale: 0.8, rotate: -90, opacity: 0 }}
+                                initial={{ scale: 0.8, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0.8, opacity: 0 }}
                                 transition={{ type: "spring", stiffness: 100, damping: 20 }}
-                                className="absolute inset-0 w-full h-full z-10"
+                                className="absolute inset-0 w-full h-full z-10 p-2"
                             >
                                 <motion.img
                                     whileHover={{ scale: 1.05 }}
                                     src={selectedItem.image}
                                     alt={localize(selectedItem, 'name')}
-                                    className="w-full h-full object-contain drop-shadow-[0_20px_60px_rgba(0,0,0,0.15)]"
+                                    className="w-full h-full object-cover rounded-full border-4 border-white shadow-[0_20px_60px_rgba(0,0,0,0.15)] bg-white"
                                 />
                             </motion.div>
                         </AnimatePresence>
