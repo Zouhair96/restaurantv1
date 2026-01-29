@@ -27,14 +27,17 @@ export const handler = async (event, context) => {
     try {
         // --- Middleware: Ensure Schema is ready ---
         try {
-            await query(`
-                ALTER TABLE orders 
-                ADD COLUMN IF NOT EXISTS payment_status TEXT DEFAULT 'pending',
-                ADD COLUMN IF NOT EXISTS loyalty_discount_applied BOOLEAN DEFAULT false,
-                ADD COLUMN IF NOT EXISTS loyalty_discount_amount NUMERIC DEFAULT 0,
-                ADD COLUMN IF NOT EXISTS loyalty_gift_item TEXT,
-                ADD COLUMN IF NOT EXISTS stripe_checkout_session_id TEXT
-            `);
+            // Split into separate queries for maximum compatibility
+            const tableFixes = [
+                "ADD COLUMN IF NOT EXISTS payment_status TEXT DEFAULT 'pending'",
+                "ADD COLUMN IF NOT EXISTS loyalty_discount_applied BOOLEAN DEFAULT false",
+                "ADD COLUMN IF NOT EXISTS loyalty_discount_amount NUMERIC DEFAULT 0",
+                "ADD COLUMN IF NOT EXISTS loyalty_gift_item TEXT",
+                "ADD COLUMN IF NOT EXISTS stripe_checkout_session_id TEXT"
+            ];
+            for (const fix of tableFixes) {
+                await query(`ALTER TABLE orders ${fix}`).catch(e => console.warn(`[DB Patch] ${fix} failed:`, e.message));
+            }
         } catch (dbErr) {
             console.warn('[DB Warning]: Could not ensure orders schema:', dbErr.message);
         }

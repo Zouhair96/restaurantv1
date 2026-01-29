@@ -5,9 +5,12 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '../../.env' });
 dotenv.config();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-
 export const handler = async (event, context) => {
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+        console.error("CRITICAL: JWT_SECRET is missing from environment");
+    }
+
     const headers = {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
@@ -43,10 +46,12 @@ export const handler = async (event, context) => {
 
             if (configUpdate) {
                 const authHeader = event.headers.authorization || event.headers.Authorization;
-                if (!authHeader) return { statusCode: 401, headers, body: JSON.stringify({ error: 'Unauthorized' }) };
+                if (!authHeader || !authHeader.startsWith('Bearer ')) {
+                    return { statusCode: 401, headers, body: JSON.stringify({ error: 'Unauthorized: Missing token' }) };
+                }
 
                 const token = authHeader.split(' ')[1];
-                const decoded = jwt.verify(token, JWT_SECRET);
+                const decoded = jwt.verify(token, secret);
                 const restaurantId = decoded.id;
 
                 const updateRes = await query(
@@ -93,10 +98,12 @@ export const handler = async (event, context) => {
         // --- GET: Fetch Aggregated Stats & Config ---
         if (event.httpMethod === 'GET') {
             const authHeader = event.headers.authorization || event.headers.Authorization;
-            if (!authHeader) return { statusCode: 401, headers, body: JSON.stringify({ error: 'Unauthorized' }) };
+            if (!authHeader || !authHeader.startsWith('Bearer ')) {
+                return { statusCode: 401, headers, body: JSON.stringify({ error: 'Unauthorized: Missing token' }) };
+            }
 
             const token = authHeader.split(' ')[1];
-            const decoded = jwt.verify(token, JWT_SECRET);
+            const decoded = jwt.verify(token, secret);
             const restaurantId = decoded.id;
 
             const configResult = await query('SELECT loyalty_config FROM users WHERE id = $1', [restaurantId]);

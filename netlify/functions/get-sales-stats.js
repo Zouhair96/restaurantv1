@@ -27,12 +27,9 @@ export const handler = async (event, context) => {
     try {
         // --- Middleware: Ensure Schema is ready ---
         try {
-            await query(`
-                ALTER TABLE orders 
-                ADD COLUMN IF NOT EXISTS total_price DECIMAL(10, 2) DEFAULT 0,
-                ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'pending',
-                ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-            `);
+            await query("ALTER TABLE orders ADD COLUMN IF NOT EXISTS total_price DECIMAL(10, 2) DEFAULT 0").catch(() => { });
+            await query("ALTER TABLE orders ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'pending'").catch(() => { });
+            await query("ALTER TABLE orders ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP").catch(() => { });
         } catch (dbErr) {
             console.warn('[DB Warning]: Could not ensure sales stats schema:', dbErr.message);
         }

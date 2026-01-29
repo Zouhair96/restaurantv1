@@ -4,18 +4,18 @@ import jwt from 'jsonwebtoken';
 // Helper to verify token
 const getUserFromToken = (headers) => {
     const authHeader = headers.authorization || headers.Authorization;
-    if (!authHeader) return null;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
 
-    const token = authHeader.replace('Bearer ', '');
+    const token = authHeader.split(' ')[1];
     try {
         const secret = process.env.JWT_SECRET;
         if (!secret) {
             console.error("CRITICAL: JWT_SECRET missing in menus.js");
             return null;
         }
-        const decoded = jwt.verify(token, secret);
-        return decoded;
+        return jwt.verify(token, secret);
     } catch (e) {
+        console.error("JWT Verification failed in menus.js:", e.message);
         return null;
     }
 };
