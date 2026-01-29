@@ -5,6 +5,7 @@ import RecoveryOfferModal from './RecoveryOfferModal';
 const LoyaltySettings = ({ onUpdate }) => {
     const [isAutoPromoOn, setIsAutoPromoOn] = useState(true);
     const [isRecoveryModalOpen, setIsRecoveryModalOpen] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [recoveryConfig, setRecoveryConfig] = useState({
         type: 'discount',
         value: '20',
@@ -13,12 +14,67 @@ const LoyaltySettings = ({ onUpdate }) => {
         frequency: '30'
     });
 
+    // 1. Fetch Config on Mount
+    React.useEffect(() => {
+        const fetchConfig = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/.netlify/functions/loyalty-analytics', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.loyalty_config) {
+                        setIsAutoPromoOn(data.loyalty_config.isAutoPromoOn);
+                        setRecoveryConfig(data.loyalty_config.recoveryConfig);
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to load loyalty config:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchConfig();
+    }, []);
+
+    // 2. Persist Changes to Backend
+    const saveConfig = async (updates) => {
+        try {
+            const token = localStorage.getItem('token');
+            await fetch('/.netlify/functions/loyalty-analytics', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ configUpdate: updates })
+            });
+        } catch (err) {
+            console.error('Failed to save loyalty config:', err);
+        }
+    };
+
     const handleSaveRecovery = (newOffer) => {
         const updated = { ...recoveryConfig, ...newOffer };
         setRecoveryConfig(updated);
         setIsRecoveryModalOpen(false);
+        saveConfig({ recoveryConfig: updated });
         onUpdate?.(updated);
     };
+
+    const handleToggleAutoPromo = (checked) => {
+        setIsAutoPromoOn(checked);
+        saveConfig({ isAutoPromoOn: checked });
+    };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center p-20">
+                <div className="w-8 h-8 border-4 border-yum-primary border-t-transparent rounded-full animate-spin" />
+            </div>
+        );
+    }
 
     const handleTestPromo = () => {
         // Simulation logic
@@ -41,7 +97,7 @@ const LoyaltySettings = ({ onUpdate }) => {
                             <input
                                 type="checkbox"
                                 checked={isAutoPromoOn}
-                                onChange={(e) => setIsAutoPromoOn(e.target.checked)}
+                                onChange={(e) => handleToggleAutoPromo(e.target.checked)}
                                 className="sr-only peer"
                             />
                             <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-500"></div>
@@ -83,7 +139,11 @@ const LoyaltySettings = ({ onUpdate }) => {
                                 <div className="relative group">
                                     <select
                                         value={recoveryConfig.delay}
-                                        onChange={(e) => setRecoveryConfig({ ...recoveryConfig, delay: e.target.value })}
+                                        onChange={(e) => {
+                                            const updated = { ...recoveryConfig, delay: e.target.value };
+                                            setRecoveryConfig(updated);
+                                            saveConfig({ recoveryConfig: updated });
+                                        }}
                                         className="w-full appearance-none px-5 py-4 rounded-2xl border border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-gray-900 dark:text-white font-bold outline-none focus:ring-2 focus:ring-yum-primary/20 cursor-pointer"
                                     >
                                         <option value="14">14 Days (Aggressive)</option>
@@ -102,7 +162,11 @@ const LoyaltySettings = ({ onUpdate }) => {
                                 <div className="relative group">
                                     <select
                                         value={recoveryConfig.frequency}
-                                        onChange={(e) => setRecoveryConfig({ ...recoveryConfig, frequency: e.target.value })}
+                                        onChange={(e) => {
+                                            const updated = { ...recoveryConfig, frequency: e.target.value };
+                                            setRecoveryConfig(updated);
+                                            saveConfig({ recoveryConfig: updated });
+                                        }}
                                         className="w-full appearance-none px-5 py-4 rounded-2xl border border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-gray-900 dark:text-white font-bold outline-none focus:ring-2 focus:ring-yum-primary/20 cursor-pointer"
                                     >
                                         <option value="30">1 time / 30 Days</option>
