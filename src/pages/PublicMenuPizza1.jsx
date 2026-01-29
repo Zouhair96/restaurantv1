@@ -194,7 +194,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
             `}</style>
 
             {/* Left Sidebar / Thumbnail List */}
-            <div className="relative shrink-0 z-40 bg-white w-16 md:w-20 h-full flex flex-col items-center border-r border-gray-100 shadow-sm">
+            <div className="relative shrink-0 z-40 bg-white w-14 md:w-18 h-full flex flex-col items-center">
                 <div className="flex-1 w-full overflow-y-auto scroll-smooth no-scrollbar py-6 flex flex-col items-center">
                     <button
                         onClick={() => setShowAuthSidebar(true)}
@@ -239,14 +239,13 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                 className="relative group w-full flex flex-col items-center justify-center transition-all duration-300"
                             >
                                 <div
-                                    className={`w-12 h-12 md:w-16 md:h-16 flex items-center justify-center transition-all duration-300 ${selectedItem?.id === item.id ? 'rounded-2xl p-1.5' : 'rounded-full p-0 scale-90 opacity-70 hover:opacity-100 hover:scale-100'}`}
-                                    style={selectedItem?.id === item.id ? { backgroundColor: `${config.themeColor}15`, color: config.themeColor } : {}}
+                                    className={`w-11 h-11 md:w-14 md:h-14 flex items-center justify-center transition-all duration-300 ${selectedItem?.id === item.id ? 'rounded-[1.2rem] md:rounded-[1.5rem] p-1' : 'rounded-full p-0 scale-90 opacity-60 hover:opacity-100 hover:scale-100'}`}
+                                    style={selectedItem?.id === item.id ? { backgroundColor: `${config.themeColor}20`, color: config.themeColor } : {}}
                                 >
                                     <img
                                         src={item.image}
                                         alt={localize(item, 'name')}
-                                        className="w-full h-full object-cover rounded-full shadow-lg"
-                                        style={selectedItem?.id === item.id ? { boxShadow: `0 6px 16px -4px ${config.themeColor}50` } : {}}
+                                        className="w-full h-full object-cover rounded-full shadow-md"
                                     />
                                 </div>
                             </motion.button>
@@ -343,24 +342,24 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
 
 
                 {activePromo ? (
-                    <div className="flex items-center gap-2 mb-6 animate-fade-in">
-                        <span className="p-1.5 rounded-lg bg-red-50 text-red-500"><HiTag className="w-4 h-4" /></span>
+                    <div className="flex items-center justify-center gap-2 mb-4 animate-fade-in px-4">
+                        <span className="p-1 rounded-lg bg-red-50 text-red-500"><HiTag className="w-4 h-4" /></span>
                         <span className="text-xs font-black uppercase tracking-widest text-gray-400">Filtering: </span>
                         <span className="text-sm font-black text-gray-900 border-b-2 border-red-500">{activePromo.name}</span>
                     </div>
                 ) : (
-                    <div className="flex items-center justify-center gap-6 text-[11px] md:text-base mb-6 overflow-x-auto no-scrollbar py-1 w-full px-4">
+                    <div className="flex items-center justify-center gap-4 md:gap-8 text-[11px] md:text-sm mb-4 overflow-x-auto no-scrollbar py-1 w-full px-4">
                         {['All', ...new Set(menuItems.map(i => localize(i, 'category')).filter(Boolean))].map((category) => (
                             <button
                                 key={category}
                                 onClick={() => handleCategorySelect(category)}
-                                className={`font-black pb-2 whitespace-nowrap transition-all relative ${activeCategory === category ? 'text-gray-900' : 'text-gray-300 hover:text-gray-900'}`}
+                                className={`font-black pb-1.5 whitespace-nowrap transition-all relative ${activeCategory === category ? 'text-gray-900' : 'text-gray-400 hover:text-gray-900'}`}
                             >
                                 {category === 'All' ? t('auth.menu.all') : category.toUpperCase()}
                                 {activeCategory === category && (
                                     <motion.div
                                         layoutId="activeCategory"
-                                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-theme rounded-full"
+                                        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 md:w-6 h-0.5 rounded-full"
                                         style={{ backgroundColor: config.themeColor }}
                                     />
                                 )}
@@ -445,7 +444,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
 
             {/* Hero Image & Animation Container */}
             <div className="flex-1 flex items-center justify-end p-2 relative min-h-[160px] md:min-h-[220px] overflow-hidden pointer-events-none">
-                <div className="w-[100vw] h-[100vw] sm:w-[90vw] sm:h-[90vw] md:w-[75vw] md:h-[75vw] relative z-10 aspect-square shrink-0 translate-x-[15%] md:translate-x-[20%]">
+                <div className="w-[100vw] h-[100vw] sm:w-[90vw] sm:h-[90vw] md:w-[75vw] md:h-[75vw] relative z-10 aspect-square shrink-0 translate-x-[0%] md:translate-x-[5%]">
                     <AnimatePresence mode="popLayout">
                         <motion.div
                             key={selectedItem.id}
