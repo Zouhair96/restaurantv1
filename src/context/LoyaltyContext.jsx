@@ -72,17 +72,33 @@ export const LoyaltyProvider = ({ children }) => {
         }
 
         const restaurantLog = updatedData[restaurantName];
-
-        // Only record one visit per 'session' (e.g., once every 4 hours) 
         const lastVisit = restaurantLog.visits[restaurantLog.visits.length - 1];
         const FOUR_HOURS = 4 * 60 * 60 * 1000;
 
         let visitRecorded = false;
         if (!lastVisit || (now - lastVisit > FOUR_HOURS)) {
+            // Check if this new visit is a "Recovery" return before pushing it
+            const delayDays = parseInt(restaurantLog.config?.recoveryConfig?.delay || 21);
+            const delayMillis = delayDays * 24 * 60 * 60 * 1000;
+
+            if (lastVisit && (now - lastVisit > delayMillis)) {
+                // Determine if they are allowed another reward yet (Frequency)
+                const freqDays = parseInt(restaurantLog.config?.recoveryConfig?.frequency || 30);
+                const freqMillis = freqDays * 24 * 60 * 60 * 1000;
+                const lastRewardDate = restaurantLog.lastRecoveryDate || 0;
+
+                if (now - lastRewardDate > freqMillis) {
+                    restaurantLog.lastRecoveryDate = now;
+                    restaurantLog.isNextVisitRecovery = true;
+                    syncLoyaltyEvent(restaurantName, 'recovery_visit');
+                }
+            }
+
             restaurantLog.visits.push(now);
             visitRecorded = true;
-            // Sync Visit to Backend
-            syncLoyaltyEvent(restaurantName, 'visit');
+            if (!restaurantLog.isNextVisitRecovery) {
+                syncLoyaltyEvent(restaurantName, 'visit');
+            }
         }
 
         // Cleanup: Remove visits older than 30 days
@@ -100,7 +116,6 @@ export const LoyaltyProvider = ({ children }) => {
 
         restaurantLog.lastOfferType = status;
 
-        // If status JUST upgraded to LOYAL, sync that milestone
         if (status === 'LOYAL' && oldStatus !== 'LOYAL') {
             syncLoyaltyEvent(restaurantName, 'loyal_status_reached');
         }
@@ -115,11 +130,18 @@ export const LoyaltyProvider = ({ children }) => {
         const log = loyaltyData[restaurantId];
         if (!log) return { status: 'NEW', totalVisits: 0, config: null };
 
+        const visits = log.visits || [];
+
+        // A visit is "Recovery Eligible" if we flagged it during trackVisit
+        // This ensures the gift appears for the WHOLE session after a long absence
+        const isRecoveryEligible = !!log.isNextVisitRecovery;
+
         return {
             status: log.lastOfferType,
-            totalVisits: log.visits.length,
-            visits: log.visits,
-            config: log.config
+            totalVisits: visits.length,
+            visits: visits,
+            config: log.config,
+            isRecoveryEligible
         };
     };
 
