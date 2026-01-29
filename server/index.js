@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
 import menuRoutes from './routes/menus.js';
 import userRoutes from './routes/users.js';
+import loyaltyRoutes from './routes/loyalty.js';
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use(express.json());
 app.use('/api', authRoutes);
 app.use('/api', menuRoutes);
 app.use('/api', userRoutes);
+app.use('/api', loyaltyRoutes);
 
 // Basic health check
 app.get('/api/health', (req, res) => {
