@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { HiArrowLeft, HiSparkles, HiArrowPath, HiClock, HiCalendarDays, HiFire, HiUserGroup, HiTag, HiCurrencyDollar } from 'react-icons/hi2';
+import loyaltyConfigImg from '../../assets/docs/loyalty_config.png';
+import loyaltyStatsImg from '../../assets/docs/loyalty_stats.png';
 
 const LoyaltyDocumentation = ({ onBack, loyalConfig }) => {
     const [lang, setLang] = useState('en');
@@ -18,7 +20,7 @@ const LoyaltyDocumentation = ({ onBack, loyalConfig }) => {
                     title: "1. Global Auto-Promo",
                     icon: <HiSparkles className="text-orange-500" />,
                     text: "This is the master switch for the entire system. When ON, the system recognizes returning customers and automatically applies discounts to their checkout based on their status.",
-                    image: "loyalty_config.png",
+                    image: loyaltyConfigImg,
                     configHighlight: true
                 },
                 {
@@ -45,7 +47,7 @@ const LoyaltyDocumentation = ({ onBack, loyalConfig }) => {
                     title: "4. Interpreting Stats",
                     icon: <HiCurrencyDollar className="text-green-500" />,
                     text: "Understand your system's performance at a glance.",
-                    image: "loyalty_stats.png",
+                    image: loyaltyStatsImg,
                     subpoints: [
                         "Loyal Clients: Total unique users currently at 'Loyal' tier.",
                         "Offers Applied: Total number of discounts redeemed by customers.",
@@ -65,7 +67,7 @@ const LoyaltyDocumentation = ({ onBack, loyalConfig }) => {
                     title: "1. Auto-Promo Globale",
                     icon: <HiSparkles className="text-orange-500" />,
                     text: "C'est l'interrupteur principal. Lorsqu'il est ACTIVÉ, le système reconnaît les clients fidèles et applique automatiquement des remises lors du paiement en fonction de leur statut.",
-                    image: "loyalty_config.png",
+                    image: loyaltyConfigImg,
                     configHighlight: true
                 },
                 {
@@ -92,7 +94,7 @@ const LoyaltyDocumentation = ({ onBack, loyalConfig }) => {
                     title: "4. Interprétation des Stats",
                     icon: <HiCurrencyDollar className="text-green-500" />,
                     text: "Comprenez les performances de votre système en un coup d'œil.",
-                    image: "loyalty_stats.png",
+                    image: loyaltyStatsImg,
                     subpoints: [
                         "Clients Fidèles: Nombre total d'utilisateurs uniques actuellement au niveau 'Loyal'.",
                         "Offres Appliquées: Nombre total de remises utilisées par les clients.",
@@ -112,7 +114,7 @@ const LoyaltyDocumentation = ({ onBack, loyalConfig }) => {
                     title: "1. الترويج التلقائي العام",
                     icon: <HiSparkles className="text-orange-500" />,
                     text: "هذا هو المفتاح الرئيسي للنظام بأكمله. عندما يكون قيد التشغيل (ON)، يتعرف النظام على العملاء العائدين ويطبق الخصومات تلقائياً عند الدفع بناءً على حالتهم.",
-                    image: "loyalty_config.png",
+                    image: loyaltyConfigImg,
                     configHighlight: true
                 },
                 {
@@ -139,7 +141,7 @@ const LoyaltyDocumentation = ({ onBack, loyalConfig }) => {
                     title: "4. تفسير الإحصائيات",
                     icon: <HiCurrencyDollar className="text-green-500" />,
                     text: "افهم أداء نظامك بلمحة سريعة.",
-                    image: "loyalty_stats.png",
+                    image: loyaltyStatsImg,
                     subpoints: [
                         "الالعملاء الأوفياء: إجمالي المستخدمين الفريدين حالياً في مستوى 'الولاء'.",
                         "العروض المطبقة: إجمالي عدد الخصومات التي تم استخدامها من قبل العملاء.",
@@ -226,13 +228,13 @@ const LoyaltyDocumentation = ({ onBack, loyalConfig }) => {
                         {section.image && (
                             <div className="mb-8 rounded-2xl border border-gray-100 dark:border-white/5 overflow-hidden shadow-2xl bg-gray-50 dark:bg-black">
                                 <img
-                                    src={section.image.startsWith('http') ? section.image : `/docs/${section.image}`}
+                                    src={section.image}
                                     alt={section.title}
                                     className="w-full h-auto block"
                                     onError={(e) => {
-                                        console.error(`Failed to load documentation image: ${section.image}`);
+                                        console.error(`Failed to load documentation image: ${section.title}`);
                                         e.target.style.display = 'none';
-                                        e.target.parentNode.innerHTML = `<div class="p-10 text-center text-gray-400 text-xs italic">Visualization for ${section.title} (Image missing at /docs/${section.image})</div>`;
+                                        e.target.parentNode.innerHTML = `<div class="p-10 text-center text-gray-400 text-xs italic">Visualization for ${section.title} (Image could not be resolved from assets)</div>`;
                                     }}
                                 />
                             </div>
