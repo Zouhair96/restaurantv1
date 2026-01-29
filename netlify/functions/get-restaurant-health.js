@@ -102,6 +102,19 @@ export const handler = async (event, context) => {
 
     } catch (error) {
         console.error('Restaurant Health Error:', error);
+
+        if (error.name === 'TokenExpiredError' || error.name === 'JsonWebTokenError') {
+            return {
+                statusCode: 401,
+                headers,
+                body: JSON.stringify({
+                    error: 'Unauthorized',
+                    details: error.message,
+                    code: error.name === 'TokenExpiredError' ? 'TOKEN_EXPIRED' : 'INVALID_TOKEN'
+                })
+            };
+        }
+
         return {
             statusCode: 500,
             headers,

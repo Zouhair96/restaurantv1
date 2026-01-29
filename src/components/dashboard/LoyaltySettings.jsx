@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { HiFire, HiClock, HiCalendarDays, HiQrCode, HiSparkles, HiChevronDown, HiArrowPath, HiBookOpen } from 'react-icons/hi2';
+import { HiFire, HiClock, HiCalendarDays, HiQrCode, HiSparkles, HiChevronDown, HiArrowPath, HiBookOpen, HiTag } from 'react-icons/hi2';
 import RecoveryOfferModal from './RecoveryOfferModal';
 import LoyaltyDocumentation from './LoyaltyDocumentation';
 

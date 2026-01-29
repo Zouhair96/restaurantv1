@@ -79,11 +79,15 @@ export const handler = async (event, context) => {
     } catch (error) {
         console.error(' [GET-ORDERS DEBUG] Full Error:', error);
 
-        if (error.name === 'JsonWebTokenError') {
+        if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
             return {
                 statusCode: 401,
                 headers,
-                body: JSON.stringify({ error: 'Invalid token' })
+                body: JSON.stringify({
+                    error: 'Unauthorized',
+                    details: error.message,
+                    code: error.name === 'TokenExpiredError' ? 'TOKEN_EXPIRED' : 'INVALID_TOKEN'
+                })
             };
         }
 
