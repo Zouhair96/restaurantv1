@@ -68,7 +68,7 @@ export const LoyaltyProvider = ({ children }) => {
         const updatedData = { ...loyaltyData };
 
         if (!updatedData[restaurantName]) {
-            updatedData[restaurantName] = { visits: [], lastOfferType: 'NEW' };
+            updatedData[restaurantName] = { visits: [], lastOfferType: 'NEW', welcomeShown: false };
         }
 
         const restaurantLog = updatedData[restaurantName];
@@ -130,6 +130,22 @@ export const LoyaltyProvider = ({ children }) => {
         return status;
     };
 
+    const markWelcomeAsShown = (restaurantName) => {
+        if (!restaurantName) return;
+
+        setLoyaltyData(prev => {
+            const updated = {
+                ...prev,
+                [restaurantName]: {
+                    ...(prev[restaurantName] || { visits: [], lastOfferType: 'NEW' }),
+                    welcomeShown: true
+                }
+            };
+            localStorage.setItem('loyalty_data', JSON.stringify(updated));
+            return updated;
+        });
+    };
+
     const markRewardAsUsed = (restaurantName) => {
         if (!restaurantName) return;
 
@@ -163,12 +179,13 @@ export const LoyaltyProvider = ({ children }) => {
             totalVisits: visits.length,
             visits: visits,
             config: log.config,
-            isRecoveryEligible
+            isRecoveryEligible,
+            welcomeShown: !!log.welcomeShown
         };
     };
 
     return (
-        <LoyaltyContext.Provider value={{ clientId, loyaltyData, trackVisit, getStatus, markRewardAsUsed }}>
+        <LoyaltyContext.Provider value={{ clientId, loyaltyData, trackVisit, getStatus, markRewardAsUsed, markWelcomeAsShown }}>
             {children}
         </LoyaltyContext.Provider>
     );

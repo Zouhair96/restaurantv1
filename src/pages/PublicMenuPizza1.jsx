@@ -58,8 +58,14 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [isFullDetailsOpen, setIsFullDetailsOpen] = useState(false);
 
-    const { trackVisit, getStatus } = useLoyalty();
+    const { trackVisit, getStatus, markWelcomeAsShown } = useLoyalty();
     const loyaltyInfo = getStatus(restaurantName);
+
+    useEffect(() => {
+        if (loyaltyInfo.status === 'NEW' && !loyaltyInfo.welcomeShown) {
+            markWelcomeAsShown(restaurantName);
+        }
+    }, [loyaltyInfo.status, loyaltyInfo.welcomeShown, restaurantName]);
 
     const {
         cartItems,
@@ -761,7 +767,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                 restaurantName={config.restaurantName}
                 themeColor={config.themeColor}
                 promoConfig={{
-                    showWelcomePromo: loyaltyInfo.status === 'NEW',
+                    showWelcomePromo: loyaltyInfo.status === 'NEW' && !loyaltyInfo.welcomeShown,
                     welcomePromoText: config.welcomePromoText || t('auth.checkout.welcomePromo'),
                     loadingDuration: isMasterView ? 2 : 5,
                     promoDuration: 15

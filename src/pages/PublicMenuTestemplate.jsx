@@ -51,8 +51,14 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
 
     const { addToCart, cartItems } = useCart();
     const { user: clientUser, activeOrder, handleCloseTracker, isTopTrackerHidden } = useClientAuth();
-    const { getStatus } = useLoyalty();
+    const { getStatus, markWelcomeAsShown } = useLoyalty();
     const loyaltyInfo = getStatus(restaurantName);
+
+    useEffect(() => {
+        if (loyaltyInfo.status === 'NEW' && !loyaltyInfo.welcomeShown) {
+            markWelcomeAsShown(restaurantName);
+        }
+    }, [loyaltyInfo.status, loyaltyInfo.welcomeShown, restaurantName]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -865,7 +871,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                 restaurantName={config.restaurantName}
                 themeColor={config.themeColor}
                 promoConfig={{
-                    showWelcomePromo: getStatus(restaurantName).status === 'NEW',
+                    showWelcomePromo: loyaltyInfo.status === 'NEW' && !loyaltyInfo.welcomeShown,
                     welcomePromoText: config.welcomePromoText || t('auth.checkout.welcomePromo'),
                     loadingDuration: isMasterView ? 2 : 5,
                     promoDuration: 15
