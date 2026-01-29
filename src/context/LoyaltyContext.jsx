@@ -30,7 +30,7 @@ export const LoyaltyProvider = ({ children }) => {
             const visitorId = clientId || localStorage.getItem('loyalty_client_id');
             if (!visitorId || !restaurantName) return;
 
-            await fetch('/api/loyalty-analytics', {
+            const response = await fetch('/api/loyalty-analytics', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -39,6 +39,23 @@ export const LoyaltyProvider = ({ children }) => {
                     eventType
                 })
             });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.loyalty_config) {
+                    setLoyaltyData(prev => {
+                        const updated = {
+                            ...prev,
+                            [restaurantName]: {
+                                ...(prev[restaurantName] || { visits: [], lastOfferType: 'NEW' }),
+                                config: data.loyalty_config
+                            }
+                        };
+                        localStorage.setItem('loyalty_data', JSON.stringify(updated));
+                        return updated;
+                    });
+                }
+            }
         } catch (err) {
             console.warn('[Loyalty Sync Failed]:', err.message);
         }
@@ -96,12 +113,13 @@ export const LoyaltyProvider = ({ children }) => {
 
     const getStatus = (restaurantId) => {
         const log = loyaltyData[restaurantId];
-        if (!log) return { status: 'NEW', totalVisits: 0 };
+        if (!log) return { status: 'NEW', totalVisits: 0, config: null };
 
         return {
             status: log.lastOfferType,
             totalVisits: log.visits.length,
-            visits: log.visits
+            visits: log.visits,
+            config: log.config
         };
     };
 

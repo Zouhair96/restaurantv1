@@ -76,7 +76,18 @@ export const handler = async (event, context) => {
                 [restaurantId, visitorUuid, eventType]
             );
 
-            return { statusCode: 201, headers, body: JSON.stringify({ success: true }) };
+            // Fetch the current config to return to the client
+            const configRes = await query('SELECT loyalty_config FROM users WHERE id = $1', [restaurantId]);
+            const loyalty_config = configRes.rows[0]?.loyalty_config || {};
+
+            return {
+                statusCode: 201,
+                headers,
+                body: JSON.stringify({
+                    success: true,
+                    loyalty_config
+                })
+            };
         }
 
         // --- GET: Fetch Aggregated Stats & Config ---

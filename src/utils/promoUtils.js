@@ -213,12 +213,21 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
 
     // 3. RECOVERY Status Logic (handled via specific config)
     if (loyaltyInfo.status === 'RECOVERY' || (loyaltyInfo.isRecoveryEligible)) {
-        const recoveryOffer = config.recovery_offer || { type: 'discount', value: '20' };
+        const recoveryOffer = config.recoveryConfig || config.recovery_offer || { type: 'discount', value: '20' };
+
         if (recoveryOffer.type === 'discount') {
             const val = parseFloat(recoveryOffer.value) / 100;
             return {
                 discount: orderTotal * val,
                 reason: `Recovery Offer (${recoveryOffer.value}%)`
+            };
+        }
+
+        if (recoveryOffer.type === 'dish' || recoveryOffer.type === 'drink') {
+            return {
+                discount: 0,
+                giftItem: recoveryOffer.value, // e.g. "free tiramisu"
+                reason: `Recovery Special: ${recoveryOffer.value}`
             };
         }
     }

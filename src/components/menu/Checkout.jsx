@@ -66,8 +66,9 @@ const Checkout = ({
                 totalPrice: total,
                 discount: orderDiscount,
                 subtotal: subtotal,
-                loyalty_discount_applied: loyaltyDiscount > 0,
-                loyalty_discount_amount: loyaltyDiscount
+                loyalty_discount_applied: loyaltyDiscount > 0 || !!loyaltyGift,
+                loyalty_discount_amount: loyaltyDiscount,
+                loyalty_gift_item: loyaltyGift
             };
 
             const token = localStorage.getItem('client_token');
@@ -106,11 +107,11 @@ const Checkout = ({
     const subtotal = getCartTotal();
     const { discount: orderDiscount, promo: orderPromo } = calculateOrderDiscount(promotions, subtotal);
 
-    // Loyalty/Recovery Discount
-    const { discount: loyaltyDiscount, reason: loyaltyReason } = calculateLoyaltyDiscount(
+    // Loyalty/Recovery Discount (using real config from context)
+    const { discount: loyaltyDiscount, reason: loyaltyReason, giftItem: loyaltyGift } = calculateLoyaltyDiscount(
         loyaltyInfo,
         subtotal,
-        { auto_promo_active: true, recovery_offer: null } // Mocking config for now
+        loyaltyInfo.config || { isAutoPromoOn: true }
     );
 
     const totalOrderDiscount = orderDiscount + loyaltyDiscount;
@@ -258,6 +259,18 @@ const Checkout = ({
                                             <span className="text-[10px] italic font-medium">{loyaltyReason}</span>
                                         </div>
                                         <span className="font-black text-lg">-${loyaltyDiscount.toFixed(2)}</span>
+                                    </div>
+                                )}
+                                {loyaltyGift && (
+                                    <div className="flex justify-between items-center text-pink-600 dark:text-pink-400">
+                                        <div className="flex flex-col">
+                                            <span className="font-bold text-sm">Loyalty Gift</span>
+                                            <span className="text-[10px] italic font-medium">{loyaltyGift}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[10px] font-black uppercase bg-pink-50 text-pink-600 px-2 py-0.5 rounded-full border border-pink-100">Unlock</span>
+                                            <span className="font-black text-lg">$0.00</span>
+                                        </div>
                                     </div>
                                 )}
                                 {taxConfig.applyTax && (
