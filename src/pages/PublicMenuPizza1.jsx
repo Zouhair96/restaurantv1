@@ -206,87 +206,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
             `}</style>
 
-            {/* Left Sidebar / Thumbnail List */}
-            <div className="relative shrink-0 z-40 bg-white w-14 md:w-18 h-full flex flex-col items-center">
-                <div className="flex-1 w-full overflow-y-auto scroll-smooth no-scrollbar py-6 flex flex-col items-center">
-                    <div className="h-6 md:h-10 invisible" /> {/* Spacer instead of redundant menu icon */}
-
-                    <motion.div
-                        initial="hidden"
-                        animate="visible"
-                        variants={{ visible: { transition: { staggerChildren: 0.05 } } }}
-                        className="space-y-4 md:space-y-6 w-full px-2 flex flex-col items-center pb-20 pt-10 md:pt-16"
-                    >
-                        {activePromo && (
-                            <motion.button
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                onClick={() => setSelectedPromoId(null)}
-                                className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-gray-900 text-white flex items-center justify-center shadow-lg mb-4 active:scale-95 transition-all"
-                                title="Back to All Menu"
-                            >
-                                <HiArrowUturnLeft className="w-5 h-5 md:w-6 md:h-6" />
-                            </motion.button>
-                        )}
-                        {filteredMenuItems.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center py-10 px-2 text-center">
-                                <span className="text-2xl md:text-4xl mb-4">😕</span>
-                                <p className="text-gray-400 font-bold text-[10px] md:text-sm uppercase tracking-widest">{t('auth.noOrders') || 'No items'}</p>
-                            </div>
-                        ) : filteredMenuItems.map((item) => (
-                            <motion.button
-                                key={item.id}
-                                variants={{ hidden: { opacity: 0, x: -20 }, visible: { opacity: 1, x: 0 } }}
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                onClick={() => handleItemSelect(item)}
-                                className="relative group w-full flex flex-col items-center justify-center transition-all duration-300"
-                            >
-                                <div
-                                    className={`w-12 h-12 md:w-16 md:h-16 rounded-[1.5rem] flex items-center justify-center transition-all duration-500 overflow-hidden ${selectedItem?.id === item.id ? 'shadow-sm scale-110' : 'opacity-80'}`}
-                                    style={selectedItem?.id === item.id ? { backgroundColor: `${config.themeColor}15` } : {}}
-                                >
-                                    <div className={`w-10 h-10 md:w-14 md:h-14 rounded-full overflow-hidden ${selectedItem?.id === item.id ? 'ring-2 ring-white shadow-sm' : ''}`}>
-                                        <img
-                                            src={item.image}
-                                            alt={localize(item, 'name')}
-                                            className="w-full h-full object-cover"
-                                        />
-                                    </div>
-                                </div>
-                            </motion.button>
-                        ))}
-                    </motion.div>
-                </div>
-
-                {/* Left Mini Footer Social Icons */}
-                <div className="w-full p-4 flex flex-col items-center gap-4 mt-auto">
-                    {[
-                        { key: 'instagram', Icon: FaInstagram, label: 'Instagram' },
-                        { key: 'facebook', Icon: FaFacebookF, label: 'Facebook' },
-                        { key: 'tiktok', Icon: FaTiktok, label: 'TikTok' },
-                        { key: 'snapchat', Icon: FaSnapchatGhost, label: 'Snapchat' },
-                        { key: 'google', Icon: FaGoogle, label: 'Google Reviews' }
-                    ].filter(social => {
-                        // Show all if no config (backward compatibility)
-                        if (!config.socialMedia || Object.keys(config.socialMedia).length === 0) return true;
-                        return config.socialMedia[social.key]?.show;
-                    }).map((social, idx) => (
-                        <motion.a
-                            key={idx}
-                            href={config.socialMedia?.[social.key]?.url || "#"}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            whileHover={{ scale: 1.2, x: 4 }}
-                            whileTap={{ scale: 0.9 }}
-                            className="text-gray-400 hover:text-gray-900 transition-colors"
-                            title={social.label}
-                        >
-                            <social.Icon size={16} />
-                        </motion.a>
-                    ))}
-                </div>
-            </div>
+            {/* Sidebar moved inside Main Content Area for vertical alignment */}
 
             {/* Main Content Area - Stable Stack */}
             <div className="flex-1 flex flex-col min-h-screen relative min-w-0 bg-white overflow-x-hidden">
@@ -379,8 +299,8 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
 
                 {/* Promotion Banner - bounded height */}
                 {config.promotions && getPromosByDisplayStyle(config.promotions, 'banner').length > 0 && !selectedPromoId && (
-                    <div className="shrink-0 mx-[-20px] px-5 my-2 md:my-6 relative z-30 flex justify-center w-[calc(100%+40px)]">
-                        <div className="relative w-full max-w-7xl h-24 md:h-48 rounded-2xl md:rounded-[2rem] overflow-hidden shadow-xl group bg-gray-900">
+                    <div className="shrink-0 mx-[-20px] px-5 my-2 md:my-4 relative z-30 flex justify-center w-[calc(100%+40px)]">
+                        <div className="relative w-full max-w-5xl h-20 md:h-32 rounded-2xl overflow-hidden shadow-lg bg-gray-900">
                             <AnimatePresence mode="wait">
                                 {getPromosByDisplayStyle(config.promotions, 'banner').map((promo, idx) => idx === currentBannerIndex && (
                                     <motion.div
@@ -394,33 +314,9 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                             backgroundColor: promo.backgroundType === 'image' ? 'transparent' : (promo.backgroundColor || config.themeColor)
                                         }}
                                     >
-                                        {promo.backgroundType === 'image' ? (
-                                            <>
-                                                {isMediaVideo(promo.promoImage) ? (
-                                                    <video src={promo.promoImage} autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover" />
-                                                ) : (
-                                                    <img src={promo.promoImage} alt="" className="absolute inset-0 w-full h-full object-cover opacity-80" />
-                                                )}
-                                                <div className="absolute inset-0 bg-black/20" />
-                                            </>
-                                        ) : (
-                                            <>
-                                                {promo.decorationImage && (
-                                                    <motion.div
-                                                        initial={{ scale: 0.8, opacity: 0 }}
-                                                        animate={{ scale: 1, opacity: 1 }}
-                                                        className={`absolute top-0 h-full w-1/2 pointer-events-none z-10 flex items-center justify-center ${promo.decorationPosition === 'left' ? 'left-0' : 'right-0'}`}
-                                                    >
-                                                        <img src={promo.decorationImage} alt="" className="h-[90%] w-auto object-contain drop-shadow-2xl" />
-                                                    </motion.div>
-                                                )}
-                                            </>
-                                        )}
-
-                                        <div className="relative h-full px-6 flex flex-col items-center justify-center z-20 gap-1 w-full text-center">
-                                            <span className="text-[10px] md:text-sm font-black uppercase tracking-[0.2em] text-white/80">Special Offer</span>
-                                            <h3 className="text-lg md:text-4xl font-black uppercase tracking-tight text-white leading-none">{promo.name}</h3>
-                                            <p className="text-[10px] md:text-lg font-bold text-white/90 italic line-clamp-1">{promo.promoText}</p>
+                                        <div className="relative h-full px-6 flex flex-col items-center justify-center z-20 w-full text-center">
+                                            <h3 className="text-sm md:text-xl font-black uppercase text-white leading-none">{promo.name}</h3>
+                                            <p className="text-[10px] md:text-sm font-bold text-white/90 italic line-clamp-1">{promo.promoText}</p>
                                         </div>
                                     </motion.div>
                                 ))}
@@ -429,32 +325,71 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                     </div>
                 )}
 
-                {/* Hero Image Zone - Perfect Circular Animation */}
-                <div className="flex-1 flex items-center justify-center relative z-10 px-4 md:px-8 py-10 md:py-20 min-h-[45vh]">
-                    <div className="relative w-[280px] h-[280px] md:w-[450px] md:h-[450px] lg:w-[550px] lg:h-[550px] flex items-center justify-center">
-                        {/* Decorative Continuous Rotating border */}
-                        <div
-                            className="absolute inset-[-15px] md:inset-[-30px] rounded-full border-2 border-dashed border-gray-200 animate-[spin_20s_linear_infinite] pointer-events-none opacity-40"
-                        />
-
-                        <AnimatePresence mode="wait">
+                {/* Product Focus Area - Sidebar and Hero side-by-side below categories */}
+                <div className="flex-1 flex flex-row relative z-10 w-full min-h-0">
+                    {/* Left Sidebar - Nested strictly below navigation */}
+                    <div className="w-20 md:w-32 shrink-0 border-r border-gray-50/50 flex flex-col items-center pt-6 md:pt-10">
+                        <div className="flex-1 w-full overflow-y-auto no-scrollbar py-4 flex flex-col items-center">
                             <motion.div
-                                key={selectedItem.id}
-                                initial={{ scale: 0.7, opacity: 0, rotate: -20 }}
-                                animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                                exit={{ scale: 0.7, opacity: 0, rotate: 20 }}
-                                transition={{ type: "spring", damping: 20, stiffness: 100 }}
-                                className="w-full h-full rounded-full p-2 md:p-4 bg-white shadow-[0_40px_100px_rgba(0,0,0,0.12)] border-[10px] md:border-[16px] border-white overflow-hidden ring-1 ring-gray-50"
+                                initial="hidden"
+                                animate="visible"
+                                variants={{ visible: { transition: { staggerChildren: 0.05 } } }}
+                                className="space-y-6 md:space-y-8 flex flex-col items-center"
                             >
-                                <motion.img
-                                    whileHover={{ scale: 1.08 }}
-                                    transition={{ duration: 0.4 }}
-                                    src={selectedItem.image}
-                                    alt={localize(selectedItem, 'name')}
-                                    className="w-full h-full object-cover rounded-full"
-                                />
+                                {filteredMenuItems.map((item) => (
+                                    <motion.button
+                                        key={item.id}
+                                        variants={{ hidden: { opacity: 0, x: -20 }, visible: { opacity: 1, x: 0 } }}
+                                        whileHover={{ scale: 1.1 }}
+                                        whileTap={{ scale: 0.9 }}
+                                        onClick={() => handleItemSelect(item)}
+                                        className="relative group w-full flex flex-col items-center justify-center"
+                                    >
+                                        <div
+                                            className={`w-14 h-14 md:w-20 md:h-20 rounded-[2rem] flex items-center justify-center transition-all duration-300 ${selectedItem?.id === item.id ? 'shadow-md scale-110' : 'opacity-70 hover:opacity-100'}`}
+                                            style={selectedItem?.id === item.id ? { backgroundColor: `${config.themeColor}15` } : {}}
+                                        >
+                                            <div className={`w-12 h-12 md:w-16 md:h-16 rounded-full overflow-hidden ${selectedItem?.id === item.id ? 'ring-2 ring-white shadow-sm' : ''}`}>
+                                                <img
+                                                    src={item.image}
+                                                    alt={localize(item, 'name')}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            </div>
+                                        </div>
+                                    </motion.button>
+                                ))}
                             </motion.div>
-                        </AnimatePresence>
+                        </div>
+                    </div>
+
+                    {/* Hero Image Zone - Perfect Circular Animation */}
+                    <div className="flex-1 flex items-center justify-center relative p-6 md:p-12 min-h-[40vh]">
+                        <div className="relative w-[280px] h-[280px] md:w-[450px] md:h-[450px] lg:w-[550px] lg:h-[550px] flex items-center justify-center">
+                            {/* Decorative Continuous Rotating border */}
+                            <div
+                                className="absolute inset-[-15px] md:inset-[-30px] rounded-full border-2 border-dashed border-gray-200 animate-[spin_20s_linear_infinite] pointer-events-none opacity-40"
+                            />
+
+                            <AnimatePresence mode="wait">
+                                <motion.div
+                                    key={selectedItem.id}
+                                    initial={{ scale: 0.7, opacity: 0, rotate: -20 }}
+                                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                                    exit={{ scale: 0.7, opacity: 0, rotate: 20 }}
+                                    transition={{ type: "spring", damping: 20, stiffness: 100 }}
+                                    className="w-full h-full rounded-full p-2 md:p-4 bg-white shadow-[0_40px_100px_rgba(0,0,0,0.12)] border-[10px] md:border-[16px] border-white overflow-hidden ring-1 ring-gray-50"
+                                >
+                                    <motion.img
+                                        whileHover={{ scale: 1.08 }}
+                                        transition={{ duration: 0.4 }}
+                                        src={selectedItem.image}
+                                        alt={localize(selectedItem, 'name')}
+                                        className="w-full h-full object-cover rounded-full"
+                                    />
+                                </motion.div>
+                            </AnimatePresence>
+                        </div>
                     </div>
                 </div>
 
