@@ -239,7 +239,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                 className="relative group w-full flex flex-col items-center justify-center transition-all duration-300"
                             >
                                 <div
-                                    className={`w-12 h-12 md:w-16 md:h-16 flex items-center justify-center transition-all duration-300 ${selectedItem?.id === item.id ? 'rounded-[1.5rem] md:rounded-[2rem] p-1.5' : 'rounded-full p-1 opacity-50 hover:opacity-100'}`}
+                                    className={`w-14 h-14 md:w-16 md:h-16 flex items-center justify-center transition-all duration-300 ${selectedItem?.id === item.id ? 'rounded-[1.5rem] md:rounded-[2rem] p-1' : 'rounded-full scale-90 opacity-80 hover:opacity-100'}`}
                                     style={selectedItem?.id === item.id ? { backgroundColor: '#FFEDE3', color: config.themeColor } : {}}
                                 >
                                     <img
@@ -440,10 +440,16 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                         <AnimatePresence mode="popLayout">
                             <motion.div
                                 key={selectedItem.id}
-                                initial={{ rotate: 90, opacity: 0, scale: 0.9 }}
-                                animate={{ rotate: 0, opacity: 1, scale: 1 }}
-                                exit={{ rotate: -90, opacity: 0, scale: 0.9 }}
-                                transition={{ type: "spring", stiffness: 200, damping: 25 }}
+                                initial={{ x: 300, y: 300, rotate: 120, opacity: 0, scale: 0.8 }}
+                                animate={{ x: 0, y: 0, rotate: 0, opacity: 1, scale: 1 }}
+                                exit={{ x: -300, y: -300, rotate: -120, opacity: 0, scale: 0.8 }}
+                                transition={{
+                                    type: "spring",
+                                    stiffness: 80,
+                                    damping: 20,
+                                    mass: 0.8,
+                                    opacity: { duration: 0.4 }
+                                }}
                                 className="absolute inset-0 w-full h-full rounded-full border-none z-10"
                             >
                                 <motion.img
