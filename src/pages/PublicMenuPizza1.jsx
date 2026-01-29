@@ -326,46 +326,45 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                 )}
 
                 {/* Product Focus Area - Sidebar and Hero side-by-side below categories */}
-                <div className="flex-1 flex flex-row relative z-10 w-full min-h-0">
-                    {/* Left Sidebar - Nested strictly below navigation */}
-                    <div className="w-20 md:w-32 shrink-0 border-r border-gray-50/50 flex flex-col items-center pt-6 md:pt-10">
-                        <div className="flex-1 w-full overflow-y-auto no-scrollbar py-4 flex flex-col items-center">
-                            <motion.div
-                                initial="hidden"
-                                animate="visible"
-                                variants={{ visible: { transition: { staggerChildren: 0.05 } } }}
-                                className="space-y-6 md:space-y-8 flex flex-col items-center"
-                            >
-                                {filteredMenuItems.map((item) => (
-                                    <motion.button
-                                        key={item.id}
-                                        variants={{ hidden: { opacity: 0, x: -20 }, visible: { opacity: 1, x: 0 } }}
-                                        whileHover={{ scale: 1.1 }}
-                                        whileTap={{ scale: 0.9 }}
-                                        onClick={() => handleItemSelect(item)}
-                                        className="relative group w-full flex flex-col items-center justify-center"
+                <div className="flex-1 flex flex-row relative z-10 w-full overflow-hidden">
+                    {/* Left Sidebar - Independent Scrolling */}
+                    <div className="w-20 md:w-32 shrink-0 border-r border-gray-50/50 flex flex-col overflow-y-auto no-scrollbar pt-6 pb-20">
+                        <motion.div
+                            initial="hidden"
+                            animate="visible"
+                            variants={{ visible: { transition: { staggerChildren: 0.05 } } }}
+                            className="space-y-6 md:space-y-8 flex flex-col items-center w-full"
+                        >
+                            {filteredMenuItems.map((item) => (
+                                <motion.button
+                                    key={item.id}
+                                    variants={{ hidden: { opacity: 0, x: -20 }, visible: { opacity: 1, x: 0 } }}
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    onClick={() => handleItemSelect(item)}
+                                    className="relative group w-full flex flex-col items-center justify-center"
+                                >
+                                    <div
+                                        className={`w-14 h-14 md:w-20 md:h-20 rounded-[2rem] flex items-center justify-center transition-all duration-300 ${selectedItem?.id === item.id ? 'shadow-md scale-110' : 'opacity-70 hover:opacity-100'}`}
+                                        style={selectedItem?.id === item.id ? { backgroundColor: `${config.themeColor}15` } : {}}
                                     >
-                                        <div
-                                            className={`w-14 h-14 md:w-20 md:h-20 rounded-[2rem] flex items-center justify-center transition-all duration-300 ${selectedItem?.id === item.id ? 'shadow-md scale-110' : 'opacity-70 hover:opacity-100'}`}
-                                            style={selectedItem?.id === item.id ? { backgroundColor: `${config.themeColor}15` } : {}}
-                                        >
-                                            <div className={`w-12 h-12 md:w-16 md:h-16 rounded-full overflow-hidden ${selectedItem?.id === item.id ? 'ring-2 ring-white shadow-sm' : ''}`}>
-                                                <img
-                                                    src={item.image}
-                                                    alt={localize(item, 'name')}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            </div>
+                                        <div className={`w-12 h-12 md:w-16 md:h-16 rounded-full overflow-hidden ${selectedItem?.id === item.id ? 'ring-2 ring-white shadow-sm' : ''}`}>
+                                            <img
+                                                src={item.image}
+                                                alt={localize(item, 'name')}
+                                                className="w-full h-full object-cover"
+                                            />
                                         </div>
-                                    </motion.button>
-                                ))}
-                            </motion.div>
-                        </div>
+                                    </div>
+                                </motion.button>
+                            ))}
+                        </motion.div>
                     </div>
 
-                    {/* Hero Image Zone - Perfect Circular Animation */}
-                    <div className="flex-1 flex items-center justify-center relative p-6 md:p-12 min-h-[40vh]">
-                        <div className="relative w-[280px] h-[280px] md:w-[450px] md:h-[450px] lg:w-[550px] lg:h-[550px] flex items-center justify-center">
+                    {/* Main Focus Zone - Hero Image + Info Section */}
+                    <div className="flex-1 flex flex-col items-center justify-start relative p-4 md:p-10 overflow-y-auto no-scrollbar">
+                        {/* 1. Hero Image Zone */}
+                        <div className="relative w-[240px] h-[240px] md:w-[400px] md:h-[400px] lg:w-[450px] lg:h-[450px] flex items-center justify-center mb-8 md:mb-12 shrink-0">
                             {/* Decorative Continuous Rotating border */}
                             <div
                                 className="absolute inset-[-15px] md:inset-[-30px] rounded-full border-2 border-dashed border-gray-200 animate-[spin_20s_linear_infinite] pointer-events-none opacity-40"
@@ -378,7 +377,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                     animate={{ scale: 1, opacity: 1, rotate: 0 }}
                                     exit={{ scale: 0.7, opacity: 0, rotate: 20 }}
                                     transition={{ type: "spring", damping: 20, stiffness: 100 }}
-                                    className="w-full h-full rounded-full p-2 md:p-4 bg-white shadow-[0_40px_100px_rgba(0,0,0,0.12)] border-[10px] md:border-[16px] border-white overflow-hidden ring-1 ring-gray-50"
+                                    className="w-full h-full rounded-full p-2 md:p-3 bg-white shadow-[0_40px_100px_rgba(0,0,0,0.12)] border-[8px] md:border-[12px] border-white overflow-hidden ring-1 ring-gray-50"
                                 >
                                     <motion.img
                                         whileHover={{ scale: 1.08 }}
@@ -390,59 +389,54 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                 </motion.div>
                             </AnimatePresence>
                         </div>
-                    </div>
-                </div>
 
-                {/* Bottom Card - Now nested correctly in the flow */}
-                <motion.div
-                    onPan={(e, info) => {
-                        if (info.offset.y < -30) setIsFullDetailsOpen(true);
-                    }}
-                    className="shrink-0 bg-white pb-10 md:pb-20 cursor-pointer pt-6 md:pt-10 border-t border-gray-50 shadow-[0_-20px_50px_rgba(0,0,0,0.03)] z-[20] uppercase"
-                    onClick={() => setIsFullDetailsOpen(true)}
-                >
-                    <div className="absolute top-3 left-1/2 -translate-x-1/2 w-10 h-1.5 bg-gray-100 rounded-full" />
-                    <div className="px-6 md:px-12 max-w-2xl mx-auto">
-                        <div className="flex justify-between items-start mb-2 md:mb-4">
-                            <div className="flex-1 min-w-0 text-center md:text-left">
-                                <h2 className="text-3xl md:text-7xl font-black text-gray-900 leading-[0.9] truncate tracking-tighter">
+                        {/* 2. Product Info Section - Matching Reference Photo */}
+                        <motion.div
+                            key={`info-${selectedItem.id}`}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="w-full max-w-lg px-4 flex flex-col gap-6 md:gap-8 pb-10"
+                        >
+                            {/* Name and Heart */}
+                            <div className="flex items-start justify-between">
+                                <h2 className="text-3xl md:text-5xl font-black text-gray-900 leading-[0.9] tracking-tighter uppercase max-w-[80%]">
                                     {localize(selectedItem, 'name')}
                                 </h2>
-                                <div className="flex items-center justify-center md:justify-start gap-2 text-gray-400 mt-2 md:mt-4">
-                                    <HiBars3 className="w-4 h-3 md:w-6 md:h-4 opacity-100" />
-                                    <span className="text-[10px] md:text-xs font-black tracking-[0.3em]">{t('auth.menu.ingredients') || t('ingredients') || "INGRÉDIENTS"}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center justify-between md:justify-start gap-6 md:gap-16 mt-6 md:mt-12">
-                            <div className="flex items-baseline gap-1 md:gap-2">
-                                <span className="text-xl md:text-4xl font-black" style={{ color: config.themeColor }}>$</span>
-                                {(() => {
-                                    const { finalPrice } = getDiscountedPrice(config.promotions || [], selectedItem);
-                                    return (
-                                        <span className="text-4xl md:text-8xl font-black text-gray-900 tracking-[ -0.05em]">
-                                            {parseFloat(finalPrice).toFixed(2)}
-                                        </span>
-                                    );
-                                })()}
+                                <button className="p-3 bg-white border border-gray-100 rounded-full shadow-sm hover:bg-gray-50 transition-colors">
+                                    <HiHeart size={24} className="text-gray-300 hover:text-red-500 transition-colors" />
+                                </button>
                             </div>
 
-                            <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={(e) => { e.stopPropagation(); handleAddToCart(); }}
-                                className="h-12 md:h-20 px-8 md:px-16 rounded-full transition-all flex items-center gap-3 md:gap-6 bg-gray-900 text-white shadow-[0_20px_40px_rgba(0,0,0,0.2)]"
-                                style={{ backgroundColor: '#111827' }}
-                            >
-                                <span className="font-black text-sm md:text-xl uppercase tracking-widest">ADD TO</span>
-                                <div className="p-1 md:p-2 rounded-lg bg-white/10">
-                                    <HiShoppingBag className="w-5 h-5 md:w-8 md:h-8" />
+                            {/* Ingredients Label */}
+                            <div className="flex items-center gap-2 text-gray-400">
+                                <HiBars3 className="w-4 h-4" />
+                                <span className="text-xs font-black tracking-[0.2em] uppercase">ingredients</span>
+                            </div>
+
+                            {/* Price and Add to Bag */}
+                            <div className="flex items-center justify-between mt-auto">
+                                <div className="flex items-baseline gap-1">
+                                    <span className="text-xl md:text-2xl font-black" style={{ color: config.themeColor }}>$</span>
+                                    <span className="text-4xl md:text-6xl font-black text-gray-900 tracking-tighter">
+                                        {parseFloat(getDiscountedPrice(config.promotions || [], selectedItem).finalPrice).toFixed(2)}
+                                    </span>
                                 </div>
-                            </motion.button>
-                        </div>
+
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={() => handleAddToCart()}
+                                    className="px-8 md:px-10 py-3 md:py-4 border-2 border-gray-100 rounded-full flex items-center gap-3 hover:border-gray-900 transition-all shadow-sm"
+                                >
+                                    <span className="font-black text-xs md:text-sm uppercase tracking-widest text-gray-900">Add to</span>
+                                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-orange-50 flex items-center justify-center" style={{ color: config.themeColor }}>
+                                        <HiShoppingBag size={20} />
+                                    </div>
+                                </motion.button>
+                            </div>
+                        </motion.div>
                     </div>
-                </motion.div>
+                </div>
             </div>
 
             {/* FULL DETAILS SWIPE-UP OVERLAY */}
