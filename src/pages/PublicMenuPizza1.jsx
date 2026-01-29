@@ -298,36 +298,46 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                 {/* Sticky Navigation Layer - Compacted for Mobile */}
                 <div className="shrink-0 bg-white/95 backdrop-blur-md z-[80] shadow-sm border-b border-gray-50 pb-1">
                     <div className="px-4 md:px-6 pt-2 md:pt-4">
-                        <div className="relative flex items-center justify-between min-h-[36px] md:min-h-[44px]">
+                        <div className="relative flex items-center justify-between min-h-[44px] md:min-h-[60px]">
+                            {/* Left Side Menu Trigger */}
+                            <div className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center pl-1 md:pl-2 z-20">
+                                <button
+                                    onClick={() => setShowAuthSidebar(true)}
+                                    className="p-2.5 text-gray-900 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors shadow-sm"
+                                >
+                                    <HiBars3 className="w-5 h-5 md:w-6 md:h-6" />
+                                </button>
+                            </div>
+
                             {/* Absolute Centered Title/Logo */}
                             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex justify-center z-10 w-full px-16">
                                 {config.useLogo && config.logoImage ? (
-                                    <img src={config.logoImage} alt={config.restaurantName} className="h-5 md:h-8 w-auto object-contain" />
+                                    <img src={config.logoImage} alt={config.restaurantName} className="h-6 md:h-10 w-auto object-contain" />
                                 ) : (
-                                    <h1 className="text-lg md:text-2xl font-black text-gray-900 tracking-tighter uppercase whitespace-nowrap text-center truncate px-4">{config.restaurantName}</h1>
+                                    <h1 className="text-xl md:text-3xl font-black text-gray-900 tracking-tighter uppercase whitespace-nowrap text-center truncate px-4">{config.restaurantName}</h1>
                                 )}
                             </div>
 
                             {/* Right Side Actions */}
                             <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center pr-1 md:pr-2 z-20">
-                                <button onClick={() => setIsCartOpen(!isCartOpen)} className="p-2 text-gray-400 hover:text-gray-900 relative">
+                                <button onClick={() => setIsCartOpen(!isCartOpen)} className="p-2.5 text-gray-900 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors shadow-sm relative">
                                     <HiShoppingBag className="w-5 h-5 md:w-6 md:h-6" />
-                                    {cartItems.length > 0 && <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>}
+                                    {cartItems.length > 0 && <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>}
                                 </button>
                             </div>
                         </div>
                     </div>
 
                     {/* Prominent Search Bar */}
-                    <div className="px-4 md:px-6 my-2 md:my-4 flex justify-center">
-                        <div className="relative w-full max-w-md mx-auto">
-                            <HiMagnifyingGlass className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <div className="px-4 md:px-6 my-4 md:my-6 flex justify-center">
+                        <div className="relative w-full max-w-xl mx-auto">
+                            <HiMagnifyingGlass className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                             <input
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder={t('search.placeholder') || "Rechercher..."}
-                                className="w-full bg-gray-100/60 border-none rounded-xl md:rounded-2xl pl-10 md:pl-12 pr-10 py-1.5 md:py-3 text-xs md:text-sm font-bold text-gray-900 placeholder:text-gray-400 focus:ring-1 md:focus:ring-2 transition-all"
+                                placeholder={t('search.placeholder') || "Search for your favorite pizza..."}
+                                className="w-full bg-white border border-gray-200 rounded-2xl md:rounded-[2rem] pl-12 md:pl-14 pr-12 py-3 md:py-5 text-sm md:text-lg font-bold text-gray-900 placeholder:text-gray-300 shadow-xl shadow-gray-100/50 transition-all focus:border-gray-900"
                                 style={{ outline: 'none' }}
                             />
                             {searchQuery && (
@@ -341,20 +351,20 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                         </div>
                     </div>
 
-                    {/* Categories Navigation */}
+                    {/* Categories Navigation - High Clarity */}
                     {!activePromo && (
-                        <div className="flex items-center justify-center gap-4 md:gap-8 text-[10px] md:text-xs overflow-x-auto no-scrollbar pb-1 md:pb-2 w-full px-4">
+                        <div className="flex items-center justify-center gap-6 md:gap-12 text-xs md:text-sm overflow-x-auto no-scrollbar py-3 md:py-5 w-full px-6">
                             {['All', ...new Set(menuItems.map(i => localize(i, 'category')).filter(Boolean))].map((category) => (
                                 <button
                                     key={category}
                                     onClick={() => handleCategorySelect(category)}
-                                    className={`font-black uppercase tracking-[0.15em] whitespace-nowrap transition-all relative pb-0.5 ${activeCategory === category ? 'text-gray-900' : 'text-gray-400 hover:text-gray-900'}`}
+                                    className={`font-black uppercase tracking-[0.2em] whitespace-nowrap transition-all relative pb-2 ${activeCategory === category ? 'text-gray-900' : 'text-gray-300 hover:text-gray-900'}`}
                                 >
                                     {category === 'All' ? t('auth.menu.all') : category}
                                     {activeCategory === category && (
                                         <motion.div
                                             layoutId="activeCategory"
-                                            className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
+                                            className="absolute bottom-0 left-0 right-0 h-1 md:h-1.5 rounded-full"
                                             style={{ backgroundColor: config.themeColor }}
                                         />
                                     )}
@@ -424,24 +434,38 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                     </div>
                 )}
 
-                {/* Hero Image Zone - Robust Circular Scaling */}
-                <div className="flex-1 flex items-center justify-center relative z-10 px-4 md:px-8 py-8 md:py-12 min-h-[40vh]">
-                    <div className="w-full max-w-[280px] md:max-w-[500px] lg:max-w-[600px] aspect-square relative shrink-0">
+                {/* Hero Image Zone - Premium Circular Animation */}
+                <div className="flex-1 flex items-center justify-center relative z-10 px-4 md:px-8 py-10 md:py-16 min-h-[45vh]">
+                    <div className="w-full max-w-[280px] md:max-w-[550px] lg:max-w-[700px] aspect-square relative shrink-0 flex items-center justify-center">
+                        {/* Decorative Rotating Border */}
+                        <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                            className="absolute inset-0 rounded-full border-2 border-dashed border-gray-100/30 scale-110 pointer-events-none"
+                        />
+                        <motion.div
+                            animate={{ rotate: -360 }}
+                            transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+                            className="absolute inset-[-20px] rounded-full border border-gray-50 scale-125 pointer-events-none"
+                        />
+
                         <AnimatePresence mode="popLayout">
                             <motion.div
                                 key={selectedItem.id}
-                                initial={{ scale: 0.8, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                exit={{ scale: 0.8, opacity: 0 }}
-                                transition={{ type: "spring", stiffness: 100, damping: 20 }}
-                                className="absolute inset-0 w-full h-full z-10 p-2"
+                                initial={{ scale: 0.5, opacity: 0, rotate: -30 }}
+                                animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                                exit={{ scale: 0.5, opacity: 0, rotate: 30 }}
+                                transition={{ type: "spring", stiffness: 120, damping: 20 }}
+                                className="relative w-full h-full z-10 flex items-center justify-center"
                             >
-                                <motion.img
-                                    whileHover={{ scale: 1.05 }}
-                                    src={selectedItem.image}
-                                    alt={localize(selectedItem, 'name')}
-                                    className="w-full h-full object-cover rounded-full border-4 border-white shadow-[0_20px_60px_rgba(0,0,0,0.15)] bg-white"
-                                />
+                                <div className="w-full h-full rounded-full p-2 bg-white shadow-[0_40px_100px_rgba(0,0,0,0.1)] border-8 border-gray-50 overflow-hidden group">
+                                    <motion.img
+                                        whileHover={{ scale: 1.1 }}
+                                        src={selectedItem.image}
+                                        alt={localize(selectedItem, 'name')}
+                                        className="w-full h-full object-cover transition-transform duration-700"
+                                    />
+                                </div>
                             </motion.div>
                         </AnimatePresence>
                     </div>
