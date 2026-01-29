@@ -194,7 +194,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
             `}</style>
 
             {/* Left Sidebar / Thumbnail List */}
-            <div className="relative shrink-0 z-40 bg-white w-20 md:w-32 lg:w-36 h-full flex flex-col items-center border-r border-gray-50 shadow-sm">
+            <div className="relative shrink-0 z-40 bg-white w-16 md:w-20 h-full flex flex-col items-center border-r border-gray-100 shadow-sm">
                 <div className="flex-1 w-full overflow-y-auto scroll-smooth no-scrollbar py-6 flex flex-col items-center">
                     <button
                         onClick={() => setShowAuthSidebar(true)}
@@ -239,14 +239,14 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                 className="relative group w-full flex flex-col items-center justify-center transition-all duration-300"
                             >
                                 <div
-                                    className={`w-14 h-14 md:w-20 md:h-20 lg:w-24 lg:h-24 flex items-center justify-center transition-all duration-300 ${selectedItem?.id === item.id ? 'rounded-2xl md:rounded-3xl p-2 md:p-3' : 'rounded-full p-0 scale-90 opacity-70 hover:opacity-100 hover:scale-100'}`}
+                                    className={`w-12 h-12 md:w-16 md:h-16 flex items-center justify-center transition-all duration-300 ${selectedItem?.id === item.id ? 'rounded-2xl p-1.5' : 'rounded-full p-0 scale-90 opacity-70 hover:opacity-100 hover:scale-100'}`}
                                     style={selectedItem?.id === item.id ? { backgroundColor: `${config.themeColor}15`, color: config.themeColor } : {}}
                                 >
                                     <img
                                         src={item.image}
                                         alt={localize(item, 'name')}
                                         className="w-full h-full object-cover rounded-full shadow-lg"
-                                        style={selectedItem?.id === item.id ? { boxShadow: `0 8px 20px -6px ${config.themeColor}50` } : {}}
+                                        style={selectedItem?.id === item.id ? { boxShadow: `0 6px 16px -4px ${config.themeColor}50` } : {}}
                                     />
                                 </div>
                             </motion.button>
@@ -287,38 +287,35 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
             <div className="flex-1 flex flex-col h-full overflow-hidden relative z-0 pb-48">
                 <div className="px-5 pt-4 pb-1 shrink-0 z-20">
                     <div className="relative flex items-center justify-between min-h-[44px]">
-                        {/* Center Title/Logo - simplified positioning to avoid collisions */}
-                        <div className="flex-1 flex justify-center py-2">
+                        {/* Absolute Centered Title/Logo */}
+                        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex justify-center z-10">
                             {config.useLogo && config.logoImage ? (
-                                <img src={config.logoImage} alt={config.restaurantName} className="h-6 md:h-10 w-auto object-contain" />
+                                <img src={config.logoImage} alt={config.restaurantName} className="h-6 md:h-8 w-auto object-contain" />
                             ) : (
-                                <h1 className="text-lg md:text-2xl font-black text-gray-900 tracking-tight uppercase text-center">{config.restaurantName}</h1>
+                                <h1 className="text-lg md:text-xl font-black text-gray-900 tracking-tighter uppercase whitespace-nowrap">{config.restaurantName}</h1>
                             )}
                         </div>
 
-                        {/* Left Side (can be back button or empty) */}
-                        <div className="w-10 md:w-16 order-first"></div>
-
-                        {/* Right Side Actions */}
-                        <div className="flex items-center gap-1 w-10 md:w-16 justify-end">
+                        {/* Right Side Actions - Fixed at top right */}
+                        <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-1 z-20">
                             <AnimatePresence mode="wait">
                                 {isSearchOpen ? (
                                     <motion.div
                                         initial={{ width: 0, opacity: 0 }}
-                                        animate={{ width: 100, opacity: 1 }}
+                                        animate={{ width: 80, opacity: 1 }}
                                         exit={{ width: 0, opacity: 0 }}
-                                        className="absolute right-12 top-1/2 -translate-y-1/2 flex items-center bg-gray-50 border border-gray-100 rounded-full px-2 py-1"
+                                        className="flex items-center bg-gray-50 border border-gray-100 rounded-full px-2 py-1"
                                     >
                                         <input
                                             autoFocus
                                             type="text"
                                             value={searchQuery}
                                             onChange={(e) => setSearchQuery(e.target.value)}
-                                            placeholder="Find..."
+                                            placeholder="..."
                                             className="bg-transparent border-none focus:ring-0 text-[10px] w-full p-0 font-black text-gray-900 placeholder:text-gray-300"
                                         />
-                                        <button onClick={() => { setIsSearchOpen(false); setSearchQuery(''); }} className="ml-1">
-                                            <HiXMark className="w-3 h-3 text-gray-400 hover:text-gray-900" />
+                                        <button onClick={() => { setIsSearchOpen(false); setSearchQuery(''); }} className="ml-0.5">
+                                            <HiXMark className="w-3 h-3 text-gray-400" />
                                         </button>
                                     </motion.div>
                                 ) : (
@@ -326,16 +323,16 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                         initial={{ scale: 0.8, opacity: 0 }}
                                         animate={{ scale: 1, opacity: 1 }}
                                         onClick={() => setIsSearchOpen(true)}
-                                        className="p-1.5 text-gray-400 hover:text-gray-900 transition-colors"
+                                        className="p-1.5 text-gray-400 hover:text-gray-900"
                                     >
                                         <HiMagnifyingGlass className="w-5 h-5" />
                                     </motion.button>
                                 )}
                             </AnimatePresence>
 
-                            <button onClick={() => setIsCartOpen(!isCartOpen)} className="p-1.5 text-gray-400 hover:text-gray-900 transition-colors relative">
+                            <button onClick={() => setIsCartOpen(!isCartOpen)} className="p-1.5 text-gray-400 hover:text-gray-900 relative">
                                 <HiShoppingBag className="w-5 h-5" />
-                                {cartItems.length > 0 && <span className="absolute top-0.5 right-0.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white shadow-sm"></span>}
+                                {cartItems.length > 0 && <span className="absolute top-0.5 right-0.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>}
                             </button>
                         </div>
                     </div>
@@ -448,7 +445,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
 
             {/* Hero Image & Animation Container */}
             <div className="flex-1 flex items-center justify-end p-2 relative min-h-[160px] md:min-h-[220px] overflow-hidden pointer-events-none">
-                <div className="w-[100vw] h-[100vw] sm:w-[90vw] sm:h-[90vw] md:w-[75vw] md:h-[75vw] relative z-10 aspect-square shrink-0 translate-x-[25%] md:translate-x-[30%]">
+                <div className="w-[100vw] h-[100vw] sm:w-[90vw] sm:h-[90vw] md:w-[75vw] md:h-[75vw] relative z-10 aspect-square shrink-0 translate-x-[15%] md:translate-x-[20%]">
                     <AnimatePresence mode="popLayout">
                         <motion.div
                             key={selectedItem.id}
