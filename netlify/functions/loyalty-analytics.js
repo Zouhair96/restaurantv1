@@ -36,7 +36,7 @@ export const handler = async (event, context) => {
                 const restaurantId = decoded.id;
 
                 const updateRes = await query(
-                    'UPDATE users SET loyalty_config = loyalty_config || $1::jsonb WHERE id = $2 RETURNING loyalty_config',
+                    'UPDATE users SET loyalty_config = COALESCE(loyalty_config, \'{}\'::jsonb) || $1::jsonb WHERE id = $2 RETURNING loyalty_config',
                     [JSON.stringify(configUpdate), restaurantId]
                 );
                 return { statusCode: 200, headers, body: JSON.stringify({ success: true, loyalty_config: updateRes.rows[0].loyalty_config }) };
