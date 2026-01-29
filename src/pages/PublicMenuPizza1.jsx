@@ -365,11 +365,6 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                     <div className="flex-1 flex flex-col items-center justify-start relative p-4 md:p-10 overflow-y-auto no-scrollbar">
                         {/* 1. Hero Image Zone */}
                         <div className="relative w-[240px] h-[240px] md:w-[400px] md:h-[400px] lg:w-[450px] lg:h-[450px] flex items-center justify-center mb-8 md:mb-12 shrink-0">
-                            {/* Decorative Continuous Rotating border */}
-                            <div
-                                className="absolute inset-[-15px] md:inset-[-30px] rounded-full border-2 border-dashed border-gray-200 animate-[spin_20s_linear_infinite] pointer-events-none opacity-40"
-                            />
-
                             <AnimatePresence mode="wait">
                                 <motion.div
                                     key={selectedItem.id}
