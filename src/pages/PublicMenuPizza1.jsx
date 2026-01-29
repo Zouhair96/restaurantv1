@@ -243,13 +243,16 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                 className="relative group w-full flex flex-col items-center justify-center transition-all duration-300"
                             >
                                 <div
-                                    className={`w-10 h-10 md:w-14 md:h-14 rounded-full flex items-center justify-center transition-all duration-500 overflow-hidden ring-offset-2 ${selectedItem?.id === item.id ? 'ring-2 ring-gray-900 shadow-xl scale-110' : 'opacity-80 hover:opacity-100'}`}
+                                    className={`w-12 h-12 md:w-16 md:h-16 rounded-[1.5rem] flex items-center justify-center transition-all duration-500 overflow-hidden ${selectedItem?.id === item.id ? 'shadow-sm scale-110' : 'opacity-80'}`}
+                                    style={selectedItem?.id === item.id ? { backgroundColor: `${config.themeColor}15` } : {}}
                                 >
-                                    <img
-                                        src={item.image}
-                                        alt={localize(item, 'name')}
-                                        className="w-full h-full object-cover"
-                                    />
+                                    <div className={`w-10 h-10 md:w-14 md:h-14 rounded-full overflow-hidden ${selectedItem?.id === item.id ? 'ring-2 ring-white shadow-sm' : ''}`}>
+                                        <img
+                                            src={item.image}
+                                            alt={localize(item, 'name')}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
                                 </div>
                             </motion.button>
                         ))}
@@ -343,20 +346,20 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                         </div>
                     </div>
 
-                    {/* Categories Navigation - High Clarity */}
+                    {/* Categories Navigation - Referenced Design */}
                     {!activePromo && (
-                        <div className="flex items-center justify-center gap-6 md:gap-12 text-xs md:text-sm overflow-x-auto no-scrollbar py-3 md:py-5 w-full px-6">
+                        <div className="flex items-center justify-center gap-6 md:gap-10 text-sm md:text-base overflow-x-auto no-scrollbar py-2 md:py-4 w-full px-6">
                             {['All', ...new Set(menuItems.map(i => localize(i, 'category')).filter(Boolean))].map((category) => (
                                 <button
                                     key={category}
                                     onClick={() => handleCategorySelect(category)}
-                                    className={`font-black uppercase tracking-[0.2em] whitespace-nowrap transition-all relative pb-2 ${activeCategory === category ? 'text-gray-900' : 'text-gray-300 hover:text-gray-900'}`}
+                                    className={`font-black tracking-tight whitespace-nowrap transition-all relative pb-3 px-2 ${activeCategory === category ? 'text-gray-900 scale-105' : 'text-gray-300 hover:text-gray-400'}`}
                                 >
                                     {category === 'All' ? t('auth.menu.all') : category}
                                     {activeCategory === category && (
                                         <motion.div
                                             layoutId="activeCategory"
-                                            className="absolute bottom-0 left-0 right-0 h-1 md:h-1.5 rounded-full"
+                                            className="absolute bottom-1 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full"
                                             style={{ backgroundColor: config.themeColor }}
                                         />
                                     )}
