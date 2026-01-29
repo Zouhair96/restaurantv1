@@ -223,16 +223,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
         }
     }
 
-    // 3. NEW Status Logic (1st visit) -> Welcome Offer
-    if (loyaltyInfo.status === 'NEW') {
-        const discountValue = 0.10;
-        return {
-            discount: orderTotal * discountValue,
-            reason: 'Welcome Offer (10%)'
-        };
-    }
-
-    // 4. LOYAL Status Logic (4 visits / 30 days)
+    // 3. LOYAL Status Logic (4 visits / 30 days)
     if (loyaltyInfo.status === 'LOYAL') {
         const discountValue = 0.15;
         return {

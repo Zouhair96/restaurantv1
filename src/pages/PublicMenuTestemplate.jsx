@@ -11,7 +11,6 @@ import PersistentOrderTracker from '../components/PersistentOrderTracker';
 import { useClientAuth } from '../context/ClientAuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { isPromoActive, getDiscountedPrice, getPromosByDisplayStyle, getPromoFilteredItems } from '../utils/promoUtils';
-import WelcomeSequence from '../components/public-menu/WelcomeSequence';
 
 const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
     const { restaurantName: urlRestaurantName } = useParams();
@@ -53,12 +52,6 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
     const { user: clientUser, activeOrder, handleCloseTracker, isTopTrackerHidden } = useClientAuth();
     const { getStatus, markWelcomeAsShown } = useLoyalty();
     const loyaltyInfo = getStatus(restaurantName);
-
-    useEffect(() => {
-        if (loyaltyInfo.status === 'NEW' && !loyaltyInfo.welcomeShown) {
-            markWelcomeAsShown(restaurantName);
-        }
-    }, [loyaltyInfo.status, loyaltyInfo.welcomeShown, restaurantName]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -865,18 +858,6 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                     </motion.div>
                 ))}
             </div>
-
-            {/* Welcome Sequence (Cinematic Intro + Promo) */}
-            <WelcomeSequence
-                restaurantName={config.restaurantName}
-                themeColor={config.themeColor}
-                promoConfig={{
-                    showWelcomePromo: loyaltyInfo.status === 'NEW' && !loyaltyInfo.welcomeShown,
-                    welcomePromoText: config.welcomePromoText || t('auth.checkout.welcomePromo'),
-                    loadingDuration: isMasterView ? 2 : 5,
-                    promoDuration: 15
-                }}
-            />
         </div>
     );
 };
