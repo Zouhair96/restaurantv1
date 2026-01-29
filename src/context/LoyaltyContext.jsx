@@ -77,6 +77,10 @@ export const LoyaltyProvider = ({ children }) => {
 
         let visitRecorded = false;
         if (!lastVisit || (now - lastVisit > FOUR_HOURS)) {
+            // New Session: Reset temporary flags
+            restaurantLog.rewardUsedInSession = false;
+            restaurantLog.isNextVisitRecovery = false;
+
             // Check if this new visit is a "Recovery" return before pushing it
             const delayDays = parseInt(restaurantLog.config?.recoveryConfig?.delay || 21);
             const delayMillis = delayDays * 24 * 60 * 60 * 1000;
@@ -126,6 +130,24 @@ export const LoyaltyProvider = ({ children }) => {
         return status;
     };
 
+    const markRewardAsUsed = (restaurantName) => {
+        if (!restaurantName) return;
+
+        setLoyaltyData(prev => {
+            const updated = {
+                ...prev,
+                [restaurantName]: {
+                    ...(prev[restaurantName] || { visits: [], lastOfferType: 'NEW' }),
+                    rewardUsedInSession: true
+                }
+            };
+            localStorage.setItem('loyalty_data', JSON.stringify(updated));
+            return updated;
+        });
+
+        syncLoyaltyEvent(restaurantName, 'reward_claimed');
+    };
+
     const getStatus = (restaurantId) => {
         const log = loyaltyData[restaurantId];
         if (!log) return { status: 'NEW', totalVisits: 0, config: null };
@@ -133,8 +155,8 @@ export const LoyaltyProvider = ({ children }) => {
         const visits = log.visits || [];
 
         // A visit is "Recovery Eligible" if we flagged it during trackVisit
-        // This ensures the gift appears for the WHOLE session after a long absence
-        const isRecoveryEligible = !!log.isNextVisitRecovery;
+        // AND it hasn't been used yet in this session
+        const isRecoveryEligible = !!log.isNextVisitRecovery && !log.rewardUsedInSession;
 
         return {
             status: log.lastOfferType,
@@ -146,7 +168,7 @@ export const LoyaltyProvider = ({ children }) => {
     };
 
     return (
-        <LoyaltyContext.Provider value={{ clientId, loyaltyData, trackVisit, getStatus }}>
+        <LoyaltyContext.Provider value={{ clientId, loyaltyData, trackVisit, getStatus, markRewardAsUsed }}>
             {children}
         </LoyaltyContext.Provider>
     );

@@ -18,7 +18,7 @@ const Checkout = ({
 }) => {
     const { cartItems, getCartTotal, clearCart, updateQuantity, removeFromCart } = useCart();
     const { language, t: globalT } = useLanguage();
-    const { getStatus } = useLoyalty();
+    const { getStatus, markRewardAsUsed } = useLoyalty();
     const loyaltyInfo = getStatus(restaurantName);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -85,6 +85,11 @@ const Checkout = ({
             if (!response.ok) throw new Error(result.error || t.error);
 
             setIsSubmitted(true);
+
+            // Mark reward as used if applicable
+            if (loyaltyDiscount > 0 || loyaltyGift) {
+                markRewardAsUsed(restaurantName);
+            }
 
             // Trigger tracking
             window.dispatchEvent(new CustomEvent('orderPlaced', {
