@@ -364,7 +364,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                     {/* Main Focus Zone - Hero Image + Info Section */}
                     <div className="flex-1 flex flex-col items-center justify-between relative pt-4 md:pt-10 pb-0 overflow-y-auto no-scrollbar">
                         {/* 1. Hero Image Zone */}
-                        <div className="relative w-[240px] h-[240px] md:w-[400px] md:h-[400px] lg:w-[450px] lg:h-[450px] flex items-center justify-center mb-8 md:mb-12 shrink-0">
+                        <div className="relative w-[280px] h-[280px] md:w-[420px] md:h-[420px] lg:w-[480px] lg:h-[480px] flex items-center justify-center mb-2 md:mb-6 shrink-0">
                             <AnimatePresence mode="wait">
                                 <motion.div
                                     key={selectedItem.id}
@@ -386,7 +386,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                         </div>
 
                         {/* 2. Product Info Section - Pushed to Absolute Bottom */}
-                        <div className="w-full max-w-lg px-4 flex flex-col gap-6 md:gap-8 pb-4 mt-auto">
+                        <div className="w-full max-w-lg px-4 flex flex-col gap-4 md:gap-8 pb-4 mt-auto">
                             {/* Name and Heart */}
                             <div className="flex items-start justify-between">
                                 <h2 className="text-3xl md:text-5xl font-black text-gray-900 leading-[0.9] tracking-tighter uppercase max-w-[80%]">
