@@ -190,7 +190,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
     if (!selectedItem) return null;
 
     return (
-        <div className="flex h-screen bg-white text-gray-900 font-sans overflow-hidden relative" style={{ '--theme-color': config.themeColor }}>
+        <div className="flex min-h-screen bg-white text-gray-900 font-sans relative" style={{ '--theme-color': config.themeColor }}>
             {activeOrder && !isTopTrackerHidden && activeOrder.status !== 'completed' && activeOrder.status !== 'cancelled' && (
                 <PersistentOrderTracker order={activeOrder} onClose={handleCloseTracker} themeColor={config.themeColor} />
             )}
@@ -293,8 +293,8 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                 </div>
             </div>
 
-            {/* Main Content Area - Viewport-First flex distribution */}
-            <div className="flex-1 flex flex-col h-screen overflow-hidden relative min-w-0 bg-white">
+            {/* Main Content Area - Stable Stack */}
+            <div className="flex-1 flex flex-col min-h-screen relative min-w-0 bg-white">
                 {/* Sticky Navigation Layer - Compacted for Mobile */}
                 <div className="shrink-0 bg-white/95 backdrop-blur-md z-[80] shadow-sm border-b border-gray-50 pb-1">
                     <div className="px-4 md:px-6 pt-2 md:pt-4">
@@ -424,90 +424,80 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                     </div>
                 )}
 
-                {/* Hero Image Zone - Proportional Scaling */}
-                <div className="flex-1 flex items-center justify-center relative min-h-0 overflow-visible z-10 px-8 py-4">
-                    <div className="w-full h-full max-w-[min(80vw,400px)] md:max-w-[700px] aspect-square relative shrink-0">
+                {/* Hero Image Zone - Robust Scaling */}
+                <div className="flex-1 flex items-center justify-center relative z-10 px-4 md:px-8 py-8 md:py-12 min-h-[40vh]">
+                    <div className="w-full max-w-[280px] md:max-w-[500px] lg:max-w-[650px] aspect-square relative shrink-0">
                         <AnimatePresence mode="popLayout">
                             <motion.div
                                 key={selectedItem.id}
-                                initial={{ scale: 0.7, rotate: 180, opacity: 0 }}
+                                initial={{ scale: 0.8, rotate: 90, opacity: 0 }}
                                 animate={{ scale: 1, rotate: 0, opacity: 1 }}
-                                exit={{ scale: 0.7, rotate: -180, opacity: 0 }}
-                                transition={{
-                                    type: "spring",
-                                    stiffness: 90,
-                                    damping: 18,
-                                    mass: 1
-                                }}
+                                exit={{ scale: 0.8, rotate: -90, opacity: 0 }}
+                                transition={{ type: "spring", stiffness: 100, damping: 20 }}
                                 className="absolute inset-0 w-full h-full z-10"
                             >
                                 <motion.img
-                                    whileHover={{ scale: 1.02 }}
+                                    whileHover={{ scale: 1.05 }}
                                     src={selectedItem.image}
                                     alt={localize(selectedItem, 'name')}
-                                    className="w-full h-full object-contain drop-shadow-[0_20px_60px_rgba(0,0,0,0.2)]"
+                                    className="w-full h-full object-contain drop-shadow-[0_20px_60px_rgba(0,0,0,0.15)]"
                                 />
                             </motion.div>
                         </AnimatePresence>
                     </div>
                 </div>
+
+                {/* Bottom Card - Now nested correctly in the flow */}
+                <motion.div
+                    onPan={(e, info) => {
+                        if (info.offset.y < -30) setIsFullDetailsOpen(true);
+                    }}
+                    className="shrink-0 bg-white pb-10 md:pb-20 cursor-pointer pt-6 md:pt-10 border-t border-gray-50 shadow-[0_-20px_50px_rgba(0,0,0,0.03)] z-[20] uppercase"
+                    onClick={() => setIsFullDetailsOpen(true)}
+                >
+                    <div className="absolute top-3 left-1/2 -translate-x-1/2 w-10 h-1.5 bg-gray-100 rounded-full" />
+                    <div className="px-6 md:px-12 max-w-2xl mx-auto">
+                        <div className="flex justify-between items-start mb-2 md:mb-4">
+                            <div className="flex-1 min-w-0 text-center md:text-left">
+                                <h2 className="text-3xl md:text-7xl font-black text-gray-900 leading-[0.9] truncate tracking-tighter">
+                                    {localize(selectedItem, 'name')}
+                                </h2>
+                                <div className="flex items-center justify-center md:justify-start gap-2 text-gray-400 mt-2 md:mt-4">
+                                    <HiBars3 className="w-4 h-3 md:w-6 md:h-4 opacity-100" />
+                                    <span className="text-[10px] md:text-xs font-black tracking-[0.3em]">{t('auth.menu.ingredients') || t('ingredients') || "INGRÉDIENTS"}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center justify-between md:justify-start gap-6 md:gap-16 mt-6 md:mt-12">
+                            <div className="flex items-baseline gap-1 md:gap-2">
+                                <span className="text-xl md:text-4xl font-black" style={{ color: config.themeColor }}>$</span>
+                                {(() => {
+                                    const { finalPrice } = getDiscountedPrice(config.promotions || [], selectedItem);
+                                    return (
+                                        <span className="text-4xl md:text-8xl font-black text-gray-900 tracking-[ -0.05em]">
+                                            {parseFloat(finalPrice).toFixed(2)}
+                                        </span>
+                                    );
+                                })()}
+                            </div>
+
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={(e) => { e.stopPropagation(); handleAddToCart(); }}
+                                className="h-12 md:h-20 px-8 md:px-16 rounded-full transition-all flex items-center gap-3 md:gap-6 bg-gray-900 text-white shadow-[0_20px_40px_rgba(0,0,0,0.2)]"
+                                style={{ backgroundColor: '#111827' }}
+                            >
+                                <span className="font-black text-sm md:text-xl uppercase tracking-widest">ADD TO</span>
+                                <div className="p-1 md:p-2 rounded-lg bg-white/10">
+                                    <HiShoppingBag className="w-5 h-5 md:w-8 md:h-8" />
+                                </div>
+                            </motion.button>
+                        </div>
+                    </div>
+                </motion.div>
             </div>
-            <motion.div
-                onPan={(e, info) => {
-                    if (info.offset.y < -30) setIsFullDetailsOpen(true);
-                }}
-                className="shrink-0 bg-white pb-6 md:pb-12 cursor-pointer pt-3 md:pt-4 border-t border-gray-50 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] z-[60]"
-                onClick={() => setIsFullDetailsOpen(true)}
-            >
-                <div className="absolute top-2 left-1/2 -translate-x-1/2 w-8 h-1 bg-gray-100 rounded-full" />
-                <div className="px-6 md:px-8 py-2 md:py-4 max-w-lg mx-auto">
-                    <div className="flex justify-between items-start mb-0 md:mb-1">
-                        <div className="flex-1 min-w-0 pr-4 text-center md:text-left">
-                            <h2 className="text-xl md:text-5xl font-black text-gray-900 leading-[1.1] truncate uppercase tracking-tight">
-                                {localize(selectedItem, 'name')}
-                            </h2>
-                            <div className="flex items-center justify-center md:justify-start gap-1.5 md:gap-2 text-gray-400 mt-1 md:mt-2">
-                                <HiBars3 className="w-3.5 h-2.5 md:w-5 md:h-4 opacity-100" />
-                                <span className="text-[9px] md:text-[11px] font-black uppercase tracking-[0.2em]">{t('auth.menu.ingredients') || t('ingredients') || "Ingredients"}</span>
-                            </div>
-                        </div>
-                        <motion.button
-                            whileTap={{ scale: 0.8 }}
-                            onClick={(e) => { e.stopPropagation(); setLiked(!liked); }}
-                            className="text-gray-300 hover:text-red-500 transition-colors pt-1 md:pt-2 hidden md:block"
-                        >
-                            {liked ? <HiHeart className="w-6 h-6 md:w-7 md:h-7 text-red-500" /> : <HiOutlineHeart className="w-6 h-6 md:w-7 md:h-7" />}
-                        </motion.button>
-                    </div>
-
-                    <div className="flex items-center justify-between md:justify-start gap-4 md:gap-8 mt-3 md:mt-8">
-                        <div className="flex items-baseline gap-1">
-                            <span className="text-lg md:text-2xl font-black" style={{ color: config.themeColor }}>$</span>
-                            {(() => {
-                                const { finalPrice } = getDiscountedPrice(config.promotions || [], selectedItem);
-                                return (
-                                    <span className="text-3xl md:text-5xl font-black text-gray-900 tracking-tighter">
-                                        {parseFloat(finalPrice).toFixed(2)}
-                                    </span>
-                                );
-                            })()}
-                        </div>
-
-                        <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={(e) => { e.stopPropagation(); handleAddToCart(); }}
-                            className="h-10 md:h-14 px-5 md:px-8 rounded-full border transition-all flex items-center gap-2 md:gap-4 bg-gray-900 text-white shadow-xl"
-                            style={{ borderColor: config.themeColor }}
-                        >
-                            <span className="font-black text-xs md:text-base uppercase tracking-wider">Add to</span>
-                            <div className="p-0.5 md:p-1 rounded-md">
-                                <HiShoppingBag className="w-4 h-4 md:w-6 md:h-6" />
-                            </div>
-                        </motion.button>
-                    </div>
-                </div>
-            </motion.div>
 
             {/* FULL DETAILS SWIPE-UP OVERLAY */}
             <AnimatePresence>
