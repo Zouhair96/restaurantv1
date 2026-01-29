@@ -32,6 +32,7 @@ import { AuthProvider } from './context/AuthContext'
 import { ClientAuthProvider } from './context/ClientAuthContext'
 import { ThemeProvider } from './context/ThemeContext'
 import { CartProvider } from './context/CartContext'
+import { LoyaltyProvider } from './context/LoyaltyContext'
 import PersistentOrderTracker from './components/PersistentOrderTracker'
 import PWAInstallPrompt from './components/PWAInstallPrompt'
 
@@ -42,51 +43,53 @@ function App() {
         <ClientAuthProvider>
           <ThemeProvider>
             <CartProvider>
-              <Router>
-                <PWAInstallPrompt />
-                <ScrollToTop />
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/demo" element={<Demo />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/admin" element={<AdminDashboard />} />
+              <LoyaltyProvider>
+                <Router>
+                  <PWAInstallPrompt />
+                  <ScrollToTop />
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/demo" element={<Demo />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/admin" element={<AdminDashboard />} />
 
-                  {/* Dashboard Routes */}
-                  <Route path="/dashboard" element={<Dashboard />}>
-                    <Route index element={<Overview />} />
-                    <Route path="menu" element={<MenuManagement />} />
-                    <Route path="analytics" element={<Analytics />} />
-                    <Route path="team" element={<Team />} />
-                    <Route path="promos" element={<Promotions />} />
-                    <Route path="activity" element={<Activity />} />
-
-
-
-                    <Route path="settings" element={<Settings />} />
-                  </Route>
-
-                  <Route path="/profile" element={<Navigate to="/dashboard" replace />} />
-
-                  <Route path="/checkout" element={<Checkout />} />
-                  <Route path="/pricing/:planId" element={<PlanDetails />} />
-                  <Route path="/order/:orderId" element={<OrderConfirmation />} />
-                  <Route path="/testme" element={<TestMenu />} />
-                  <Route path="/menu-pizza1" element={<PublicMenuPizza1 />} />
-                  <Route path="/menu-testemplate" element={<PublicMenuTestemplate />} />
+                    {/* Dashboard Routes */}
+                    <Route path="/dashboard" element={<Dashboard />}>
+                      <Route index element={<Overview />} />
+                      <Route path="menu" element={<MenuManagement />} />
+                      <Route path="analytics" element={<Analytics />} />
+                      <Route path="team" element={<Team />} />
+                      <Route path="promos" element={<Promotions />} />
+                      <Route path="activity" element={<Activity />} />
 
 
-                  <Route path="/menu/:templateKey" element={<PublicMenu />} />
 
-                  {/* Unified Management Route */}
-                  <Route path="/manage-menu/:templateKey" element={<ManageMenu />} />
+                      <Route path="settings" element={<Settings />} />
+                    </Route>
 
-                  {/* Admin Management Routes - Reusing same component */}
-                  <Route path="/manage-template/:templateKey" element={<ManageMenu isAdminView={true} />} />
+                    <Route path="/profile" element={<Navigate to="/dashboard" replace />} />
 
-                  {/* Public Menu Route - Must be last to avoid conflicts */}
-                  <Route path="/:restaurantName" element={<PublicMenu />} />
-                </Routes>
-              </Router>
+                    <Route path="/checkout" element={<Checkout />} />
+                    <Route path="/pricing/:planId" element={<PlanDetails />} />
+                    <Route path="/order/:orderId" element={<OrderConfirmation />} />
+                    <Route path="/testme" element={<TestMenu />} />
+                    <Route path="/menu-pizza1" element={<PublicMenuPizza1 />} />
+                    <Route path="/menu-testemplate" element={<PublicMenuTestemplate />} />
+
+
+                    <Route path="/menu/:templateKey" element={<PublicMenu />} />
+
+                    {/* Unified Management Route */}
+                    <Route path="/manage-menu/:templateKey" element={<ManageMenu />} />
+
+                    {/* Admin Management Routes - Reusing same component */}
+                    <Route path="/manage-template/:templateKey" element={<ManageMenu isAdminView={true} />} />
+
+                    {/* Public Menu Route - Must be last to avoid conflicts */}
+                    <Route path="/:restaurantName" element={<PublicMenu />} />
+                  </Routes>
+                </Router>
+              </LoyaltyProvider>
             </CartProvider>
           </ThemeProvider>
         </ClientAuthProvider>

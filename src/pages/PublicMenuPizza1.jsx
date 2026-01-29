@@ -11,7 +11,8 @@ import PersistentOrderTracker from '../components/PersistentOrderTracker';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 import { isPromoActive, getDiscountedPrice, getPromosByDisplayStyle, getPromoFilteredItems, calculateOrderDiscount } from '../utils/promoUtils';
-import { HiTag, HiChevronLeft, HiChevronRight, HiArrowUturnLeft } from 'react-icons/hi2';
+import { HiTag, HiChevronLeft, HiChevronRight, HiArrowUturnLeft, HiStar } from 'react-icons/hi2';
+import { useLoyalty } from '../context/LoyaltyContext';
 
 const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
     const { user: clientUser, activeOrderId, activeOrder, handleCloseTracker, isTopTrackerHidden } = useClientAuth();
@@ -55,6 +56,9 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [isFullDetailsOpen, setIsFullDetailsOpen] = useState(false);
+
+    const { trackVisit, getStatus } = useLoyalty();
+    const loyaltyInfo = getStatus(restaurantName);
 
     const {
         cartItems,

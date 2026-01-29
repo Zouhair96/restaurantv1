@@ -130,6 +130,55 @@ const Overview = () => {
                 </div>
             </div>
 
+            {/* Loyalty Analytics Row */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] p-8 border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all">
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="w-12 h-12 rounded-2xl bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center text-orange-500">
+                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                        </div>
+                        <span className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Loyal Clients</span>
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                        <span className="text-4xl font-black text-gray-900 dark:text-white">128</span>
+                        <span className="text-green-500 font-bold text-xs ring-1 ring-green-100 px-2 py-0.5 rounded-full">+12%</span>
+                    </div>
+                </div>
+
+                <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] p-8 border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all">
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-500">
+                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                            </svg>
+                        </div>
+                        <span className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Offers Applied</span>
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                        <span className="text-4xl font-black text-gray-900 dark:text-white">542</span>
+                        <span className="text-blue-500 font-bold text-xs">This Month</span>
+                    </div>
+                </div>
+
+                <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] p-8 border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all">
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="w-12 h-12 rounded-2xl bg-green-50 dark:bg-green-900/20 flex items-center justify-center text-green-500">
+                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <span className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Revenue (Loyalty)</span>
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                        <span className="text-4xl font-black text-gray-900 dark:text-white">$8.4k</span>
+                        <span className="text-gray-400 font-medium text-xs">Estimated</span>
+                    </div>
+                </div>
+            </div>
+
+
 
             {/* Live Orders Section */}
             <LiveOrders onSelectOrder={(order, handler, getter) => {
@@ -152,7 +201,7 @@ const Overview = () => {
                 }}
                 getStatusColor={modalHandlers.getStatusColor}
             />
-        </div>
+        </div >
     )
 }
 

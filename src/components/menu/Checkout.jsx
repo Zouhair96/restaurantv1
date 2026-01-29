@@ -3,8 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { HiXMark, HiCheckCircle, HiChevronLeft, HiTrash, HiOutlineTicket } from 'react-icons/hi2';
 import { useCart } from '../../context/CartContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { useLoyalty } from '../../context/LoyaltyContext';
 import { translations } from '../../translations';
-import { calculateOrderDiscount } from '../../utils/promoUtils';
+import { calculateOrderDiscount, calculateLoyaltyDiscount } from '../../utils/promoUtils';
 
 const Checkout = ({
     isOpen,
@@ -17,6 +18,8 @@ const Checkout = ({
 }) => {
     const { cartItems, getCartTotal, clearCart, updateQuantity, removeFromCart } = useCart();
     const { language, t: globalT } = useLanguage();
+    const { getStatus } = useLoyalty();
+    const loyaltyInfo = getStatus(restaurantName);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -100,7 +103,16 @@ const Checkout = ({
 
     const subtotal = getCartTotal();
     const { discount: orderDiscount, promo: orderPromo } = calculateOrderDiscount(promotions, subtotal);
-    const discountedSubtotal = Math.max(0, subtotal - orderDiscount);
+
+    // Loyalty/Recovery Discount
+    const { discount: loyaltyDiscount, reason: loyaltyReason } = calculateLoyaltyDiscount(
+        loyaltyInfo,
+        subtotal,
+        { auto_promo_active: true, recovery_offer: null } // Mocking config for now
+    );
+
+    const totalOrderDiscount = orderDiscount + loyaltyDiscount;
+    const discountedSubtotal = Math.max(0, subtotal - totalOrderDiscount);
 
     // Dynamic Tax Calculation
     const taxRate = taxConfig.applyTax ? (taxConfig.taxPercentage / 100) : 0;
@@ -114,7 +126,6 @@ const Checkout = ({
                     initial={{ y: '100%' }}
                     animate={{ y: 0 }}
                     exit={{ y: '100%' }}
-                    transition={{ type: 'spring', damping: 30, stiffness: 300 }}
                     transition={{ type: 'spring', damping: 30, stiffness: 300 }}
                     className={`fixed inset-0 z-[110] flex flex-col ${isDarkMode ? 'bg-[#0f0f0f]' : 'bg-[#f8f9fa]'}`}
                 >
@@ -236,6 +247,15 @@ const Checkout = ({
                                             <span className="text-[10px] italic font-medium">{orderPromo.name}</span>
                                         </div>
                                         <span className="font-black text-lg">-${orderDiscount.toFixed(2)}</span>
+                                    </div>
+                                )}
+                                {loyaltyDiscount > 0 && (
+                                    <div className="flex justify-between items-center text-yellow-600 dark:text-yellow-500">
+                                        <div className="flex flex-col">
+                                            <span className="font-bold text-sm">Loyalty Reward</span>
+                                            <span className="text-[10px] italic font-medium">{loyaltyReason}</span>
+                                        </div>
+                                        <span className="font-black text-lg">-${loyaltyDiscount.toFixed(2)}</span>
                                     </div>
                                 )}
                                 {taxConfig.applyTax && (

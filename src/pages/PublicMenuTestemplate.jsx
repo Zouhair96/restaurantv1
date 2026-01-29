@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, HiMapPin, HiMagnifyingGlass, HiAdjustmentsHorizontal, HiHome, HiChatBubbleLeftRight, HiBell, HiUserGroup, HiXMark, HiTag, HiChevronLeft, HiChevronRight, HiArrowUturnLeft } from 'react-icons/hi2';
+import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, HiMapPin, HiMagnifyingGlass, HiAdjustmentsHorizontal, HiHome, HiChatBubbleLeftRight, HiBell, HiUserGroup, HiXMark, HiTag, HiChevronLeft, HiChevronRight, HiArrowUturnLeft, HiStar } from 'react-icons/hi2';
+import { useLoyalty } from '../context/LoyaltyContext';
 import { Link, useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { motion, AnimatePresence, useAnimation, useMotionValue, useTransform } from 'framer-motion';
@@ -49,6 +50,8 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
 
     const { addToCart, cartItems } = useCart();
     const { user: clientUser, activeOrder, handleCloseTracker, isTopTrackerHidden } = useClientAuth();
+    const { getStatus } = useLoyalty();
+    const loyaltyInfo = getStatus(restaurantName);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -270,8 +273,18 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                     </div>
                 </button>
 
-                {/* Restaurant Name */}
-                <h1 className="text-xl font-bold text-gray-900 text-center flex-1 mx-4 truncate">{config.restaurantName}</h1>
+                {/* Restaurant Name & Badge */}
+                <div className="flex flex-col items-center flex-1 mx-4 truncate">
+                    <h1 className="text-xl font-bold text-gray-900 leading-none">{config.restaurantName}</h1>
+                    {loyaltyInfo.status === 'LOYAL' && (
+                        <div className="flex items-center gap-1 mt-1">
+                            <HiStar className="w-3 h-3 text-yellow-500 fill-yellow-500" />
+                            <span className="text-[9px] font-black uppercase tracking-widest text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-full">
+                                Loyal Member
+                            </span>
+                        </div>
+                    )}
+                </div>
 
                 {/* Cart Icon */}
                 <motion.button

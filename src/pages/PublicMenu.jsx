@@ -2,14 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import PublicMenuPizza1 from './PublicMenuPizza1'
 import PublicMenuTestemplate from './PublicMenuTestemplate'
-
-
-import PublicMenuGrid from './PublicMenuGrid'
-import PublicMenuList from './PublicMenuList'
-import PublicMenuMagazine from './PublicMenuMagazine'
-import PublicMenuMinimal from './PublicMenuMinimal'
-import PublicMenuSwipe from './PublicMenuSwipe'
 import { useLanguage } from '../context/LanguageContext'
+import { useLoyalty } from '../context/LoyaltyContext'
 
 const PublicMenu = () => {
     const { restaurantName, templateKey } = useParams()
@@ -17,6 +11,7 @@ const PublicMenu = () => {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
     const { t } = useLanguage()
+    const { trackVisit } = useLoyalty()
 
     useEffect(() => {
         const fetchMenu = async () => {
@@ -53,6 +48,10 @@ const PublicMenu = () => {
                     });
                 } else {
                     setData(result);
+                    // Centralized Loyalty Tracking
+                    if (restaurantName) {
+                        trackVisit(restaurantName);
+                    }
                 }
             } catch (err) {
                 console.error(err)
@@ -103,26 +102,8 @@ const PublicMenu = () => {
         return <PublicMenuTestemplate restaurantName={restaurantName} />
     }
 
-
-
-    if (data.menu?.template_type === 'magazine' || templateKey === 'magazine') {
-        return <PublicMenuMagazine restaurantName={restaurantName} templateKey={templateKey} />
-    }
-
-    // Default to Grid or List based on layout preference
-    if (data.menu.base_layout === 'swipe') {
-        return <PublicMenuSwipe restaurant={data.restaurant} menu={data.menu} config={data.menu.config} />
-    }
-
-    if (data.menu.base_layout === 'minimal') {
-        return <PublicMenuMinimal restaurant={data.restaurant} menu={data.menu} config={data.menu.config} />
-    }
-
-    if (data.menu.base_layout === 'list') {
-        return <PublicMenuList restaurant={data.restaurant} menu={data.menu} config={data.menu.config} />
-    }
-
-    return <PublicMenuGrid restaurant={data.restaurant} menu={data.menu} config={data.menu.config} />
+    // Default to Pizza1 for all other cases
+    return <PublicMenuPizza1 restaurantName={restaurantName} />
 }
 
 export default PublicMenu

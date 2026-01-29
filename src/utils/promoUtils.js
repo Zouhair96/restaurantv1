@@ -195,3 +195,33 @@ export const getPromoFilteredItems = (promo, allItems) => {
             return [];
     }
 };
+/**
+ * Calculate optional Loyalty/Recovery discount based on user status
+ */
+export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) => {
+    // 1. Check if auto-promos are globally active
+    if (!config.auto_promo_active && !config.loyalty_active) return { discount: 0, reason: null };
+
+    // 2. LOYAL Status Logic (4 visits / 30 days)
+    if (loyaltyInfo.status === 'LOYAL') {
+        const discountValue = 0.15; // 15% fixed loyalty reward
+        return {
+            discount: orderTotal * discountValue,
+            reason: 'Loyal Customer Reward (15%)'
+        };
+    }
+
+    // 3. RECOVERY Status Logic (handled via specific config)
+    if (loyaltyInfo.status === 'RECOVERY' || (loyaltyInfo.isRecoveryEligible)) {
+        const recoveryOffer = config.recovery_offer || { type: 'discount', value: '20' };
+        if (recoveryOffer.type === 'discount') {
+            const val = parseFloat(recoveryOffer.value) / 100;
+            return {
+                discount: orderTotal * val,
+                reason: `Recovery Offer (${recoveryOffer.value}%)`
+            };
+        }
+    }
+
+    return { discount: 0, reason: null };
+};

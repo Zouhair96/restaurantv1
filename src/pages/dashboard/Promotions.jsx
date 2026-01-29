@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import PromotionCard from '../../components/dashboard/PromotionCard'
 import CreatePromoModal from '../../components/dashboard/CreatePromoModal'
+import LoyaltySettings from '../../components/dashboard/LoyaltySettings'
 
 const Promotions = () => {
     // Mock Promotions Data
@@ -28,10 +29,18 @@ const Promotions = () => {
 
     return (
         <div>
-            <div className="flex justify-between items-center mb-6">
+            <div>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Loyalty & Recovery System</h2>
+                <p className="text-gray-500 dark:text-gray-400 text-sm">Convert one-time visitors into loyal customers automatically.</p>
+            </div>
+            {/* End of Loyalty Header */}
+
+            <LoyaltySettings />
+
+            <div className="flex justify-between items-center mb-6 mt-12 border-t border-gray-100 dark:border-white/5 pt-10">
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Automated Promotions</h2>
-                    <p className="text-gray-500 dark:text-gray-400 text-sm">Create marketing campaigns to boost traffic.</p>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Marketing Campaigns</h2>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">Create manual promotions to boost traffic.</p>
                 </div>
                 <button
                     onClick={() => setShowPromoModal(true)}
@@ -51,7 +60,7 @@ const Promotions = () => {
             </div>
 
             <CreatePromoModal isOpen={showPromoModal} onClose={() => setShowPromoModal(false)} onCreate={handleCreatePromo} />
-        </div>
+        </div >
     )
 }
 
