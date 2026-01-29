@@ -190,7 +190,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
     if (!selectedItem) return null;
 
     return (
-        <div className="flex min-h-screen bg-white text-gray-900 font-sans relative" style={{ '--theme-color': config.themeColor }}>
+        <div className="flex h-screen bg-white text-gray-900 font-sans relative overflow-hidden" style={{ '--theme-color': config.themeColor }}>
             {activeOrder && !isTopTrackerHidden && activeOrder.status !== 'completed' && activeOrder.status !== 'cancelled' && (
                 <PersistentOrderTracker order={activeOrder} onClose={handleCloseTracker} themeColor={config.themeColor} />
             )}
@@ -208,8 +208,8 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
 
             {/* Sidebar moved inside Main Content Area for vertical alignment */}
 
-            {/* Main Content Area - Stable Stack */}
-            <div className="flex-1 flex flex-col min-h-screen relative min-w-0 bg-white overflow-x-hidden">
+            {/* Main Content Area - Locked Viewport */}
+            <div className="flex-1 flex flex-col h-full relative min-w-0 bg-white overflow-hidden">
                 {/* Sticky Navigation Layer - Compacted for Mobile */}
                 <div className="shrink-0 bg-white/95 backdrop-blur-md z-[80] shadow-sm border-b border-gray-50 pb-1">
                     <div className="px-4 md:px-6 pt-2 md:pt-4">
