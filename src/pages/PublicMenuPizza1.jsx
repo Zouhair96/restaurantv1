@@ -239,13 +239,13 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                 className="relative group w-full flex flex-col items-center justify-center transition-all duration-300"
                             >
                                 <div
-                                    className={`w-11 h-11 md:w-14 md:h-14 flex items-center justify-center transition-all duration-300 ${selectedItem?.id === item.id ? 'rounded-[1.2rem] md:rounded-[1.5rem] p-1' : 'rounded-full p-0 scale-90 opacity-60 hover:opacity-100 hover:scale-100'}`}
-                                    style={selectedItem?.id === item.id ? { backgroundColor: `${config.themeColor}20`, color: config.themeColor } : {}}
+                                    className={`w-12 h-12 md:w-16 md:h-16 flex items-center justify-center transition-all duration-300 ${selectedItem?.id === item.id ? 'rounded-[1.5rem] md:rounded-[2rem] p-1.5' : 'rounded-full p-1 opacity-50 hover:opacity-100'}`}
+                                    style={selectedItem?.id === item.id ? { backgroundColor: '#FFEDE3', color: config.themeColor } : {}}
                                 >
                                     <img
                                         src={item.image}
                                         alt={localize(item, 'name')}
-                                        className="w-full h-full object-cover rounded-full shadow-md"
+                                        className="w-full h-full object-cover rounded-full shadow-sm"
                                     />
                                 </div>
                             </motion.button>
@@ -441,23 +441,23 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                     </div>
                 )}
 
-                {/* Hero Image & Animation Container - Now inside the same scrollable column */}
-                <div className="flex items-center justify-center p-4 relative min-h-[300px] pointer-events-none mt-4">
-                    <div className="w-[85vw] h-[85vw] max-w-[500px] max-h-[500px] relative z-10 aspect-square shrink-0">
+                {/* Hero Image & Animation Container - Larger and shifted right like the reference */}
+                <div className="flex-1 flex items-center justify-start p-0 relative min-h-[400px] pointer-events-none mt-2 overflow-visible">
+                    <div className="w-[110vw] h-[110vw] max-w-[650px] max-h-[650px] relative z-10 aspect-square shrink-0 translate-x-[10%] md:translate-x-[15%]">
                         <AnimatePresence mode="popLayout">
                             <motion.div
                                 key={selectedItem.id}
-                                initial={{ rotate: 90, opacity: 0, scale: 0.8 }}
+                                initial={{ rotate: 90, opacity: 0, scale: 0.9 }}
                                 animate={{ rotate: 0, opacity: 1, scale: 1 }}
-                                exit={{ rotate: -90, opacity: 0, scale: 0.8 }}
-                                transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                                className="absolute inset-0 w-full h-full rounded-full overflow-hidden border-none z-10"
+                                exit={{ rotate: -90, opacity: 0, scale: 0.9 }}
+                                transition={{ type: "spring", stiffness: 200, damping: 25 }}
+                                className="absolute inset-0 w-full h-full rounded-full border-none z-10"
                             >
                                 <motion.img
-                                    whileHover={{ scale: 1.05, rotate: 5 }}
+                                    whileHover={{ scale: 1.02 }}
                                     src={selectedItem.image}
                                     alt={localize(selectedItem, 'name')}
-                                    className="w-full h-full object-cover shadow-2xl rounded-full"
+                                    className="w-full h-full object-cover drop-shadow-[0_20px_50px_rgba(0,0,0,0.15)] rounded-full"
                                 />
                             </motion.div>
                         </AnimatePresence>
