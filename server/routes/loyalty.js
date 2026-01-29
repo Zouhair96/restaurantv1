@@ -28,6 +28,17 @@ router.get('/loyalty-analytics', authenticate, async (req, res) => {
         // Ensure column exists (one-time check for dev)
         try {
             await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS loyalty_config JSONB DEFAULT '{"isAutoPromoOn": true, "recoveryConfig": {"type": "discount", "value": "20", "active": true, "delay": "21", "frequency": "30"}}'`);
+
+            // Create visitor_events table if missing
+            await query(`
+                CREATE TABLE IF NOT EXISTS visitor_events (
+                    id SERIAL PRIMARY KEY,
+                    restaurant_id INT REFERENCES users(id),
+                    visitor_uuid TEXT,
+                    event_type TEXT,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                )
+            `);
         } catch (dbErr) {
             // Ignore error if column exists
         }
@@ -37,14 +48,19 @@ router.get('/loyalty-analytics', authenticate, async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
 
-        const statsQuery = `
-            SELECT 
-                (SELECT COUNT(DISTINCT visitor_uuid) FROM visitor_events WHERE restaurant_id = $1 AND event_type = 'loyal_status_reached') as loyal_count,
-                (SELECT COUNT(*) FROM orders WHERE restaurant_id = $1 AND status != 'cancelled' AND loyalty_discount_applied = true) as offers_applied,
-                (SELECT COALESCE(SUM(total_price), 0) FROM orders WHERE restaurant_id = $1 AND status != 'cancelled' AND loyalty_discount_applied = true) as loyalty_revenue
-        `;
-        const statsResult = await query(statsQuery, [restaurantId]);
-        const stats = statsResult.rows[0];
+        let stats = { loyal_count: 0, offers_applied: 0, loyalty_revenue: 0 };
+        try {
+            const statsQuery = `
+                SELECT 
+                    (SELECT COUNT(DISTINCT visitor_uuid) FROM visitor_events WHERE restaurant_id = $1 AND event_type = 'loyal_status_reached') as loyal_count,
+                    (SELECT COUNT(*) FROM orders WHERE restaurant_id = $1 AND status != 'cancelled' AND loyalty_discount_applied = true) as offers_applied,
+                    (SELECT COALESCE(SUM(total_price), 0) FROM orders WHERE restaurant_id = $1 AND status != 'cancelled' AND loyalty_discount_applied = true) as loyalty_revenue
+            `;
+            const statsResult = await query(statsQuery, [restaurantId]);
+            stats = statsResult.rows[0] || stats;
+        } catch (statsErr) {
+            console.warn('[Loyalty] Stats fetch failed:', statsErr.message);
+        }
 
         res.json({
             loyal_clients: parseInt(stats.loyal_count || 0),
