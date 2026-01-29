@@ -147,6 +147,18 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
         setLiked(false);
     };
 
+    const handleNextItem = () => {
+        const currentIndex = filteredMenuItems.findIndex(item => item.id === selectedItem.id);
+        const nextIndex = (currentIndex + 1) % filteredMenuItems.length;
+        handleItemSelect(filteredMenuItems[nextIndex]);
+    };
+
+    const handlePrevItem = () => {
+        const currentIndex = filteredMenuItems.findIndex(item => item.id === selectedItem.id);
+        const prevIndex = (currentIndex - 1 + filteredMenuItems.length) % filteredMenuItems.length;
+        handleItemSelect(filteredMenuItems[prevIndex]);
+    };
+
     const activePromo = selectedPromoId ? (config.promotions || []).find(p => p.id === selectedPromoId) : null;
 
     // Helper to detect video files
@@ -527,25 +539,67 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
             <AnimatePresence>
                 {isFullDetailsOpen && (
                     <motion.div
+                        drag="x"
+                        dragConstraints={{ left: 0, right: 0 }}
+                        dragElastic={0.2}
+                        onDragEnd={(e, info) => {
+                            if (info.offset.x < -100) handleNextItem();
+                            else if (info.offset.x > 100) handlePrevItem();
+                        }}
+                        onPan={(e, info) => {
+                            if (info.offset.y > 100) setIsFullDetailsOpen(false);
+                        }}
                         initial={{ y: "100%" }}
                         animate={{ y: 0 }}
                         exit={{ y: "100%" }}
                         transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                        className="fixed inset-0 z-[100] bg-white flex flex-col"
+                        className="fixed inset-0 z-[100] bg-white flex flex-col touch-none"
                     >
                         {/* Header Area */}
                         <div className="px-6 py-4 flex items-center justify-between border-b border-gray-50 bg-white sticky top-0 z-10">
-                            <button onClick={() => setIsFullDetailsOpen(false)} className="p-2 -ml-2 text-gray-900">
+                            <button onClick={() => setIsFullDetailsOpen(false)} className="p-2 -ml-2 text-gray-900 border border-gray-100 rounded-full">
                                 <HiXMark className="w-6 h-6" />
                             </button>
-                            <span className="font-black uppercase tracking-widest text-xs text-gray-400">Item Details</span>
+                            <div className="flex flex-col items-center">
+                                <span className="font-black uppercase tracking-widest text-[10px] text-gray-400">Item Details</span>
+                                <div className="flex gap-1 mt-1">
+                                    {filteredMenuItems.map((_, i) => (
+                                        <div
+                                            key={i}
+                                            className={`w-1 h-1 rounded-full transition-all ${filteredMenuItems.findIndex(item => item.id === selectedItem.id) === i ? 'w-4 bg-gray-900' : 'bg-gray-200'}`}
+                                            style={filteredMenuItems.findIndex(item => item.id === selectedItem.id) === i ? { backgroundColor: config.themeColor } : {}}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
                             <div className="w-10"></div>
                         </div>
 
                         {/* Scrollable Content */}
-                        <div className="flex-1 overflow-y-auto p-8">
+                        <div className="flex-1 overflow-y-auto p-8 relative">
+                            {/* Navigation Arrows for desktop/visual hint */}
+                            <div className="absolute top-1/2 -translate-y-1/2 left-4 right-4 flex justify-between pointer-events-none z-20">
+                                <button onClick={(e) => { e.stopPropagation(); handlePrevItem(); }} className="p-2 bg-white/80 backdrop-blur-md rounded-full shadow-lg pointer-events-auto active:scale-90 transition-transform">
+                                    <HiChevronLeft className="w-6 h-6 text-gray-900" />
+                                </button>
+                                <button onClick={(e) => { e.stopPropagation(); handleNextItem(); }} className="p-2 bg-white/80 backdrop-blur-md rounded-full shadow-lg pointer-events-auto active:scale-90 transition-transform">
+                                    <HiChevronRight className="w-6 h-6 text-gray-900" />
+                                </button>
+                            </div>
+
                             <div className="relative aspect-square w-full max-w-sm mx-auto mb-8">
-                                <img src={selectedItem.image} alt={localize(selectedItem, 'name')} className="w-full h-full object-cover rounded-[2.5rem] shadow-2xl" />
+                                <AnimatePresence mode="wait">
+                                    <motion.img
+                                        key={selectedItem.id}
+                                        initial={{ opacity: 0, x: 20, scale: 0.95 }}
+                                        animate={{ opacity: 1, x: 0, scale: 1 }}
+                                        exit={{ opacity: 0, x: -20, scale: 0.95 }}
+                                        transition={{ duration: 0.2 }}
+                                        src={selectedItem.image}
+                                        alt={localize(selectedItem, 'name')}
+                                        className="w-full h-full object-cover rounded-[2.5rem] shadow-2xl"
+                                    />
+                                </AnimatePresence>
                             </div>
 
                             <div className="max-w-md mx-auto px-4">
