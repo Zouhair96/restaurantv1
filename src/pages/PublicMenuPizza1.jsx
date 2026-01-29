@@ -287,50 +287,18 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                 <div className="px-5 pt-4 pb-1 shrink-0 z-20">
                     <div className="relative flex items-center justify-between min-h-[44px]">
                         {/* Absolute Centered Title/Logo */}
-                        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex justify-center z-10">
+                        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex justify-center z-10 w-full px-12">
                             {config.useLogo && config.logoImage ? (
                                 <img src={config.logoImage} alt={config.restaurantName} className="h-6 md:h-8 w-auto object-contain" />
                             ) : (
-                                <h1 className="text-lg md:text-xl font-black text-gray-900 tracking-tighter uppercase whitespace-nowrap">{config.restaurantName}</h1>
+                                <h1 className="text-xl md:text-2xl font-black text-gray-900 tracking-tighter uppercase whitespace-nowrap text-center">{config.restaurantName}</h1>
                             )}
                         </div>
 
-                        {/* Right Side Actions - Fixed at top right */}
-                        <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-1 z-20">
-                            <AnimatePresence mode="wait">
-                                {isSearchOpen ? (
-                                    <motion.div
-                                        initial={{ width: 0, opacity: 0 }}
-                                        animate={{ width: 80, opacity: 1 }}
-                                        exit={{ width: 0, opacity: 0 }}
-                                        className="flex items-center bg-gray-50 border border-gray-100 rounded-full px-2 py-1"
-                                    >
-                                        <input
-                                            autoFocus
-                                            type="text"
-                                            value={searchQuery}
-                                            onChange={(e) => setSearchQuery(e.target.value)}
-                                            placeholder="..."
-                                            className="bg-transparent border-none focus:ring-0 text-[10px] w-full p-0 font-black text-gray-900 placeholder:text-gray-300"
-                                        />
-                                        <button onClick={() => { setIsSearchOpen(false); setSearchQuery(''); }} className="ml-0.5">
-                                            <HiXMark className="w-3 h-3 text-gray-400" />
-                                        </button>
-                                    </motion.div>
-                                ) : (
-                                    <motion.button
-                                        initial={{ scale: 0.8, opacity: 0 }}
-                                        animate={{ scale: 1, opacity: 1 }}
-                                        onClick={() => setIsSearchOpen(true)}
-                                        className="p-1.5 text-gray-400 hover:text-gray-900"
-                                    >
-                                        <HiMagnifyingGlass className="w-5 h-5" />
-                                    </motion.button>
-                                )}
-                            </AnimatePresence>
-
+                        {/* Right Side Actions - Only Cart now */}
+                        <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center pr-2 z-20">
                             <button onClick={() => setIsCartOpen(!isCartOpen)} className="p-1.5 text-gray-400 hover:text-gray-900 relative">
-                                <HiShoppingBag className="w-5 h-5" />
+                                <HiShoppingBag className="w-5 h-5 md:w-6 md:h-6" />
                                 {cartItems.length > 0 && <span className="absolute top-0.5 right-0.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>}
                             </button>
                         </div>
@@ -341,6 +309,31 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
 
 
 
+                {/* Prominent Search Bar (80% width) over Categories */}
+                <div className="px-5 mb-4 flex justify-center">
+                    <div className="relative w-[80%] max-w-md">
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                            <HiMagnifyingGlass className="w-4 h-4" />
+                        </div>
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder={t('search.placeholder') || "Search items..."}
+                            className="w-full bg-gray-50 border border-gray-100 rounded-xl pl-10 pr-4 py-2 text-sm font-bold text-gray-900 placeholder:text-gray-300 focus:ring-2 focus:ring-opacity-50 transition-all"
+                            style={{ outlineColor: config.themeColor }}
+                        />
+                        {searchQuery && (
+                            <button
+                                onClick={() => setSearchQuery('')}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-900"
+                            >
+                                <HiXMark className="w-4 h-4" />
+                            </button>
+                        )}
+                    </div>
+                </div>
+
                 {activePromo ? (
                     <div className="flex items-center justify-center gap-2 mb-4 animate-fade-in px-4">
                         <span className="p-1 rounded-lg bg-red-50 text-red-500"><HiTag className="w-4 h-4" /></span>
@@ -348,18 +341,18 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                         <span className="text-sm font-black text-gray-900 border-b-2 border-red-500">{activePromo.name}</span>
                     </div>
                 ) : (
-                    <div className="flex items-center justify-center gap-4 md:gap-8 text-[11px] md:text-sm mb-4 overflow-x-auto no-scrollbar py-1 w-full px-4">
+                    <div className="flex items-center justify-center gap-4 md:gap-8 text-[12px] md:text-base mb-4 overflow-x-auto no-scrollbar py-1 w-full px-4">
                         {['All', ...new Set(menuItems.map(i => localize(i, 'category')).filter(Boolean))].map((category) => (
                             <button
                                 key={category}
                                 onClick={() => handleCategorySelect(category)}
-                                className={`font-black pb-1.5 whitespace-nowrap transition-all relative ${activeCategory === category ? 'text-gray-900' : 'text-gray-400 hover:text-gray-900'}`}
+                                className={`font-black pb-1.5 whitespace-nowrap transition-all relative ${activeCategory === category ? 'text-gray-900 scale-110' : 'text-gray-400 hover:text-gray-900'}`}
                             >
                                 {category === 'All' ? t('auth.menu.all') : category.toUpperCase()}
                                 {activeCategory === category && (
                                     <motion.div
                                         layoutId="activeCategory"
-                                        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 md:w-6 h-0.5 rounded-full"
+                                        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 md:w-8 h-1 rounded-full"
                                         style={{ backgroundColor: config.themeColor }}
                                     />
                                 )}
@@ -464,12 +457,8 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                     </div>
                 </div>
             </div>
-            {/* Details Card */}
-            <motion.div
-                key={`details-${selectedItem.id}`}
-                initial={{ y: 50, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            {/* Details Card - Animation removed as requested */}
+            <div
                 className="fixed bottom-0 left-0 right-0 z-[60] bg-white pb-12"
             >
                 <div className="px-8 py-4 max-w-lg">
@@ -521,7 +510,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                         </motion.button>
                     </div>
                 </div>
-            </motion.div>
+            </div>
 
             {/* Cart Sidebar */}
             <div className={`fixed inset-y-0 right-0 w-80 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-[70] ${isCartOpen ? 'translate-x-0' : 'translate-x-full'}`}>
