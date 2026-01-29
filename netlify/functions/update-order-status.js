@@ -25,6 +25,17 @@ export const handler = async (event, context) => {
     }
 
     try {
+        // --- Middleware: Ensure Schema is ready ---
+        try {
+            await query(`
+                ALTER TABLE orders 
+                ADD COLUMN IF NOT EXISTS commission_recorded BOOLEAN DEFAULT false,
+                ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+            `);
+        } catch (dbErr) {
+            console.warn('[DB Warning]: Could not ensure order status schema:', dbErr.message);
+        }
+
         // Verify JWT token
         const authHeader = event.headers.authorization;
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -42,7 +53,7 @@ export const handler = async (event, context) => {
         const decoded = jwt.verify(token, secret);
         const restaurantId = decoded.id;
 
-        const { orderId, status, driver } = JSON.parse(event.body);
+        const { orderId, status } = JSON.parse(event.body);
 
         // Validation
         if (!orderId || !status) {
@@ -93,7 +104,6 @@ export const handler = async (event, context) => {
                 UPDATE orders 
                 SET status = $1, 
                     updated_at = CURRENT_TIMESTAMP,
-                    accepted_at = COALESCE(accepted_at, CURRENT_TIMESTAMP),
                     commission_recorded = TRUE
                 WHERE id = $2 
                 RETURNING id, status, updated_at, commission_recorded
@@ -164,22 +174,10 @@ export const handler = async (event, context) => {
             let updateQuery = `
                 UPDATE orders 
                 SET status = $1, updated_at = CURRENT_TIMESTAMP
+                WHERE id = $2 
+                RETURNING id, status, updated_at
             `;
-            let queryParams = [status, orderId];
-
-            if (driver && status === 'out_for_delivery') {
-                updateQuery = `
-                    UPDATE orders 
-                    SET status = $1, 
-                        driver_name = $3, 
-                        driver_phone = $4,
-                        updated_at = CURRENT_TIMESTAMP
-                `;
-                queryParams = [status, orderId, driver.name, driver.phone];
-            }
-
-            updateQuery += ` WHERE id = $2 RETURNING id, status, driver_name, driver_phone, updated_at`;
-            updateResult = await query(updateQuery, queryParams);
+            updateResult = await query(updateQuery, [status, orderId]);
         }
 
         return {
