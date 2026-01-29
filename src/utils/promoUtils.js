@@ -202,26 +202,8 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
     // 1. Check if auto-promos are globally active
     if (!config.auto_promo_active && !config.loyalty_active && !config.isAutoPromoOn) return { discount: 0, reason: null };
 
-    // 2. NEW Status Logic (1st visit) -> Welcome Offer
-    if (loyaltyInfo.status === 'NEW') {
-        const discountValue = 0.10; // 10% fixed welcome reward
-        return {
-            discount: orderTotal * discountValue,
-            reason: 'Welcome Offer (10%)'
-        };
-    }
-
-    // 3. LOYAL Status Logic (4 visits / 30 days)
-    if (loyaltyInfo.status === 'LOYAL') {
-        const discountValue = 0.15; // 15% fixed loyalty reward
-        return {
-            discount: orderTotal * discountValue,
-            reason: 'Loyal Customer Reward (15%)'
-        };
-    }
-
-    // 3. RECOVERY Status Logic (handled via specific config)
-    if (loyaltyInfo.status === 'RECOVERY' || (loyaltyInfo.isRecoveryEligible)) {
+    // 2. RECOVERY Status Logic (Temporarily overrides everything if eligible)
+    if (loyaltyInfo.isRecoveryEligible || loyaltyInfo.status === 'RECOVERY') {
         const recoveryOffer = config.recoveryConfig || config.recovery_offer || { type: 'discount', value: '20' };
 
         if (recoveryOffer.type === 'discount') {
@@ -235,10 +217,28 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
         if (recoveryOffer.type === 'dish' || recoveryOffer.type === 'drink') {
             return {
                 discount: 0,
-                giftItem: recoveryOffer.value, // e.g. "free tiramisu"
+                giftItem: recoveryOffer.value,
                 reason: `Recovery Special: ${recoveryOffer.value}`
             };
         }
+    }
+
+    // 3. NEW Status Logic (1st visit) -> Welcome Offer
+    if (loyaltyInfo.status === 'NEW') {
+        const discountValue = 0.10;
+        return {
+            discount: orderTotal * discountValue,
+            reason: 'Welcome Offer (10%)'
+        };
+    }
+
+    // 4. LOYAL Status Logic (4 visits / 30 days)
+    if (loyaltyInfo.status === 'LOYAL') {
+        const discountValue = 0.15;
+        return {
+            discount: orderTotal * discountValue,
+            reason: 'Loyal Customer Reward (15%)'
+        };
     }
 
     return { discount: 0, reason: null };

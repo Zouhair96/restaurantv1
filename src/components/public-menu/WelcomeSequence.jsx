@@ -61,36 +61,55 @@ const WelcomeSequence = ({
             {phase === 'loading' && (
                 <div className="absolute inset-0 bg-black flex flex-col items-center justify-center pointer-events-auto z-[210] overflow-hidden">
                     <div className="absolute inset-0 opacity-40">
-                        <div className="absolute inset-0 bg-gradient-to-t from-orange-950 via-black to-black"></div>
+                        <div
+                            className="absolute inset-0 bg-gradient-to-t via-black to-black"
+                            style={{ backgroundImage: `linear-gradient(to top, ${themeColor}33, black, black)` }}
+                        ></div>
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200%] h-[200%] animate-slow-zoom pointer-events-none opacity-20">
-                            <div className="w-full h-full border-[40px] border-orange-500/10 rounded-full blur-3xl"></div>
-                            <div className="absolute top-1/4 left-1/3 w-32 h-32 bg-yellow-500/20 rounded-full blur-3xl animate-pulse"></div>
-                            <div className="absolute bottom-1/4 right-1/3 w-48 h-48 bg-red-500/20 rounded-full blur-3xl animate-pulse"></div>
+                            <div
+                                className="w-full h-full border-[40px] rounded-full blur-3xl"
+                                style={{ borderColor: `${themeColor}1a` }}
+                            ></div>
+                            <div
+                                className="absolute top-1/4 left-1/3 w-32 h-32 rounded-full blur-3xl animate-pulse"
+                                style={{ backgroundColor: `${themeColor}33` }}
+                            ></div>
+                            <div
+                                className="absolute bottom-1/4 right-1/3 w-48 h-48 rounded-full blur-3xl animate-pulse"
+                                style={{ backgroundColor: `${themeColor}22` }}
+                            ></div>
                         </div>
                     </div>
 
                     <div className="relative z-10 flex flex-col items-center max-w-2xl px-8 text-center">
                         <div className="mb-12 relative">
                             <div className="w-32 h-32 rounded-[2.5rem] bg-white/5 backdrop-blur-xl border border-white/10 flex items-center justify-center relative overflow-hidden group">
-                                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-transparent"></div>
-                                <HiStar className="w-16 h-16 text-orange-500 animate-spin-slow" />
+                                <div
+                                    className="absolute inset-0 bg-gradient-to-br from-transparent to-transparent"
+                                    style={{ backgroundImage: `linear-gradient(to bottom right, ${themeColor}33, transparent)` }}
+                                ></div>
+                                <HiStar className="w-16 h-16 animate-spin-slow" style={{ color: themeColor }} />
                                 <div className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full"></div>
                             </div>
-                            <HiSparkles className="absolute -top-4 -right-4 w-8 h-8 text-yellow-500 animate-pulse" />
+                            <HiSparkles className="absolute -top-4 -right-4 w-8 h-8 animate-pulse" style={{ color: themeColor }} />
                         </div>
 
                         <div className="space-y-6">
                             <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter leading-none animate-reveal-text">
                                 {restaurantName}
                             </h2>
-                            <div className="h-1 w-24 bg-orange-500 mx-auto rounded-full animate-stretch"></div>
+                            <div
+                                className="h-1 w-24 mx-auto rounded-full animate-stretch"
+                                style={{ backgroundColor: themeColor }}
+                            ></div>
                         </div>
 
                         <div className="mt-16 w-64 h-1 bg-white/10 rounded-full overflow-hidden">
                             <div
-                                className="h-full bg-orange-500 transition-all ease-linear"
+                                className="h-full transition-all ease-linear"
                                 style={{
                                     width: '100%',
+                                    backgroundColor: themeColor,
                                     transitionDuration: `${loadingDuration}s`
                                 }}
                             ></div>
