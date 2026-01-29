@@ -14,7 +14,7 @@ const LoyaltyDocumentation = ({ onBack }) => {
                     title: "1. Global Auto-Promo",
                     icon: <HiSparkles className="text-orange-500" />,
                     text: "This is the master switch for the entire system. When ON, the system recognizes returning customers and automatically applies discounts to their checkout based on their status.",
-                    image: "uploaded_media_0_1769727308320.png"
+                    image: "loyalty_config.png",
                 },
                 {
                     title: "2. Recovery System",
@@ -40,7 +40,7 @@ const LoyaltyDocumentation = ({ onBack }) => {
                     title: "4. Interpreting Stats",
                     icon: <HiCurrencyDollar className="text-green-500" />,
                     text: "Understand your system's performance at a glance.",
-                    image: "uploaded_media_1_1769727308320.png",
+                    image: "loyalty_stats.png",
                     subpoints: [
                         "Loyal Clients: Total unique users currently at 'Loyal' tier.",
                         "Offers Applied: Total number of discounts redeemed by customers.",
@@ -58,7 +58,7 @@ const LoyaltyDocumentation = ({ onBack }) => {
                     title: "1. Auto-Promo Globale",
                     icon: <HiSparkles className="text-orange-500" />,
                     text: "C'est l'interrupteur principal. Lorsqu'il est ACTIVÉ, le système reconnaît les clients fidèles et applique automatiquement des remises lors du paiement en fonction de leur statut.",
-                    image: "uploaded_media_0_1769727308320.png"
+                    image: "loyalty_config.png",
                 },
                 {
                     title: "2. Système de Récupération",
@@ -84,7 +84,7 @@ const LoyaltyDocumentation = ({ onBack }) => {
                     title: "4. Interprétation des Stats",
                     icon: <HiCurrencyDollar className="text-green-500" />,
                     text: "Comprenez les performances de votre système en un coup d'œil.",
-                    image: "uploaded_media_1_1769727308320.png",
+                    image: "loyalty_stats.png",
                     subpoints: [
                         "Clients Fidèles: Nombre total d'utilisateurs uniques actuellement au niveau 'Loyal'.",
                         "Offres Appliquées: Nombre total de remises utilisées par les clients.",
@@ -102,7 +102,7 @@ const LoyaltyDocumentation = ({ onBack }) => {
                     title: "1. الترويج التلقائي العام",
                     icon: <HiSparkles className="text-orange-500" />,
                     text: "هذا هو المفتاح الرئيسي للنظام بأكمله. عندما يكون قيد التشغيل (ON)، يتعرف النظام على العملاء العائدين ويطبق الخصومات تلقائياً عند الدفع بناءً على حالتهم.",
-                    image: "uploaded_media_0_1769727308320.png"
+                    image: "loyalty_config.png",
                 },
                 {
                     title: "2. نظام الاستعادة",
@@ -128,7 +128,7 @@ const LoyaltyDocumentation = ({ onBack }) => {
                     title: "4. تفسير الإحصائيات",
                     icon: <HiCurrencyDollar className="text-green-500" />,
                     text: "افهم أداء نظامك بلمحة سريعة.",
-                    image: "uploaded_media_1_1769727308320.png",
+                    image: "loyalty_stats.png",
                     subpoints: [
                         "العملاء الأوفياء: إجمالي المستخدمين الفريدين حالياً في مستوى 'الولاء'.",
                         "العروض المطبقة: إجمالي عدد الخصومات التي تم استخدامها من قبل العملاء.",
@@ -165,8 +165,8 @@ const LoyaltyDocumentation = ({ onBack }) => {
                             key={l}
                             onClick={() => setLang(l)}
                             className={`px-4 py-2 rounded-lg text-xs font-black uppercase transition-all ${lang === l
-                                    ? 'bg-white dark:bg-yum-primary text-gray-900 dark:text-white shadow-sm'
-                                    : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                                ? 'bg-white dark:bg-yum-primary text-gray-900 dark:text-white shadow-sm'
+                                : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
                                 }`}
                         >
                             {l}
@@ -199,7 +199,7 @@ const LoyaltyDocumentation = ({ onBack }) => {
                         {section.image && (
                             <div className="mb-8 rounded-2xl border border-gray-100 dark:border-white/5 overflow-hidden shadow-2xl">
                                 <img
-                                    src={`/brain/abb78a9a-822f-491b-bc3f-62a86cd3b946/${section.image}`}
+                                    src={`/docs/${section.image}`}
                                     alt={section.title}
                                     className="w-full h-auto"
                                 />
