@@ -54,6 +54,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
     const [selectedPromoId, setSelectedPromoId] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [isFullDetailsOpen, setIsFullDetailsOpen] = useState(false);
 
     const {
         cartItems,
@@ -462,11 +463,16 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                     </div>
                 </div>
             </div>
-            {/* Details Card - Animation removed as requested */}
-            <div
-                className="fixed bottom-0 left-0 right-0 z-[60] bg-white pb-12"
+            {/* Details Card - Animation removed as requested, added Pan detection */}
+            <motion.div
+                onPan={(e, info) => {
+                    if (info.offset.y < -30) setIsFullDetailsOpen(true);
+                }}
+                className="fixed bottom-0 left-0 right-0 z-[60] bg-white pb-12 cursor-pointer pt-4"
+                onClick={() => setIsFullDetailsOpen(true)}
             >
-                <div className="px-8 py-4 max-w-lg">
+                <div className="absolute top-2 left-1/2 -translate-x-1/2 w-8 h-1 bg-gray-100 rounded-full" />
+                <div className="px-8 py-4 max-w-lg mx-auto">
                     <div className="flex justify-between items-start mb-1">
                         <div className="flex-1">
                             <h2 className="text-2xl md:text-5xl font-black text-gray-900 leading-[1.1] mb-1 md:mb-2 uppercase tracking-tight">
@@ -474,12 +480,12 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                             </h2>
                             <div className="flex items-center gap-2 text-gray-400">
                                 <HiBars3 className="w-4 h-3 md:w-5 md:h-4 opacity-100" />
-                                <span className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.2em]">ingredients</span>
+                                <span className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.2em]">{t('auth.menu.ingredients')}</span>
                             </div>
                         </div>
                         <motion.button
                             whileTap={{ scale: 0.8 }}
-                            onClick={() => setLiked(!liked)}
+                            onClick={(e) => { e.stopPropagation(); setLiked(!liked); }}
                             className="text-gray-300 hover:text-red-500 transition-colors pt-2"
                         >
                             {liked ? <HiHeart className="w-7 h-7 text-red-500" /> : <HiOutlineHeart className="w-7 h-7" />}
@@ -502,7 +508,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                         <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            onClick={handleAddToCart}
+                            onClick={(e) => { e.stopPropagation(); handleAddToCart(); }}
                             className="h-12 md:h-14 px-6 md:px-8 rounded-full border-2 transition-all flex items-center gap-3 md:gap-4 bg-white hover:shadow-lg"
                             style={{ borderColor: config.themeColor, color: config.themeColor }}
                         >
@@ -515,7 +521,86 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                         </motion.button>
                     </div>
                 </div>
-            </div>
+            </motion.div>
+
+            {/* FULL DETAILS SWIPE-UP OVERLAY */}
+            <AnimatePresence>
+                {isFullDetailsOpen && (
+                    <motion.div
+                        initial={{ y: "100%" }}
+                        animate={{ y: 0 }}
+                        exit={{ y: "100%" }}
+                        transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                        className="fixed inset-0 z-[100] bg-white flex flex-col"
+                    >
+                        {/* Header Area */}
+                        <div className="px-6 py-4 flex items-center justify-between border-b border-gray-50 bg-white sticky top-0 z-10">
+                            <button onClick={() => setIsFullDetailsOpen(false)} className="p-2 -ml-2 text-gray-900">
+                                <HiXMark className="w-6 h-6" />
+                            </button>
+                            <span className="font-black uppercase tracking-widest text-xs text-gray-400">Item Details</span>
+                            <div className="w-10"></div>
+                        </div>
+
+                        {/* Scrollable Content */}
+                        <div className="flex-1 overflow-y-auto p-8">
+                            <div className="relative aspect-square w-full max-w-sm mx-auto mb-8">
+                                <img src={selectedItem.image} alt={localize(selectedItem, 'name')} className="w-full h-full object-cover rounded-[2.5rem] shadow-2xl" />
+                            </div>
+
+                            <div className="max-w-md mx-auto px-4">
+                                <h2 className="text-3xl font-black text-gray-900 uppercase mb-2 leading-none">{localize(selectedItem, 'name')}</h2>
+                                <div className="text-2xl font-black mb-6" style={{ color: config.themeColor }}>
+                                    {config.currencySymbol || '$'}{parseFloat(getDiscountedPrice(config.promotions || [], selectedItem).finalPrice).toFixed(2)}
+                                </div>
+
+                                <div className="space-y-6">
+                                    <section>
+                                        <h3 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400 mb-3">Description</h3>
+                                        <p className="text-gray-600 leading-relaxed font-medium">
+                                            {localize(selectedItem, 'description') || "A premium culinary creation prepared with the finest ingredients and traditional techniques."}
+                                        </p>
+                                    </section>
+
+                                    {selectedItem.ingredients && (
+                                        <section>
+                                            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400 mb-3">{t('auth.menu.ingredients')}</h3>
+                                            <div className="flex flex-wrap gap-2">
+                                                {localize(selectedItem, 'ingredients').split(',').map((ing, i) => (
+                                                    <span key={i} className="px-4 py-2 bg-gray-50 text-gray-900 text-sm font-bold rounded-xl border border-gray-100">
+                                                        {ing.trim()}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </section>
+                                    )}
+
+                                    {selectedItem.allergens && (
+                                        <section>
+                                            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400 mb-3">Allergens</h3>
+                                            <div className="text-sm font-bold text-red-500">
+                                                {localize(selectedItem, 'allergens')}
+                                            </div>
+                                        </section>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Fixed Bottom Action */}
+                        <div className="p-8 border-t border-gray-50 bg-gray-50/50">
+                            <button
+                                onClick={() => { handleAddToCart(); setIsFullDetailsOpen(false); }}
+                                className="w-full py-4 text-white font-black uppercase tracking-widest rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3"
+                                style={{ backgroundColor: config.themeColor }}
+                            >
+                                <HiPlus className="w-5 h-5" />
+                                Add to Bag - {config.currencySymbol || '$'}{parseFloat(getDiscountedPrice(config.promotions || [], selectedItem).finalPrice).toFixed(2)}
+                            </button>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Cart Sidebar */}
             <div className={`fixed inset-y-0 right-0 w-80 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-[70] ${isCartOpen ? 'translate-x-0' : 'translate-x-full'}`}>
