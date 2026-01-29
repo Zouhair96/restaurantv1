@@ -13,6 +13,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { isPromoActive, getDiscountedPrice, getPromosByDisplayStyle, getPromoFilteredItems, calculateOrderDiscount } from '../utils/promoUtils';
 import { HiTag, HiChevronLeft, HiChevronRight, HiArrowUturnLeft, HiStar } from 'react-icons/hi2';
 import { useLoyalty } from '../context/LoyaltyContext';
+import WelcomeSequence from '../components/public-menu/WelcomeSequence';
 
 const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
     const { user: clientUser, activeOrderId, activeOrder, handleCloseTracker, isTopTrackerHidden } = useClientAuth();
@@ -754,7 +755,19 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                     </div>
                 )}
             </AnimatePresence>
-        </div >
+
+            {/* Welcome Sequence (Cinematic Intro + Promo) */}
+            <WelcomeSequence
+                restaurantName={config.restaurantName}
+                themeColor={config.themeColor}
+                promoConfig={{
+                    showWelcomePromo: loyaltyInfo.status === 'NEW',
+                    welcomePromoText: config.welcomePromoText || t('auth.checkout.welcomePromo'),
+                    loadingDuration: isMasterView ? 2 : 5,
+                    promoDuration: 15
+                }}
+            />
+        </div>
     );
 };
 

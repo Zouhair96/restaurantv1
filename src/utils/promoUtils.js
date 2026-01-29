@@ -200,9 +200,18 @@ export const getPromoFilteredItems = (promo, allItems) => {
  */
 export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) => {
     // 1. Check if auto-promos are globally active
-    if (!config.auto_promo_active && !config.loyalty_active) return { discount: 0, reason: null };
+    if (!config.auto_promo_active && !config.loyalty_active && !config.isAutoPromoOn) return { discount: 0, reason: null };
 
-    // 2. LOYAL Status Logic (4 visits / 30 days)
+    // 2. NEW Status Logic (1st visit) -> Welcome Offer
+    if (loyaltyInfo.status === 'NEW') {
+        const discountValue = 0.10; // 10% fixed welcome reward
+        return {
+            discount: orderTotal * discountValue,
+            reason: 'Welcome Offer (10%)'
+        };
+    }
+
+    // 3. LOYAL Status Logic (4 visits / 30 days)
     if (loyaltyInfo.status === 'LOYAL') {
         const discountValue = 0.15; // 15% fixed loyalty reward
         return {

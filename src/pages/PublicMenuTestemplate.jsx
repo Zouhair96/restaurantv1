@@ -11,6 +11,7 @@ import PersistentOrderTracker from '../components/PersistentOrderTracker';
 import { useClientAuth } from '../context/ClientAuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { isPromoActive, getDiscountedPrice, getPromosByDisplayStyle, getPromoFilteredItems } from '../utils/promoUtils';
+import WelcomeSequence from '../components/public-menu/WelcomeSequence';
 
 const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
     const { restaurantName: urlRestaurantName } = useParams();
@@ -858,7 +859,19 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                     </motion.div>
                 ))}
             </div>
-        </div >
+
+            {/* Welcome Sequence (Cinematic Intro + Promo) */}
+            <WelcomeSequence
+                restaurantName={config.restaurantName}
+                themeColor={config.themeColor}
+                promoConfig={{
+                    showWelcomePromo: getStatus(restaurantName).status === 'NEW',
+                    welcomePromoText: config.welcomePromoText || t('auth.checkout.welcomePromo'),
+                    loadingDuration: isMasterView ? 2 : 5,
+                    promoDuration: 15
+                }}
+            />
+        </div>
     );
 };
 
