@@ -17,7 +17,7 @@ const OnboardingOverlay = ({ onClose }) => {
                             You're In.
                         </h2>
                         <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-                            Your dashboard is ready. We've prepared a few resources to help you master the YumYum ecosystem and skyrocket your sales.
+                            Your dashboard is ready. We've prepared a few resources to help you master the Margio ecosystem and skyrocket your sales.
                         </p>
                     </div>
 

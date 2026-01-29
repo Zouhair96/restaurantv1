@@ -13,7 +13,7 @@ const CustomerExperience = () => {
                         <div className="absolute inset-0 bg-gradient-to-tr from-yum-secondary/20 to-yum-primary/20 rounded-full blur-3xl transform scale-75"></div>
                         <img
                             src="/assets/yumyum_experience.png"
-                            alt="Expérience client YumYum"
+                            alt="Expérience client Margio"
                             className="relative rounded-3xl shadow-2xl w-full object-cover transform -rotate-2 hover:rotate-0 transition-all duration-500"
                         />
                     </div>

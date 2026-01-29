@@ -74,7 +74,7 @@ const PWAInstallPrompt = () => {
                             </div>
                             <div className="flex-1">
                                 <h3 className="text-white font-black text-lg mb-1">
-                                    Install YumYum App
+                                    Install Margio App
                                 </h3>
                                 <p className="text-white/80 text-sm mb-4">
                                     Get instant order updates and track your food in real-time!

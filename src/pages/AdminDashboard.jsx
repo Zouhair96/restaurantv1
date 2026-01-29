@@ -21,7 +21,7 @@ const AdminDashboard = () => {
     })
     const [platformSettings, setPlatformSettings] = useState({
         stripe_config: { commission_rate: 0.02, currency: 'eur' },
-        general_config: { platform_name: 'YumYum', contact_email: 'admin@yumyum.com' },
+        general_config: { platform_name: 'Margio', contact_email: 'admin@margio.com' },
         stripe_secret_key: { secret_key: '', is_set: false },
         stripe_webhook_secret: { secret_key: '', is_set: false }
     })

@@ -53,7 +53,7 @@ const Checkout = () => {
 
                         <div>
                             <h1 className="text-3xl font-bold text-gray-900 mb-2">Subscribe to {plan.name}</h1>
-                            <p className="text-gray-500">Unlocking the full power of YumYum Dashboard.</p>
+                            <p className="text-gray-500">Unlocking the full power of Margio Dashboard.</p>
                         </div>
 
                         {/* Order Summary */}

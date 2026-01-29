@@ -54,7 +54,7 @@ const Header = () => {
                     </div>
                     <div className="flex flex-col">
                         <span className="text-2xl font-bold text-yum-dark leading-none tracking-tight group-hover:text-yum-primary transition-colors">
-                            YumYum
+                            Margio
                         </span>
                         <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest leading-none">
                             Solutions

@@ -49,8 +49,8 @@ const Demo = () => {
                 {/* Phone Notch/Header */}
                 <div className="bg-white p-6 pb-2 pt-8 flex justify-between items-center sticky top-0 z-20 shadow-sm">
                     <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-yum-primary rounded-full flex items-center justify-center text-white font-bold text-xs">Y</div>
-                        <span className="font-bold text-gray-800">YumYum Demo</span>
+                        <div className="w-8 h-8 bg-yum-primary rounded-full flex items-center justify-center text-white font-bold text-xs">M</div>
+                        <span className="font-bold text-gray-800">Margio Demo</span>
                     </div>
                     <div className="flex gap-1">
                         <div className="w-1 h-1 bg-black rounded-full"></div>

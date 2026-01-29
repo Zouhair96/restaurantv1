@@ -20,7 +20,7 @@ const UserProfileInfo = ({ user }) => {
                 </div>
             </div>
             <div className="p-6">
-                <h2 className="text-xl font-bold text-gray-800 mb-2">Welcome to YumYum Solutions!</h2>
+                <h2 className="text-xl font-bold text-gray-800 mb-2">Welcome to Margio Solutions!</h2>
                 <p className="text-gray-600">
                     You are currently on the free tier. To access the advanced Restaurant Dashboard, specific AI analytics, and automated tools, please select a subscription plan below.
                 </p>

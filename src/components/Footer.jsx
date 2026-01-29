@@ -10,11 +10,10 @@ const Footer = () => {
             <div className="container mx-auto px-4">
                 <div className="flex flex-col md:flex-row justify-between items-center gap-8">
                     <div className="flex items-center gap-2 text-2xl font-bold text-white">
-                        <img src="/assets/yumyum_logo.png" alt="YumYum Logo" className="h-8 w-auto brightness-200 grayscale opacity-50" />
-                        <span className="opacity-80">YumYum</span>
+                        <span className="opacity-80">Margio</span>
                     </div>
                     <div className="text-gray-400 text-sm italic">
-                        © {new Date().getFullYear()} YumYum. {t('footer.rights')}
+                        © {new Date().getFullYear()} Margio. {t('footer.rights')}
                     </div>
                     <div className="flex gap-4">
                         <a href="#" className="w-8 h-8 flex items-center justify-center rounded-full bg-[#1877F2]/20 hover:bg-[#1877F2] text-white transition-all transform hover:scale-110 shadow-sm"><FaFacebookF className="text-sm" /></a>

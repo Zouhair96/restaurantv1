@@ -22,7 +22,7 @@ export const translations = {
             titleP2: "qui augmente",
             titleP3: "votre chiffre d'affaires",
             subtitle: "Menu digital, commandes, paiements et recommandations IA, directement depuis le smartphone de vos clients. Sans application à télécharger.",
-            ctaPrimary: "Commencer avec YumYum",
+            ctaPrimary: "Commencer avec Margio",
             ctaSecondary: "Voir une démo",
             badgeText: "Déjà utilisé par 500+ restaurants",
         },
@@ -53,7 +53,7 @@ export const translations = {
         },
         experience: {
             title: "Une expérience client 5 étoiles",
-            p1: "Fini d'attendre la carte ou l'addition. Avec YumYum, vos clients sont maîtres de leur temps.",
+            p1: "Fini d'attendre la carte ou l'addition. Avec Margio, vos clients sont maîtres de leur temps.",
             p2: "Riche en visuels, notre menu donne faim et permet de découvrir vos plats sous leur meilleur jour.",
             list1: "Photos haute définition",
             list2: "Multilingue automatique",
@@ -133,7 +133,7 @@ export const translations = {
         },
         testimonials: {
             title: "Ils nous font confiance",
-            t1: "Depuis que nous utilisons YumYum, nos serveurs sont moins stressés et le ticket moyen a grimpé de 15%.",
+            t1: "Depuis que nous utilisons Margio, nos serveurs sont moins stressés et le ticket moyen a grimpé de 15%.",
             role1: "Gérant, Le Petit Bistro",
             t2: "Les clients adorent voir les photos des plats. C'est moderne et super fluide.",
             role2: "Chef, La Table d'Or",
@@ -151,7 +151,7 @@ export const translations = {
         },
         contact: {
             title: "Prêt à moderniser votre restaurant ?",
-            subtitle: "Rejoignez les 500+ restaurants qui font confiance à YumYum. Installation en 24h, support réactif, et augmentation immédiate de votre panier moyen.",
+            subtitle: "Rejoignez les 500+ restaurants qui font confiance à Margio. Installation en 24h, support réactif, et augmentation immédiate de votre panier moyen.",
             formTitle: "Nom complet",
             formRestaurant: "Nom du restaurant",
             formEmail: "Email",
@@ -294,7 +294,7 @@ export const translations = {
             titleP2: "that boosts",
             titleP3: "your revenue",
             subtitle: "Digital menu, ordering, payments, and AI recommendations, directly from your customers' smartphones. No app download required.",
-            ctaPrimary: "Get Started with YumYum",
+            ctaPrimary: "Get Started with Margio",
             ctaSecondary: "See a Demo",
             badgeText: "Trusted by 500+ restaurants",
         },
@@ -325,7 +325,7 @@ export const translations = {
         },
         experience: {
             title: "5-Star Customer Experience",
-            p1: "No more waiting for the menu or the bill. With YumYum, your customers are in control of their time.",
+            p1: "No more waiting for the menu or the bill. With Margio, your customers are in control of their time.",
             p2: "Rich in visuals, our menu stimulates appetite and showcases your dishes in their best light.",
             list1: "HD Photos",
             list2: "Automatic Multi-language",
@@ -405,7 +405,7 @@ export const translations = {
         },
         testimonials: {
             title: "They trust us",
-            t1: "Since using YumYum, our waiters are less stressed and the average ticket has gone up by 15%.",
+            t1: "Since using Margio, our waiters are less stressed and the average ticket has gone up by 15%.",
             role1: "Manager, Le Petit Bistro",
             t2: "Customers love seeing photos of the dishes. It's modern and super smooth.",
             role2: "Chef, La Table d'Or",
@@ -423,7 +423,7 @@ export const translations = {
         },
         contact: {
             title: "Ready to upgrade your restaurant?",
-            subtitle: "Join 500+ restaurants trusting YumYum. Setup in 24h, responsive support, and immediate revenue increase.",
+            subtitle: "Join 500+ restaurants trusting Margio. Setup in 24h, responsive support, and immediate revenue increase.",
             formTitle: "Full Name",
             formRestaurant: "Restaurant Name",
             formEmail: "Email",

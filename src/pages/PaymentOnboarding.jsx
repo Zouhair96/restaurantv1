@@ -68,7 +68,7 @@ const PaymentOnboarding = () => {
                     <div className="flex items-center gap-2">
                         {[1, 2, 3].map(i => (
                             <div key={i} className={`w-3 h-3 rounded-full transition-all ${i === step ? 'bg-[#6c5ce7] w-8' :
-                                    i < step ? 'bg-green-500' : 'bg-gray-200'
+                                i < step ? 'bg-green-500' : 'bg-gray-200'
                                 }`} />
                         ))}
                     </div>
@@ -82,7 +82,7 @@ const PaymentOnboarding = () => {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                                 </svg>
                             </div>
-                            <h1 className="text-4xl font-black text-gray-900 mb-3">Welcome to YumYum! 🎉</h1>
+                            <h1 className="text-4xl font-black text-gray-900 mb-3">Welcome to Margio! 🎉</h1>
                             <p className="text-gray-600 text-lg mb-2">One last step before you start selling...</p>
                         </div>
 
