@@ -11,12 +11,15 @@ const LoyaltyDocumentation = ({ onBack, loyalConfig }) => {
             title: "Loyalty System Guide",
             subtitle: "Automated customer retention & rewards",
             back: "Back to Settings",
+            loyalRewardLabel: "Loyal Reward (%)",
+            loyalRewardSub: "Applied after 4 visits in 30 days.",
             sections: [
                 {
                     title: "1. Global Auto-Promo",
                     icon: <HiSparkles className="text-orange-500" />,
                     text: "This is the master switch for the entire system. When ON, the system recognizes returning customers and automatically applies discounts to their checkout based on their status.",
                     image: "loyalty_config.png",
+                    configHighlight: true
                 },
                 {
                     title: "2. Recovery System",
@@ -55,12 +58,15 @@ const LoyaltyDocumentation = ({ onBack, loyalConfig }) => {
             title: "Guide du Système de Fidélité",
             subtitle: "Rétention client et récompenses automatisées",
             back: "Retour aux Paramètres",
+            loyalRewardLabel: "Récompense Fidèle (%)",
+            loyalRewardSub: "Appliqué après 4 visites en 30 jours.",
             sections: [
                 {
                     title: "1. Auto-Promo Globale",
                     icon: <HiSparkles className="text-orange-500" />,
                     text: "C'est l'interrupteur principal. Lorsqu'il est ACTIVÉ, le système reconnaît les clients fidèles et applique automatiquement des remises lors du paiement en fonction de leur statut.",
                     image: "loyalty_config.png",
+                    configHighlight: true
                 },
                 {
                     title: "2. Système de Récupération",
@@ -68,7 +74,7 @@ const LoyaltyDocumentation = ({ onBack, loyalConfig }) => {
                     text: "Cible les clients qui ne sont pas venus depuis un moment pour les faire revenir.",
                     subpoints: [
                         "Délai de Récupération: Nombre de jours d'inactivité avant qu'un client ne soit considéré comme 'perdu' (ex: 14 jours).",
-                        "Avantage Max: Limite la fréquence à laquelle un client peut réclamer un cadeau de récupération (ex: une fois tous les 60 jours) untuk éviter les abus.",
+                        "Avantage Max: Limite la fréquence à laquelle un client peut réclamer un cadeau de récupération (ex: une fois tous les 60 jours) pour éviter les abus.",
                         "Priorité: Si un client régulier revient après une longue absence, il reçoit d'abord l'offre de récupération plus élevée, puis retrouve son statut de fidélité normal."
                     ]
                 },
@@ -99,12 +105,15 @@ const LoyaltyDocumentation = ({ onBack, loyalConfig }) => {
             title: "دليل نظام الولاء",
             subtitle: "الاحتفاظ بالعملاء والمكافآت المؤتمتة",
             back: "العودة إلى الإعدادات",
+            loyalRewardLabel: "مكافأة الولاء (%)",
+            loyalRewardSub: "تطبق بعد 4 زيارات في 30 يوماً.",
             sections: [
                 {
                     title: "1. الترويج التلقائي العام",
                     icon: <HiSparkles className="text-orange-500" />,
                     text: "هذا هو المفتاح الرئيسي للنظام بأكمله. عندما يكون قيد التشغيل (ON)، يتعرف النظام على العملاء العائدين ويطبق الخصومات تلقائياً عند الدفع بناءً على حالتهم.",
                     image: "loyalty_config.png",
+                    configHighlight: true
                 },
                 {
                     title: "2. نظام الاستعادة",
@@ -132,7 +141,7 @@ const LoyaltyDocumentation = ({ onBack, loyalConfig }) => {
                     text: "افهم أداء نظامك بلمحة سريعة.",
                     image: "loyalty_stats.png",
                     subpoints: [
-                        "العملاء الأوفياء: إجمالي المستخدمين الفريدين حالياً في مستوى 'الولاء'.",
+                        "الالعملاء الأوفياء: إجمالي المستخدمين الفريدين حالياً في مستوى 'الولاء'.",
                         "العروض المطبقة: إجمالي عدد الخصومات التي تم استخدامها من قبل العملاء.",
                         "الإيرادات (الولاء): إجمالي المبيعات الناتجة تحديداً عن طلبات الولاء/الاستعادة."
                     ]
@@ -198,12 +207,33 @@ const LoyaltyDocumentation = ({ onBack, loyalConfig }) => {
                             </div>
                         </div>
 
+                        {section.configHighlight && (
+                            <div className="mb-8 p-6 bg-gray-50 dark:bg-black/20 rounded-3xl border border-dashed border-gray-200 dark:border-white/10">
+                                <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">
+                                    <HiTag className="w-4 h-4 text-yum-primary" /> {current.loyalRewardLabel}
+                                </label>
+                                <div className="flex items-center gap-4 mb-2">
+                                    <div className="px-6 py-3 bg-white dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/10 text-xl font-black text-yum-primary shadow-sm">
+                                        {loyalVal} <span className="text-sm opacity-50">%</span>
+                                    </div>
+                                    <p className="text-xs text-gray-500 font-medium italic">
+                                        {current.loyalRewardSub}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+
                         {section.image && (
-                            <div className="mb-8 rounded-2xl border border-gray-100 dark:border-white/5 overflow-hidden shadow-2xl">
+                            <div className="mb-8 rounded-2xl border border-gray-100 dark:border-white/5 overflow-hidden shadow-2xl bg-gray-50 dark:bg-black">
                                 <img
-                                    src={`/docs/${section.image}`}
+                                    src={section.image.startsWith('http') ? section.image : `/docs/${section.image}`}
                                     alt={section.title}
-                                    className="w-full h-auto"
+                                    className="w-full h-auto block"
+                                    onError={(e) => {
+                                        console.error(`Failed to load documentation image: ${section.image}`);
+                                        e.target.style.display = 'none';
+                                        e.target.parentNode.innerHTML = `<div class="p-10 text-center text-gray-400 text-xs italic">Visualization for ${section.title} (Image missing at /docs/${section.image})</div>`;
+                                    }}
                                 />
                             </div>
                         )}
