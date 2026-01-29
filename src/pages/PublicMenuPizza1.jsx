@@ -209,15 +209,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
             {/* Left Sidebar / Thumbnail List */}
             <div className="relative shrink-0 z-40 bg-white w-14 md:w-18 h-full flex flex-col items-center">
                 <div className="flex-1 w-full overflow-y-auto scroll-smooth no-scrollbar py-6 flex flex-col items-center">
-                    <button
-                        onClick={() => setShowAuthSidebar(true)}
-                        className="mb-6 p-4 rounded-[1.5rem] transition-all active:scale-95 flex items-center justify-center shrink-0"
-                        style={{
-                            color: config.themeColor,
-                        }}
-                    >
-                        <HiBars3 className="w-6 h-6" />
-                    </button>
+                    <div className="h-6 md:h-10 invisible" /> {/* Spacer instead of redundant menu icon */}
 
                     <motion.div
                         initial="hidden"
@@ -294,7 +286,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
             </div>
 
             {/* Main Content Area - Stable Stack */}
-            <div className="flex-1 flex flex-col min-h-screen relative min-w-0 bg-white">
+            <div className="flex-1 flex flex-col min-h-screen relative min-w-0 bg-white overflow-x-hidden">
                 {/* Sticky Navigation Layer - Compacted for Mobile */}
                 <div className="shrink-0 bg-white/95 backdrop-blur-md z-[80] shadow-sm border-b border-gray-50 pb-1">
                     <div className="px-4 md:px-6 pt-2 md:pt-4">
@@ -329,15 +321,15 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                     </div>
 
                     {/* Prominent Search Bar */}
-                    <div className="px-4 md:px-6 my-4 md:my-6 flex justify-center">
+                    <div className="px-4 md:px-6 my-4 md:my-6 flex justify-center sticky top-0 bg-white/80 backdrop-blur-sm z-50">
                         <div className="relative w-full max-w-xl mx-auto">
-                            <HiMagnifyingGlass className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <HiMagnifyingGlass className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                             <input
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder={t('search.placeholder') || "Search for your favorite pizza..."}
-                                className="w-full bg-white border border-gray-200 rounded-2xl md:rounded-[2rem] pl-12 md:pl-14 pr-12 py-3 md:py-5 text-sm md:text-lg font-bold text-gray-900 placeholder:text-gray-300 shadow-xl shadow-gray-100/50 transition-all focus:border-gray-900"
+                                className="w-full bg-white border-2 border-gray-100 rounded-full pl-14 pr-12 py-4 md:py-5 text-sm md:text-lg font-bold text-gray-900 placeholder:text-gray-300 shadow-lg shadow-gray-200/50 transition-all focus:border-gray-900"
                                 style={{ outline: 'none' }}
                             />
                             {searchQuery && (
@@ -434,38 +426,30 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                     </div>
                 )}
 
-                {/* Hero Image Zone - Premium Circular Animation */}
-                <div className="flex-1 flex items-center justify-center relative z-10 px-4 md:px-8 py-10 md:py-16 min-h-[45vh]">
-                    <div className="w-full max-w-[280px] md:max-w-[550px] lg:max-w-[700px] aspect-square relative shrink-0 flex items-center justify-center">
-                        {/* Decorative Rotating Border */}
-                        <motion.div
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                            className="absolute inset-0 rounded-full border-2 border-dashed border-gray-100/30 scale-110 pointer-events-none"
-                        />
-                        <motion.div
-                            animate={{ rotate: -360 }}
-                            transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-                            className="absolute inset-[-20px] rounded-full border border-gray-50 scale-125 pointer-events-none"
+                {/* Hero Image Zone - Perfect Circular Animation */}
+                <div className="flex-1 flex items-center justify-center relative z-10 px-4 md:px-8 py-10 md:py-20 min-h-[45vh]">
+                    <div className="relative w-[280px] h-[280px] md:w-[450px] md:h-[450px] lg:w-[550px] lg:h-[550px] flex items-center justify-center">
+                        {/* Decorative Continuous Rotating border */}
+                        <div
+                            className="absolute inset-[-15px] md:inset-[-30px] rounded-full border-2 border-dashed border-gray-200 animate-[spin_20s_linear_infinite] pointer-events-none opacity-40"
                         />
 
-                        <AnimatePresence mode="popLayout">
+                        <AnimatePresence mode="wait">
                             <motion.div
                                 key={selectedItem.id}
-                                initial={{ scale: 0.5, opacity: 0, rotate: -30 }}
+                                initial={{ scale: 0.7, opacity: 0, rotate: -20 }}
                                 animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                                exit={{ scale: 0.5, opacity: 0, rotate: 30 }}
-                                transition={{ type: "spring", stiffness: 120, damping: 20 }}
-                                className="relative w-full h-full z-10 flex items-center justify-center"
+                                exit={{ scale: 0.7, opacity: 0, rotate: 20 }}
+                                transition={{ type: "spring", damping: 20, stiffness: 100 }}
+                                className="w-full h-full rounded-full p-2 md:p-4 bg-white shadow-[0_40px_100px_rgba(0,0,0,0.12)] border-[10px] md:border-[16px] border-white overflow-hidden ring-1 ring-gray-50"
                             >
-                                <div className="w-full h-full rounded-full p-2 bg-white shadow-[0_40px_100px_rgba(0,0,0,0.1)] border-8 border-gray-50 overflow-hidden group">
-                                    <motion.img
-                                        whileHover={{ scale: 1.1 }}
-                                        src={selectedItem.image}
-                                        alt={localize(selectedItem, 'name')}
-                                        className="w-full h-full object-cover transition-transform duration-700"
-                                    />
-                                </div>
+                                <motion.img
+                                    whileHover={{ scale: 1.08 }}
+                                    transition={{ duration: 0.4 }}
+                                    src={selectedItem.image}
+                                    alt={localize(selectedItem, 'name')}
+                                    className="w-full h-full object-cover rounded-full"
+                                />
                             </motion.div>
                         </AnimatePresence>
                     </div>
