@@ -373,11 +373,11 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                             <AnimatePresence mode="wait">
                                 <motion.div
                                     key={selectedItem.id}
-                                    initial={{ scale: 0.7, opacity: 0, rotate: -20 }}
+                                    initial={{ scale: 0.8, opacity: 0, rotate: -15 }}
                                     animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                                    exit={{ scale: 0.7, opacity: 0, rotate: 20 }}
-                                    transition={{ type: "spring", damping: 20, stiffness: 100 }}
-                                    className="w-full h-full rounded-full p-2 md:p-3 bg-white shadow-[0_40px_100px_rgba(0,0,0,0.12)] border-[8px] md:border-[12px] border-white overflow-hidden ring-1 ring-gray-50"
+                                    exit={{ scale: 0.8, opacity: 0, rotate: 15 }}
+                                    transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                                    className="w-full h-full rounded-full bg-white shadow-[0_40px_100px_rgba(0,0,0,0.1)] overflow-hidden"
                                 >
                                     <motion.img
                                         whileHover={{ scale: 1.08 }}
@@ -390,13 +390,8 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                             </AnimatePresence>
                         </div>
 
-                        {/* 2. Product Info Section - Matching Reference Photo */}
-                        <motion.div
-                            key={`info-${selectedItem.id}`}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="w-full max-w-lg px-4 flex flex-col gap-6 md:gap-8 pb-10"
-                        >
+                        {/* 2. Product Info Section - Instant appearance (no animation) */}
+                        <div className="w-full max-w-lg px-4 flex flex-col gap-6 md:gap-8 pb-10">
                             {/* Name and Heart */}
                             <div className="flex items-start justify-between">
                                 <h2 className="text-3xl md:text-5xl font-black text-gray-900 leading-[0.9] tracking-tighter uppercase max-w-[80%]">
@@ -434,7 +429,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                                     </div>
                                 </motion.button>
                             </div>
-                        </motion.div>
+                        </div>
                     </div>
                 </div>
             </div>
