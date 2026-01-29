@@ -361,11 +361,11 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                         </motion.div>
                     </div>
 
-                    {/* Main Focus Zone - Hero Image + Info Section */}
-                    <div className="flex-1 flex flex-col items-center justify-center relative pt-2 md:pt-4 pb-0 overflow-y-auto no-scrollbar">
-                        {/* 1. Hero Image Zone - Dynamic Scaling */}
-                        <div className="flex-1 w-full flex items-center justify-center min-h-0 relative">
-                            <div className="relative w-[320px] h-[320px] sm:w-[380px] sm:h-[380px] md:w-[480px] md:h-[480px] lg:w-[560px] lg:h-[560px] max-w-[85vw] max-h-[50vh] flex items-center justify-center">
+                    {/* Main Focus Zone - Hero Image (80%) + Info (20%) */}
+                    <div className="flex-1 flex flex-col items-center justify-between relative pt-2 md:pt-4 pb-0 overflow-y-auto no-scrollbar">
+                        {/* 1. Hero Image Zone - 80% Height */}
+                        <div className="h-[80%] w-full flex items-center justify-center min-h-0 relative">
+                            <div className="relative w-[320px] h-[320px] sm:w-[380px] sm:h-[380px] md:w-[480px] md:h-[480px] lg:w-[560px] lg:h-[560px] max-w-[85vw] max-h-full flex items-center justify-center">
                                 <AnimatePresence mode="wait">
                                     <motion.div
                                         key={selectedItem.id}
@@ -387,8 +387,8 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                             </div>
                         </div>
 
-                        {/* 2. Product Info Section - Compact & Balanced */}
-                        <div className="w-full max-w-lg px-4 flex flex-col gap-3 md:gap-5 pb-4 shrink-0">
+                        {/* 2. Product Info Section - Remaining 20% Height */}
+                        <div className="h-[20%] w-full max-w-lg px-4 flex flex-col justify-center gap-2 md:gap-4 pb-4 shrink-0">
                             {/* Name and Heart */}
                             <div className="flex items-start justify-between">
                                 <h2 className="text-3xl md:text-5xl font-black text-gray-900 leading-[0.9] tracking-tighter uppercase max-w-[80%]">
