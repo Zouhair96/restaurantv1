@@ -11,7 +11,6 @@ import PersistentOrderTracker from '../components/PersistentOrderTracker';
 import { useClientAuth } from '../context/ClientAuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { isPromoActive, getDiscountedPrice, getPromosByDisplayStyle, getPromoFilteredItems } from '../utils/promoUtils';
-import WelcomeSequence from '../components/public-menu/WelcomeSequence';
 
 const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
     const { restaurantName: urlRestaurantName } = useParams();
@@ -231,7 +230,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
         }
     };
 
-    if (isLoading) return <div className="min-h-screen flex items-center justify-center text-green-500">{t('auth.menu.loading')}</div>;
+
     if (error) return <div className="min-h-screen flex items-center justify-center text-red-500">{error}</div>;
 
     return (
@@ -743,15 +742,6 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                     />
                 )
             }
-
-            {/* Welcome Animation Component */}
-            <WelcomeSequence
-                restaurantName={config.restaurantName}
-                themeColor={config.themeColor}
-                promoConfig={config.welcomePromo || {}}
-                loyaltyInfo={loyaltyInfo}
-                onShown={() => markWelcomeAsShown(restaurantName)}
-            />
 
             {/* Floating Badge Promotions Modal */}
             <AnimatePresence>
