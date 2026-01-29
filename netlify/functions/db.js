@@ -18,23 +18,45 @@ const isLocal = (process.env.DATABASE_URL || '').includes('localhost') || (proce
 
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL || FALLBACK_DB_URL,
-    max: 10, // Increased for better concurrency
-    idleTimeoutMillis: 30000, // Keep idle connections open longer
-    connectionTimeoutMillis: 10000, // Wait 10 seconds for Neon to wake up
+    max: 15,
+    idleTimeoutMillis: 60000,
+    connectionTimeoutMillis: 10000,
     ssl: isLocal ? false : {
         rejectUnauthorized: false
     }
 });
 
+// Cache the pool to prevent multiple instances in serverless environments
+let isPoolInitialized = false;
+
 export const query = async (text, params) => {
+    const start = Date.now();
     try {
-        return await pool.query(text, params);
+        // Simple connectivity check if first time
+        if (!isPoolInitialized) {
+            await pool.query('SELECT 1');
+            isPoolInitialized = true;
+            console.log('Database pool initialized successfully');
+        }
+
+        const res = await pool.query(text, params);
+        const duration = Date.now() - start;
+        if (duration > 5000) {
+            console.warn(`Slow query (${duration}ms):`, text);
+        }
+        return res;
     } catch (error) {
         console.error("Database Query Error:", {
             message: error.message,
-            stack: error.stack,
-            query: text
+            query: text,
+            params: params ? JSON.stringify(params) : 'none'
         });
+
+        // Handle specific connection errors
+        if (error.message.includes('timeout') || error.message.includes('connection')) {
+            throw new Error("The database is currently waking up or under high load. Please try again in a few seconds.");
+        }
+
         throw error;
     }
 };
