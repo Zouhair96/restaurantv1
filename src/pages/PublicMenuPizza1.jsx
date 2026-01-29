@@ -434,21 +434,20 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                     </div>
                 )}
 
-                {/* Hero Image & Animation Container - Shifted further up as requested */}
-                <div className="flex-1 flex items-center justify-start p-0 relative min-h-[400px] pointer-events-none mt-[-40px] md:mt-[-80px] overflow-visible">
-                    <div className="w-[110vw] h-[110vw] max-w-[650px] max-h-[650px] relative z-10 aspect-square shrink-0 translate-x-[10%] md:translate-x-[15%] -translate-y-[10%] md:-translate-y-[15%]">
+                {/* Hero Image & Animation Container - Shifted even further up and horizontal animation */}
+                <div className="flex-1 flex items-center justify-start p-0 relative min-h-[400px] pointer-events-none mt-[-60px] md:mt-[-100px] overflow-visible">
+                    <div className="w-[110vw] h-[110vw] max-w-[650px] max-h-[650px] relative z-10 aspect-square shrink-0 translate-x-[10%] md:translate-x-[15%] -translate-y-[15%] md:-translate-y-[20%]">
                         <AnimatePresence mode="popLayout">
                             <motion.div
                                 key={selectedItem.id}
-                                initial={{ x: 300, y: 300, rotate: 120, opacity: 0, scale: 0.8 }}
-                                animate={{ x: 0, y: 0, rotate: 0, opacity: 1, scale: 1 }}
-                                exit={{ x: -300, y: -300, rotate: -120, opacity: 0, scale: 0.8 }}
+                                initial={{ x: 200, opacity: 0, scale: 0.9 }}
+                                animate={{ x: 0, opacity: 1, scale: 1 }}
+                                exit={{ x: -200, opacity: 0, scale: 0.9 }}
                                 transition={{
                                     type: "spring",
-                                    stiffness: 80,
+                                    stiffness: 100,
                                     damping: 20,
-                                    mass: 0.8,
-                                    opacity: { duration: 0.4 }
+                                    mass: 0.8
                                 }}
                                 className="absolute inset-0 w-full h-full rounded-full border-none z-10"
                             >
