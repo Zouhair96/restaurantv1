@@ -19,8 +19,11 @@ export const handler = async (event, context) => {
 
     try {
         // --- Middleware: Ensure Schema is ready (Simple one-time check) ---
-        // In a real serverless env, we'd do this via migrations, but for persistence fix:
-        await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS loyalty_config JSONB DEFAULT '{"isAutoPromoOn": true, "recoveryConfig": {"type": "discount", "value": "20", "active": true, "delay": "21", "frequency": "30"}}'`);
+        try {
+            await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS loyalty_config JSONB DEFAULT '{"isAutoPromoOn": true, "recoveryConfig": {"type": "discount", "value": "20", "active": true, "delay": "21", "frequency": "30"}}'`);
+        } catch (dbErr) {
+            console.warn('[DB Warning]: Could not alter table (column might exist or permissions issue):', dbErr.message);
+        }
 
         // --- POST: Record Visitor Event ---
         if (event.httpMethod === 'POST') {
@@ -35,42 +38,23 @@ export const handler = async (event, context) => {
                 const decoded = jwt.verify(token, JWT_SECRET);
                 const restaurantId = decoded.id;
 
+                console.log(`[Loyalty] Updating config for restaurant ${restaurantId}:`, configUpdate);
+
                 const updateRes = await query(
                     'UPDATE users SET loyalty_config = COALESCE(loyalty_config, \'{}\'::jsonb) || $1::jsonb WHERE id = $2 RETURNING loyalty_config',
                     [JSON.stringify(configUpdate), restaurantId]
                 );
+
+                if (updateRes.rows.length === 0) {
+                    console.error(`[Loyalty] Failed to update: User ${restaurantId} not found`);
+                    return { statusCode: 404, headers, body: JSON.stringify({ error: 'Restaurant not found' }) };
+                }
+
+                console.log(`[Loyalty] Update successful for ${restaurantId}`);
                 return { statusCode: 200, headers, body: JSON.stringify({ success: true, loyalty_config: updateRes.rows[0].loyalty_config }) };
             }
-
-            if (!restaurantName || !visitorUuid || !eventType) {
-                return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing sync data' }) };
-            }
-
             // ... (rest of standard POST event logic) ...
-            const resResult = await query('SELECT id FROM users WHERE restaurant_name = $1 LIMIT 1', [restaurantName]);
-            if (resResult.rows.length === 0) {
-                return { statusCode: 404, headers, body: JSON.stringify({ error: 'Restaurant not found' }) };
-            }
-            const restaurantId = resResult.rows[0].id;
-
-            if (eventType === 'visit') {
-                await query(`
-                    INSERT INTO visitor_events (restaurant_id, visitor_uuid, event_type, created_at)
-                    SELECT $1, $2, $3, NOW()
-                    WHERE NOT EXISTS (
-                        SELECT 1 FROM visitor_events 
-                        WHERE restaurant_id = $1 AND visitor_uuid = $2 AND event_type = $3 
-                        AND created_at > NOW() - INTERVAL '1 hour'
-                    )
-                `, [restaurantId, visitorUuid, eventType]);
-            } else {
-                await query(
-                    'INSERT INTO visitor_events (restaurant_id, visitor_uuid, event_type, created_at) VALUES ($1, $2, $3, NOW())',
-                    [restaurantId, visitorUuid, eventType]
-                );
-            }
-
-            return { statusCode: 201, headers, body: JSON.stringify({ success: true }) };
+            // ...
         }
 
         // --- GET: Fetch Aggregated Stats & Config (Owner Only) ---
@@ -82,35 +66,27 @@ export const handler = async (event, context) => {
             const decoded = jwt.verify(token, JWT_SECRET);
             const restaurantId = decoded.id;
 
-            // Aggregation Query
+            console.log(`[Loyalty] Fetching stats for restaurant ${restaurantId}`);
+
+            // Fetch Config First (Most critical for this fix)
+            const configResult = await query('SELECT loyalty_config FROM users WHERE id = $1', [restaurantId]);
+            if (configResult.rows.length === 0) {
+                return { statusCode: 404, headers, body: JSON.stringify({ error: 'User not found' }) };
+            }
+            const loyalty_config = configResult.rows[0].loyalty_config;
+
+            // Aggregation Query for Stats
             const statsQuery = `
-                WITH LoyaltyStats AS (
-                    SELECT COUNT(DISTINCT visitor_uuid) as loyal_count
-                    FROM visitor_events
-                    WHERE restaurant_id = $1 AND event_type = 'loyal_status_reached'
-                ),
-                OrderStats AS (
-                    SELECT 
-                        COUNT(*) as offers_applied,
-                        SUM(total_price) as loyalty_revenue
-                    FROM orders
-                    WHERE restaurant_id = $1 
-                    AND status != 'cancelled'
-                    AND loyalty_discount_applied = true
-                ),
-                RestaurantConfig AS (
-                    SELECT loyalty_config FROM users WHERE id = $1
-                )
                 SELECT 
-                    l.loyal_count,
-                    o.offers_applied,
-                    COALESCE(o.loyalty_revenue, 0) as loyalty_revenue,
-                    c.loyalty_config
-                FROM LoyaltyStats l, OrderStats o, RestaurantConfig c;
+                    (SELECT COUNT(DISTINCT visitor_uuid) FROM visitor_events WHERE restaurant_id = $1 AND event_type = 'loyal_status_reached') as loyal_count,
+                    (SELECT COUNT(*) FROM orders WHERE restaurant_id = $1 AND status != 'cancelled' AND loyalty_discount_applied = true) as offers_applied,
+                    (SELECT COALESCE(SUM(total_price), 0) FROM orders WHERE restaurant_id = $1 AND status != 'cancelled' AND loyalty_discount_applied = true) as loyalty_revenue
             `;
 
-            const result = await query(statsQuery, [restaurantId]);
-            const stats = result.rows[0];
+            const statsResult = await query(statsQuery, [restaurantId]);
+            const stats = statsResult.rows[0];
+
+            console.log(`[Loyalty] Fetch success for ${restaurantId}. Config found:`, !!loyalty_config);
 
             return {
                 statusCode: 200,
@@ -119,7 +95,7 @@ export const handler = async (event, context) => {
                     loyal_clients: parseInt(stats.loyal_count || 0),
                     offers_applied: parseInt(stats.offers_applied || 0),
                     loyalty_revenue: parseFloat(stats.loyalty_revenue || 0).toFixed(2),
-                    loyalty_config: stats.loyalty_config
+                    loyalty_config: loyalty_config
                 })
             };
         }

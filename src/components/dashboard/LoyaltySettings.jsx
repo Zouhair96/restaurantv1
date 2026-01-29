@@ -19,18 +19,30 @@ const LoyaltySettings = ({ onUpdate }) => {
         const fetchConfig = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch('/.netlify/functions/loyalty-analytics', {
+                console.log('[Loyalty] Fetching config...');
+                const response = await fetch('/api/loyalty-analytics', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (response.ok) {
                     const data = await response.json();
+                    console.log('[Loyalty] Loaded data:', data);
                     if (data.loyalty_config) {
-                        setIsAutoPromoOn(data.loyalty_config.isAutoPromoOn);
-                        setRecoveryConfig(data.loyalty_config.recoveryConfig);
+                        const config = data.loyalty_config;
+                        if (config.isAutoPromoOn !== undefined) {
+                            setIsAutoPromoOn(config.isAutoPromoOn);
+                        }
+                        if (config.recoveryConfig) {
+                            setRecoveryConfig(prev => ({
+                                ...prev,
+                                ...config.recoveryConfig
+                            }));
+                        }
                     }
+                } else {
+                    console.error('[Loyalty] Fetch failed:', response.status, await response.text());
                 }
             } catch (err) {
-                console.error('Failed to load loyalty config:', err);
+                console.error('[Loyalty] Failed to load loyalty config:', err);
             } finally {
                 setLoading(false);
             }
@@ -42,7 +54,8 @@ const LoyaltySettings = ({ onUpdate }) => {
     const saveConfig = async (updates) => {
         try {
             const token = localStorage.getItem('token');
-            await fetch('/.netlify/functions/loyalty-analytics', {
+            console.log('[Loyalty] Saving updates:', updates);
+            const response = await fetch('/api/loyalty-analytics', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -50,8 +63,13 @@ const LoyaltySettings = ({ onUpdate }) => {
                 },
                 body: JSON.stringify({ configUpdate: updates })
             });
+            if (!response.ok) {
+                console.error('[Loyalty] Save failed:', response.status, await response.text());
+            } else {
+                console.log('[Loyalty] Save successful');
+            }
         } catch (err) {
-            console.error('Failed to save loyalty config:', err);
+            console.error('[Loyalty] Failed to save loyalty config:', err);
         }
     };
 
@@ -60,7 +78,6 @@ const LoyaltySettings = ({ onUpdate }) => {
         setRecoveryConfig(updated);
         setIsRecoveryModalOpen(false);
         saveConfig({ recoveryConfig: updated });
-        onUpdate?.(updated);
     };
 
     const handleToggleAutoPromo = (checked) => {
