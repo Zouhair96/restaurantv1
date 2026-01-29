@@ -441,9 +441,9 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                     </div>
                 )}
 
-                {/* Hero Image & Animation Container - Larger and shifted right like the reference */}
-                <div className="flex-1 flex items-center justify-start p-0 relative min-h-[400px] pointer-events-none mt-2 overflow-visible">
-                    <div className="w-[110vw] h-[110vw] max-w-[650px] max-h-[650px] relative z-10 aspect-square shrink-0 translate-x-[10%] md:translate-x-[15%]">
+                {/* Hero Image & Animation Container - Larger and shifted right/up like the reference */}
+                <div className="flex-1 flex items-center justify-start p-0 relative min-h-[400px] pointer-events-none mt-[-20px] md:mt-[-40px] overflow-visible">
+                    <div className="w-[110vw] h-[110vw] max-w-[650px] max-h-[650px] relative z-10 aspect-square shrink-0 translate-x-[10%] md:translate-x-[15%] -translate-y-[5%] md:-translate-y-[8%]">
                         <AnimatePresence mode="popLayout">
                             <motion.div
                                 key={selectedItem.id}
