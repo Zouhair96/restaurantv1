@@ -113,7 +113,7 @@ export const handler = async (event, context) => {
             statusCode: 500,
             headers,
             body: JSON.stringify({
-                error: 'Internal Server Error',
+                error: 'Sales statistics currently unavailable',
                 details: error.message
             })
         };

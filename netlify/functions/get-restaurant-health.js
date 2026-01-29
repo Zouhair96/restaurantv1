@@ -106,7 +106,7 @@ export const handler = async (event, context) => {
             statusCode: 500,
             headers,
             body: JSON.stringify({
-                error: 'Internal Server Error',
+                error: 'Health metrics currently unavailable',
                 details: error.message
             })
         };

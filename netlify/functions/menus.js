@@ -1,21 +1,21 @@
 import { query } from './db.js';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 // Helper to verify token
 const getUserFromToken = (headers) => {
     const authHeader = headers.authorization || headers.Authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
+    if (!authHeader) return null;
 
-    const token = authHeader.split(' ')[1];
+    const token = authHeader.replace('Bearer ', '');
     try {
         const secret = process.env.JWT_SECRET;
-        if (!secret) {
-            console.error("CRITICAL: JWT_SECRET missing in menus.js");
-            return null;
-        }
+        if (!secret) return null;
         return jwt.verify(token, secret);
     } catch (e) {
-        console.error("JWT Verification failed in menus.js:", e.message);
+        console.error("JWT Error:", e.message);
         return null;
     }
 };
