@@ -5,7 +5,9 @@ import { useLanguage } from '../../context/LanguageContext';
 const WelcomeSequence = ({
     restaurantName,
     themeColor = '#f97316',
-    promoConfig = {}
+    promoConfig = {},
+    loyaltyInfo,
+    onShown
 }) => {
     const { t, language } = useLanguage();
     // Extract config with defaults
@@ -24,7 +26,11 @@ const WelcomeSequence = ({
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
-        if (!showWelcomePromo) {
+        // Only show if:
+        // 1. Config says so
+        // 2. Loyalty info acknowledges user is NEW
+        // 3. Welcome hasn't been shown yet for THIS restaurant
+        if (!showWelcomePromo || (loyaltyInfo && loyaltyInfo.status !== 'NEW') || (loyaltyInfo && loyaltyInfo.welcomeShown)) {
             setPhase('hidden');
             return;
         }
@@ -50,6 +56,7 @@ const WelcomeSequence = ({
 
     const handleClose = () => {
         setIsVisible(false);
+        if (onShown) onShown();
         setTimeout(() => setPhase('hidden'), 500); // Wait for transition
     };
 
