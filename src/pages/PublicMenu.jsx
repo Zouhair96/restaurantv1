@@ -4,6 +4,7 @@ import PublicMenuPizza1 from './PublicMenuPizza1'
 import PublicMenuTestemplate from './PublicMenuTestemplate'
 import { useLanguage } from '../context/LanguageContext'
 import { useLoyalty } from '../context/LoyaltyContext'
+import { useCart } from '../context/CartContext'
 
 const PublicMenu = () => {
     const { restaurantName, templateKey } = useParams()
@@ -12,6 +13,7 @@ const PublicMenu = () => {
     const [error, setError] = useState(null)
     const { t } = useLanguage()
     const { trackVisit } = useLoyalty()
+    const { setContextScope } = useCart()
 
     useEffect(() => {
         const fetchMenu = async () => {
@@ -51,6 +53,8 @@ const PublicMenu = () => {
                     // Centralized Loyalty Tracking
                     if (restaurantName) {
                         trackVisit(restaurantName);
+                        // Isolate Cart for this Restaurant
+                        setContextScope(restaurantName);
                     }
                 }
             } catch (err) {
