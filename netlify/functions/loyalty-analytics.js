@@ -159,9 +159,8 @@ export const handler = async (event, context) => {
             statusCode: 500,
             headers,
             body: JSON.stringify({
-                error: 'Failed to process analytics',
-                details: error.message,
-                hint: "Ensure your DB columns exist"
+                error: 'Internal Server Error',
+                details: error.message
             })
         };
     }

@@ -54,7 +54,7 @@ export const handler = async (event, context) => {
         const token = jwt.sign(
             { id: user.id, email: user.email, role: user.role },
             secret,
-            { expiresIn: '1h' }
+            { expiresIn: '7d' }
         );
 
         // Return user info (excluding hash)

@@ -38,6 +38,9 @@ CREATE TABLE IF NOT EXISTS users (
     -- Client Auth fields
     registered_at_restaurant_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
     
+    -- Loyalty System Config
+    loyalty_config JSONB DEFAULT '{"isAutoPromoOn": true, "recoveryConfig": {"type": "discount", "value": "20", "active": true, "delay": "21", "frequency": "30"}}',
+
     -- Metadata
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -85,12 +88,26 @@ CREATE TABLE IF NOT EXISTS orders (
     external_id TEXT,
     customer_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
     
+    -- Loyalty and Promo Tracking
+    loyalty_discount_applied BOOLEAN DEFAULT FALSE,
+    loyalty_discount_amount NUMERIC(12, 2) DEFAULT 0.00,
+    loyalty_gift_item TEXT,
+
     -- Timestamps and Status Extensions
     accepted_at TIMESTAMP WITH TIME ZONE,
     is_auto_accepted BOOLEAN DEFAULT FALSE,
     commission_recorded BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Visitor Events tracking (For Loyalty analytics)
+CREATE TABLE IF NOT EXISTS visitor_events (
+    id SERIAL PRIMARY KEY,
+    restaurant_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    visitor_uuid TEXT NOT NULL,
+    event_type TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Integrations and Platform Settings
