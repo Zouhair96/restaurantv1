@@ -14,6 +14,9 @@ const LoyaltySettings = ({ onUpdate }) => {
         delay: '21',
         frequency: '30'
     });
+    const [loyalConfig, setLoyalConfig] = useState({
+        value: '15'
+    });
     const [showDocumentation, setShowDocumentation] = useState(false);
 
     // 1. Fetch Config on Mount
@@ -37,6 +40,12 @@ const LoyaltySettings = ({ onUpdate }) => {
                             setRecoveryConfig(prev => ({
                                 ...prev,
                                 ...config.recoveryConfig
+                            }));
+                        }
+                        if (config.loyalConfig) {
+                            setLoyalConfig(prev => ({
+                                ...prev,
+                                ...config.loyalConfig
                             }));
                         }
                     }
@@ -103,7 +112,10 @@ const LoyaltySettings = ({ onUpdate }) => {
         <div className="space-y-6 animate-fade-in mb-10">
             {/* Documentation View */}
             {showDocumentation ? (
-                <LoyaltyDocumentation onBack={() => setShowDocumentation(false)} />
+                <LoyaltyDocumentation
+                    onBack={() => setShowDocumentation(false)}
+                    loyalConfig={loyalConfig}
+                />
             ) : (
                 <>
                     {/* Main Loyalty Grid */}
@@ -127,8 +139,29 @@ const LoyaltySettings = ({ onUpdate }) => {
                             </div>
                             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Global Auto-Promo</h3>
                             <p className="text-gray-500 text-xs mb-4">Automatically activate all loyalty offers and recovery campaigns.</p>
-                            <div className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${isAutoPromoOn ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
+                            <div className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-6 ${isAutoPromoOn ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
                                 {isAutoPromoOn ? 'System Online' : 'System Paused'}
+                            </div>
+
+                            <div className="pt-6 border-t border-gray-100 dark:border-white/5 space-y-4">
+                                <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                    <HiTag className="w-4 h-4" /> Loyal Reward (%)
+                                </label>
+                                <div className="relative group">
+                                    <input
+                                        type="number"
+                                        value={loyalConfig.value}
+                                        onChange={(e) => {
+                                            const updated = { ...loyalConfig, value: e.target.value };
+                                            setLoyalConfig(updated);
+                                            saveConfig({ loyalConfig: updated });
+                                        }}
+                                        className="w-full px-5 py-3 rounded-xl border border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-gray-900 dark:text-white font-bold outline-none focus:ring-2 focus:ring-yum-primary/20"
+                                        placeholder="15"
+                                    />
+                                    <span className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 font-bold">%</span>
+                                </div>
+                                <p className="text-[10px] text-gray-400 italic">Applied after 4 visits in 30 days.</p>
                             </div>
                         </div>
 

@@ -225,10 +225,13 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
 
     // 3. LOYAL Status Logic (4 visits / 30 days)
     if (loyaltyInfo.status === 'LOYAL') {
-        const discountValue = 0.15;
+        const loyalOffer = config.loyalConfig || config.loyal_offer || { value: '15' };
+        const discountPercentage = parseFloat(loyalOffer.value) || 15;
+        const discountFactor = discountPercentage / 100;
+
         return {
-            discount: orderTotal * discountValue,
-            reason: 'Loyal Customer Reward (15%)'
+            discount: orderTotal * discountFactor,
+            reason: `Loyal Customer Reward (${discountPercentage}%)`
         };
     }
 

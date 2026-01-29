@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { HiArrowLeft, HiSparkles, HiArrowPath, HiClock, HiCalendarDays, HiFire, HiUserGroup, HiTag, HiCurrencyDollar } from 'react-icons/hi2';
 
-const LoyaltyDocumentation = ({ onBack }) => {
+const LoyaltyDocumentation = ({ onBack, loyalConfig }) => {
     const [lang, setLang] = useState('en');
+
+    const loyalVal = loyalConfig?.value || '15';
 
     const content = {
         en: {
@@ -32,7 +34,7 @@ const LoyaltyDocumentation = ({ onBack }) => {
                     text: "Automatic rewards for your most frequent fans.",
                     subpoints: [
                         "Soft Status: First few visits. No discount yet, but the system is tracking progress.",
-                        "Loyal Status: Reached after 4 visits in 30 days. Unlocks a consistent 15% discount.",
+                        `Loyal Status: Reached after 4 visits in 30 days. Unlocks a consistent ${loyalVal}% discount.`,
                         "Safety Rule: Visits are only counted once every 4 hours to ensure fair use."
                     ]
                 },
@@ -76,7 +78,7 @@ const LoyaltyDocumentation = ({ onBack }) => {
                     text: "Récompenses automatiques pour vos fans les plus fréquents.",
                     subpoints: [
                         "Statut Soft: Premières visites. Pas encore de remise, mais le système suit la progression.",
-                        "Statut Loyal: Atteint après 4 visites en 30 jours. Débloque une remise constante de 15%.",
+                        `Statut Loyal: Atteint après 4 visites en 30 jours. Débloque une remise constante de ${loyalVal}%.`,
                         "Règle de Sécurité: Les visites ne sont comptées qu'une fois toutes les 4 heures pour garantir une utilisation équitable."
                     ]
                 },
@@ -120,7 +122,7 @@ const LoyaltyDocumentation = ({ onBack }) => {
                     text: "مكافآت تلقائية لمعجبيك الأكثر تردداً.",
                     subpoints: [
                         "الحالة المرنة (Soft): الزيارات القليلة الأولى. لا توجد خصومات بعد، لكن النظام يتتبع التقدم.",
-                        "حالة الولاء (Loyal): يتم الوصول إليها بعد 4 زيارات في 30 يوماً. تفتح خصماً ثابتاً بنسبة 15%.",
+                        `حالة الولاء (Loyal): يتم الوصول إليها بعد 4 زيارات في 30 يوماً. تفتح خصماً ثابتاً بنسبة ${loyalVal}%.`,
                         "قاعدة الأمان: يتم احتساب الزيارات مرة واحدة فقط كل 4 ساعات لضمان الاستخدام العادل."
                     ]
                 },
