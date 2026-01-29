@@ -543,17 +543,19 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                         dragConstraints={{ left: 0, right: 0 }}
                         dragElastic={0.2}
                         onDragEnd={(e, info) => {
-                            if (info.offset.x < -100) handleNextItem();
-                            else if (info.offset.x > 100) handlePrevItem();
+                            // More sensitive threshold for switching items
+                            if (info.offset.x < -50) handleNextItem();
+                            else if (info.offset.x > 50) handlePrevItem();
                         }}
                         onPan={(e, info) => {
+                            // Swipe down to close
                             if (info.offset.y > 100) setIsFullDetailsOpen(false);
                         }}
                         initial={{ y: "100%" }}
                         animate={{ y: 0 }}
                         exit={{ y: "100%" }}
                         transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                        className="fixed inset-0 z-[100] bg-white flex flex-col touch-none"
+                        className="fixed inset-0 z-[100] bg-white flex flex-col"
                     >
                         {/* Header Area */}
                         <div className="px-6 py-4 flex items-center justify-between border-b border-gray-50 bg-white sticky top-0 z-10">
