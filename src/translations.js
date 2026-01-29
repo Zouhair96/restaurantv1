@@ -263,7 +263,11 @@ export const translations = {
                 differentKind: "Un autre genre de cuisine",
                 oops: "Oups !",
                 checkUrl: "Vérifiez l'URL ou contactez le restaurant.",
-                noMenu: "Aucun menu publié pour le moment."
+                noMenu: "Aucun menu publié pour le moment.",
+                ingredients: "Ingrédients"
+            },
+            search: {
+                placeholder: "Rechercher un plat..."
             }
         }
     },
@@ -531,7 +535,11 @@ export const translations = {
                 differentKind: "Different kind of food",
                 oops: "Oops!",
                 checkUrl: "Check the URL or contact the restaurant.",
-                noMenu: "No menu published yet."
+                noMenu: "No menu published yet.",
+                ingredients: "Ingredients"
+            },
+            search: {
+                placeholder: "Search for a dish..."
             }
         }
     }
