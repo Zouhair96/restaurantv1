@@ -26,12 +26,16 @@ export const LoyaltyProvider = ({ children }) => {
 
     const syncLoyaltyEvent = async (restaurantName, eventType) => {
         try {
-            await fetch('/.netlify/functions/loyalty-analytics', {
+            // Robust ID check: use state if available, otherwise fallback to storage
+            const visitorId = clientId || localStorage.getItem('loyalty_client_id');
+            if (!visitorId || !restaurantName) return;
+
+            await fetch('/api/loyalty-analytics', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     restaurantName,
-                    visitorUuid: clientId,
+                    visitorUuid: visitorId,
                     eventType
                 })
             });

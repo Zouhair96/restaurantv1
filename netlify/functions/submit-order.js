@@ -25,12 +25,29 @@ export const handler = async (event, context) => {
     }
 
     try {
+        // --- Middleware: Ensure Schema is ready ---
+        // We add all columns that might be missing from older schemas
+        try {
+            await query(`
+                ALTER TABLE orders 
+                ADD COLUMN IF NOT EXISTS customer_id INTEGER,
+                ADD COLUMN IF NOT EXISTS commission_amount DECIMAL(10, 2) DEFAULT 0.00,
+                ADD COLUMN IF NOT EXISTS payment_status TEXT DEFAULT 'pending',
+                ADD COLUMN IF NOT EXISTS loyalty_discount_applied BOOLEAN DEFAULT false,
+                ADD COLUMN IF NOT EXISTS loyalty_discount_amount NUMERIC DEFAULT 0,
+                ADD COLUMN IF NOT EXISTS stripe_checkout_session_id TEXT
+            `);
+        } catch (dbErr) {
+            console.warn('[DB Warning]: Could not ensure orders schema:', dbErr.message);
+        }
+
+        const body = JSON.parse(event.body);
         const {
             restaurantName, orderType, tableNumber, deliveryAddress,
             paymentMethod, items, totalPrice,
             loyalty_discount_applied = false,
             loyalty_discount_amount = 0
-        } = JSON.parse(event.body);
+        } = body;
 
         // Optional: Get customer ID from token if present
         let customerId = null;
