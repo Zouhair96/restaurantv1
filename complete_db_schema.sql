@@ -41,6 +41,9 @@ CREATE TABLE IF NOT EXISTS users (
     -- Loyalty System Config
     loyalty_config JSONB DEFAULT '{"isAutoPromoOn": true, "recoveryConfig": {"type": "discount", "value": "20", "active": true, "delay": "21", "frequency": "30"}}',
 
+    -- Order Numbering Config
+    order_number_config JSONB DEFAULT '{"starting_number": 1, "current_number": 1, "reset_period": "never", "weekly_start_day": 1, "last_reset_date": null}',
+
     -- Metadata
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -71,6 +74,9 @@ CREATE TABLE IF NOT EXISTS orders (
     items JSONB NOT NULL,
     total_price DECIMAL(10, 2) NOT NULL,
     commission_amount DECIMAL(10, 2) DEFAULT 0.00,
+    
+    -- Per-Restaurant Order Number
+    order_number INTEGER,
     
     -- Payment Details
     payment_status TEXT DEFAULT 'pending' CHECK (payment_status IN ('pending', 'paid', 'failed', 'refunded', 'pending_cash')),

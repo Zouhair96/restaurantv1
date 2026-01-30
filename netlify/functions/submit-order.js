@@ -2,6 +2,7 @@ import { query } from './db.js';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { getStripe } from './utils/stripe-client.js';
+import { getNextOrderNumber } from './utils/order-number.js';
 
 export const handler = async (event, context) => {
     // Allow CORS
@@ -132,16 +133,47 @@ export const handler = async (event, context) => {
         const currency = stripeConfig.currency || 'eur';
         const commissionAmount = parseFloat(totalPrice) * commissionRate;
 
+        // Get restaurant's order numbering config and generate next order number
+        const configResult = await query(
+            'SELECT order_number_config FROM users WHERE id = $1',
+            [restaurantId]
+        );
+        const orderNumberConfig = configResult.rows[0]?.order_number_config || {
+            starting_number: 1,
+            current_number: 1,
+            reset_period: 'never',
+            weekly_start_day: 1,
+            last_reset_date: null
+        };
+
+        const { order_number, new_current, last_reset_date } = getNextOrderNumber(orderNumberConfig);
+
+        // Update restaurant's order number config
+        await query(
+            `UPDATE users 
+             SET order_number_config = jsonb_set(
+                 jsonb_set(
+                     order_number_config,
+                     '{current_number}',
+                     $1::text::jsonb
+                 ),
+                 '{last_reset_date}',
+                 $2::text::jsonb
+             )
+             WHERE id = $3`,
+            [new_current, last_reset_date ? `"${last_reset_date}"` : 'null', restaurantId]
+        );
+
         // Insert order with null-safe parameters
         const orderResult = await query(
             `INSERT INTO orders (
                 restaurant_id, order_type, table_number, delivery_address, 
                 payment_method, items, total_price, status, customer_id, 
-                commission_amount, payment_status,
+                commission_amount, payment_status, order_number,
                 loyalty_discount_applied, loyalty_discount_amount, loyalty_gift_item,
                 created_at, updated_at
             )
-             VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending', $8, $9, $10, $11, $12, $13, NOW(), NOW())
+             VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending', $8, $9, $10, $11, $12, $13, $14, NOW(), NOW())
              RETURNING id, created_at`,
             [
                 restaurantId,
@@ -154,6 +186,7 @@ export const handler = async (event, context) => {
                 customerId,
                 commissionAmount,
                 paymentMethod === 'cash' ? 'pending_cash' : 'pending',
+                order_number,
                 loyalty_discount_applied,
                 loyalty_discount_amount,
                 loyalty_gift_item
