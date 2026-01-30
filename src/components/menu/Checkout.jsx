@@ -87,7 +87,9 @@ const Checkout = ({
             setIsSubmitted(true);
 
             // Mark reward as used if applicable
+            console.log('[Checkout] Order Submitted. Checking Loyalty:', { loyaltyDiscount, loyaltyGift });
             if (loyaltyDiscount > 0 || loyaltyGift) {
+                console.log('[Checkout] Triggering markRewardAsUsed');
                 markRewardAsUsed(restaurantName);
             }
 

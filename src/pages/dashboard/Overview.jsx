@@ -25,6 +25,10 @@ const Overview = () => {
         if (user) {
             loadMenus()
             fetchLoyaltyStats()
+
+            // Poll for real-time updates every 10 seconds
+            const intervalId = setInterval(fetchLoyaltyStats, 10000)
+            return () => clearInterval(intervalId)
         }
     }, [user])
 
