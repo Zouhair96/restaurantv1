@@ -235,17 +235,32 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
         };
     }
 
-    // 4. NEW/WELCOME Status Logic (1st Visit)
+    // 4. NEW/WELCOME Status Logic
+    // Changed: 1st visit = teaser only, 2nd+ visit = actual discount
     if (loyaltyInfo.status === 'NEW' && !loyaltyInfo.welcomeRedeemed) {
         const welcomeOffer = config.welcomeConfig || { value: '10', active: true }; // Default to 10%
+        const visitCount = loyaltyInfo.totalVisits || 0;
 
         if (welcomeOffer.active !== false) {
             const discountPercentage = parseFloat(welcomeOffer.value) || 0;
-            if (discountPercentage > 0) {
+
+            // 1st visit: Show teaser, no discount
+            if (visitCount === 1) {
+                return {
+                    discount: 0,
+                    reason: null,
+                    welcomeTeaser: true,
+                    teaserMessage: `Welcome offer activated! Next time you get ${discountPercentage}% off your order`
+                };
+            }
+
+            // 2nd+ visit: Apply actual discount
+            if (visitCount >= 2 && discountPercentage > 0) {
                 const discountFactor = discountPercentage / 100;
                 return {
                     discount: orderTotal * discountFactor,
-                    reason: `Welcome Offer (${discountPercentage}%)`
+                    reason: `Welcome Offer (${discountPercentage}%)`,
+                    welcomeTeaser: false
                 };
             }
         }

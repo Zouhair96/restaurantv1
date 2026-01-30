@@ -86,6 +86,16 @@ export const ClientAuthProvider = ({ children }) => {
                     if (!completedAt) {
                         completedAt = Date.now().toString();
                         safeStorage.setItem(storageKey, completedAt);
+
+                        // Dispatch event for loyalty system to mark reward as used
+                        if (activeOrder.loyalty_discount_applied) {
+                            window.dispatchEvent(new CustomEvent('orderCompleted', {
+                                detail: {
+                                    orderId: activeOrderId,
+                                    restaurantName: activeOrder.restaurant_name
+                                }
+                            }));
+                        }
                     }
 
                     const elapsed = Date.now() - parseInt(completedAt);

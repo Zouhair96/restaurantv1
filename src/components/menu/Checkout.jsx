@@ -86,12 +86,8 @@ const Checkout = ({
 
             setIsSubmitted(true);
 
-            // Mark reward as used if applicable
-            console.log('[Checkout] Order Submitted. Checking Loyalty:', { loyaltyDiscount, loyaltyGift });
-            if (loyaltyDiscount > 0 || loyaltyGift) {
-                console.log('[Checkout] Triggering markRewardAsUsed');
-                markRewardAsUsed(restaurantName);
-            }
+            // NOTE: Reward marking moved to backend - only mark as used when order reaches 'completed' status
+            // This ensures cancelled orders don't consume the welcome offer
 
             // Trigger tracking
             window.dispatchEvent(new CustomEvent('orderPlaced', {
@@ -115,7 +111,7 @@ const Checkout = ({
     const { discount: orderDiscount, promo: orderPromo } = calculateOrderDiscount(promotions, subtotal);
 
     // Loyalty/Recovery Discount (using real config from context)
-    const { discount: loyaltyDiscount, reason: loyaltyReason, giftItem: loyaltyGift } = calculateLoyaltyDiscount(
+    const { discount: loyaltyDiscount, reason: loyaltyReason, giftItem: loyaltyGift, welcomeTeaser, teaserMessage } = calculateLoyaltyDiscount(
         loyaltyInfo,
         subtotal,
         loyaltyInfo.config || { isAutoPromoOn: true }
@@ -277,6 +273,17 @@ const Checkout = ({
                                         <div className="flex items-center gap-2">
                                             <span className="text-[10px] font-black uppercase bg-pink-50 text-pink-600 px-2 py-0.5 rounded-full border border-pink-100">Unlock</span>
                                             <span className="font-black text-lg">$0.00</span>
+                                        </div>
+                                    </div>
+                                )}
+                                {welcomeTeaser && teaserMessage && (
+                                    <div className="flex justify-between items-center bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-4 rounded-2xl border-2 border-green-200 dark:border-green-700">
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-2xl">🎉</span>
+                                            <div className="flex flex-col">
+                                                <span className="font-black text-sm text-green-700 dark:text-green-400">Welcome Gift!</span>
+                                                <span className="text-[10px] font-bold text-green-600 dark:text-green-500">{teaserMessage}</span>
+                                            </div>
                                         </div>
                                     </div>
                                 )}

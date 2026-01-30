@@ -12,7 +12,7 @@ const PublicMenu = () => {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
     const { t } = useLanguage()
-    const { trackVisit, isStorageLoaded } = useLoyalty()
+    const { trackVisit, isStorageLoaded, markRewardAsUsed } = useLoyalty()
     const { setContextScope } = useCart()
 
     useEffect(() => {
@@ -69,6 +69,20 @@ const PublicMenu = () => {
             fetchMenu()
         }
     }, [restaurantName, templateKey, isStorageLoaded])
+
+    // Listen for order completion to mark reward as used
+    useEffect(() => {
+        const handleOrderCompleted = (event) => {
+            const { restaurantName: orderRestaurant } = event.detail || {};
+            if (orderRestaurant) {
+                console.log('[PublicMenu] Order completed, marking reward as used for:', orderRestaurant);
+                markRewardAsUsed(orderRestaurant);
+            }
+        };
+
+        window.addEventListener('orderCompleted', handleOrderCompleted);
+        return () => window.removeEventListener('orderCompleted', handleOrderCompleted);
+    }, [markRewardAsUsed]);
 
 
 

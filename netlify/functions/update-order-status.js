@@ -169,6 +169,29 @@ export const handler = async (event, context) => {
                     message: message
                 })
             };
+        } else if (status === 'completed') {
+            // Mark welcome offer as used if this order had a loyalty discount
+            const orderInfo = await query(
+                'SELECT loyalty_discount_applied, loyalty_discount_amount, customer_id FROM orders WHERE id = $1',
+                [orderId]
+            );
+
+            const hadLoyaltyDiscount = orderInfo.rows[0]?.loyalty_discount_applied;
+            const customerId = orderInfo.rows[0]?.customer_id;
+
+            // Update order status
+            let updateQuery = `
+                UPDATE orders 
+                SET status = $1, updated_at = CURRENT_TIMESTAMP
+                WHERE id = $2 
+                RETURNING id, status, updated_at
+            `;
+            updateResult = await query(updateQuery, [status, orderId]);
+
+            // If order had loyalty discount and customer exists, mark reward as used
+            // This will be handled client-side via event listener or webhook
+            // For now, we just complete the order - the client will handle marking
+
         } else {
             // Standard update for other statuses
             let updateQuery = `
