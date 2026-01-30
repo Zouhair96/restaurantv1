@@ -260,7 +260,8 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
                 return {
                     discount: orderTotal * discountFactor,
                     reason: `Welcome Offer (${discountPercentage}%)`,
-                    welcomeTeaser: false
+                    welcomeTeaser: true,
+                    teaserMessage: `Your ${discountPercentage}% discount is active!`
                 };
             }
         }
