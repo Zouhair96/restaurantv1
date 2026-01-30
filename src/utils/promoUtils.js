@@ -236,7 +236,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
     }
 
     // 4. NEW/WELCOME Status Logic (1st Visit)
-    if (loyaltyInfo.status === 'NEW') {
+    if (loyaltyInfo.status === 'NEW' && !loyaltyInfo.welcomeRedeemed) {
         const welcomeOffer = config.welcomeConfig || { value: '10', active: true }; // Default to 10%
 
         if (welcomeOffer.active !== false) {

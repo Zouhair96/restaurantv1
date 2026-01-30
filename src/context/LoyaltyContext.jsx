@@ -150,11 +150,16 @@ export const LoyaltyProvider = ({ children }) => {
         if (!restaurantName) return;
 
         setLoyaltyData(prev => {
+            const currentData = prev[restaurantName] || { visits: [], lastOfferType: 'NEW' };
+            const isWelcomePhase = currentData.lastOfferType === 'NEW';
+
             const updated = {
                 ...prev,
                 [restaurantName]: {
-                    ...(prev[restaurantName] || { visits: [], lastOfferType: 'NEW' }),
-                    rewardUsedInSession: true
+                    ...currentData,
+                    rewardUsedInSession: true,
+                    // If they are NEW and used a reward, mark welcome as permanently redeemed
+                    welcomeRedeemed: isWelcomePhase ? true : currentData.welcomeRedeemed
                 }
             };
             localStorage.setItem('loyalty_data', JSON.stringify(updated));
@@ -180,7 +185,9 @@ export const LoyaltyProvider = ({ children }) => {
             visits: visits,
             config: log.config,
             isRecoveryEligible,
-            welcomeShown: !!log.welcomeShown
+            isRecoveryEligible,
+            welcomeShown: !!log.welcomeShown,
+            welcomeRedeemed: !!log.welcomeRedeemed
         };
     };
 
