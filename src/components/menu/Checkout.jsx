@@ -141,6 +141,11 @@ const Checkout = ({
                 >
                     {/* Header */}
                     <div className="px-6 pt-6 pb-4 flex items-center justify-between">
+                        {/* DEBUG INFO - REMOVE LATER */}
+                        <div className="fixed top-0 left-0 bg-black text-white text-[10px] p-1 z-[9999]">
+                            {loyaltyInfo.status} | Vis:{loyaltyInfo.totalVisits} | Used:{String(loyaltyInfo.welcomeRedeemed)}
+                        </div>
+
                         <motion.button
                             whileTap={{ scale: 0.9 }}
                             onClick={onClose}
