@@ -11,17 +11,46 @@ export const useCart = () => {
 };
 
 export const CartProvider = ({ children }) => {
-    const [cartItems, setCartItems] = useState(() => {
-        // Load cart from localStorage on init
-        const savedCart = localStorage.getItem('pizzaCart');
-        return savedCart ? JSON.parse(savedCart) : [];
-    });
+    // Default to empty, wait for scope to be set
+    const [cartItems, setCartItems] = useState([]);
     const [isCartOpen, setIsCartOpen] = useState(false);
+    const [cartScope, setCartScope] = useState(null);
 
-    // Save cart to localStorage whenever it changes
+    // Initial load when scope changes
     useEffect(() => {
-        localStorage.setItem('pizzaCart', JSON.stringify(cartItems));
-    }, [cartItems]);
+        if (!cartScope) return;
+
+        try {
+            const savedCart = localStorage.getItem(`cart_${cartScope}`);
+            if (savedCart) {
+                setCartItems(JSON.parse(savedCart));
+            } else {
+                setCartItems([]);
+            }
+        } catch (e) {
+            console.error("Failed to load cart", e);
+            setCartItems([]);
+        }
+    }, [cartScope]);
+
+    // Save cart to localStorage whenever it changes, ONLY if scope is set
+    useEffect(() => {
+        if (!cartScope) return;
+        localStorage.setItem(`cart_${cartScope}`, JSON.stringify(cartItems));
+    }, [cartItems, cartScope]);
+
+    /**
+     * Set the current context scope (e.g. restaurant name)
+     * This switches the active bucket for the cart.
+     */
+    const setContextScope = (scope) => {
+        if (scope !== cartScope) {
+            setCartScope(scope);
+            // We rely on the useEffect above to load the new data
+            // But to prevent flashing old data from previous scope, we can clear temporarily
+            setCartItems([]);
+        }
+    };
 
     const addToCart = (item) => {
         setCartItems((prevItems) => {
@@ -90,6 +119,7 @@ export const CartProvider = ({ children }) => {
         isCartOpen,
         toggleCart,
         setIsCartOpen,
+        setContextScope,
     };
 
     return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
