@@ -12,7 +12,7 @@ const PublicMenu = () => {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
     const { t } = useLanguage()
-    const { trackVisit } = useLoyalty()
+    const { trackVisit, isStorageLoaded } = useLoyalty()
     const { setContextScope } = useCart()
 
     useEffect(() => {
@@ -51,7 +51,7 @@ const PublicMenu = () => {
                 } else {
                     setData(result);
                     // Centralized Loyalty Tracking
-                    if (restaurantName) {
+                    if (restaurantName && isStorageLoaded) {
                         trackVisit(restaurantName);
                         // Isolate Cart for this Restaurant
                         setContextScope(restaurantName);
@@ -68,7 +68,7 @@ const PublicMenu = () => {
         if (restaurantName || templateKey) {
             fetchMenu()
         }
-    }, [restaurantName, templateKey])
+    }, [restaurantName, templateKey, isStorageLoaded])
 
 
 

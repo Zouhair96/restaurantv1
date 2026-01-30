@@ -5,6 +5,7 @@ const LoyaltyContext = createContext();
 export const LoyaltyProvider = ({ children }) => {
     const [clientId, setClientId] = useState(null);
     const [loyaltyData, setLoyaltyData] = useState({}); // { [restaurantId]: { visits: [], lastOfferType: null } }
+    const [isStorageLoaded, setIsStorageLoaded] = useState(false);
 
     useEffect(() => {
         // 1. Identification (Device-based)
@@ -22,6 +23,7 @@ export const LoyaltyProvider = ({ children }) => {
         if (savedData) {
             setLoyaltyData(JSON.parse(savedData));
         }
+        setIsStorageLoaded(true);
     }, []);
 
     const syncLoyaltyEvent = async (restaurantName, eventType) => {
@@ -197,7 +199,7 @@ export const LoyaltyProvider = ({ children }) => {
     };
 
     return (
-        <LoyaltyContext.Provider value={{ clientId, loyaltyData, trackVisit, getStatus, markRewardAsUsed, markWelcomeAsShown }}>
+        <LoyaltyContext.Provider value={{ clientId, loyaltyData, trackVisit, getStatus, markRewardAsUsed, markWelcomeAsShown, isStorageLoaded }}>
             {children}
         </LoyaltyContext.Provider>
     );
