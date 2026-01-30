@@ -167,7 +167,7 @@ const DashboardHeader = ({ onMenuClick }) => {
                                                 </div>
                                                 <div>
                                                     <p className="text-sm font-bold text-gray-800 dark:text-gray-200">New {o.order_type} Order</p>
-                                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Order #{o.id.slice(0, 8)} - {o.total_amount}€</p>
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Order #{o.order_number || o.id.slice(0, 8)} - {o.total_amount}€</p>
                                                     <p className="text-[10px] text-gray-400 mt-1 font-medium">{formatTime(o.created_at)}</p>
                                                 </div>
                                             </div>

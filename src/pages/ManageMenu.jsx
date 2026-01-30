@@ -6,7 +6,6 @@ import { useAuth } from '../context/AuthContext';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import PromoManagementModal from '../components/dashboard/PromoManagementModal';
-import OrderNumberSettings from '../components/dashboard/OrderNumberSettings';
 
 const ManageMenu = ({ isAdminView = false }) => {
     const { user: currentUser } = useAuth();
@@ -763,6 +762,34 @@ const ManageMenu = ({ isAdminView = false }) => {
                                             </label>
                                         </div>
                                     ))}
+                                </div>
+                            </div>
+
+                            {/* Order Numbering Section */}
+                            <div className="border-t border-gray-100 dark:border-white/5 pt-6 mt-6 space-y-4">
+                                <h4 className="font-black text-xs uppercase tracking-widest text-gray-400 mb-4">Order Numbering</h4>
+
+                                <div>
+                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Starting Order Number</label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        defaultValue="1"
+                                        className="w-full px-5 py-3 rounded-xl border border-gray-100 dark:border-white/10 bg-white dark:bg-[#24262d] text-gray-900 dark:text-white font-bold focus:ring-2 focus:ring-indigo-500 outline-none"
+                                        placeholder="e.g., 1 or 100"
+                                    />
+                                    <p className="text-[9px] text-gray-400 mt-1 ml-1">Orders will start from this number</p>
+                                </div>
+
+                                <div>
+                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Reset Period</label>
+                                    <select className="w-full px-5 py-3 rounded-xl border border-gray-100 dark:border-white/10 bg-white dark:bg-[#24262d] text-gray-900 dark:text-white font-bold focus:ring-2 focus:ring-indigo-500 outline-none">
+                                        <option value="never">Never (Continuous)</option>
+                                        <option value="daily">Daily</option>
+                                        <option value="weekly">Weekly</option>
+                                        <option value="monthly">Monthly</option>
+                                    </select>
+                                    <p className="text-[9px] text-gray-400 mt-1 ml-1">When to reset order numbers</p>
                                 </div>
                             </div>
                         </div>

@@ -570,7 +570,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
 
                                                                         <div className="flex justify-between items-start mb-2">
                                                                             <div>
-                                                                                <span className={`font-bold block transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Order #{String(order.id).slice(0, 8)}</span>
+                                                                                <span className={`font-bold block transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Order #{order.order_number || String(order.id).slice(0, 8)}</span>
                                                                                 <span className={`text-xs transition-colors ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{new Date(order.created_at).toLocaleDateString()}</span>
                                                                             </div>
                                                                             <span

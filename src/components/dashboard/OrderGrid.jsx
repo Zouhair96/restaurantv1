@@ -211,7 +211,7 @@ const OrderGrid = () => {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in">
                     <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 max-w-md w-full shadow-2xl border border-gray-100 dark:border-white/10">
                         <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2">Assign Driver</h3>
-                        <p className="text-gray-500 dark:text-gray-400 mb-6">Who is delivering Order #{String(selectedOrder.id).slice(0, 8)}?</p>
+                        <p className="text-gray-500 dark:text-gray-400 mb-6">Who is delivering Order #{selectedOrder.order_number || String(selectedOrder.id).slice(0, 8)}?</p>
 
                         <div className="space-y-4">
                             <div>

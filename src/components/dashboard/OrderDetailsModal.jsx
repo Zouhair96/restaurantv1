@@ -16,7 +16,7 @@ const OrderDetailsModal = ({ order, isOpen, onClose, onStatusUpdate, getStatusCo
                 <div className="bg-gradient-to-r from-yum-primary/10 to-transparent p-8 flex justify-between items-start">
                     <div>
                         <div className="flex items-center gap-3 mb-2">
-                            <h2 className="text-3xl font-black text-gray-800 dark:text-white">Order #{String(order.id).slice(0, 8)}</h2>
+                            <h2 className="text-3xl font-black text-gray-800 dark:text-white">Order #{order.order_number || String(order.id).slice(0, 8)}</h2>
                             <span className={`px-4 py-1.5 rounded-full text-xs font-black border uppercase tracking-widest ${getStatusColor(order.status)}`}>
                                 {order.status}
                             </span>

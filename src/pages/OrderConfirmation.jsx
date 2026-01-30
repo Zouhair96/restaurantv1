@@ -101,7 +101,7 @@ const OrderConfirmation = () => {
                             <h1 className="text-3xl font-black text-gray-900 dark:text-white mb-2">
                                 {order.status === 'out_for_delivery' ? 'On the Way!' : 'Order Received!'}
                             </h1>
-                            <p className="text-gray-500 dark:text-gray-400">Order #{String(order.id).slice(0, 8)} • {order.restaurant_name}</p>
+                            <p className="text-gray-500 dark:text-gray-400">Order #{order.order_number || String(order.id).slice(0, 8)} • {order.restaurant_name}</p>
 
                             {/* Driver Info */}
                             {order.status === 'out_for_delivery' && order.driver_name && (

@@ -219,7 +219,7 @@ const LiveOrders = ({ onSelectOrder }) => {
                                 {/* Order Header */}
                                 <div className="flex justify-between items-start mb-4 relative z-10">
                                     <div>
-                                        <h3 className="text-xl font-black text-gray-800 dark:text-white">Order #{order.id}</h3>
+                                        <h3 className="text-xl font-black text-gray-800 dark:text-white">Order #{order.order_number || order.id}</h3>
                                         <p className="text-xs text-gray-500 mt-1">
                                             {new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </p>

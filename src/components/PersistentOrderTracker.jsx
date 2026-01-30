@@ -191,7 +191,7 @@ const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline
                                             </div>
                                             <div>
                                                 <h3 className="font-black text-gray-900 dark:text-white text-base leading-none mb-1">
-                                                    Order #{String(order.id).slice(0, 8)}
+                                                    Order #{order.order_number || String(order.id).slice(0, 8)}
                                                 </h3>
                                                 <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider">
                                                     {statusInfo.label}
