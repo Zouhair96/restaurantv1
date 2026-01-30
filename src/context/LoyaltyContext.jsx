@@ -70,7 +70,7 @@ export const LoyaltyProvider = ({ children }) => {
         const updatedData = { ...loyaltyData };
 
         if (!updatedData[restaurantName]) {
-            updatedData[restaurantName] = { visits: [], lastOfferType: 'NEW', welcomeShown: false };
+            updatedData[restaurantName] = { visits: [], completedOrders: [], lastOfferType: 'NEW', welcomeShown: false };
         }
 
         const restaurantLog = updatedData[restaurantName];
@@ -176,11 +176,43 @@ export const LoyaltyProvider = ({ children }) => {
         syncLoyaltyEvent(restaurantName, 'reward_claimed');
     };
 
+    const recordCompletedOrder = (restaurantName, finalAmount) => {
+        console.log('[Loyalty] recordCompletedOrder called for:', restaurantName, 'amount:', finalAmount);
+        if (!restaurantName || !finalAmount) return;
+
+        setLoyaltyData(prev => {
+            const currentData = prev[restaurantName] || { visits: [], completedOrders: [], lastOfferType: 'NEW' };
+
+            const updated = {
+                ...prev,
+                [restaurantName]: {
+                    ...currentData,
+                    completedOrders: [
+                        ...(currentData.completedOrders || []),
+                        { amount: parseFloat(finalAmount), timestamp: Date.now() }
+                    ]
+                }
+            };
+
+            console.log('[Loyalty] Updated with order:', updated[restaurantName]);
+            localStorage.setItem('loyalty_data', JSON.stringify(updated));
+            return updated;
+        });
+    };
+
     const getStatus = (restaurantId) => {
         const log = loyaltyData[restaurantId];
-        if (!log) return { status: 'NEW', totalVisits: 0, config: null };
+        if (!log) return { status: 'NEW', totalVisits: 0, totalSpending: 0, spendingProgress: 0, config: null };
 
         const visits = log.visits || [];
+        const completedOrders = log.completedOrders || [];
+
+        // Calculate total spending
+        const totalSpending = completedOrders.reduce((sum, order) => sum + (order.amount || 0), 0);
+
+        // Calculate progress toward loyal threshold
+        const threshold = parseFloat(log.config?.loyalConfig?.threshold || 50);
+        const spendingProgress = Math.min(100, Math.round((totalSpending / threshold) * 100));
 
         // A visit is "Recovery Eligible" if we flagged it during trackVisit
         // AND it hasn't been used yet in this session
@@ -190,6 +222,9 @@ export const LoyaltyProvider = ({ children }) => {
             status: log.lastOfferType,
             totalVisits: visits.length,
             visits: visits,
+            completedOrders: completedOrders,
+            totalSpending: totalSpending,
+            spendingProgress: spendingProgress,
             config: log.config,
             isRecoveryEligible,
             isRecoveryEligible,
@@ -199,7 +234,7 @@ export const LoyaltyProvider = ({ children }) => {
     };
 
     return (
-        <LoyaltyContext.Provider value={{ clientId, loyaltyData, trackVisit, getStatus, markRewardAsUsed, markWelcomeAsShown, isStorageLoaded }}>
+        <LoyaltyContext.Provider value={{ clientId, loyaltyData, trackVisit, getStatus, markRewardAsUsed, markWelcomeAsShown, recordCompletedOrder, isStorageLoaded }}>
             {children}
         </LoyaltyContext.Provider>
     );

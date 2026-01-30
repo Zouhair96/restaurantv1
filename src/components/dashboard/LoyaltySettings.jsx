@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { HiFire, HiClock, HiCalendarDays, HiQrCode, HiSparkles, HiChevronDown, HiArrowPath, HiBookOpen, HiTag, HiGift } from 'react-icons/hi2';
 import RecoveryOfferModal from './RecoveryOfferModal';
+import LoyalOfferModal from './LoyalOfferModal';
 import LoyaltyDocumentation from './LoyaltyDocumentation';
 
 const LoyaltySettings = ({ onUpdate }) => {
     const [isAutoPromoOn, setIsAutoPromoOn] = useState(true);
     const [isRecoveryModalOpen, setIsRecoveryModalOpen] = useState(false);
+    const [isLoyalModalOpen, setIsLoyalModalOpen] = useState(false);
     const [loading, setLoading] = useState(true);
     const [recoveryConfig, setRecoveryConfig] = useState({
         type: 'discount',
@@ -15,7 +17,10 @@ const LoyaltySettings = ({ onUpdate }) => {
         frequency: '30'
     });
     const [loyalConfig, setLoyalConfig] = useState({
-        value: '15'
+        type: 'discount',
+        value: '15',
+        threshold: '50',
+        active: true
     });
     const [welcomeConfig, setWelcomeConfig] = useState({
         value: '10',
@@ -101,6 +106,13 @@ const LoyaltySettings = ({ onUpdate }) => {
         saveConfig({ recoveryConfig: updated });
     };
 
+    const handleSaveLoyal = (newOffer) => {
+        const updated = { ...loyalConfig, ...newOffer };
+        setLoyalConfig(updated);
+        setIsLoyalModalOpen(false);
+        saveConfig({ loyalConfig: updated });
+    };
+
     const handleToggleAutoPromo = (checked) => {
         setIsAutoPromoOn(checked);
         saveConfig({ isAutoPromoOn: checked });
@@ -178,24 +190,21 @@ const LoyaltySettings = ({ onUpdate }) => {
                             </div>
 
                             <div className="pt-6 border-t border-gray-100 dark:border-white/5 space-y-4">
-                                <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                                    <HiTag className="w-4 h-4" /> Loyal Reward (%)
-                                </label>
-                                <div className="relative group">
-                                    <input
-                                        type="number"
-                                        value={loyalConfig.value}
-                                        onChange={(e) => {
-                                            const updated = { ...loyalConfig, value: e.target.value };
-                                            setLoyalConfig(updated);
-                                            saveConfig({ loyalConfig: updated });
-                                        }}
-                                        className="w-full px-5 py-3 rounded-xl border border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-gray-900 dark:text-white font-bold outline-none focus:ring-2 focus:ring-yum-primary/20"
-                                        placeholder="15"
-                                    />
-                                    <span className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 font-bold">%</span>
+                                <div className="flex justify-between items-center mb-2">
+                                    <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                        <HiTag className="w-4 h-4" /> Loyal Reward
+                                    </label>
+                                    <span className="text-xs font-bold text-yum-primary">
+                                        {loyalConfig.type === 'discount' ? `${loyalConfig.value}%` : 'Free Item'} over €{loyalConfig.threshold}
+                                    </span>
                                 </div>
-                                <p className="text-[10px] text-gray-400 italic">Applied after 4 visits in 30 days.</p>
+                                <button
+                                    onClick={() => setIsLoyalModalOpen(true)}
+                                    className="w-full py-3 bg-gray-50 dark:bg-white/5 text-gray-900 dark:text-white font-bold rounded-xl text-xs uppercase tracking-widest hover:bg-gray-100 dark:hover:bg-white/10 transition-colors border border-gray-100 dark:border-white/10"
+                                >
+                                    Configure Reward
+                                </button>
+                                <p className="text-[10px] text-gray-400 italic">Applied for loyal customers (Visit 4+).</p>
                             </div>
                         </div>
 
@@ -302,6 +311,13 @@ const LoyaltySettings = ({ onUpdate }) => {
                 currentConfig={recoveryConfig}
                 onClose={() => setIsRecoveryModalOpen(false)}
                 onSave={handleSaveRecovery}
+            />
+
+            <LoyalOfferModal
+                isOpen={isLoyalModalOpen}
+                currentConfig={loyalConfig}
+                onClose={() => setIsLoyalModalOpen(false)}
+                onSave={handleSaveLoyal}
             />
         </div >
     );

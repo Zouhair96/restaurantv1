@@ -27,7 +27,7 @@ router.get('/loyalty-analytics', authenticate, async (req, res) => {
 
         // Ensure column exists (one-time check for dev)
         try {
-            await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS loyalty_config JSONB DEFAULT '{"isAutoPromoOn": true, "recoveryConfig": {"type": "discount", "value": "20", "active": true, "delay": "21", "frequency": "30"}}'`);
+            await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS loyalty_config JSONB DEFAULT '{\"isAutoPromoOn\": true, \"welcomeConfig\": {\"value\": \"15\", \"active\": true}, \"loyalConfig\": {\"type\": \"discount\", \"value\": \"15\", \"active\": true, \"threshold\": \"50\"}, \"recoveryConfig\": {\"type\": \"discount\", \"value\": \"20\", \"active\": true, \"delay\": \"21\", \"frequency\": \"30\"}}'`);
 
             // Create visitor_events table if missing
             await query(`

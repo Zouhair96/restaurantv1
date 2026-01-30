@@ -235,37 +235,106 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
         };
     }
 
-    // 4. NEW/WELCOME Status Logic
-    // Changed: 1st visit = teaser only, 2nd+ visit = actual discount
-    if (loyaltyInfo.status === 'NEW' && !loyaltyInfo.welcomeRedeemed) {
-        const welcomeOffer = config.welcomeConfig || { value: '10', active: true }; // Default to 10%
-        const visitCount = loyaltyInfo.totalVisits || 0;
+    // 4. NEW/WELCOME Status Logic - Spending-based flow
+    const visitCount = loyaltyInfo.totalVisits || 0;
+    const totalSpending = loyaltyInfo.totalSpending || 0;
+    const spendingProgress = loyaltyInfo.spendingProgress || 0;
 
-        if (welcomeOffer.active !== false) {
-            const discountPercentage = parseFloat(welcomeOffer.value) || 0;
+    // Visit 1: Show teaser, no discount
+    if (visitCount === 1) {
+        const welcomeOffer = config.welcomeConfig || { value: '15', active: true };
+        const discountPercentage = parseFloat(welcomeOffer.value) || 0;
 
-            // 1st visit: Show teaser, no discount
-            if (visitCount === 1) {
+        if (welcomeOffer.active !== false && discountPercentage > 0) {
+            return {
+                discount: 0,
+                reason: null,
+                welcomeTeaser: true,
+                teaserMessage: `Welcome offer activated! Next time you get ${discountPercentage}% off your order`,
+                showProgress: false,
+                progressPercentage: 0,
+                needsMoreSpending: false
+            };
+        }
+    }
+
+    // Visit 2: Apply welcome discount (one-time only)
+    if (visitCount === 2 && !loyaltyInfo.welcomeRedeemed) {
+        const welcomeOffer = config.welcomeConfig || { value: '15', active: true };
+        const discountPercentage = parseFloat(welcomeOffer.value) || 0;
+
+        if (welcomeOffer.active !== false && discountPercentage > 0) {
+            const discountFactor = discountPercentage / 100;
+            return {
+                discount: orderTotal * discountFactor,
+                reason: `Welcome Offer (${discountPercentage}%)`,
+                welcomeTeaser: true,
+                teaserMessage: `Your ${discountPercentage}% discount is active!`,
+                showProgress: false,
+                progressPercentage: 0,
+                needsMoreSpending: false
+            };
+        }
+    }
+
+    // Visit 3: Show progress display ONLY (No discount yet)
+    // "Great! One more order to be loyal" - User Requirement
+    if (visitCount === 3) {
+        return {
+            discount: 0,
+            reason: null,
+            welcomeTeaser: false,
+            showProgress: true,
+            progressPercentage: spendingProgress,
+            needsMoreSpending: true
+        };
+    }
+
+    // Visit 4+: Check spending threshold for loyal rewards
+    if (visitCount >= 4) {
+        const loyalOffer = config.loyalConfig || { type: 'discount', value: '15', active: true, threshold: '50' };
+        const threshold = parseFloat(loyalOffer.threshold) || 50;
+
+        if (loyalOffer.active !== false) {
+            // Check if customer has reached spending threshold
+            if (totalSpending >= threshold) {
+                // Apply loyal reward
+                if (loyalOffer.type === 'discount') {
+                    const discountPercentage = parseFloat(loyalOffer.value) || 15;
+                    const discountFactor = discountPercentage / 100;
+                    return {
+                        discount: orderTotal * discountFactor,
+                        reason: `Loyal Customer Reward (${discountPercentage}%)`,
+                        welcomeTeaser: false,
+                        showProgress: true,
+                        progressPercentage: 100,
+                        needsMoreSpending: false
+                    };
+                } else if (loyalOffer.type === 'item') {
+                    // Free item reward
+                    return {
+                        discount: 0,
+                        giftItem: loyalOffer.value,
+                        reason: `Loyal Customer Gift: ${loyalOffer.value}`,
+                        welcomeTeaser: false,
+                        showProgress: true,
+                        progressPercentage: 100,
+                        needsMoreSpending: false
+                    };
+                }
+            } else {
+                // Show progress toward threshold (no discount yet)
                 return {
                     discount: 0,
                     reason: null,
-                    welcomeTeaser: true,
-                    teaserMessage: `Welcome offer activated! Next time you get ${discountPercentage}% off your order`
-                };
-            }
-
-            // 2nd+ visit: Apply actual discount
-            if (visitCount >= 2 && discountPercentage > 0) {
-                const discountFactor = discountPercentage / 100;
-                return {
-                    discount: orderTotal * discountFactor,
-                    reason: `Welcome Offer (${discountPercentage}%)`,
-                    welcomeTeaser: true,
-                    teaserMessage: `Your ${discountPercentage}% discount is active!`
+                    welcomeTeaser: false,
+                    showProgress: true,
+                    progressPercentage: spendingProgress,
+                    needsMoreSpending: true
                 };
             }
         }
     }
 
-    return { discount: 0, reason: null };
+    return { discount: 0, reason: null, showProgress: false, progressPercentage: 0, needsMoreSpending: false };
 };

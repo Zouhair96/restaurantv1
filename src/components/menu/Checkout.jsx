@@ -6,6 +6,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useLoyalty } from '../../context/LoyaltyContext';
 import { translations } from '../../translations';
 import { calculateOrderDiscount, calculateLoyaltyDiscount } from '../../utils/promoUtils';
+import LoyaltyProgressBar from '../loyalty/LoyaltyProgressBar';
 
 const Checkout = ({
     isOpen,
@@ -18,7 +19,7 @@ const Checkout = ({
 }) => {
     const { cartItems, getCartTotal, clearCart, updateQuantity, removeFromCart } = useCart();
     const { language, t: globalT } = useLanguage();
-    const { getStatus, markRewardAsUsed } = useLoyalty();
+    const { getStatus, markRewardAsUsed, recordCompletedOrder } = useLoyalty();
     const loyaltyInfo = getStatus(restaurantName);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -86,6 +87,9 @@ const Checkout = ({
 
             setIsSubmitted(true);
 
+            // Record completed order for loyalty spending tracking
+            recordCompletedOrder(restaurantName, total);
+
             // NOTE: Reward marking moved to backend - only mark as used when order reaches 'completed' status
             // This ensures cancelled orders don't consume the welcome offer
 
@@ -111,7 +115,16 @@ const Checkout = ({
     const { discount: orderDiscount, promo: orderPromo } = calculateOrderDiscount(promotions, subtotal);
 
     // Loyalty/Recovery Discount (using real config from context)
-    const { discount: loyaltyDiscount, reason: loyaltyReason, giftItem: loyaltyGift, welcomeTeaser, teaserMessage } = calculateLoyaltyDiscount(
+    const {
+        discount: loyaltyDiscount,
+        reason: loyaltyReason,
+        giftItem: loyaltyGift,
+        welcomeTeaser,
+        teaserMessage,
+        showProgress,
+        progressPercentage,
+        needsMoreSpending
+    } = calculateLoyaltyDiscount(
         loyaltyInfo,
         subtotal,
         loyaltyInfo.config || { isAutoPromoOn: true }
@@ -286,6 +299,13 @@ const Checkout = ({
                                             </div>
                                         </div>
                                     </div>
+                                )}
+                                {showProgress && (
+                                    <LoyaltyProgressBar
+                                        percentage={progressPercentage}
+                                        isDarkMode={isDarkMode}
+                                        visitCount={loyaltyInfo.totalVisits}
+                                    />
                                 )}
                                 {taxConfig.applyTax && (
                                     <div className="flex justify-between items-center">
