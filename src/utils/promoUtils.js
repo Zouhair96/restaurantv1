@@ -235,5 +235,21 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
         };
     }
 
+    // 4. NEW/WELCOME Status Logic (1st Visit)
+    if (loyaltyInfo.status === 'NEW') {
+        const welcomeOffer = config.welcomeConfig || { value: '10', active: true }; // Default to 10%
+
+        if (welcomeOffer.active !== false) {
+            const discountPercentage = parseFloat(welcomeOffer.value) || 0;
+            if (discountPercentage > 0) {
+                const discountFactor = discountPercentage / 100;
+                return {
+                    discount: orderTotal * discountFactor,
+                    reason: `Welcome Offer (${discountPercentage}%)`
+                };
+            }
+        }
+    }
+
     return { discount: 0, reason: null };
 };

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { HiFire, HiClock, HiCalendarDays, HiQrCode, HiSparkles, HiChevronDown, HiArrowPath, HiBookOpen, HiTag } from 'react-icons/hi2';
+import { HiFire, HiClock, HiCalendarDays, HiQrCode, HiSparkles, HiChevronDown, HiArrowPath, HiBookOpen, HiTag, HiGift } from 'react-icons/hi2';
 import RecoveryOfferModal from './RecoveryOfferModal';
 import LoyaltyDocumentation from './LoyaltyDocumentation';
 
@@ -16,6 +16,10 @@ const LoyaltySettings = ({ onUpdate }) => {
     });
     const [loyalConfig, setLoyalConfig] = useState({
         value: '15'
+    });
+    const [welcomeConfig, setWelcomeConfig] = useState({
+        value: '10',
+        active: true
     });
     const [showDocumentation, setShowDocumentation] = useState(false);
 
@@ -46,6 +50,12 @@ const LoyaltySettings = ({ onUpdate }) => {
                             setLoyalConfig(prev => ({
                                 ...prev,
                                 ...config.loyalConfig
+                            }));
+                        }
+                        if (config.welcomeConfig) {
+                            setWelcomeConfig(prev => ({
+                                ...prev,
+                                ...config.welcomeConfig
                             }));
                         }
                     }
@@ -141,6 +151,30 @@ const LoyaltySettings = ({ onUpdate }) => {
                             <p className="text-gray-500 text-xs mb-4">Automatically activate all loyalty offers and recovery campaigns.</p>
                             <div className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-6 ${isAutoPromoOn ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
                                 {isAutoPromoOn ? 'System Online' : 'System Paused'}
+                            </div>
+
+                            {/* Welcome Offer Settings */}
+                            <div className="pt-6 border-t border-gray-100 dark:border-white/5 space-y-4 mb-6">
+                                <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                    <HiGift className="w-4 h-4 text-purple-500" /> Welcome Offer (%)
+                                </label>
+                                <div className="relative group">
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        max="100"
+                                        value={welcomeConfig.value}
+                                        onChange={(e) => {
+                                            const updated = { ...welcomeConfig, value: e.target.value };
+                                            setWelcomeConfig(updated);
+                                            saveConfig({ welcomeConfig: updated });
+                                        }}
+                                        className="w-full px-5 py-3 rounded-xl border border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-gray-900 dark:text-white font-bold outline-none focus:ring-2 focus:ring-purple-500/20"
+                                        placeholder="10"
+                                    />
+                                    <span className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 font-bold">%</span>
+                                </div>
+                                <p className="text-[10px] text-gray-400 italic">Applied automatically for new customers (1st visit).</p>
                             </div>
 
                             <div className="pt-6 border-t border-gray-100 dark:border-white/5 space-y-4">
@@ -259,7 +293,8 @@ const LoyaltySettings = ({ onUpdate }) => {
                         <HiBookOpen size={160} className="absolute -bottom-10 -right-10 text-white/5 rotate-12 group-hover:rotate-0 transition-transform duration-700" />
                     </div>
                 </>
-            )}
+            )
+            }
 
             {/* Config Modal */}
             <RecoveryOfferModal
@@ -268,7 +303,7 @@ const LoyaltySettings = ({ onUpdate }) => {
                 onClose={() => setIsRecoveryModalOpen(false)}
                 onSave={handleSaveRecovery}
             />
-        </div>
+        </div >
     );
 };
 
