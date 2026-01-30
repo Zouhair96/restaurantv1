@@ -141,13 +141,6 @@ const Checkout = ({
                 >
                     {/* Header */}
                     <div className="px-6 pt-6 pb-4 flex items-center justify-between">
-                        {/* DEBUG INFO - REMOVE LATER */}
-                        <div className="fixed top-0 left-0 bg-black text-white text-[10px] p-1 z-[9999] max-w-[200px] break-words">
-                            ST:{loyaltyInfo.status} | RD:{String(loyaltyInfo.welcomeRedeemed)} <br />
-                            Disc: ${loyaltyDiscount.toFixed(2)} <br />
-                            Rsn: {loyaltyReason || 'None'}
-                        </div>
-
                         <motion.button
                             whileTap={{ scale: 0.9 }}
                             onClick={onClose}
