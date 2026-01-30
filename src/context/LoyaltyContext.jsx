@@ -7,19 +7,22 @@ export const LoyaltyProvider = ({ children }) => {
     const [loyaltyData, setLoyaltyData] = useState({}); // { [restaurantId]: { visits: [], lastOfferType: null } }
     const [isStorageLoaded, setIsStorageLoaded] = useState(false);
 
+    const STORAGE_KEY_DATA = 'loyalty_data_v2';
+    const STORAGE_KEY_ID = 'loyalty_client_id_v2';
+
     useEffect(() => {
         // 1. Identification (Device-based)
-        let id = localStorage.getItem('loyalty_client_id');
+        let id = localStorage.getItem(STORAGE_KEY_ID);
         if (!id) {
             id = typeof crypto.randomUUID === 'function'
                 ? crypto.randomUUID()
                 : Math.random().toString(36).substring(2) + Date.now().toString(36);
-            localStorage.setItem('loyalty_client_id', id);
+            localStorage.setItem(STORAGE_KEY_ID, id);
         }
         setClientId(id);
 
         // 2. Load Existing Data
-        const savedData = localStorage.getItem('loyalty_data');
+        const savedData = localStorage.getItem(STORAGE_KEY_DATA);
         if (savedData) {
             setLoyaltyData(JSON.parse(savedData));
         }
@@ -29,7 +32,7 @@ export const LoyaltyProvider = ({ children }) => {
     const syncLoyaltyEvent = async (restaurantName, eventType) => {
         try {
             // Robust ID check: use state if available, otherwise fallback to storage
-            const visitorId = clientId || localStorage.getItem('loyalty_client_id');
+            const visitorId = clientId || localStorage.getItem(STORAGE_KEY_ID);
             if (!visitorId || !restaurantName) return;
 
             const response = await fetch('/api/loyalty-analytics', {
@@ -53,7 +56,7 @@ export const LoyaltyProvider = ({ children }) => {
                                 config: data.loyalty_config
                             }
                         };
-                        localStorage.setItem('loyalty_data', JSON.stringify(updated));
+                        localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(updated));
                         return updated;
                     });
                 }
@@ -127,7 +130,7 @@ export const LoyaltyProvider = ({ children }) => {
         }
 
         setLoyaltyData(updatedData);
-        localStorage.setItem('loyalty_data', JSON.stringify(updatedData));
+        localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(updatedData));
 
         return status;
     };
@@ -143,7 +146,7 @@ export const LoyaltyProvider = ({ children }) => {
                     welcomeShown: true
                 }
             };
-            localStorage.setItem('loyalty_data', JSON.stringify(updated));
+            localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(updated));
             return updated;
         });
     };
@@ -169,7 +172,7 @@ export const LoyaltyProvider = ({ children }) => {
                 }
             };
             console.log('[Loyalty] Updated Data:', updated[restaurantName]);
-            localStorage.setItem('loyalty_data', JSON.stringify(updated));
+            localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(updated));
             return updated;
         });
 
@@ -195,7 +198,7 @@ export const LoyaltyProvider = ({ children }) => {
             };
 
             console.log('[Loyalty] Updated with order:', updated[restaurantName]);
-            localStorage.setItem('loyalty_data', JSON.stringify(updated));
+            localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(updated));
             return updated;
         });
     };
