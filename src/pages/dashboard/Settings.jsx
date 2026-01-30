@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import SubscriptionPlans from '../../components/subscription/SubscriptionPlans'
-import OrderNumberSettings from '../../components/dashboard/OrderNumberSettings'
 
 const Settings = () => {
     const { user, updateUser, subscribe, unsubscribe } = useAuth()
@@ -81,9 +80,6 @@ const Settings = () => {
                 <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Account Settings</h2>
                 <p className="text-gray-500 dark:text-gray-400 text-sm mt-1 font-medium">Manage your personal information and restaurant details.</p>
             </div>
-
-            {/* Order Numbering Settings */}
-            <OrderNumberSettings />
 
             <form onSubmit={handleUpdateProfile} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

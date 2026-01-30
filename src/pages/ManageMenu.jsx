@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import PromoManagementModal from '../components/dashboard/PromoManagementModal';
+import OrderNumberSettings from '../components/dashboard/OrderNumberSettings';
 
 const ManageMenu = ({ isAdminView = false }) => {
     const { user: currentUser } = useAuth();
