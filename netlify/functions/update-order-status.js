@@ -202,7 +202,10 @@ export const handler = async (event, context) => {
                     // If session expired, this is effectively a first order of a new implied session
                     const isSessionActive = (now.getTime() - lastSessionTime) < SESSION_TIMEOUT;
                     let effectiveOrders = parseInt(visitor.orders_in_current_session || 0);
-                    if (!isSessionActive) effectiveOrders = 0;
+                    if (!isSessionActive) {
+                        console.log(`[Loyalty Completion] Session EXPIRED (diff: ${Math.round((now - lastSessionTime) / 1000)}s). Resetting orders count.`);
+                        effectiveOrders = 0;
+                    }
 
                     const isFirstOrderInSession = effectiveOrders === 0;
 
@@ -212,14 +215,17 @@ export const handler = async (event, context) => {
                     if (isFirstOrderInSession) {
                         newVisitCount++;
                         lastVisitAt = now;
+                        console.log(`[Loyalty Completion] NEW VISIT! Count: ${visitor.visit_count} -> ${newVisitCount}`);
+                    } else {
+                        console.log(`[Loyalty Completion] Active session. Visit count ${newVisitCount} unchanged.`);
                     }
 
-                    // Update step based on Spec (Visit 1-NEW, Visit 2-WELCOME, Visit 4-LOYAL)
+                    // Update step based on Spec (Remapped: 0=NEW, 1=WELCOME, 2=IN_PROGRESS, 3+=LOYAL)
                     let newStep = 'NEW';
-                    if (newVisitCount >= 4) newStep = 'LOYAL';
-                    else if (newVisitCount === 2) newStep = 'WELCOME';
-                    else if (newVisitCount === 3) newStep = 'IN_PROGRESS';
-                    else if (newVisitCount === 1) newStep = 'NEW';
+                    if (newVisitCount >= 3) newStep = 'LOYAL';
+                    else if (newVisitCount === 1) newStep = 'WELCOME';
+                    else if (newVisitCount === 2) newStep = 'IN_PROGRESS';
+                    else if (newVisitCount === 0) newStep = 'NEW';
 
                     await query(`
                         UPDATE loyalty_visitors 

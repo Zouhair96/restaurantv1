@@ -241,30 +241,31 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
     const totalSpending = loyaltyInfo.totalSpending || 0;
     const spendingProgress = loyaltyInfo.spendingProgress || 0;
 
-    // Condition A1: Visit 1 (Always Teaser, regardless of order count in this session)
-    if (totalVisits <= 1) {
+    // SPEC MAPPING (Adjusted for 0-start completed count)
+    // DB count 0 (Visit 1) -> Teaser
+    // DB count 1 (Visit 2) -> Welcome Discount
+    // DB count 2 (Visit 3) -> Progress Message
+    // DB count 3+ (Visit 4) -> Loyal Status
+
+    // Condition A: Visit 1 (DB count 0) -> SHOW TEASER
+    if (totalVisits === 0) {
         const welcomeOffer = config.welcomeConfig || { value: '15', active: true };
         const discountPercentage = parseFloat(welcomeOffer.value) || 0;
-
-        if (welcomeOffer.active !== false && discountPercentage > 0) {
-            return {
-                discount: 0,
-                reason: null,
-                welcomeTeaser: true,
-                teaserMessage: `Order now to unlock ${discountPercentage}% OFF your next visit!`,
-                showProgress: false,
-                progressPercentage: 0,
-                needsMoreSpending: false
-            };
-        }
+        return {
+            discount: 0,
+            reason: null,
+            welcomeTeaser: true,
+            teaserMessage: `Order now to unlock ${discountPercentage}% OFF your next visit!`,
+            showProgress: false,
+            progressPercentage: 0,
+            needsMoreSpending: false
+        };
     }
 
-    // A. Welcome Discount (10% OFF) - PRIORITY CHECK
-    // SPEC: Visit 2 (visit_count == 2) AND first order of session (orders_in_current_session == 0)
-    // Adjusting for DB count: If they have COMPLETED 1 visit (count=1), they ARE in Visit 2.
-    // However, following SPEC LITERALLY: if user says "visit_count == 2", we check for 2.
-    if (totalVisits === 2 && loyaltyInfo.ordersInCurrentVisit === 0) {
-        console.log('[Loyalty] Welcome Discount Eligible (Visit 2)');
+    // Condition B: Visit 2 (DB count 1) -> WELCOME DISCOUNT
+    // SPEC: Visit 2 (visit_count == 2) -> We map to DB count 1
+    if (totalVisits === 1 && loyaltyInfo.ordersInCurrentVisit === 0) {
+        console.log('[Loyalty] Welcome Discount Eligible (Visit 2 - count 1)');
         return {
             discount: orderTotal * 0.10,
             reason: 'Welcome Back! (10% Off)',
@@ -275,9 +276,10 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
         };
     }
 
-    // Condition B: Loyal Status (Visit 4+)
+    // Condition C: Loyal Status (DB count >= 3)
+    // SPEC: Reach Loyal in 4 sessions -> Count reaches 3 at start of 4th session
     const loyalOffer = config.loyalConfig || { type: 'discount', value: '15', active: true, threshold: '50' };
-    if (totalVisits >= 4 && loyalOffer.active !== false) {
+    if (totalVisits >= 3 && loyalOffer.active !== false) {
         if (loyalOffer.type === 'discount') {
             const discountPercentage = parseFloat(loyalOffer.value) || 15;
             const discountFactor = discountPercentage / 100;
