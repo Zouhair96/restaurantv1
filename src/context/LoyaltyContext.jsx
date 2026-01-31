@@ -93,6 +93,15 @@ export const LoyaltyProvider = ({ children }) => {
         refreshLoyaltyStats(restaurantName);
 
         const now = Date.now();
+
+        // Anti-Race Condition: Check Storage Directly
+        // React state might be slightly behind on mount, so we check what's actually on disk
+        const rawData = JSON.parse(localStorage.getItem(STORAGE_KEY_DATA) || '{}');
+        const rawRestaurantLog = rawData[restaurantName] || { visits: [] };
+        const rawLastVisit = rawRestaurantLog.visits && rawRestaurantLog.visits.length > 0
+            ? rawRestaurantLog.visits[rawRestaurantLog.visits.length - 1]
+            : 0;
+
         const updatedData = { ...loyaltyData };
 
         if (!updatedData[restaurantName]) {
@@ -100,7 +109,9 @@ export const LoyaltyProvider = ({ children }) => {
         }
 
         const restaurantLog = updatedData[restaurantName];
-        const lastVisit = restaurantLog.visits[restaurantLog.visits.length - 1];
+        // Use rawLastVisit for the check, but still use state for the update to keep React happy
+        const lastVisit = rawLastVisit || restaurantLog.visits[restaurantLog.visits.length - 1];
+
         const SESSION_TIMEOUT = 4 * 60 * 60 * 1000; // 4 Hours
 
         let visitRecorded = false;

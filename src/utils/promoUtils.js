@@ -259,25 +259,18 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
     }
 
     // Condition A2: Second Order (Welcome Discount Applied)
-    if (completedOrders.length === 1) {
-        const welcomeOffer = config.welcomeConfig || { value: '15', active: true };
-        const discountPercentage = parseFloat(welcomeOffer.value) || 0;
-
-        // Check if they already used it? (Ideally tracked in DB, but for now assuming if they have exactly 1 order they get it)
-        // We could add `&& !loyaltyInfo.welcomeRedeemed` if that flag was reliably synced from orders
-
-        if (welcomeOffer.active !== false && discountPercentage > 0) {
-            const discountFactor = discountPercentage / 100;
-            return {
-                discount: orderTotal * discountFactor,
-                reason: `Welcome Offer (${discountPercentage}%)`,
-                welcomeTeaser: true,
-                teaserMessage: `Your ${discountPercentage}% welcome discount is active!`,
-                showProgress: false,
-                progressPercentage: 0,
-                needsMoreSpending: false
-            };
-        }
+    // B. Welcome Discount (10% OFF)
+    // Must have completed at least 1 order AND returned for a 2nd visit (session) to activate.
+    if (completedOrders.length >= 1 && totalVisits >= 2) {
+        console.log('[Loyalty] Welcome Discount Eligibile (Order count > 0 & Visit > 1)');
+        return {
+            discount: orderTotal * 0.10,
+            reason: 'Welcome Back! (10% Off)',
+            welcomeTeaser: false,
+            showProgress: false,
+            progressPercentage: 0,
+            needsMoreSpending: true // Doesn't matter, we are giving discount
+        };
     }
 
     // Condition B: Loyal Status (Spending Threshold Met)
