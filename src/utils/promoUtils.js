@@ -237,9 +237,10 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
 
     // 4. NEW/WELCOME Status Logic - Spending-based flow
     const completedOrders = loyaltyInfo.completedOrders || [];
-    const totalVisits = loyaltyInfo.totalVisits || 1;
-    const totalSpending = loyaltyInfo.totalSpending || 0;
-    const spendingProgress = loyaltyInfo.spendingProgress || 0;
+    const totalVisits = (loyaltyInfo.totalVisits !== undefined) ? parseInt(loyaltyInfo.totalVisits) : 0;
+    const totalSpending = parseFloat(loyaltyInfo.totalSpending) || 0;
+    const spendingProgress = parseFloat(loyaltyInfo.spendingProgress) || 0;
+    const ordersInCurrentVisit = parseInt(loyaltyInfo.ordersInCurrentVisit) || 0;
 
     // SPEC MAPPING (Adjusted for 0-start completed count)
     // DB count 0 (Visit 1) -> Teaser
@@ -264,7 +265,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
 
     // Condition B: Visit 2 (DB count 1) -> WELCOME DISCOUNT
     // SPEC: Visit 2 (visit_count == 2) -> We map to DB count 1
-    if (totalVisits === 1 && loyaltyInfo.ordersInCurrentVisit === 0) {
+    if (totalVisits === 1 && ordersInCurrentVisit === 0) {
         console.log('[Loyalty] Welcome Discount Eligible (Visit 2 - count 1)');
         return {
             discount: orderTotal * 0.10,
