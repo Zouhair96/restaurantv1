@@ -154,7 +154,7 @@ export const LoyaltyProvider = ({ children }) => {
         try {
             const response = await fetch(`/.netlify/functions/get-loyalty-status?restaurantName=${restaurantName}&loyaltyId=${clientId}`);
             if (response.ok) {
-                const { completedOrders, totalSpending, totalVisits } = await response.json();
+                const { completedOrders, totalSpending, totalVisits, ordersInCurrentVisit } = await response.json();
                 setLoyaltyData(prev => ({
                     ...prev,
                     [restaurantName]: {
@@ -162,7 +162,8 @@ export const LoyaltyProvider = ({ children }) => {
                         // Hydrate with verified server data
                         completedOrders: Array(completedOrders).fill({ amount: 0 }),
                         serverTotalSpending: totalSpending,
-                        serverTotalVisits: totalVisits
+                        serverTotalVisits: totalVisits,
+                        ordersInCurrentVisit: ordersInCurrentVisit
                     }
                 }));
             }
@@ -204,6 +205,7 @@ export const LoyaltyProvider = ({ children }) => {
             totalVisits: totalVisits,
             visits: visits, // Kept for legacy compatibility if needed
             completedOrders: completedOrders,
+            ordersInCurrentVisit: log.ordersInCurrentVisit || 0,
             totalSpending: totalSpending,
             spendingProgress: spendingProgress,
             config: log.config,

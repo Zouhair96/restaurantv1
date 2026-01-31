@@ -62,6 +62,7 @@ export const handler = async (event, context) => {
         let visitCount = 0;
         let lastSessionTime = 0;
         let totalSpending = 0;
+        let currentVisitOrders = 0;
 
         for (const order of orders) {
             const orderTime = new Date(order.created_at).getTime();
@@ -72,12 +73,11 @@ export const handler = async (event, context) => {
             if (visitCount === 0 || (orderTime - lastSessionTime > SESSION_TIMEOUT)) {
                 visitCount++;
                 lastSessionTime = orderTime; // Start of new session
+                currentVisitOrders = 1; // Reset count for new visit (this is the 1st order)
             } else {
-                // Same session. Update lastSessionTime? 
-                // User said "now - last_session_at < timeout". 
-                // Usually sliding window: each activity extends session. 
-                // "Order Completion Flow... update last_session_at". Yes, extend it.
-                lastSessionTime = orderTime;
+                // Same session
+                lastSessionTime = orderTime; // Extend session window
+                currentVisitOrders++; // Increment count for this visit
             }
         }
 
@@ -87,7 +87,8 @@ export const handler = async (event, context) => {
             body: JSON.stringify({
                 completedOrders: orders.length,
                 totalSpending: totalSpending,
-                totalVisits: visitCount
+                totalVisits: visitCount,
+                ordersInCurrentVisit: currentVisitOrders
             })
         };
 

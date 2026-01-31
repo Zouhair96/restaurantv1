@@ -241,8 +241,8 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
     const totalSpending = loyaltyInfo.totalSpending || 0;
     const spendingProgress = loyaltyInfo.spendingProgress || 0;
 
-    // Condition A1: First Order (Teaser for Next Visit)
-    if (completedOrders.length === 0) {
+    // Condition A1: Visit 1 (Always Teaser, regardless of order count in this session)
+    if (totalVisits <= 1) {
         const welcomeOffer = config.welcomeConfig || { value: '15', active: true };
         const discountPercentage = parseFloat(welcomeOffer.value) || 0;
 
@@ -262,8 +262,9 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
     // Condition A2: Second Order (Welcome Discount Applied)
     // B. Welcome Discount (10% OFF)
     // Must have completed at least 1 order AND returned for a 2nd visit (session) to activate.
-    if (completedOrders.length >= 1 && totalVisits >= 2) {
-        console.log('[Loyalty] Welcome Discount Eligibile (Order count > 0 & Visit > 1)');
+    // AND must be the FIRST order of that 2nd visit (One-Time Use constraint).
+    if (completedOrders.length >= 1 && totalVisits === 2 && loyaltyInfo.ordersInCurrentVisit === 0) {
+        console.log('[Loyalty] Welcome Discount Eligibile (Order count > 0 & Visit 2 & First Order of Visit)');
         return {
             discount: orderTotal * 0.10,
             reason: 'Welcome Back! (10% Off)',
