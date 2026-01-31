@@ -135,12 +135,19 @@ export const LoyaltyProvider = ({ children }) => {
         const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
         restaurantLog.visits = restaurantLog.visits.filter(v => now - v < THIRTY_DAYS);
 
-        // Determine Status
+        // Determine Status based on SPENDING/ORDERS (Not just visits)
         const oldStatus = restaurantLog.lastOfferType;
         let status = 'SOFT';
-        if (restaurantLog.visits.length === 1) {
+
+        const completedOrders = restaurantLog.completedOrders || [];
+        const totalSpending = completedOrders.reduce((sum, order) => sum + (parseFloat(order.amount) || 0), 0);
+
+        // Threshold from config or default 50
+        const loyalThreshold = parseFloat(restaurantLog.config?.loyalConfig?.threshold || 50);
+
+        if (completedOrders.length === 0) {
             status = 'NEW';
-        } else if (restaurantLog.visits.length >= 4) {
+        } else if (totalSpending >= loyalThreshold) {
             status = 'LOYAL';
         }
 
