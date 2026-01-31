@@ -38,25 +38,56 @@ export const handler = async (event, context) => {
             targetRestaurantId = userRes.rows[0].id;
         }
 
-        // Query strict Completed orders
+        // Query strict Completed orders with Timestamps
         const result = await query(`
             SELECT 
-                COUNT(*) as completed_orders_count,
-                COALESCE(SUM(total_price), 0) as total_spending
+                total_price,
+                created_at
             FROM orders
             WHERE restaurant_id = $1 
             AND loyalty_id = $2
             AND status = 'completed'
+            ORDER BY created_at ASC
         `, [targetRestaurantId, loyaltyId]);
 
-        const stats = result.rows[0];
+        const orders = result.rows;
+
+        // --- SESSION CLUSTERING LOGIC ---
+        // Rule: One Session = Max One Visit.
+        // Rule: A session is active if now - last < SESSION_TIMEOUT
+        // We derive "Visits" by grouping orders that happened close together.
+
+        const SESSION_TIMEOUT = 3 * 60 * 1000; // 3 Minutes (Dev) - CHANGE TO 4 HOURS FOR PROD
+
+        let visitCount = 0;
+        let lastSessionTime = 0;
+        let totalSpending = 0;
+
+        for (const order of orders) {
+            const orderTime = new Date(order.created_at).getTime();
+            totalSpending += parseFloat(order.total_price) || 0;
+
+            // If this order is far enough from the last "Session Start", it counts as a new visit.
+            // If it's the first order, it's definitely a visit.
+            if (visitCount === 0 || (orderTime - lastSessionTime > SESSION_TIMEOUT)) {
+                visitCount++;
+                lastSessionTime = orderTime; // Start of new session
+            } else {
+                // Same session. Update lastSessionTime? 
+                // User said "now - last_session_at < timeout". 
+                // Usually sliding window: each activity extends session. 
+                // "Order Completion Flow... update last_session_at". Yes, extend it.
+                lastSessionTime = orderTime;
+            }
+        }
 
         return {
             statusCode: 200,
             headers,
             body: JSON.stringify({
-                completedOrders: parseInt(stats.completed_orders_count),
-                totalSpending: parseFloat(stats.total_spending)
+                completedOrders: orders.length,
+                totalSpending: totalSpending,
+                totalVisits: visitCount
             })
         };
 

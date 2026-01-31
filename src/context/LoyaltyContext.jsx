@@ -89,101 +89,23 @@ export const LoyaltyProvider = ({ children }) => {
     const trackVisit = (restaurantName) => {
         if (!restaurantName) return;
 
-        // Ensure we have the latest server stats for spending/orders
+        // PURE SERVER SOURCE OF TRUTH
+        // We do NOT track visits locally anymore. 
+        // We only ask the server: "Based on my completed orders, what is my status?"
         refreshLoyaltyStats(restaurantName);
 
-        const now = Date.now();
-
-        // Anti-Race Condition: Check Storage Directly
-        // React state might be slightly behind on mount, so we check what's actually on disk
-        const rawData = JSON.parse(localStorage.getItem(STORAGE_KEY_DATA) || '{}');
-        const rawRestaurantLog = rawData[restaurantName] || { visits: [] };
-        const rawLastVisit = rawRestaurantLog.visits && rawRestaurantLog.visits.length > 0
-            ? rawRestaurantLog.visits[rawRestaurantLog.visits.length - 1]
-            : 0;
-
-        const updatedData = { ...loyaltyData };
-
-        if (!updatedData[restaurantName]) {
-            updatedData[restaurantName] = { visits: [], completedOrders: [], lastOfferType: 'NEW', welcomeShown: false };
-        }
-
-        const restaurantLog = updatedData[restaurantName];
-        // Use rawLastVisit for the check, but still use state for the update to keep React happy
-        const lastVisit = rawLastVisit || restaurantLog.visits[restaurantLog.visits.length - 1];
-
-        const SESSION_TIMEOUT = 4 * 60 * 60 * 1000; // 4 Hours
-
-        let visitRecorded = false;
-        if (!lastVisit || (now - lastVisit > SESSION_TIMEOUT)) {
-            // New Session: Reset temporary flags
-            restaurantLog.rewardUsedInSession = false;
-            restaurantLog.isNextVisitRecovery = false;
-
-            // Check if this new visit is a "Recovery" return before pushing it
-            const delayDays = parseInt(restaurantLog.config?.recoveryConfig?.delay || 21);
-            const delayMillis = delayDays * 24 * 60 * 60 * 1000;
-
-            if (lastVisit && (now - lastVisit > delayMillis)) {
-                // Determine if they are allowed another reward yet (Frequency)
-                const freqDays = parseInt(restaurantLog.config?.recoveryConfig?.frequency || 30);
-                const freqMillis = freqDays * 24 * 60 * 60 * 1000;
-                const lastRewardDate = restaurantLog.lastRecoveryDate || 0;
-
-                if (now - lastRewardDate > freqMillis) {
-                    restaurantLog.lastRecoveryDate = now;
-                    restaurantLog.isNextVisitRecovery = true;
-                    syncLoyaltyEvent(restaurantName, 'recovery_visit');
-                }
-            }
-
-            restaurantLog.visits.push(now);
-            visitRecorded = true;
-            if (!restaurantLog.isNextVisitRecovery) {
-                syncLoyaltyEvent(restaurantName, 'visit');
-            }
-        }
-
-        // Cleanup: Remove visits older than 30 days
-        const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
-        restaurantLog.visits = restaurantLog.visits.filter(v => now - v < THIRTY_DAYS);
-
-        // Determine Status based on SPENDING/ORDERS (Not just visits)
-        const oldStatus = restaurantLog.lastOfferType;
-        let status = 'SOFT';
-
-        const completedOrders = restaurantLog.completedOrders || [];
-        const totalSpending = completedOrders.reduce((sum, order) => sum + (parseFloat(order.amount) || 0), 0);
-
-        // Threshold from config or default 50
-        const loyalThreshold = parseFloat(restaurantLog.config?.loyalConfig?.threshold || 50);
-
-        if (completedOrders.length === 0) {
-            status = 'NEW';
-        } else if (totalSpending >= loyalThreshold) {
-            status = 'LOYAL';
-        }
-
-        restaurantLog.lastOfferType = status;
-
-        if (status === 'LOYAL' && oldStatus !== 'LOYAL') {
-            syncLoyaltyEvent(restaurantName, 'loyal_status_reached');
-        }
-
-        setLoyaltyData(updatedData);
-        localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(updatedData));
-
-        return status;
+        // We return 'SOFT' as a placeholder, the UI will react to the async data update
+        return 'SOFT';
     };
 
     const markWelcomeAsShown = (restaurantName) => {
         if (!restaurantName) return;
-
+        // Keep local memory for "Popup dismissal" only (UI state)
         setLoyaltyData(prev => {
             const updated = {
                 ...prev,
                 [restaurantName]: {
-                    ...(prev[restaurantName] || { visits: [], lastOfferType: 'NEW' }),
+                    ...(prev[restaurantName] || {}),
                     welcomeShown: true
                 }
             };
@@ -193,31 +115,16 @@ export const LoyaltyProvider = ({ children }) => {
     };
 
     const markRewardAsUsed = (restaurantName) => {
-        console.log('[Loyalty] markRewardAsUsed called for:', restaurantName);
+        // Implement reward usage tracking if needed, or rely on backend
+        // For now, keeping local optimistic update for UI feedback
         if (!restaurantName) return;
-
-        setLoyaltyData(prev => {
-            const currentData = prev[restaurantName] || { visits: [], lastOfferType: 'NEW' };
-            const isWelcomePhase = currentData.lastOfferType === 'NEW';
-
-            console.log('[Loyalty] Current Data:', currentData);
-            console.log('[Loyalty] isWelcomePhase:', isWelcomePhase);
-
-            const updated = {
-                ...prev,
-                [restaurantName]: {
-                    ...currentData,
-                    rewardUsedInSession: true,
-                    // If they are NEW and used a reward, mark welcome as permanently redeemed
-                    welcomeRedeemed: isWelcomePhase ? true : currentData.welcomeRedeemed
-                }
-            };
-            console.log('[Loyalty] Updated Data:', updated[restaurantName]);
-            localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(updated));
-            return updated;
-        });
-
-        syncLoyaltyEvent(restaurantName, 'reward_claimed');
+        setLoyaltyData(prev => ({
+            ...prev,
+            [restaurantName]: {
+                ...(prev[restaurantName] || {}),
+                rewardUsedInSession: true // Just hides it for this session
+            }
+        }));
     };
 
     const fetchLoyaltyStatus = async (restaurantName) => {
@@ -245,21 +152,17 @@ export const LoyaltyProvider = ({ children }) => {
     const refreshLoyaltyStats = async (restaurantName) => {
         if (!restaurantName || !clientId) return;
         try {
-            // We'll use a new query param 'restaurantName' in the API or look it up
-            // Updated API strategy: create a dedicated 'get-loyalty-status' that accepts name.
             const response = await fetch(`/.netlify/functions/get-loyalty-status?restaurantName=${restaurantName}&loyaltyId=${clientId}`);
             if (response.ok) {
-                const { completedOrders, totalSpending } = await response.json();
+                const { completedOrders, totalSpending, totalVisits } = await response.json();
                 setLoyaltyData(prev => ({
                     ...prev,
                     [restaurantName]: {
                         ...(prev[restaurantName] || {}),
-                        completedOrders: Array(completedOrders).fill({ amount: 0 }), // Dummy array for length check
-                        // We store the sum directly? The existing logic uses reduce on completedOrders.
-                        // We need to refactor 'getStatus' to use this totalSpending directly or mock the objects.
-                        // Let's Mock objects:
+                        // Hydrate with verified server data
                         completedOrders: Array(completedOrders).fill({ amount: 0 }),
-                        serverTotalSpending: totalSpending // Store authoritative total
+                        serverTotalSpending: totalSpending,
+                        serverTotalVisits: totalVisits
                     }
                 }));
             }
@@ -269,13 +172,7 @@ export const LoyaltyProvider = ({ children }) => {
     };
 
     const recordCompletedOrder = (restaurantName, finalAmount) => {
-        console.log('[Loyalty] Pending Order Placed:', restaurantName, 'amount:', finalAmount);
-        // DO NOT add to local state immediately. 
-        // Logic: "dont move to other step till the order be completes"
-        // We do nothing here. The user stays on current step.
-        // When they pay and order becomes 'completed', a refresh (or poll) will pick it up.
-
-        // Optional: Trigger a refresh just in case it was instant (e.g. 0 cost?)
+        // Just trigger a refresh to see if status changed
         setTimeout(() => refreshLoyaltyStats(restaurantName), 2000);
     };
 
@@ -291,6 +188,9 @@ export const LoyaltyProvider = ({ children }) => {
             ? parseFloat(log.serverTotalSpending)
             : completedOrders.reduce((sum, order) => sum + (order.amount || 0), 0);
 
+        // Use Server-Side Visit Count
+        const totalVisits = log.serverTotalVisits !== undefined ? parseInt(log.serverTotalVisits) : 0;
+
         // Calculate progress toward loyal threshold
         const threshold = parseFloat(log.config?.loyalConfig?.threshold || 50);
         const spendingProgress = Math.min(100, Math.round((totalSpending / threshold) * 100));
@@ -301,13 +201,12 @@ export const LoyaltyProvider = ({ children }) => {
 
         return {
             status: log.lastOfferType,
-            totalVisits: visits.length,
-            visits: visits,
+            totalVisits: totalVisits,
+            visits: visits, // Kept for legacy compatibility if needed
             completedOrders: completedOrders,
             totalSpending: totalSpending,
             spendingProgress: spendingProgress,
             config: log.config,
-            isRecoveryEligible,
             isRecoveryEligible,
             welcomeShown: !!log.welcomeShown,
             welcomeRedeemed: !!log.welcomeRedeemed
