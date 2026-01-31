@@ -240,10 +240,31 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
     const totalSpending = loyaltyInfo.totalSpending || 0;
     const spendingProgress = loyaltyInfo.spendingProgress || 0;
 
-    // Condition A: First Order (Welcome Offer)
+    // Condition A1: First Order (Teaser for Next Visit)
     if (completedOrders.length === 0) {
         const welcomeOffer = config.welcomeConfig || { value: '15', active: true };
         const discountPercentage = parseFloat(welcomeOffer.value) || 0;
+
+        if (welcomeOffer.active !== false && discountPercentage > 0) {
+            return {
+                discount: 0,
+                reason: null,
+                welcomeTeaser: true,
+                teaserMessage: `Order now to unlock ${discountPercentage}% OFF your next visit!`,
+                showProgress: false,
+                progressPercentage: 0,
+                needsMoreSpending: false
+            };
+        }
+    }
+
+    // Condition A2: Second Order (Welcome Discount Applied)
+    if (completedOrders.length === 1) {
+        const welcomeOffer = config.welcomeConfig || { value: '15', active: true };
+        const discountPercentage = parseFloat(welcomeOffer.value) || 0;
+
+        // Check if they already used it? (Ideally tracked in DB, but for now assuming if they have exactly 1 order they get it)
+        // We could add `&& !loyaltyInfo.welcomeRedeemed` if that flag was reliably synced from orders
 
         if (welcomeOffer.active !== false && discountPercentage > 0) {
             const discountFactor = discountPercentage / 100;
@@ -251,7 +272,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
                 discount: orderTotal * discountFactor,
                 reason: `Welcome Offer (${discountPercentage}%)`,
                 welcomeTeaser: true,
-                teaserMessage: `First Order Special: ${discountPercentage}% OFF!`,
+                teaserMessage: `Your ${discountPercentage}% welcome discount is active!`,
                 showProgress: false,
                 progressPercentage: 0,
                 needsMoreSpending: false
