@@ -154,26 +154,16 @@ export const LoyaltyProvider = ({ children }) => {
         try {
             const response = await fetch(`/.netlify/functions/get-loyalty-status?restaurantName=${restaurantName}&loyaltyId=${clientId}`);
             if (response.ok) {
-                const { completedOrders, totalSpending, totalVisits, ordersInCurrentVisit, lastOrderTime } = await response.json();
-
-                // PREDICTIVE VISIT LOGIC
-                // If enough time has passed since the last order, this CURRENT interaction counts as a New Session.
-                // This ensures we show "Visit 2" rewards BEFORE they complete the order.
-                const SESSION_TIMEOUT = 3 * 60 * 1000; // 3 Minutes (Dev) - Sync with Server
-                const isNewSession = lastOrderTime > 0 && (Date.now() - lastOrderTime > SESSION_TIMEOUT);
-
-                const effectiveVisits = isNewSession ? totalVisits + 1 : totalVisits;
-                const effectiveOrdersInVisit = isNewSession ? 0 : ordersInCurrentVisit;
+                const { completedOrders, totalSpending, totalVisits, ordersInCurrentVisit } = await response.json();
 
                 setLoyaltyData(prev => ({
                     ...prev,
                     [restaurantName]: {
                         ...(prev[restaurantName] || {}),
-                        // Hydrate with verified server data
                         completedOrders: Array(completedOrders).fill({ amount: 0 }),
                         serverTotalSpending: totalSpending,
-                        serverTotalVisits: effectiveVisits, // Use Predicted
-                        ordersInCurrentVisit: effectiveOrdersInVisit // Use Predicted
+                        serverTotalVisits: totalVisits,
+                        ordersInCurrentVisit: ordersInCurrentVisit
                     }
                 }));
             }

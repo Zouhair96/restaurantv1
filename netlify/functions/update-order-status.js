@@ -170,14 +170,12 @@ export const handler = async (event, context) => {
                 })
             };
         } else if (status === 'completed') {
-            // Mark welcome offer as used if this order had a loyalty discount
+            // --- LOYALTY LOGIC: Increment visit count on first completion of session ---
             const orderInfo = await query(
-                'SELECT loyalty_discount_applied, loyalty_discount_amount, customer_id FROM orders WHERE id = $1',
+                'SELECT loyalty_id, restaurant_id, status FROM orders WHERE id = $1',
                 [orderId]
             );
-
-            const hadLoyaltyDiscount = orderInfo.rows[0]?.loyalty_discount_applied;
-            const customerId = orderInfo.rows[0]?.customer_id;
+            const { loyalty_id: loyaltyId, restaurant_id: orderRestaurantId, status: prevStatus } = orderInfo.rows[0] || {};
 
             // Update order status
             let updateQuery = `
@@ -188,10 +186,53 @@ export const handler = async (event, context) => {
             `;
             updateResult = await query(updateQuery, [status, orderId]);
 
-            // If order had loyalty discount and customer exists, mark reward as used
-            // This will be handled client-side via event listener or webhook
-            // For now, we just complete the order - the client will handle marking
+            // ONLY process loyalty if moving to completed for the FIRST time
+            if (loyaltyId && prevStatus !== 'completed') {
+                const visitorRes = await query(
+                    'SELECT * FROM loyalty_visitors WHERE restaurant_id = $1 AND device_id = $2',
+                    [orderRestaurantId, loyaltyId]
+                );
+                const visitor = visitorRes.rows[0];
 
+                if (visitor) {
+                    const now = new Date();
+                    const lastSessionTime = new Date(visitor.last_session_at).getTime();
+                    const SESSION_TIMEOUT = 3 * 60 * 1000; // 3 min dev
+
+                    // If session expired, this is effectively a first order of a new implied session
+                    const isSessionActive = (now.getTime() - lastSessionTime) < SESSION_TIMEOUT;
+                    let effectiveOrders = parseInt(visitor.orders_in_current_session || 0);
+                    if (!isSessionActive) effectiveOrders = 0;
+
+                    const isFirstOrderInSession = effectiveOrders === 0;
+
+                    let newVisitCount = visitor.visit_count;
+                    let lastVisitAt = visitor.last_visit_at;
+
+                    if (isFirstOrderInSession) {
+                        newVisitCount++;
+                        lastVisitAt = now;
+                    }
+
+                    // Update step based on Spec (Visit 1-NEW, Visit 2-WELCOME, Visit 4-LOYAL)
+                    let newStep = 'NEW';
+                    if (newVisitCount >= 4) newStep = 'LOYAL';
+                    else if (newVisitCount === 2) newStep = 'WELCOME';
+                    else if (newVisitCount === 3) newStep = 'IN_PROGRESS';
+                    else if (newVisitCount === 1) newStep = 'NEW';
+
+                    await query(`
+                        UPDATE loyalty_visitors 
+                        SET 
+                            visit_count = $1,
+                            last_visit_at = $2,
+                            last_session_at = NOW(),
+                            orders_in_current_session = $3,
+                            current_step = $4
+                        WHERE id = $5
+                    `, [newVisitCount, lastVisitAt, effectiveOrders + 1, newStep, visitor.id]);
+                }
+            }
         } else {
             // Standard update for other statuses
             let updateQuery = `

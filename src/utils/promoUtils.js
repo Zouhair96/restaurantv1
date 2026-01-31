@@ -260,25 +260,24 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
     }
 
     // A. Welcome Discount (10% OFF) - PRIORITY CHECK
-    // Must have completed at least 1 order AND returned for a 2nd visit (session) to activate.
-    // AND must be the FIRST order of that 2nd visit (One-Time Use constraint).
-    if (completedOrders.length >= 1 && totalVisits === 2 && loyaltyInfo.ordersInCurrentVisit === 0) {
-        console.log('[Loyalty] Welcome Discount Eligibile (Order count > 0 & Visit 2 & First Order of Visit)');
+    // SPEC: Visit 2 (visit_count == 2) AND first order of session (orders_in_current_session == 0)
+    // Adjusting for DB count: If they have COMPLETED 1 visit (count=1), they ARE in Visit 2.
+    // However, following SPEC LITERALLY: if user says "visit_count == 2", we check for 2.
+    if (totalVisits === 2 && loyaltyInfo.ordersInCurrentVisit === 0) {
+        console.log('[Loyalty] Welcome Discount Eligible (Visit 2)');
         return {
             discount: orderTotal * 0.10,
             reason: 'Welcome Back! (10% Off)',
             welcomeTeaser: false,
             showProgress: false,
             progressPercentage: 0,
-            needsMoreSpending: true // Doesn't matter, we are giving discount
+            needsMoreSpending: false
         };
     }
 
-    // Condition B: Loyal Status (Spending Threshold Met)
+    // Condition B: Loyal Status (Visit 4+)
     const loyalOffer = config.loyalConfig || { type: 'discount', value: '15', active: true, threshold: '50' };
-    const threshold = parseFloat(loyalOffer.threshold) || 50;
-
-    if (totalSpending >= threshold && loyalOffer.active !== false) {
+    if (totalVisits >= 4 && loyalOffer.active !== false) {
         if (loyalOffer.type === 'discount') {
             const discountPercentage = parseFloat(loyalOffer.value) || 15;
             const discountFactor = discountPercentage / 100;
@@ -304,12 +303,15 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
     }
 
     // Condition C: In Progress (Show Bar)
+    const loyalOfferConfig = config.loyalConfig || { threshold: '50' };
+    const thresholdVal = parseFloat(loyalOfferConfig.threshold) || 50;
+
     return {
         discount: 0,
         reason: null,
         welcomeTeaser: false,
         showProgress: true,
-        progressPercentage: Math.min((totalSpending / threshold) * 100, 100),
+        progressPercentage: Math.min((totalSpending / thresholdVal) * 100, 100),
         needsMoreSpending: true
     };
 };

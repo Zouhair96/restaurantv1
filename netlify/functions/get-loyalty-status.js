@@ -52,46 +52,71 @@ export const handler = async (event, context) => {
 
         const orders = result.rows;
 
-        // --- SESSION CLUSTERING LOGIC ---
-        // Rule: One Session = Max One Visit.
-        // Rule: A session is active if now - last < SESSION_TIMEOUT
-        // We derive "Visits" by grouping orders that happened close together.
+        // --- STRICT SERVER-SIDE SESSION & VISIT LOGIC (DB-BACKED) ---
+        const SESSION_TIMEOUT = 3 * 60 * 1000; // 3 Minutes (Dev) - Configurable
+        const now = new Date();
 
-        const SESSION_TIMEOUT = 3 * 60 * 1000; // 3 Minutes (Dev) - CHANGE TO 4 HOURS FOR PROD
+        // 1. Get Visitor State (Persistent Session)
+        let visitorRes = await query(`
+            SELECT * FROM loyalty_visitors 
+            WHERE restaurant_id = $1 AND device_id = $2
+        `, [targetRestaurantId, loyaltyId]);
 
+        let visitor = visitorRes.rows[0];
         let visitCount = 0;
-        let lastSessionTime = 0;
-        let totalSpending = 0;
-        let currentVisitOrders = 0;
+        let ordersInCurrentSession = 0;
+        // let currentStep = 'NEW'; // Not returned to Client yet, frontend determines from visitCount
 
-        for (const order of orders) {
-            const orderTime = new Date(order.created_at).getTime();
-            totalSpending += parseFloat(order.total_price) || 0;
+        if (!visitor) {
+            // New User: Create Record (Visit 0, Start Session)
+            const insertRes = await query(`
+                INSERT INTO loyalty_visitors (restaurant_id, device_id, visit_count, last_session_at, current_step, orders_in_current_session)
+                VALUES ($1, $2, 0, NOW(), 'NEW', 0)
+                RETURNING *
+            `, [targetRestaurantId, loyaltyId]);
+            visitor = insertRes.rows[0];
+            visitCount = 0;
+            ordersInCurrentSession = 0;
+        } else {
+            // Existing User: Check Session
+            const lastSessionTime = new Date(visitor.last_session_at).getTime();
+            const timeDiff = now.getTime() - lastSessionTime;
 
-            // If this order is far enough from the last "Session Start", it counts as a new visit.
-            // If it's the first order, it's definitely a visit.
-            if (visitCount === 0 || (orderTime - lastSessionTime > SESSION_TIMEOUT)) {
-                visitCount++;
-                lastSessionTime = orderTime; // Start of new session
-                currentVisitOrders = 1; // Reset count for new visit (this is the 1st order)
+            if (timeDiff > SESSION_TIMEOUT) {
+                // NEW SESSION DETECTED
+                // Action: Update last_session_at (Keep session alive), Reset orders_in_current_session
+                // CRITICAL: DO NOT INCREMENT VISIT COUNT (Only Orders do that)
+                visitCount = visitor.visit_count; // Keep existing count
+                ordersInCurrentSession = 0;
+
+                await query(`
+                    UPDATE loyalty_visitors 
+                    SET last_session_at = NOW(), orders_in_current_session = 0
+                    WHERE id = $1
+                `, [visitor.id]);
             } else {
-                // Same session
-                lastSessionTime = orderTime; // Extend session window
-                currentVisitOrders++; // Increment count for this visit
+                // ACTIVE SESSION
+                // Action: Extend session (keep alive)
+                visitCount = visitor.visit_count;
+                ordersInCurrentSession = visitor.orders_in_current_session;
+
+                await query(`
+                    UPDATE loyalty_visitors 
+                    SET last_session_at = NOW()
+                    WHERE id = $1
+                `, [visitor.id]);
             }
         }
 
-        const lastOrderTime = orders.length > 0 ? new Date(orders[orders.length - 1].created_at).getTime() : 0;
-
+        // Return Authoritative Server State
         return {
             statusCode: 200,
             headers,
             body: JSON.stringify({
-                completedOrders: orders.length,
-                totalSpending: totalSpending,
-                totalVisits: visitCount,
-                ordersInCurrentVisit: currentVisitOrders,
-                lastOrderTime: lastOrderTime
+                completedOrders: orders.length, // Legacy/Display
+                totalSpending: totalSpending,   // Legacy/Display
+                totalVisits: visitCount,        // FROM DB (Authoritative)
+                ordersInCurrentVisit: ordersInCurrentSession // FROM DB (Authoritative)
             })
         };
 
