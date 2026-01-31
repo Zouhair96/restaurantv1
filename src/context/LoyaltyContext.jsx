@@ -98,10 +98,11 @@ export const LoyaltyProvider = ({ children }) => {
 
         const restaurantLog = updatedData[restaurantName];
         const lastVisit = restaurantLog.visits[restaurantLog.visits.length - 1];
-        const FOUR_HOURS = 4 * 60 * 60 * 1000;
+        // const SESSION_TIMEOUT = 4 * 60 * 60 * 1000; // Original 4 hours
+        const SESSION_TIMEOUT = 1 * 60 * 1000; // 1 Minute for testing
 
         let visitRecorded = false;
-        if (!lastVisit || (now - lastVisit > FOUR_HOURS)) {
+        if (!lastVisit || (now - lastVisit > SESSION_TIMEOUT)) {
             // New Session: Reset temporary flags
             restaurantLog.rewardUsedInSession = false;
             restaurantLog.isNextVisitRecovery = false;
