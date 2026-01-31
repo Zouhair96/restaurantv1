@@ -306,6 +306,7 @@ const Checkout = ({
                                         completedOrders={loyaltyInfo?.completedOrders || []}
                                         loyaltyConfig={loyaltyInfo?.config || {}}
                                         isDarkMode={isDarkMode}
+                                        currentSpending={loyaltyInfo?.serverTotalSpending ?? loyaltyInfo?.totalSpending}
                                     />
                                 )}
                                 {taxConfig.applyTax && (

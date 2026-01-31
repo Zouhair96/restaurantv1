@@ -292,7 +292,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
                 discount: orderTotal * discountFactor,
                 reason: `Loyal Customer Reward (${discountPercentage}%)`,
                 welcomeTeaser: false,
-                showProgress: true,
+                showProgress: false,
                 progressPercentage: 100,
                 needsMoreSpending: false
             };
@@ -302,7 +302,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
                 giftItem: loyalOffer.value,
                 reason: `Loyal Customer Gift: ${loyalOffer.value}`,
                 welcomeTeaser: false,
-                showProgress: true,
+                showProgress: false,
                 progressPercentage: 100,
                 needsMoreSpending: false
             };

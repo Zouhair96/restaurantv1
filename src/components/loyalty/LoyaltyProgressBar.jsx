@@ -1,24 +1,28 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const LoyaltyProgressBar = ({ completedOrders = [], loyaltyConfig = {}, isDarkMode = false }) => {
+const LoyaltyProgressBar = ({ completedOrders = [], loyaltyConfig = {}, isDarkMode = false, currentSpending = null }) => {
     // Calculate Spending Progress
-    const totalSpending = completedOrders.reduce((sum, order) => sum + (parseFloat(order.amount) || 0), 0);
+    // Use trusted currentSpending if passed (fixes mismatch with server stats), otherwise fallback to local calc
+    const totalSpending = currentSpending !== null
+        ? parseFloat(currentSpending)
+        : completedOrders.reduce((sum, order) => sum + (parseFloat(order.amount) || 0), 0);
+
     const threshold = parseFloat(loyaltyConfig?.loyalConfig?.threshold || 50);
 
     // Cap percentage at 100%
     const percentage = Math.min((totalSpending / threshold) * 100, 100);
-    const amountLeft = Math.max(0, threshold - totalSpending);
 
     // Determine message based on Spending
     const getMessage = () => {
-        if (completedOrders.length === 0) {
+        if (completedOrders.length === 0 && totalSpending === 0) {
             return "👋 Place your first order to start unlocking rewards!";
         }
         if (percentage >= 100) {
             return "🎉 Loyal status unlocked! Enjoy your reward!";
         }
-        return `🎯 Keep going! Spend €${amountLeft.toFixed(2)} more to unlock rewards!`;
+        return "🎯 Keep going! You're getting closer to your reward!";
     };
 
     return (
