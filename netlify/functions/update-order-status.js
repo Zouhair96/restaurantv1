@@ -241,6 +241,14 @@ export const handler = async (event, context) => {
                             current_step = $4
                         WHERE id = $5
                     `, [newVisitCount, lastVisitAt, effectiveOrders + 1, newStep, visitor.id]);
+
+                    // Record event for dashboard analytics if they hit Loyal tier
+                    if (newStep === 'LOYAL' && isFirstOrderInSession) {
+                        await query(
+                            'INSERT INTO visitor_events (restaurant_id, visitor_uuid, event_type, created_at) VALUES ($1, $2, $3, NOW())',
+                            [orderRestaurantId, loyaltyId, 'loyal_status_reached']
+                        );
+                    }
                 }
             }
         } else {

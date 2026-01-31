@@ -48,6 +48,12 @@ export const handler = async (event, context) => {
             [restaurantId]
         );
 
+        // ALSO delete from the new loyalty_visitors table (The source of truth for visit counts)
+        const visitorReset = await query(
+            'DELETE FROM loyalty_visitors WHERE restaurant_id = $1',
+            [restaurantId]
+        );
+
         // Update the loyalty_config with a reset timestamp so clients know to wipe their local storage
         await query(
             `UPDATE users 
@@ -60,16 +66,14 @@ export const handler = async (event, context) => {
             [Date.now(), restaurantId]
         );
 
-        // Also reset loyalty_config if needed? No, user probably wants to keep config but reset stats.
-        // But maybe they want to reset 'users' table loyalty_config? No, likely just scans.
-
         return {
             statusCode: 200,
             headers,
             body: JSON.stringify({
                 success: true,
-                message: `Successfully deleted ${result.rowCount} visitor events`,
-                deletedCount: result.rowCount
+                message: `Successfully reset loyalty data. Deleted ${result.rowCount} legacy events and ${visitorReset.rowCount} visitor records.`,
+                deletedCount: result.rowCount,
+                visitorsResetCount: visitorReset.rowCount
             })
         };
 
