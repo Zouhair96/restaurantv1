@@ -49,12 +49,32 @@ export const LoyaltyProvider = ({ children }) => {
                 const data = await response.json();
                 if (data.loyalty_config) {
                     setLoyaltyData(prev => {
+                        const currentData = prev[restaurantName] || { visits: [], lastOfferType: 'NEW' };
+                        let updatedRestaurantData = {
+                            ...currentData,
+                            config: data.loyalty_config
+                        };
+
+                        // CHECK FOR GLOBAL RESET FROM SERVER
+                        const serverResetTime = data.loyalty_config.last_reset_timestamp;
+                        const localResetTime = currentData.lastResetTimestamp || 0;
+
+                        if (serverResetTime && serverResetTime > localResetTime) {
+                            console.log('[Loyalty] Global reset detected from server. Wiping local history.');
+                            updatedRestaurantData = {
+                                ...updatedRestaurantData,
+                                visits: [],
+                                completedOrders: [],
+                                lastOfferType: 'NEW', // Force status back to new
+                                welcomeShown: false,
+                                welcomeRedeemed: false,
+                                lastResetTimestamp: serverResetTime // Sync timestamp
+                            };
+                        }
+
                         const updated = {
                             ...prev,
-                            [restaurantName]: {
-                                ...(prev[restaurantName] || { visits: [], lastOfferType: 'NEW' }),
-                                config: data.loyalty_config
-                            }
+                            [restaurantName]: updatedRestaurantData
                         };
                         localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(updated));
                         return updated;

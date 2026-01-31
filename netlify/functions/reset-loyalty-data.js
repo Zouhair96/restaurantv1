@@ -48,6 +48,18 @@ export const handler = async (event, context) => {
             [restaurantId]
         );
 
+        // Update the loyalty_config with a reset timestamp so clients know to wipe their local storage
+        await query(
+            `UPDATE users 
+             SET loyalty_config = jsonb_set(
+                 COALESCE(loyalty_config, '{}'::jsonb), 
+                 '{last_reset_timestamp}', 
+                 $1::jsonb
+             ) 
+             WHERE id = $2`,
+            [Date.now(), restaurantId]
+        );
+
         // Also reset loyalty_config if needed? No, user probably wants to keep config but reset stats.
         // But maybe they want to reset 'users' table loyalty_config? No, likely just scans.
 
