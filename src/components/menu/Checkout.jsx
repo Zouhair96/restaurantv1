@@ -19,7 +19,7 @@ const Checkout = ({
 }) => {
     const { cartItems, getCartTotal, clearCart, updateQuantity, removeFromCart } = useCart();
     const { language, t: globalT } = useLanguage();
-    const { getStatus, markRewardAsUsed, recordCompletedOrder } = useLoyalty();
+    const { getStatus, markRewardAsUsed, recordCompletedOrder, clientId } = useLoyalty();
     const loyaltyInfo = getStatus(restaurantName);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -69,7 +69,8 @@ const Checkout = ({
                 subtotal: subtotal,
                 loyalty_discount_applied: loyaltyDiscount > 0 || !!loyaltyGift,
                 loyalty_discount_amount: loyaltyDiscount,
-                loyalty_gift_item: loyaltyGift
+                loyalty_gift_item: loyaltyGift,
+                loyalty_id: clientId
             };
 
             const token = localStorage.getItem('client_token');

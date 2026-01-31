@@ -37,7 +37,8 @@ export const handler = async (event, context) => {
                 "ADD COLUMN IF NOT EXISTS loyalty_discount_amount NUMERIC DEFAULT 0",
                 "ADD COLUMN IF NOT EXISTS loyalty_gift_item TEXT",
                 "ADD COLUMN IF NOT EXISTS commission_recorded BOOLEAN DEFAULT false",
-                "ADD COLUMN IF NOT EXISTS stripe_checkout_session_id TEXT"
+                "ADD COLUMN IF NOT EXISTS stripe_checkout_session_id TEXT",
+                "ADD COLUMN IF NOT EXISTS loyalty_id TEXT"
             ];
             for (const fix of tableFixes) {
                 await query(`ALTER TABLE orders ${fix}`).catch(e => console.warn(`[DB Patch] ${fix} failed:`, e.message));
@@ -52,7 +53,8 @@ export const handler = async (event, context) => {
             paymentMethod, items, totalPrice,
             loyalty_discount_applied = false,
             loyalty_discount_amount = 0,
-            loyalty_gift_item = null
+            loyalty_gift_item = null,
+            loyalty_id = null
         } = body;
 
         // Optional: Get customer ID from token if present
@@ -171,9 +173,10 @@ export const handler = async (event, context) => {
                 payment_method, items, total_price, status, customer_id, 
                 commission_amount, payment_status, order_number,
                 loyalty_discount_applied, loyalty_discount_amount, loyalty_gift_item,
+                loyalty_id,
                 created_at, updated_at
             )
-             VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending', $8, $9, $10, $11, $12, $13, $14, NOW(), NOW())
+             VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending', $8, $9, $10, $11, $12, $13, $14, $15, NOW(), NOW())
              RETURNING id, created_at`,
             [
                 restaurantId,
@@ -189,7 +192,8 @@ export const handler = async (event, context) => {
                 order_number,
                 loyalty_discount_applied,
                 loyalty_discount_amount,
-                loyalty_gift_item
+                loyalty_gift_item,
+                loyalty_id
             ]
         );
 

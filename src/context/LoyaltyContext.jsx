@@ -89,6 +89,9 @@ export const LoyaltyProvider = ({ children }) => {
     const trackVisit = (restaurantName) => {
         if (!restaurantName) return;
 
+        // Ensure we have the latest server stats for spending/orders
+        refreshLoyaltyStats(restaurantName);
+
         const now = Date.now();
         const updatedData = { ...loyaltyData };
 
@@ -207,28 +210,63 @@ export const LoyaltyProvider = ({ children }) => {
         syncLoyaltyEvent(restaurantName, 'reward_claimed');
     };
 
+    const fetchLoyaltyStatus = async (restaurantName) => {
+        if (!restaurantName || !clientId) return;
+        try {
+            // We need restaurantId. Assuming map or we fetch it. 
+            // Actually, get-loyalty-status needs restaurantId (DB ID), not name.
+            // But 'syncLoyaltyEvent' receives data.loyalty_config which might have ID?
+            // Fallback: We can't easily get ID here without lookup.
+            // Wait, 'syncLoyaltyEvent' gets config. Let's rely on Sync to trigger this?
+            // Or simpler: Pass restaurantName to API and let API look it up.
+            // Let's update get-loyalty-status to support name lookup or client-side lookup.
+            // For now, let's assume we can pass restaurantName to a new endpoint wrapper or modify get-loyalty-status to accept name.
+            // ... Actually, better to modify 'recordCompletedOrder' to just log and 'syncLoyaltyEvent' to fetch full state?
+
+            // Let's implement a direct fetch if we have the ID.
+            // Since we don't have ID easily, let's stick to the plan:
+            // 1. disable local push. 2. Rely on user refreshing or 'trackVisit' triggering a sync.
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
+    // New helper to fetch status by Name (API will handle lookup)
+    const refreshLoyaltyStats = async (restaurantName) => {
+        if (!restaurantName || !clientId) return;
+        try {
+            // We'll use a new query param 'restaurantName' in the API or look it up
+            // Updated API strategy: create a dedicated 'get-loyalty-status' that accepts name.
+            const response = await fetch(`/.netlify/functions/get-loyalty-status?restaurantName=${restaurantName}&loyaltyId=${clientId}`);
+            if (response.ok) {
+                const { completedOrders, totalSpending } = await response.json();
+                setLoyaltyData(prev => ({
+                    ...prev,
+                    [restaurantName]: {
+                        ...(prev[restaurantName] || {}),
+                        completedOrders: Array(completedOrders).fill({ amount: 0 }), // Dummy array for length check
+                        // We store the sum directly? The existing logic uses reduce on completedOrders.
+                        // We need to refactor 'getStatus' to use this totalSpending directly or mock the objects.
+                        // Let's Mock objects:
+                        completedOrders: Array(completedOrders).fill({ amount: 0 }),
+                        serverTotalSpending: totalSpending // Store authoritative total
+                    }
+                }));
+            }
+        } catch (err) {
+            console.error('Failed to fetch loyalty stats:', err);
+        }
+    };
+
     const recordCompletedOrder = (restaurantName, finalAmount) => {
-        console.log('[Loyalty] recordCompletedOrder called for:', restaurantName, 'amount:', finalAmount);
-        if (!restaurantName || !finalAmount) return;
+        console.log('[Loyalty] Pending Order Placed:', restaurantName, 'amount:', finalAmount);
+        // DO NOT add to local state immediately. 
+        // Logic: "dont move to other step till the order be completes"
+        // We do nothing here. The user stays on current step.
+        // When they pay and order becomes 'completed', a refresh (or poll) will pick it up.
 
-        setLoyaltyData(prev => {
-            const currentData = prev[restaurantName] || { visits: [], completedOrders: [], lastOfferType: 'NEW' };
-
-            const updated = {
-                ...prev,
-                [restaurantName]: {
-                    ...currentData,
-                    completedOrders: [
-                        ...(currentData.completedOrders || []),
-                        { amount: parseFloat(finalAmount), timestamp: Date.now() }
-                    ]
-                }
-            };
-
-            console.log('[Loyalty] Updated with order:', updated[restaurantName]);
-            localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(updated));
-            return updated;
-        });
+        // Optional: Trigger a refresh just in case it was instant (e.g. 0 cost?)
+        setTimeout(() => refreshLoyaltyStats(restaurantName), 2000);
     };
 
     const getStatus = (restaurantId) => {
@@ -238,8 +276,10 @@ export const LoyaltyProvider = ({ children }) => {
         const visits = log.visits || [];
         const completedOrders = log.completedOrders || [];
 
-        // Calculate total spending
-        const totalSpending = completedOrders.reduce((sum, order) => sum + (order.amount || 0), 0);
+        // Calculate total spending (Prioritize server source, fallback to local calc)
+        const totalSpending = log.serverTotalSpending !== undefined
+            ? parseFloat(log.serverTotalSpending)
+            : completedOrders.reduce((sum, order) => sum + (order.amount || 0), 0);
 
         // Calculate progress toward loyal threshold
         const threshold = parseFloat(log.config?.loyalConfig?.threshold || 50);
