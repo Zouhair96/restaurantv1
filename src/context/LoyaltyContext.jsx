@@ -101,7 +101,7 @@ export const LoyaltyProvider = ({ children }) => {
 
         const restaurantLog = updatedData[restaurantName];
         const lastVisit = restaurantLog.visits[restaurantLog.visits.length - 1];
-        const SESSION_TIMEOUT = 3 * 60 * 1000; // 3 Minutes for testing
+        const SESSION_TIMEOUT = 4 * 60 * 60 * 1000; // 4 Hours
 
         let visitRecorded = false;
         if (!lastVisit || (now - lastVisit > SESSION_TIMEOUT)) {
