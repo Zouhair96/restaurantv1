@@ -200,8 +200,15 @@ export const LoyaltyProvider = ({ children }) => {
         // AND it hasn't been used yet in this session
         const isRecoveryEligible = !!log.isNextVisitRecovery && !log.rewardUsedInSession;
 
+        // Derive UI status based on server-synced visit count
+        let currentStatus = 'NEW';
+        if (totalVisits === 0) currentStatus = 'NEW';
+        else if (totalVisits === 1) currentStatus = 'WELCOME';
+        else if (totalVisits === 2) currentStatus = 'IN_PROGRESS';
+        else if (totalVisits >= 3) currentStatus = 'LOYAL';
+
         return {
-            status: log.lastOfferType,
+            status: currentStatus,
             totalVisits: totalVisits,
             visits: visits, // Kept for legacy compatibility if needed
             completedOrders: completedOrders,
@@ -211,7 +218,7 @@ export const LoyaltyProvider = ({ children }) => {
             config: log.config,
             isRecoveryEligible,
             welcomeShown: !!log.welcomeShown,
-            welcomeRedeemed: !!log.welcomeRedeemed
+            welcomeRedeemed: !!log.welcomeRedeemed || !!log.rewardUsedInSession
         };
     };
 

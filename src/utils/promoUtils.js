@@ -223,17 +223,8 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
         }
     }
 
-    // 3. LOYAL Status Logic (4 visits / 30 days)
-    if (loyaltyInfo.status === 'LOYAL') {
-        const loyalOffer = config.loyalConfig || config.loyal_offer || { value: '15' };
-        const discountPercentage = parseFloat(loyalOffer.value) || 15;
-        const discountFactor = discountPercentage / 100;
-
-        return {
-            discount: orderTotal * discountFactor,
-            reason: `Loyal Customer Reward (${discountPercentage}%)`
-        };
-    }
+    // 3. LOYAL Status Logic (REMOVED: Legacy status check that used stale localStorage)
+    // Spending-based logic below now handles this correctly using server-synced data.
 
     // 4. NEW/WELCOME Status Logic - Spending-based flow
     const completedOrders = loyaltyInfo.completedOrders || [];
@@ -242,65 +233,18 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
     const spendingProgress = parseFloat(loyaltyInfo.spendingProgress) || 0;
     const ordersInCurrentVisit = parseInt(loyaltyInfo.ordersInCurrentVisit) || 0;
 
-    // SPEC MAPPING (Adjusted for 0-start completed count)
-    // DB count 0 (Visit 1) -> Teaser
-    // DB count 1 (Visit 2) -> Welcome Discount
-    // DB count 2 (Visit 3) -> Progress Message
-    // DB count 3+ (Visit 4) -> Loyal Status
 
-    // Condition A: Visit 1 (DB count 0) -> SHOW TEASER
-    if (totalVisits === 0) {
-        const welcomeOffer = config.welcomeConfig || { value: '15', active: true };
-        const discountPercentage = parseFloat(welcomeOffer.value) || 0;
-        return {
-            discount: 0,
-            reason: null,
-            welcomeTeaser: true,
-            teaserMessage: `Order now to unlock ${discountPercentage}% OFF your next visit!`,
-            showProgress: false,
-            progressPercentage: 0,
-            needsMoreSpending: false
-        };
-    }
-
-    // Condition B: Visit 2 (DB count 1) -> WELCOME DISCOUNT
-    // SPEC: Visit 2 (visit_count == 2) -> We map to DB count 1
-    if (totalVisits === 1 && ordersInCurrentVisit === 0) {
-        console.log('[Loyalty] Welcome Discount Eligible (Visit 2 - count 1)');
-        return {
-            discount: orderTotal * 0.10,
-            reason: 'Welcome Back! (10% Off)',
-            welcomeTeaser: false,
-            showProgress: false,
-            progressPercentage: 0,
-            needsMoreSpending: false
-        };
-    }
-
-    // Condition C: Visit 3 (DB count 2) -> PROGRESS MESSAGE
-    if (totalVisits === 2) {
-        const loyalOfferConfig = config.loyalConfig || { threshold: '50' };
-        const thresholdVal = parseFloat(loyalOfferConfig.threshold) || 50;
-        return {
-            discount: 0,
-            reason: null,
-            welcomeTeaser: false,
-            showProgress: true,
-            progressPercentage: Math.min((totalSpending / thresholdVal) * 100, 100),
-            progressMessage: "You're getting closer! Just 1 more session for Loyal Rewards!",
-            needsMoreSpending: true
-        };
-    }
-
-    // Condition D: Loyal Status (DB count >= 3)
-    // SPEC: Reach Loyal in 4 sessions -> Count reaches 3 at start of 4th session
+    // Get Reward Config
     const loyalOffer = config.loyalConfig || { type: 'discount', value: '15', active: true, threshold: '50' };
-    if (totalVisits >= 3 && loyalOffer.active !== false) {
+    const thresholdVal = parseFloat(loyalOffer.threshold) || 50;
+
+    // Condition A: High Spending (Priority)
+    // If threshold met, reward immediately regardless of visit count
+    if (totalSpending >= thresholdVal && loyalOffer.active !== false) {
         if (loyalOffer.type === 'discount') {
             const discountPercentage = parseFloat(loyalOffer.value) || 15;
-            const discountFactor = discountPercentage / 100;
             return {
-                discount: orderTotal * discountFactor,
+                discount: orderTotal * (discountPercentage / 100),
                 reason: `Loyal Customer Reward (${discountPercentage}%)`,
                 welcomeTeaser: false,
                 showProgress: false,
@@ -320,10 +264,61 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
         }
     }
 
-    // Condition C: In Progress (Show Bar)
-    const loyalOfferConfig = config.loyalConfig || { threshold: '50' };
-    const thresholdVal = parseFloat(loyalOfferConfig.threshold) || 50;
+    // Condition B: Visit 1 (DB count 0) -> SHOW TEASER
+    if (totalVisits === 0) {
+        const welcomeOffer = config.welcomeConfig || { value: '15', active: true };
+        const discountPercentage = parseFloat(welcomeOffer.value) || 0;
+        return {
+            discount: 0,
+            reason: null,
+            welcomeTeaser: true,
+            teaserMessage: `Order now to unlock ${discountPercentage}% OFF your next visit!`,
+            showProgress: false,
+            progressPercentage: 0,
+            needsMoreSpending: false
+        };
+    }
 
+    // Condition C: Visit 2 (DB count 1) -> WELCOME DISCOUNT
+    if (totalVisits === 1 && ordersInCurrentVisit === 0) {
+        console.log('[Loyalty] Welcome Discount Eligible (Visit 2 - count 1)');
+        return {
+            discount: orderTotal * 0.10,
+            reason: 'Welcome Back! (10% Off)',
+            welcomeTeaser: false,
+            showProgress: false,
+            progressPercentage: 0,
+            needsMoreSpending: false
+        };
+    }
+
+    // Condition D: Visit 3 (DB count 2) -> PROGRESS MESSAGE
+    if (totalVisits === 2) {
+        return {
+            discount: 0,
+            reason: null,
+            welcomeTeaser: false,
+            showProgress: true,
+            progressPercentage: Math.min((totalSpending / thresholdVal) * 100, 100),
+            progressMessage: "You're getting closer! Just 1 more session for Loyal Rewards!",
+            needsMoreSpending: true
+        };
+    }
+
+    // Condition E: Loyal Visit Threshold (Visit 4+) but Spend Threshold Not Met
+    // Show Progress Bar
+    if (totalVisits >= 3) {
+        return {
+            discount: 0,
+            reason: null,
+            welcomeTeaser: false,
+            showProgress: true,
+            progressPercentage: Math.min((totalSpending / thresholdVal) * 100, 100),
+            needsMoreSpending: true
+        };
+    }
+
+    // Condition C: In Progress (Show Bar) - Fallback
     return {
         discount: 0,
         reason: null,
