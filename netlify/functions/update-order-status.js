@@ -196,14 +196,18 @@ export const handler = async (event, context) => {
 
                 if (visitor) {
                     const now = new Date();
-                    const lastSessionTime = new Date(visitor.last_session_at).getTime();
                     const SESSION_TIMEOUT = 3 * 60 * 1000; // 3 min dev
 
-                    // If session expired, this is effectively a first order of a new implied session
-                    const isSessionActive = (now.getTime() - lastSessionTime) < SESSION_TIMEOUT;
+                    // Check if enough time has passed since the LAST visit-triggering order
+                    const lastVisitTime = visitor.last_visit_at ? new Date(visitor.last_visit_at).getTime() : 0;
+                    const timeSinceLastVisit = lastVisitTime > 0 ? now.getTime() - lastVisitTime : SESSION_TIMEOUT + 1;
+
+                    // If visit window expired, this is effectively a first order of a new visit cluster
+                    const isNewVisitWindow = timeSinceLastVisit > SESSION_TIMEOUT;
                     let effectiveOrders = parseInt(visitor.orders_in_current_session || 0);
-                    if (!isSessionActive) {
-                        console.log(`[Loyalty Completion] Session EXPIRED (diff: ${Math.round((now - lastSessionTime) / 1000)}s). Resetting orders count.`);
+
+                    if (isNewVisitWindow) {
+                        console.log(`[Loyalty Completion] NEW WINDOW (diff: ${Math.round(timeSinceLastVisit / 1000)}s). Resetting orders count.`);
                         effectiveOrders = 0;
                     }
 

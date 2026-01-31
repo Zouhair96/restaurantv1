@@ -51,6 +51,10 @@ export const handler = async (event, context) => {
         `, [targetRestaurantId, loyaltyId]);
 
         const orders = result.rows;
+        let totalSpending = 0;
+        orders.forEach(o => {
+            totalSpending += parseFloat(o.total_price) || 0;
+        });
 
         // --- STRICT SERVER-SIDE SESSION & VISIT LOGIC (DB-BACKED) ---
         const SESSION_TIMEOUT = 3 * 60 * 1000; // 3 Minutes (Dev) - Configurable
@@ -77,16 +81,18 @@ export const handler = async (event, context) => {
             visitor = insertRes.rows[0];
             visitCount = 0;
             ordersInCurrentSession = 0;
-        } else {
-            // Existing User: Check Session
-            const lastSessionTime = new Date(visitor.last_session_at).getTime();
-            const timeDiff = now.getTime() - lastSessionTime;
+            // Existing User: Check Visit Window
+            // We cluster based on the LAST VISIT (last visit-triggering order), 
+            // NOT the last scan. This allows users to stay on page but get a new visit if they wait.
+            const lastVisitTime = visitor.last_visit_at ? new Date(visitor.last_visit_at).getTime() : 0;
+            const timeSinceLastVisit = lastVisitTime > 0 ? now.getTime() - lastVisitTime : SESSION_TIMEOUT + 1;
 
-            if (timeDiff > SESSION_TIMEOUT) {
-                // NEW SESSION DETECTED
-                // Action: Update last_session_at (Keep session alive), Reset orders_in_current_session
-                // CRITICAL: DO NOT INCREMENT VISIT COUNT (Only Orders do that)
-                visitCount = visitor.visit_count; // Keep existing count
+            console.log(`[Loyalty Scan] ID: ${loyaltyId}, Since Last Visit: ${Math.round(timeSinceLastVisit / 1000)}s, Limit: ${SESSION_TIMEOUT / 1000}s`);
+
+            if (timeSinceLastVisit > SESSION_TIMEOUT) {
+                // Potential New Visit Cluster detected
+                console.log(`[Loyalty Scan] NEW VISIT WINDOW. Resetting session order count.`);
+                visitCount = visitor.visit_count;
                 ordersInCurrentSession = 0;
 
                 await query(`

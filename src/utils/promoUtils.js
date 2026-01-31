@@ -276,7 +276,22 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
         };
     }
 
-    // Condition C: Loyal Status (DB count >= 3)
+    // Condition C: Visit 3 (DB count 2) -> PROGRESS MESSAGE
+    if (totalVisits === 2) {
+        const loyalOfferConfig = config.loyalConfig || { threshold: '50' };
+        const thresholdVal = parseFloat(loyalOfferConfig.threshold) || 50;
+        return {
+            discount: 0,
+            reason: null,
+            welcomeTeaser: false,
+            showProgress: true,
+            progressPercentage: Math.min((totalSpending / thresholdVal) * 100, 100),
+            progressMessage: "You're getting closer! Just 1 more session for Loyal Rewards!",
+            needsMoreSpending: true
+        };
+    }
+
+    // Condition D: Loyal Status (DB count >= 3)
     // SPEC: Reach Loyal in 4 sessions -> Count reaches 3 at start of 4th session
     const loyalOffer = config.loyalConfig || { type: 'discount', value: '15', active: true, threshold: '50' };
     if (totalVisits >= 3 && loyalOffer.active !== false) {
