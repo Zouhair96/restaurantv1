@@ -81,6 +81,7 @@ export const handler = async (event, context) => {
             visitor = insertRes.rows[0];
             visitCount = 0;
             ordersInCurrentSession = 0;
+        } else {
             // Existing User: Check Visit Window
             // We cluster based on the LAST VISIT (last visit-triggering order), 
             // NOT the last scan. This allows users to stay on page but get a new visit if they wait.
@@ -102,7 +103,7 @@ export const handler = async (event, context) => {
                 `, [visitor.id]);
             } else {
                 // ACTIVE SESSION
-                // Action: Extend session (keep alive)
+                console.log(`[Loyalty Scan] ACTIVE SESSION (orders: ${visitor.orders_in_current_session}). Extending window.`);
                 visitCount = visitor.visit_count;
                 ordersInCurrentSession = visitor.orders_in_current_session;
 
