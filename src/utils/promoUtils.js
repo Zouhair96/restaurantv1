@@ -259,8 +259,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
         }
     }
 
-    // Condition A2: Second Order (Welcome Discount Applied)
-    // B. Welcome Discount (10% OFF)
+    // A. Welcome Discount (10% OFF) - PRIORITY CHECK
     // Must have completed at least 1 order AND returned for a 2nd visit (session) to activate.
     // AND must be the FIRST order of that 2nd visit (One-Time Use constraint).
     if (completedOrders.length >= 1 && totalVisits === 2 && loyaltyInfo.ordersInCurrentVisit === 0) {

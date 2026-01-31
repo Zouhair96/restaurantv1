@@ -81,6 +81,8 @@ export const handler = async (event, context) => {
             }
         }
 
+        const lastOrderTime = orders.length > 0 ? new Date(orders[orders.length - 1].created_at).getTime() : 0;
+
         return {
             statusCode: 200,
             headers,
@@ -88,7 +90,8 @@ export const handler = async (event, context) => {
                 completedOrders: orders.length,
                 totalSpending: totalSpending,
                 totalVisits: visitCount,
-                ordersInCurrentVisit: currentVisitOrders
+                ordersInCurrentVisit: currentVisitOrders,
+                lastOrderTime: lastOrderTime
             })
         };
 
