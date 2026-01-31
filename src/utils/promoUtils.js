@@ -237,6 +237,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
 
     // 4. NEW/WELCOME Status Logic - Spending-based flow
     const completedOrders = loyaltyInfo.completedOrders || [];
+    const totalVisits = loyaltyInfo.totalVisits || 1;
     const totalSpending = loyaltyInfo.totalSpending || 0;
     const spendingProgress = loyaltyInfo.spendingProgress || 0;
 
