@@ -234,9 +234,11 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
     const ordersInCurrentVisit = parseInt(loyaltyInfo.ordersInCurrentVisit) || 0;
 
 
-    // Get Reward Config
-    const loyalOffer = config.loyalConfig || { type: 'discount', value: '15', active: true, threshold: '50' };
-    const thresholdVal = parseFloat(loyalOffer.threshold) || 50;
+    // Get Reward Config (Support both keys for backward compatibility)
+    const loyalOffer = config.loyalConfig || config.loyal_offer || { type: 'discount', value: '15', active: true, threshold: '50' };
+    const thresholdVal = parseFloat(loyalOffer.threshold || config.threshold) || 50;
+
+    console.log(`[Loyalty] Checking reward: totalSpending=${totalSpending}, threshold=${thresholdVal}, type=${loyalOffer.type}`);
 
     // Condition A: High Spending (Priority)
     // If threshold met, reward immediately regardless of visit count
@@ -251,7 +253,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
                 progressPercentage: 100,
                 needsMoreSpending: false
             };
-        } else if (loyalOffer.type === 'item') {
+        } else if (['item', 'gift', 'dish', 'drink'].includes(loyalOffer.type)) {
             return {
                 discount: 0,
                 giftItem: loyalOffer.value,

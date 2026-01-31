@@ -154,18 +154,23 @@ export const LoyaltyProvider = ({ children }) => {
         try {
             const response = await fetch(`/.netlify/functions/get-loyalty-status?restaurantName=${restaurantName}&loyaltyId=${clientId}`);
             if (response.ok) {
-                const { completedOrders, totalSpending, totalVisits, ordersInCurrentVisit } = await response.json();
+                const { completedOrders, totalSpending, totalVisits, ordersInCurrentVisit, loyalty_config } = await response.json();
 
-                setLoyaltyData(prev => ({
-                    ...prev,
-                    [restaurantName]: {
-                        ...(prev[restaurantName] || {}),
-                        completedOrders: Array(completedOrders).fill({ amount: 0 }),
-                        serverTotalSpending: totalSpending,
-                        serverTotalVisits: totalVisits,
-                        ordersInCurrentVisit: ordersInCurrentVisit
-                    }
-                }));
+                setLoyaltyData(prev => {
+                    const updated = {
+                        ...prev,
+                        [restaurantName]: {
+                            ...(prev[restaurantName] || {}),
+                            completedOrders: Array(completedOrders).fill({ amount: 0 }),
+                            serverTotalSpending: totalSpending,
+                            serverTotalVisits: totalVisits,
+                            ordersInCurrentVisit: ordersInCurrentVisit,
+                            config: loyalty_config || (prev[restaurantName]?.config) || { isAutoPromoOn: true }
+                        }
+                    };
+                    localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(updated));
+                    return updated;
+                });
             }
         } catch (err) {
             console.error('Failed to fetch loyalty stats:', err);

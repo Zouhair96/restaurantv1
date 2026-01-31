@@ -116,6 +116,10 @@ export const handler = async (event, context) => {
         }
 
         // Return Authoritative Server State
+        // Add loyalty_config so public menu knows what rewards to show
+        const configRes = await query('SELECT loyalty_config FROM users WHERE id = $1', [targetRestaurantId]);
+        const loyaltyConfig = configRes.rows[0]?.loyalty_config || { isAutoPromoOn: true };
+
         return {
             statusCode: 200,
             headers,
@@ -123,7 +127,8 @@ export const handler = async (event, context) => {
                 completedOrders: orders.length, // Legacy/Display
                 totalSpending: totalSpending,   // Legacy/Display
                 totalVisits: visitCount,        // FROM DB (Authoritative)
-                ordersInCurrentVisit: ordersInCurrentSession // FROM DB (Authoritative)
+                ordersInCurrentVisit: ordersInCurrentSession, // FROM DB (Authoritative)
+                loyalty_config: loyaltyConfig
             })
         };
 
