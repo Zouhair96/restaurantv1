@@ -302,9 +302,9 @@ const Checkout = ({
                                 )}
                                 {showProgress && (
                                     <LoyaltyProgressBar
-                                        percentage={progressPercentage}
+                                        completedOrders={loyaltyInfo?.completedOrders || []}
+                                        loyaltyConfig={loyaltyInfo?.config || {}}
                                         isDarkMode={isDarkMode}
-                                        visitCount={loyaltyInfo.totalVisits}
                                     />
                                 )}
                                 {taxConfig.applyTax && (
