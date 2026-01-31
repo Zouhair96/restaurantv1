@@ -301,6 +301,47 @@ const LoyaltySettings = ({ onUpdate }) => {
 
                         <HiBookOpen size={160} className="absolute -bottom-10 -right-10 text-white/5 rotate-12 group-hover:rotate-0 transition-transform duration-700" />
                     </div>
+
+                    {/* Danger Zone: Reset Data */}
+                    <div className="mt-8 border-t border-gray-100 dark:border-white/5 pt-8">
+                        <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Development Tools</h3>
+                        <div className="bg-red-50 dark:bg-red-500/10 p-6 rounded-[2.5rem] border border-red-100 dark:border-red-500/20 flex flex-col md:flex-row items-center justify-between gap-6">
+                            <div>
+                                <h4 className="text-lg font-bold text-red-600 dark:text-red-400 mb-1">Reset Loyalty Data</h4>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    Clears all scan history and visitor tracking. This allows you to test the "First Scan" experience again.
+                                    <br />
+                                    <span className="font-bold">Note:</span> This will also clear your local browser data.
+                                </p>
+                            </div>
+                            <button
+                                onClick={async () => {
+                                    if (window.confirm('Are you sure you want to reset all loyalty data? This cannot be undone.')) {
+                                        try {
+                                            const token = localStorage.getItem('token');
+                                            await fetch('/api/reset-loyalty-data', {
+                                                method: 'POST',
+                                                headers: { 'Authorization': `Bearer ${token}` }
+                                            });
+
+                                            // Clear Local Storage
+                                            localStorage.removeItem('loyalty_data_v2');
+                                            localStorage.removeItem('loyalty_client_id_v2');
+
+                                            alert('Data reset successfully. The page will now reload.');
+                                            window.location.reload();
+                                        } catch (err) {
+                                            console.error(err);
+                                            alert('Failed to reset data');
+                                        }
+                                    }
+                                }}
+                                className="px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl text-xs uppercase tracking-widest transition-colors shadow-lg shadow-red-500/20 whitespace-nowrap"
+                            >
+                                Reset Everything
+                            </button>
+                        </div>
+                    </div>
                 </>
             )
             }
