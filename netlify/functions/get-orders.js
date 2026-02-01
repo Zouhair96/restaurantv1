@@ -57,16 +57,30 @@ export const handler = async (event, context) => {
         if (!secret) throw new Error("JWT_SECRET missing");
 
         const decoded = jwt.verify(token, secret);
-        const restaurantId = decoded.id;
 
-        // Get orders for this restaurant (Simplified: removed driver and auto-accept fields)
-        const result = await query(
-            `SELECT id, order_type, table_number, delivery_address, payment_method, items, total_price, status, created_at, updated_at, payment_status, loyalty_discount_applied, loyalty_discount_amount, loyalty_gift_item
-             FROM orders
-             WHERE restaurant_id = $1
-             ORDER BY created_at DESC`,
-            [restaurantId]
-        );
+        // --- AUTHORIZATION LOGIC ---
+        let queryText = `
+            SELECT id, order_type, table_number, delivery_address, payment_method, items, total_price, status, created_at, updated_at, payment_status, loyalty_discount_applied, loyalty_discount_amount, loyalty_gift_item
+            FROM orders
+        `;
+        let queryParams = [];
+
+        if (decoded.role === 'ADMIN') {
+            // Admin sees everything
+            queryText += ` ORDER BY created_at DESC`;
+        } else if (decoded.role === 'OWNER' || decoded.role === 'STAFF') {
+            // Restricted to their restaurant_id
+            queryText += ` WHERE restaurant_id = $1 ORDER BY created_at DESC`;
+            queryParams = [decoded.restaurant_id];
+        } else {
+            return {
+                statusCode: 403,
+                headers,
+                body: JSON.stringify({ error: 'Forbidden: Insufficient permissions' })
+            };
+        }
+
+        const result = await query(queryText, queryParams);
 
         return {
             statusCode: 200,

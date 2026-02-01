@@ -12,7 +12,9 @@ import Team from './pages/dashboard/Team'
 import Promotions from './pages/dashboard/Promotions'
 import Activity from './pages/dashboard/Activity'
 import Settings from './pages/dashboard/Settings'
+import Orders from './pages/dashboard/Orders'
 
+import RoleProtectedRoute from './components/auth/RoleProtectedRoute'
 import OrderConfirmation from './pages/OrderConfirmation'
 import Checkout from './pages/Checkout'
 import PublicMenu from './pages/PublicMenu'
@@ -55,16 +57,17 @@ function App() {
 
                     {/* Dashboard Routes */}
                     <Route path="/dashboard" element={<Dashboard />}>
-                      <Route index element={<Overview />} />
-                      <Route path="menu" element={<MenuManagement />} />
-                      <Route path="analytics" element={<Analytics />} />
-                      <Route path="team" element={<Team />} />
-                      <Route path="promos" element={<Promotions />} />
-                      <Route path="activity" element={<Activity />} />
+                      <Route index element={<RoleProtectedRoute allowedRoles={['OWNER', 'ADMIN']}><Overview /></RoleProtectedRoute>} />
+                      <Route path="orders" element={<Orders />} />
+                      <Route path="menu" element={<RoleProtectedRoute allowedRoles={['OWNER', 'ADMIN']}><MenuManagement /></RoleProtectedRoute>} />
+                      <Route path="analytics" element={<RoleProtectedRoute allowedRoles={['OWNER', 'ADMIN']}><Analytics /></RoleProtectedRoute>} />
+                      <Route path="team" element={<RoleProtectedRoute allowedRoles={['OWNER', 'ADMIN']}><Team /></RoleProtectedRoute>} />
+                      <Route path="promos" element={<RoleProtectedRoute allowedRoles={['OWNER', 'ADMIN']}><Promotions /></RoleProtectedRoute>} />
+                      <Route path="activity" element={<RoleProtectedRoute allowedRoles={['OWNER', 'ADMIN']}><Activity /></RoleProtectedRoute>} />
 
 
 
-                      <Route path="settings" element={<Settings />} />
+                      <Route path="settings" element={<RoleProtectedRoute allowedRoles={['OWNER', 'ADMIN']}><Settings /></RoleProtectedRoute>} />
                     </Route>
 
                     <Route path="/profile" element={<Navigate to="/dashboard" replace />} />

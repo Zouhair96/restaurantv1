@@ -7,7 +7,7 @@ import Footer from '../components/Footer'
 
 const Login = () => {
     const { t } = useLanguage()
-    const { login, signup } = useAuth()
+    const { login, signup, staffLogin } = useAuth()
     const navigate = useNavigate()
     const [isLogin, setIsLogin] = useState(true)
     const [loading, setLoading] = useState(false)
@@ -30,12 +30,21 @@ const Login = () => {
 
         try {
             if (isLogin) {
-                const { user } = await login(email, password)
+                let user;
+                if (loginMode === 'STAFF') {
+                    const result = await loginStaff(restaurantId, pin);
+                    user = result.user;
+                } else {
+                    const result = await login(email, password);
+                    user = result.user;
+                }
+
                 setSuccess(t('auth.successLogin'))
-                // Redirect after short delay
                 setTimeout(() => {
-                    if (user?.role === 'admin') {
+                    if (user?.role === 'ADMIN') {
                         navigate('/admin')
+                    } else if (user?.role === 'STAFF') {
+                        navigate('/orders')
                     } else {
                         navigate('/dashboard')
                     }
@@ -94,8 +103,28 @@ const Login = () => {
                         </div>
                     ) : (
                         <form onSubmit={handleSubmit} className="space-y-6">
+                            {isLogin && (
+                                <div className="flex bg-gray-50 p-1.5 rounded-2xl border border-gray-100 mb-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setLoginMode('OWNER')}
+                                        className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${loginMode === 'OWNER' ? 'bg-white text-yum-primary shadow-lg ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600'}`}
+                                    >
+                                        Restaurant Owner
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setLoginMode('STAFF')}
+                                        className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${loginMode === 'STAFF' ? 'bg-white text-yum-primary shadow-lg ring-1 ring-black/5' : 'text-gray-400 hover:text-gray-600'}`}
+                                    >
+                                        Staff Member
+                                    </button>
+                                </div>
+                            )}
+
                             {!isLogin && (
                                 <>
+                                    {/* Signup fields (Only for Owners) */}
                                     <div>
                                         <label className="block text-sm font-bold text-gray-700 mb-2">{t('auth.name')}</label>
                                         <input
@@ -116,9 +145,7 @@ const Login = () => {
                                             placeholder="Letters, numbers, . - _"
                                             required={!isLogin}
                                         />
-                                        <p className="text-xs text-gray-500 mt-1">Allowed: letters, numbers, . - _</p>
                                     </div>
-
                                     <div>
                                         <label className="block text-sm font-bold text-gray-700 mb-2">{t('auth.phone')} <span className="text-red-500">*</span></label>
                                         <input
@@ -129,40 +156,60 @@ const Login = () => {
                                             required={!isLogin}
                                         />
                                     </div>
+                                </>
+                            )}
 
+                            {isLogin && loginMode === 'STAFF' ? (
+                                <>
                                     <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-2">{t('auth.address')}</label>
+                                        <label className="block text-sm font-bold text-gray-700 mb-2">Restaurant ID</label>
                                         <input
                                             type="text"
-                                            value={address}
-                                            onChange={(e) => setAddress(e.target.value)}
+                                            value={restaurantId}
+                                            onChange={(e) => setRestaurantId(e.target.value)}
+                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yum-primary focus:ring-2 focus:ring-yum-primary/20 outline-none transition-all font-mono"
+                                            required
+                                            placeholder="Enter ID provided by owner"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-2">Access PIN</label>
+                                        <input
+                                            type="password"
+                                            maxLength={4}
+                                            value={pin}
+                                            onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
+                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yum-primary focus:ring-2 focus:ring-yum-primary/20 outline-none transition-all text-center tracking-[1em] text-2xl font-bold"
+                                            required
+                                            placeholder="••••"
+                                        />
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-2">{t('auth.email')}</label>
+                                        <input
+                                            type="email"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
                                             className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yum-primary focus:ring-2 focus:ring-yum-primary/20 outline-none transition-all placeholder-gray-400"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-2">{t('auth.password')}</label>
+                                        <input
+                                            type="password"
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yum-primary focus:ring-2 focus:ring-yum-primary/20 outline-none transition-all placeholder-gray-400"
+                                            required
                                         />
                                     </div>
                                 </>
                             )}
-
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">{t('auth.email')}</label>
-                                <input
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yum-primary focus:ring-2 focus:ring-yum-primary/20 outline-none transition-all placeholder-gray-400"
-                                    required
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">{t('auth.password')}</label>
-                                <input
-                                    type="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yum-primary focus:ring-2 focus:ring-yum-primary/20 outline-none transition-all placeholder-gray-400"
-                                    required
-                                />
-                            </div>
 
                             {isLogin && (
                                 <div className="text-right">

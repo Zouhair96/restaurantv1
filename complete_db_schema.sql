@@ -16,7 +16,12 @@ CREATE TABLE IF NOT EXISTS users (
     name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
-    role TEXT DEFAULT 'user', -- 'admin' or 'user'
+    role TEXT DEFAULT 'OWNER',         -- 'ADMIN', 'OWNER', 'STAFF'
+    login_type TEXT DEFAULT 'EMAIL',   -- 'EMAIL', 'PIN'
+    pin_hash TEXT,                     -- For STAFF login
+    is_active BOOLEAN DEFAULT true,
+    restaurant_id INTEGER REFERENCES users(id) ON DELETE CASCADE, -- Links STAFF to OWNER
+
     restaurant_name TEXT,     -- "restaurant name"
     address TEXT,             -- "location/address"
     phone_number TEXT,        -- "phone number"

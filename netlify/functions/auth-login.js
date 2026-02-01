@@ -30,11 +30,11 @@ export const handler = async (event, context) => {
         const result = await query('SELECT * FROM users WHERE email = $1', [email]);
         const user = result.rows[0];
 
-        if (!user) {
+        if (!user || user.is_active === false) {
             return {
                 statusCode: 401,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ error: 'Invalid credentials' })
+                body: JSON.stringify({ error: !user ? 'Invalid credentials' : 'Account is disabled. Please contact your administrator.' })
             };
         }
 
@@ -52,7 +52,7 @@ export const handler = async (event, context) => {
         const secret = process.env.JWT_SECRET || 'your-secret-key';
 
         const token = jwt.sign(
-            { id: user.id, email: user.email, role: user.role },
+            { id: user.id, email: user.email, role: user.role, restaurant_id: user.restaurant_id },
             secret,
             { expiresIn: '7d' }
         );
@@ -63,9 +63,9 @@ export const handler = async (event, context) => {
             name: user.name,
             email: user.email,
             restaurant_name: user.restaurant_name,
+            restaurant_id: user.restaurant_id,
             subscription_status: user.subscription_status,
             subscription_plan: user.subscription_plan,
-            subscription_start_date: user.subscription_start_date,
             role: user.role
         };
 

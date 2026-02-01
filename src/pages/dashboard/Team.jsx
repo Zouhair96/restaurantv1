@@ -1,33 +1,95 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useAuth } from '../../context/AuthContext'
 import TeamMemberCard from '../../components/dashboard/TeamMemberCard'
 import AddMemberModal from '../../components/dashboard/AddMemberModal'
 
 const Team = () => {
-    // Mock Team Data State
-    const [teamMembers, setTeamMembers] = useState([
-        { id: 1, name: 'Alex Rivera', role: 'Head Chef', status: 'On Shift', hours: 42, sales: 0 },
-        { id: 2, name: 'Sarah Chen', role: 'Manager', status: 'On Shift', hours: 38, sales: 0 },
-        { id: 3, name: 'Mike Johnson', role: 'Server', status: 'On Shift', hours: 25, sales: 1250 },
-        { id: 4, name: 'Emily Davis', role: 'Bartender', status: 'Off Duty', hours: 30, sales: 850 },
-    ])
+    const { user } = useAuth()
+    const [teamMembers, setTeamMembers] = useState([])
+    const [loading, setLoading] = useState(true)
     const [showAddMemberModal, setShowAddMemberModal] = useState(false)
 
-    // Team Management Handlers
-    const handleAddMember = (newMember) => {
-        const memberWithId = {
-            ...newMember,
-            id: Date.now(), // Simple ID generation
-            status: 'Off Duty',
-            hours: 0,
-            sales: 0
+    useEffect(() => {
+        fetchStaff()
+    }, [])
+
+    const fetchStaff = async () => {
+        try {
+            const token = localStorage.getItem('token')
+            const response = await fetch('/.netlify/functions/staff-mgmt', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            if (response.ok) {
+                const data = await response.json()
+                setTeamMembers(data)
+            }
+        } catch (error) {
+            console.error('Error fetching staff:', error)
+        } finally {
+            setLoading(false)
         }
-        setTeamMembers([...teamMembers, memberWithId])
-        setShowAddMemberModal(false)
     }
 
-    const handleRemoveMember = (id) => {
-        if (window.confirm('Are you sure you want to remove this team member?')) {
-            setTeamMembers(teamMembers.filter(m => m.id !== id))
+    const handleAddMember = async (newMember) => {
+        try {
+            const token = localStorage.getItem('token')
+            const response = await fetch('/.netlify/functions/staff-mgmt', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newMember)
+            })
+            if (response.ok) {
+                fetchStaff()
+                setShowAddMemberModal(false)
+            } else {
+                const err = await response.json()
+                alert(err.error || 'Failed to add staff member')
+            }
+        } catch (error) {
+            console.error('Error adding staff:', error)
+        }
+    }
+
+    const handleRemoveMember = async (id) => {
+        if (!window.confirm('Are you sure you want to PERMANENTLY remove this staff member?')) return
+
+        try {
+            const token = localStorage.getItem('token')
+            const response = await fetch('/.netlify/functions/staff-mgmt', {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id })
+            })
+            if (response.ok) {
+                fetchStaff()
+            }
+        } catch (error) {
+            console.error('Error removing staff:', error)
+        }
+    }
+
+    const handleToggleStatus = async (id, is_active) => {
+        try {
+            const token = localStorage.getItem('token')
+            const response = await fetch('/.netlify/functions/staff-mgmt', {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id, is_active })
+            })
+            if (response.ok) {
+                fetchStaff()
+            }
+        } catch (error) {
+            console.error('Error toggling staff status:', error)
         }
     }
 
@@ -37,6 +99,15 @@ const Team = () => {
                 <div>
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Team Management</h2>
                     <p className="text-gray-500 dark:text-gray-400 text-sm">Manage your restaurant staff, roles, and shifts.</p>
+                </div>
+                <div className="flex flex-col items-end gap-1">
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Your Restaurant ID</span>
+                    <div className="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-lg font-mono text-sm border border-gray-200 dark:border-gray-700 select-all group relative">
+                        {user?.restaurant_id || user?.id}
+                        <div className="absolute bottom-full right-0 mb-2 px-2 py-1 bg-gray-900 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap">
+                            Staff login ID - Click to copy
+                        </div>
+                    </div>
                 </div>
                 <button
                     onClick={() => setShowAddMemberModal(true)}
@@ -49,11 +120,22 @@ const Team = () => {
                 </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {teamMembers.map(member => (
-                    <TeamMemberCard key={member.id} member={member} onRemove={handleRemoveMember} />
-                ))}
-            </div>
+            {loading ? (
+                <div className="flex justify-center py-20">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yum-primary"></div>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {teamMembers.map(member => (
+                        <TeamMemberCard
+                            key={member.id}
+                            member={member}
+                            onRemove={handleRemoveMember}
+                            onToggleStatus={handleToggleStatus}
+                        />
+                    ))}
+                </div>
+            )}
 
             <AddMemberModal isOpen={showAddMemberModal} onClose={() => setShowAddMemberModal(false)} onAdd={handleAddMember} />
         </div>

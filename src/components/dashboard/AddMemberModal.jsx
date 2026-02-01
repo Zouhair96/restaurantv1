@@ -3,17 +3,21 @@ import React, { useState } from 'react'
 const AddMemberModal = ({ isOpen, onClose, onAdd }) => {
     const [name, setName] = useState('')
     const [role, setRole] = useState('Server')
-    const [email, setEmail] = useState('')
+    const [pin, setPin] = useState('')
 
     if (!isOpen) return null
 
     const handleSubmit = (e) => {
         e.preventDefault()
-        onAdd({ name, role, email })
+        if (pin.length !== 4) {
+            alert('PIN must be exactly 4 digits')
+            return
+        }
+        onAdd({ name, role, pin })
         // Reset form
         setName('')
         setRole('Server')
-        setEmail('')
+        setPin('')
     }
 
     return (
@@ -58,14 +62,23 @@ const AddMemberModal = ({ isOpen, onClose, onAdd }) => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Email (Optional)</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Access PIN (4 Digits)</label>
                         <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            type="text"
+                            required
+                            maxLength={4}
+                            pattern="\d{4}"
+                            value={pin}
+                            onChange={(e) => {
+                                const val = e.target.value.replace(/\D/g, '');
+                                if (val.length <= 4) setPin(val);
+                            }}
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yum-primary focus:border-yum-primary"
-                            placeholder="sarah@example.com"
+                            placeholder="e.g. 1234"
                         />
+                        <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-tight font-bold italic">
+                            Used by staff to login with this restaurant's ID
+                        </p>
                     </div>
 
                     <div className="flex gap-3 pt-4">

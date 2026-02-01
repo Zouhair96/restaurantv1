@@ -54,7 +54,12 @@ const Dashboard = () => {
         )
     }
 
-    // Not Subscribed
+    // Authenticated & Subscribed (or Staff) - Render Dashboard
+    if (user.role === 'STAFF') {
+        // Staff can always access their restricted dashboard
+        return <DashboardLayout />
+    }
+
     if (!hasSubscription) {
         return (
             <MainLayout>
@@ -62,10 +67,6 @@ const Dashboard = () => {
                     <UserProfileInfo user={user} />
                     <div className="mt-8">
                         <h2 className="text-3xl font-black text-gray-900 mb-2 text-center uppercase tracking-tight">Choose Your Plan</h2>
-                        <p className="text-gray-500 text-center mb-10 max-w-2xl mx-auto font-medium">
-                            Join Margio and boost your restaurant revenue.
-                            <span className="block mt-2 text-xs italic">* All plans come with a 12-month engagement period. Upgrading preserves your engagement end date, while downgrading resets it to 12 months from the switch date.</span>
-                        </p>
                         <SubscriptionPlans onSubscribe={(planId) => navigate('/checkout', { state: { plan: { name: planId } } })} />
                     </div>
                 </div>
@@ -73,7 +74,6 @@ const Dashboard = () => {
         )
     }
 
-    // Authenticated & Subscribed - Render Dashboard
     return (
         <>
             {showOnboarding && <OnboardingOverlay onClose={handleCloseOnboarding} />}

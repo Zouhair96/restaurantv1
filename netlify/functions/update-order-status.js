@@ -58,7 +58,9 @@ export const handler = async (event, context) => {
         if (!secret) throw new Error("JWT_SECRET missing");
 
         const decoded = jwt.verify(token, secret);
-        const restaurantId = decoded.id;
+
+        // ADMIN has bypass, OWNER and STAFF are restricted to their restaurant_id
+        const restaurantId = (decoded.role === 'ADMIN') ? null : decoded.restaurant_id;
 
         const { orderId, status } = JSON.parse(event.body);
 
@@ -80,18 +82,41 @@ export const handler = async (event, context) => {
             };
         }
 
-        // Verify order belongs to this restaurant
+        // 1. Fetch order details to verify ownership and check state for STAF restrictions
         const checkResult = await query(
-            'SELECT id FROM orders WHERE id = $1 AND restaurant_id = $2',
-            [orderId, restaurantId]
+            'SELECT id, restaurant_id, status FROM orders WHERE id = $1',
+            [orderId]
         );
 
         if (checkResult.rows.length === 0) {
             return {
                 statusCode: 404,
                 headers,
-                body: JSON.stringify({ error: 'Order not found or access denied' })
+                body: JSON.stringify({ error: 'Order not found' })
             };
+        }
+
+        const order = checkResult.rows[0];
+
+        // 2. SECURITY CHECK: Restaurant Ownership
+        if (decoded.role !== 'ADMIN' && order.restaurant_id !== restaurantId) {
+            return {
+                statusCode: 403,
+                headers,
+                body: JSON.stringify({ error: 'Forbidden: Access denied to this restaurant\'s orders' })
+            };
+        }
+
+        // 3. SECURITY CHECK: STAFF Restrictions
+        if (decoded.role === 'STAFF') {
+            // Cannot cancel completed orders
+            if (status === 'cancelled' && order.status === 'completed') {
+                return {
+                    statusCode: 403,
+                    headers,
+                    body: JSON.stringify({ error: 'Forbidden: Staff cannot cancel completed orders' })
+                };
+            }
         }
 
         // Update order status and handle commission recording for acceptance
@@ -121,7 +146,7 @@ export const handler = async (event, context) => {
             if (!alreadyRecorded && commissionAmount > 0) {
                 await query(
                     'UPDATE users SET owed_commission_balance = COALESCE(owed_commission_balance, 0) + $1 WHERE id = $2',
-                    [commissionAmount, restaurantId]
+                    [commissionAmount, order.restaurant_id]
                 );
             }
         } else if (status === 'cancelled') {
@@ -131,7 +156,7 @@ export const handler = async (event, context) => {
                 `SELECT COUNT(*) FROM orders 
                  WHERE restaurant_id = $1 AND status = 'cancelled' 
                  AND updated_at >= CURRENT_DATE`,
-                [restaurantId]
+                [order.restaurant_id]
             );
             const cancelCount = parseInt(cancelCountResult.rows[0].count);
 
@@ -158,7 +183,7 @@ export const handler = async (event, context) => {
                 if (wasRecorded && commissionAmount > 0) {
                     await query(
                         'UPDATE users SET owed_commission_balance = GREATEST(0, COALESCE(owed_commission_balance, 0) - $1) WHERE id = $2',
-                        [commissionAmount, restaurantId]
+                        [commissionAmount, order.restaurant_id]
                     );
                     message += " Commission was refunded (Daily free limit).";
                 }

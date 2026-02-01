@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { loginUser as apiLogin, signupUser as apiSignup, logoutUser as apiLogout, getCurrentUser, subscribeUser as apiSubscribe, unsubscribeUser as apiUnsubscribe, updateUserProfile as apiUpdateProfile } from '../utils/auth';
+import { loginUser as apiLogin, signupUser as apiSignup, logoutUser as apiLogout, getCurrentUser, subscribeUser as apiSubscribe, unsubscribeUser as apiUnsubscribe, updateUserProfile as apiUpdateProfile, loginStaff } from '../utils/auth';
 
 const AuthContext = createContext();
 
@@ -21,8 +21,15 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password) => {
         const data = await apiLogin(email, password);
         setUser(data.user);
-        return data; // Return data for component redirect logic
+        return data;
     };
+
+    const staffLogin = async (restaurantId, pin) => {
+        const { loginStaff } = await import('../utils/auth'); // Lazy or ensure it's imported
+        const data = await loginStaff(restaurantId, pin);
+        setUser(data.user);
+        return data;
+    }
 
     const signup = async (userData) => {
         const data = await apiSignup(userData);
@@ -56,6 +63,7 @@ export const AuthProvider = ({ children }) => {
     const value = {
         user,
         login,
+        staffLogin,
         signup,
         logout,
         subscribe,
