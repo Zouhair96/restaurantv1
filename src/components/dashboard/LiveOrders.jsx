@@ -168,43 +168,55 @@ const LiveOrders = ({ onSelectOrder }) => {
                 </div>
 
                 {/* Filter Buttons */}
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-4 w-full md:w-auto">
                     {/* Status Filters */}
-                    <div className="flex flex-wrap gap-2">
-                        {['pending', 'preparing', 'completed', 'cancelled'].map(status => (
+                    <div className="grid grid-cols-2 lg:flex lg:flex-row gap-3">
+                        {[
+                            { id: 'pending', label: 'Pending', icon: '🔔', color: 'bg-yellow-500' },
+                            { id: 'preparing', label: 'Preparing', icon: '👨‍🍳', color: 'bg-blue-500' },
+                            { id: 'completed', label: 'Completed', icon: '✅', color: 'bg-green-500' },
+                            { id: 'cancelled', label: 'Cancelled', icon: '❌', color: 'bg-red-500' }
+                        ].map(status => (
                             <button
-                                key={status}
-                                onClick={() => setFilter(status)}
-                                className={`px-4 py-2 rounded-xl font-bold text-sm transition-all capitalize ${filter === status
-                                    ? 'bg-yum-primary text-white shadow-lg'
-                                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+                                key={status.id}
+                                onClick={() => setFilter(status.id)}
+                                className={`flex items-center justify-center gap-3 px-8 py-5 rounded-2xl font-black text-base transition-all transform active:scale-95 shadow-md ${filter === status.id
+                                    ? `${status.color} text-white shadow-xl ring-4 ring-offset-2 ring-offset-white dark:ring-offset-gray-900 ring-${status.color === 'bg-yum-primary' ? 'red' : status.color.split('-')[1]}-500/30`
+                                    : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-100 dark:border-gray-700'
                                     }`}
                             >
-                                {status.replace(/_/g, ' ')}
+                                <span className="text-xl">{status.icon}</span>
+                                <span className="uppercase tracking-widest">{status.label}</span>
                             </button>
                         ))}
                     </div>
 
                     {/* Order Type Filters */}
-                    <div className="flex flex-wrap gap-2">
-                        <button
-                            onClick={() => setOrderTypeFilter('dine_in')}
-                            className={`px-4 py-2 rounded-xl font-bold text-sm transition-all ${orderTypeFilter === 'dine_in'
-                                ? 'bg-blue-600 text-white shadow-lg'
-                                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
-                                }`}
-                        >
-                            Dine In
-                        </button>
-                        <button
-                            onClick={() => setOrderTypeFilter('take_out')}
-                            className={`px-4 py-2 rounded-xl font-bold text-sm transition-all ${orderTypeFilter === 'take_out'
-                                ? 'bg-orange-600 text-white shadow-lg'
-                                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
-                                }`}
-                        >
-                            Take Out
-                        </button>
+                    <div className="flex gap-3">
+                        {[
+                            { id: 'dine_in', label: 'Dine In', icon: '🍽️', activeColor: 'bg-indigo-600' },
+                            { id: 'take_out', label: 'Take Out', icon: '🥡', activeColor: 'bg-orange-600' }
+                        ].map(type => (
+                            <button
+                                key={type.id}
+                                onClick={() => setOrderTypeFilter(type.id === orderTypeFilter ? 'all' : type.id)}
+                                className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold text-xs transition-all uppercase tracking-widest border ${orderTypeFilter === type.id
+                                    ? `${type.activeColor} text-white shadow-lg border-transparent`
+                                    : 'bg-gray-50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400 border-gray-100 dark:border-gray-800 hover:bg-white dark:hover:bg-gray-800'
+                                    }`}
+                            >
+                                <span>{type.icon}</span>
+                                {type.label}
+                            </button>
+                        ))}
+                        {orderTypeFilter !== 'all' && (
+                            <button
+                                onClick={() => setOrderTypeFilter('all')}
+                                className="px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest bg-gray-900 text-white"
+                            >
+                                Clear
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
