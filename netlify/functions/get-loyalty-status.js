@@ -56,64 +56,69 @@ export const handler = async (event, context) => {
             totalSpending += parseFloat(o.total_price) || 0;
         });
 
-        // --- STRICT SERVER-SIDE SESSION & VISIT LOGIC (DB-BACKED) ---
-        const SESSION_TIMEOUT = 3 * 60 * 1000; // 3 Minutes (Dev) - Configurable
+        // --- STRICT EXPLOIT-SAFE SESSION FINALIZATION ---
+        const SESSION_TIMEOUT = 3 * 60 * 1000; // 3 Minutes (Dev)
         const now = new Date();
 
-        // 1. Get Visitor State (Persistent Session)
+        // 1. Get Visitor State
         let visitorRes = await query(`
             SELECT * FROM loyalty_visitors 
             WHERE restaurant_id = $1 AND device_id = $2
         `, [targetRestaurantId, loyaltyId]);
 
         let visitor = visitorRes.rows[0];
-        let visitCount = 0;
-        let ordersInCurrentSession = 0;
-        // let currentStep = 'NEW'; // Not returned to Client yet, frontend determines from visitCount
-
         if (!visitor) {
-            // New User: Create Record (Visit 0, Start Session)
             const insertRes = await query(`
                 INSERT INTO loyalty_visitors (restaurant_id, device_id, visit_count, last_session_at, current_step, orders_in_current_session)
                 VALUES ($1, $2, 0, NOW(), 'NEW', 0)
                 RETURNING *
             `, [targetRestaurantId, loyaltyId]);
             visitor = insertRes.rows[0];
-            visitCount = 0;
-            ordersInCurrentSession = 0;
-        } else {
-            // Existing User: Check Visit Window
-            // We cluster based on the LAST VISIT (last visit-triggering order), 
-            // NOT the last scan. This allows users to stay on page but get a new visit if they wait.
-            const lastVisitTime = visitor.last_visit_at ? new Date(visitor.last_visit_at).getTime() : 0;
-            const timeSinceLastVisit = lastVisitTime > 0 ? now.getTime() - lastVisitTime : SESSION_TIMEOUT + 1;
-
-            console.log(`[Loyalty Scan] ID: ${loyaltyId}, Since Last Visit: ${Math.round(timeSinceLastVisit / 1000)}s, Limit: ${SESSION_TIMEOUT / 1000}s`);
-
-            if (timeSinceLastVisit > SESSION_TIMEOUT) {
-                // Potential New Visit Cluster detected
-                console.log(`[Loyalty Scan] NEW VISIT WINDOW. Resetting session order count.`);
-                visitCount = visitor.visit_count;
-                ordersInCurrentSession = 0;
-
-                await query(`
-                    UPDATE loyalty_visitors 
-                    SET last_session_at = NOW(), orders_in_current_session = 0
-                    WHERE id = $1
-                `, [visitor.id]);
-            } else {
-                // ACTIVE SESSION
-                console.log(`[Loyalty Scan] ACTIVE SESSION (orders: ${visitor.orders_in_current_session}). Extending window.`);
-                visitCount = visitor.visit_count;
-                ordersInCurrentSession = visitor.orders_in_current_session;
-
-                await query(`
-                    UPDATE loyalty_visitors 
-                    SET last_session_at = NOW()
-                    WHERE id = $1
-                `, [visitor.id]);
-            }
         }
+
+        // 2. Detect New Session Window
+        const lastSessionTime = visitor.last_session_at ? new Date(visitor.last_session_at).getTime() : 0;
+        const timeSinceLastSession = now.getTime() - lastSessionTime;
+        const isNewWindow = timeSinceLastSession > SESSION_TIMEOUT;
+
+        if (isNewWindow) {
+            // NEW WINDOW: Determine if we should finalize the PREVIOUS session's count
+            const hasUncountedVisit = visitor.last_visit_at &&
+                (!visitor.last_counted_at || new Date(visitor.last_visit_at) > new Date(visitor.last_counted_at));
+
+            const wasPreviousSessionValid = parseInt(visitor.orders_in_current_session || 0) > 0;
+
+            let updatedVisitCount = visitor.visit_count;
+            let lastCountedAt = visitor.last_counted_at;
+
+            if (wasPreviousSessionValid && hasUncountedVisit) {
+                // EXPLOIT SAFE: Previous session finalized with orders -> Increment visit_count once
+                updatedVisitCount++;
+                lastCountedAt = now;
+                console.log(`[Loyalty Finalization] ID: ${loyaltyId} - Finalizing previous session. New Count: ${updatedVisitCount}`);
+            }
+
+            // Update to start new window
+            const updateRes = await query(`
+                UPDATE loyalty_visitors 
+                SET 
+                    visit_count = $1,
+                    last_counted_at = $2,
+                    last_session_at = NOW(),
+                    orders_in_current_session = 0
+                WHERE id = $3
+                RETURNING *
+            `, [updatedVisitCount, lastCountedAt, visitor.id]);
+            visitor = updateRes.rows[0];
+        } else {
+            // ACTIVE SESSION: Just extend the session window to prevent premature finalization
+            await query(`
+                UPDATE loyalty_visitors SET last_session_at = NOW() WHERE id = $1
+            `, [visitor.id]);
+        }
+
+        const visitCount = visitor.visit_count;
+        const ordersInCurrentSession = visitor.orders_in_current_session;
 
         // Return Authoritative Server State
         // Add loyalty_config so public menu knows what rewards to show

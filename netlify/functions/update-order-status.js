@@ -32,8 +32,15 @@ export const handler = async (event, context) => {
                 ADD COLUMN IF NOT EXISTS commission_recorded BOOLEAN DEFAULT false,
                 ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
             `);
+
+            // Ensure loyalty_visitors has last_counted_at
+            await query(`
+                ALTER TABLE loyalty_visitors 
+                ADD COLUMN IF NOT EXISTS last_counted_at TIMESTAMP WITH TIME ZONE,
+                ADD COLUMN IF NOT EXISTS last_visit_at TIMESTAMP WITH TIME ZONE
+            `);
         } catch (dbErr) {
-            console.warn('[DB Warning]: Could not ensure order status schema:', dbErr.message);
+            console.warn('[DB Warning]: Could not ensure schemas:', dbErr.message);
         }
 
         // Verify JWT token
@@ -196,54 +203,20 @@ export const handler = async (event, context) => {
 
                 if (visitor) {
                     const now = new Date();
-                    const SESSION_TIMEOUT = 3 * 60 * 1000; // 3 min dev
-
-                    // Check if enough time has passed since the LAST visit-triggering order
-                    const lastVisitTime = visitor.last_visit_at ? new Date(visitor.last_visit_at).getTime() : 0;
-                    const timeSinceLastVisit = lastVisitTime > 0 ? now.getTime() - lastVisitTime : SESSION_TIMEOUT + 1;
-
-                    // If visit window expired, this is effectively a first order of a new visit cluster
-                    const isNewVisitWindow = timeSinceLastVisit > SESSION_TIMEOUT;
-                    let effectiveOrders = parseInt(visitor.orders_in_current_session || 0);
-
-                    if (isNewVisitWindow) {
-                        console.log(`[Loyalty Completion] NEW WINDOW (diff: ${Math.round(timeSinceLastVisit / 1000)}s). Resetting orders count.`);
-                        effectiveOrders = 0;
-                    }
-
-                    const isFirstOrderInSession = effectiveOrders === 0;
-
-                    let newVisitCount = visitor.visit_count;
-                    let lastVisitAt = visitor.last_visit_at;
-
-                    if (isFirstOrderInSession) {
-                        newVisitCount++;
-                        lastVisitAt = now;
-                        console.log(`[Loyalty Completion] NEW VISIT! Count: ${visitor.visit_count} -> ${newVisitCount}`);
-                    } else {
-                        console.log(`[Loyalty Completion] Active session. Visit count ${newVisitCount} unchanged.`);
-                    }
-
-                    // Update step based on Spec (Remapped: 0=NEW, 1=WELCOME, 2=IN_PROGRESS, 3+=LOYAL)
-                    let newStep = 'NEW';
-                    if (newVisitCount >= 3) newStep = 'LOYAL';
-                    else if (newVisitCount === 1) newStep = 'WELCOME';
-                    else if (newVisitCount === 2) newStep = 'IN_PROGRESS';
-                    else if (newVisitCount === 0) newStep = 'NEW';
-
+                    // --- STRICT EXPLOIT-SAFE SESSION TRACKING ---
+                    // On completion: record that an order happened in this session window
+                    // and update the last_visit_at timestamp for later finalization.
                     await query(`
                         UPDATE loyalty_visitors 
                         SET 
-                            visit_count = $1,
-                            last_visit_at = $2,
+                            last_visit_at = NOW(),
                             last_session_at = NOW(),
-                            orders_in_current_session = $3,
-                            current_step = $4
-                        WHERE id = $5
-                    `, [newVisitCount, lastVisitAt, effectiveOrders + 1, newStep, visitor.id]);
+                            orders_in_current_session = COALESCE(orders_in_current_session, 0) + 1
+                        WHERE id = $1
+                    `, [visitor.id]);
 
-                    // Record event for dashboard analytics if they hit Loyal tier
-                    if (newStep === 'LOYAL' && isFirstOrderInSession) {
+                    // Record event for dashboard analytics if they hit Loyal tier (Legacy/Display support)
+                    if (visitor.visit_count >= 3) {
                         await query(
                             'INSERT INTO visitor_events (restaurant_id, visitor_uuid, event_type, created_at) VALUES ($1, $2, $3, NOW())',
                             [orderRestaurantId, loyaltyId, 'loyal_status_reached']

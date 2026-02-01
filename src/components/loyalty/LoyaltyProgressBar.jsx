@@ -2,27 +2,26 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const LoyaltyProgressBar = ({ completedOrders = [], loyaltyConfig = {}, isDarkMode = false, currentSpending = null }) => {
-    // Calculate Spending Progress
-    // Use trusted currentSpending if passed (fixes mismatch with server stats), otherwise fallback to local calc
-    const totalSpending = currentSpending !== null
-        ? parseFloat(currentSpending)
-        : completedOrders.reduce((sum, order) => sum + (parseFloat(order.amount) || 0), 0);
-
+const LoyaltyProgressBar = ({ loyaltyConfig = {}, isDarkMode = false, currentSpending = null, totalVisits = 0 }) => {
+    // Calculate Spending Progress (Motivational only)
+    const totalSpending = parseFloat(currentSpending || 0);
     const threshold = parseFloat(loyaltyConfig?.loyalConfig?.threshold || 50);
 
-    // Cap percentage at 100%
+    // Percentage for the bar
     const percentage = Math.min((totalSpending / threshold) * 100, 100);
 
-    // Determine message based on Spending
+    // Authoritative messaging based on visit_count (Sessions)
     const getMessage = () => {
-        if (completedOrders.length === 0 && totalSpending === 0) {
-            return "👋 Place your first order to start unlocking rewards!";
-        }
-        if (percentage >= 100) {
+        if (totalVisits >= 3) {
             return "🎉 Loyal status unlocked! Enjoy your reward!";
         }
-        return "🎯 Keep going! You're getting closer to your reward!";
+        if (totalVisits === 2) {
+            return "🎯 You're getting closer! Final session before Loyal Rewards!";
+        }
+        if (totalVisits === 1) {
+            return "👋 Welcome back! Check out your discount for this visit.";
+        }
+        return "👋 Place your first order to start unlocking rewards!";
     };
 
     return (
@@ -34,24 +33,30 @@ const LoyaltyProgressBar = ({ completedOrders = [], loyaltyConfig = {}, isDarkMo
                 : 'bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-200'
                 }`}
         >
+            {/* Header info */}
+            <div className="flex justify-between items-end mb-2">
+                <p className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-purple-400' : 'text-purple-600'}`}>
+                    {totalVisits >= 3 ? 'Elite Status' : `Session ${totalVisits + 1}`}
+                </p>
+                <p className={`text-[10px] font-bold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    ${Math.round(totalSpending)} / ${threshold}
+                </p>
+            </div>
+
             {/* Progress Bar */}
-            <div className={`w-full h-3 rounded-full overflow-hidden mb-3 ${isDarkMode ? 'bg-white/10' : 'bg-white/60'
-                }`}>
+            <div className={`w-full h-3 rounded-full overflow-hidden mb-3 ${isDarkMode ? 'bg-white/10' : 'bg-white/60'}`}>
                 <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${percentage}%` }}
                     transition={{ duration: 1, ease: 'easeOut' }}
                     className="h-full bg-gradient-to-r from-purple-500 via-pink-500 to-indigo-500 rounded-full"
-                    style={{
-                        boxShadow: '0 0 10px rgba(147, 51, 234, 0.5)'
-                    }}
+                    style={{ boxShadow: '0 0 10px rgba(147, 51, 234, 0.5)' }}
                 />
             </div>
 
             {/* Message */}
             <div className="flex items-center gap-2">
-                <p className={`text-sm font-bold ${isDarkMode ? 'text-purple-300' : 'text-purple-700'
-                    }`}>
+                <p className={`text-sm font-bold ${isDarkMode ? 'text-purple-300' : 'text-purple-700'}`}>
                     {getMessage()}
                 </p>
             </div>
