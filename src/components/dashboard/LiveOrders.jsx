@@ -167,62 +167,61 @@ const LiveOrders = ({ onSelectOrder }) => {
                     </p>
                 </div>
 
-                {/* Filter Buttons Section */}
-                <div className="flex flex-col gap-6 w-full">
-                    {/* Status Filters - Massive Grid */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                        {[
-                            { id: 'pending', label: 'Pending', icon: '🔔', color: 'bg-yellow-500', ringColor: 'ring-yellow-500/30' },
-                            { id: 'preparing', label: 'Preparing', icon: '👨‍🍳', color: 'bg-blue-500', ringColor: 'ring-blue-500/30' },
-                            { id: 'completed', label: 'Completed', icon: '✅', color: 'bg-green-500', ringColor: 'ring-green-500/30' },
-                            { id: 'cancelled', label: 'Cancelled', icon: '❌', color: 'bg-red-500', ringColor: 'ring-red-500/30' }
-                        ].map(status => (
-                            <button
-                                key={status.id}
-                                onClick={() => setFilter(status.id)}
-                                className={`flex flex-col items-center justify-center gap-3 p-6 md:p-10 rounded-none transition-all transform active:scale-95 shadow-sm border-2 md:border-4 ${filter === status.id
-                                    ? `${status.color} text-white border-transparent shadow-2xl translate-y-[-4px] ring-8 ${status.ringColor}`
-                                    : 'bg-white dark:bg-gray-800 text-gray-400 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 border-gray-100 dark:border-gray-800'
-                                    }`}
-                            >
-                                <span className="text-4xl md:text-6xl mb-2">{status.icon}</span>
-                                <span className="uppercase font-black tracking-widest text-xs md:text-base">{status.label}</span>
-                                {filter === status.id && (
-                                    <div className="h-1.5 w-12 bg-white/40 rounded-full mt-2 animate-pulse"></div>
-                                )}
-                            </button>
-                        ))}
-                    </div>
-
-                    {/* Order Type & Actions - Clearer Row */}
-                    <div className="flex flex-col sm:flex-row gap-4">
-                        <div className="flex gap-4 flex-1">
+                {/* Filter Buttons Section - Sticky on Scroll */}
+                <div className="sticky top-0 z-20 bg-gray-50/80 dark:bg-[#0f172a]/80 backdrop-blur-xl -mx-4 px-4 py-4 mb-2 border-b border-gray-100 dark:border-gray-800 transition-all">
+                    <div className="flex flex-col gap-4 w-full">
+                        {/* Status Filters - Balanced Grid */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                             {[
-                                { id: 'dine_in', label: 'Dine In', icon: '🍽️', activeColor: 'bg-indigo-600' },
-                                { id: 'take_out', label: 'Take Out', icon: '🥡', activeColor: 'bg-orange-600' }
-                            ].map(type => (
+                                { id: 'pending', label: 'Pending', icon: '🔔', color: 'bg-yellow-500', ringColor: 'ring-yellow-500/20' },
+                                { id: 'preparing', label: 'Preparing', icon: '👨‍🍳', color: 'bg-blue-500', ringColor: 'ring-blue-500/20' },
+                                { id: 'completed', label: 'Completed', icon: '✅', color: 'bg-green-500', ringColor: 'ring-green-500/20' },
+                                { id: 'cancelled', label: 'Cancelled', icon: '❌', color: 'bg-red-500', ringColor: 'ring-red-500/20' }
+                            ].map(status => (
                                 <button
-                                    key={type.id}
-                                    onClick={() => setOrderTypeFilter(type.id === orderTypeFilter ? 'all' : type.id)}
-                                    className={`flex-1 flex items-center justify-center gap-3 py-5 md:py-6 rounded-none font-black text-sm md:text-base transition-all uppercase tracking-widest border-2 md:border-4 ${orderTypeFilter === type.id
-                                        ? `${type.activeColor} text-white shadow-xl border-transparent translate-y-[-2px]`
-                                        : 'bg-white dark:bg-gray-800 text-gray-400 dark:text-gray-500 border-gray-100 dark:border-gray-800 hover:bg-gray-50'
+                                    key={status.id}
+                                    onClick={() => setFilter(status.id)}
+                                    className={`flex items-center justify-center gap-3 p-3 md:p-4 rounded-xl transition-all transform active:scale-95 shadow-sm border-2 ${filter === status.id
+                                        ? `${status.color} text-white border-transparent shadow-lg translate-y-[-1px] ring-4 ${status.ringColor}`
+                                        : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 border-gray-100 dark:border-gray-800'
                                         }`}
                                 >
-                                    <span className="text-xl md:text-2xl">{type.icon}</span>
-                                    {type.label}
+                                    <span className="text-xl md:text-2xl">{status.icon}</span>
+                                    <span className="uppercase font-bold tracking-wider text-[10px] md:text-xs">{status.label}</span>
                                 </button>
                             ))}
                         </div>
 
-                        {orderTypeFilter !== 'all' && (
-                            <button
-                                onClick={() => setOrderTypeFilter('all')}
-                                className="px-8 py-5 md:py-6 rounded-none font-black text-sm md:text-base uppercase tracking-widest bg-gray-900 dark:bg-white dark:text-black text-white border-2 md:border-4 border-gray-900 transition-all hover:bg-gray-800 active:scale-95"
-                            >
-                                Reset Filters
-                            </button>
-                        )}
+                        {/* Order Type & Actions */}
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            <div className="flex gap-2 flex-1">
+                                {[
+                                    { id: 'dine_in', label: 'Dine In', icon: '🍽️', activeColor: 'bg-indigo-600' },
+                                    { id: 'take_out', label: 'Take Out', icon: '🥡', activeColor: 'bg-orange-600' }
+                                ].map(type => (
+                                    <button
+                                        key={type.id}
+                                        onClick={() => setOrderTypeFilter(type.id === orderTypeFilter ? 'all' : type.id)}
+                                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg font-bold text-[10px] transition-all uppercase tracking-widest border-2 ${orderTypeFilter === type.id
+                                            ? `${type.activeColor} text-white shadow-md border-transparent`
+                                            : 'bg-white dark:bg-gray-800 text-gray-400 dark:text-gray-500 border-gray-100 dark:border-gray-800 hover:bg-gray-50'
+                                            }`}
+                                    >
+                                        <span className="text-base">{type.icon}</span>
+                                        {type.label}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {orderTypeFilter !== 'all' && (
+                                <button
+                                    onClick={() => setOrderTypeFilter('all')}
+                                    className="px-6 py-3 rounded-lg font-black text-[10px] uppercase tracking-widest bg-gray-900 dark:bg-white dark:text-black text-white hover:bg-gray-800 active:scale-95 transition-all"
+                                >
+                                    Reset
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
