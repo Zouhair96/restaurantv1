@@ -148,35 +148,45 @@ export const handler = async (event, context) => {
                 const isNewVisitWindow = timeSinceLastVisit > SESSION_TIMEOUT;
 
                 let visitCount = parseInt(visitor.visit_count || 0);
+                let ordersInSession = parseInt(visitor.orders_in_current_session || 0);
 
                 if (hasUncountedVisit && isNewVisitWindow) {
-                    // Finalize previous session because we are now starting a NEW one with an order
-                    visitCount++;
-                    await query(
-                        'UPDATE loyalty_visitors SET visit_count = $1, last_counted_at = NOW(), orders_in_current_session = 0 WHERE id = $2',
-                        [visitCount, visitor.id]
-                    );
-                    console.log(`[Loyalty Finalization] ID: ${loyalty_id} - Earned Visit: ${visitCount}`);
+                    // ROBUSTNESS CHECK: Verify there were actually completed orders in that period
+                    const ordersCheck = await query(
+                        'SELECT id FROM orders WHERE loyalty_id = $1 AND restaurant_id = $2 AND status = "completed" AND created_at > $3',
+                        [loyalty_id, restaurantId, visitor.last_counted_at || visitor.created_at]
+                    ).catch(() => ({ rows: [1] })); // Fallback to trust visitor flag if query fails
+
+                    if (ordersCheck.rows.length > 0) {
+                        visitCount++;
+                        await query(
+                            'UPDATE loyalty_visitors SET visit_count = $1, last_counted_at = NOW(), orders_in_current_session = 0 WHERE id = $2',
+                            [visitCount, visitor.id]
+                        );
+                        console.log(`[Loyalty Finalization] ID: ${loyalty_id} - Earned Visit: ${visitCount}`);
+                        // Update local markers for the rules below
+                        ordersInSession = 0;
+                    }
                 }
 
-                const ordersInSession = parseInt(visitor.orders_in_current_session || 0);
+                if (loyalty_id && (loyalty_discount_applied || loyalty_gift_item)) {
+                    // Rule: Session 2 (visit_count 1) is ONE-TIME only
+                    if (visitCount === 1 && ordersInSession > 0) {
+                        return {
+                            statusCode: 400,
+                            headers,
+                            body: JSON.stringify({ error: 'Welcome discount already used in this session.' })
+                        };
+                    }
 
-                // Rule: Session 2 (visit_count 1) is ONE-TIME only
-                if (visitCount === 1 && ordersInSession > 0 && (loyalty_discount_applied || loyalty_gift_item)) {
-                    return {
-                        statusCode: 400,
-                        headers,
-                        body: JSON.stringify({ error: 'Welcome discount already used in this session.' })
-                    };
-                }
-
-                // Rule: Session 1 (visit_count 0) has NO discount
-                if (visitCount === 0 && (loyalty_discount_applied || loyalty_gift_item)) {
-                    return {
-                        statusCode: 400,
-                        headers,
-                        body: JSON.stringify({ error: 'Not eligible for loyalty rewards in Session 1.' })
-                    };
+                    // Rule: Session 1 (visit_count 0) has NO discount
+                    if (visitCount === 0) {
+                        return {
+                            statusCode: 400,
+                            headers,
+                            body: JSON.stringify({ error: 'Not eligible for loyalty rewards in Session 1.' })
+                        };
+                    }
                 }
             }
         }

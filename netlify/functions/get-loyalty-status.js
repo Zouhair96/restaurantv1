@@ -94,10 +94,8 @@ export const handler = async (event, context) => {
             `, [visitor.id]);
             visitor = updateRes.rows[0];
         } else {
-            // ACTIVE SESSION: Just extend the session window to prevent premature finalization
-            await query(`
-                UPDATE loyalty_visitors SET last_session_at = NOW() WHERE id = $1
-            `, [visitor.id]);
+            // ACTIVE SESSION: Do nothing.
+            // Heartbeat update on NOW() removed to prevent "Blocking" refreshes from delaying the 3min gap.
         }
 
         const visitCount = visitor.visit_count;

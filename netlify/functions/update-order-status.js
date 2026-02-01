@@ -177,6 +177,29 @@ export const handler = async (event, context) => {
 
             let message = "Order cancelled.";
 
+            // --- LOYALTY ROLLBACK ---
+            if (order.loyalty_id || order.device_id) {
+                const loyaltyId = order.loyalty_id || order.device_id;
+                console.log(`[Loyalty Rollback] Reversing progress for visitor: ${loyaltyId}`);
+
+                await query(`
+                    UPDATE loyalty_visitors 
+                    SET orders_in_current_session = GREATEST(0, COALESCE(orders_in_current_session, 1) - 1)
+                    WHERE restaurant_id = $1 AND device_id = $2
+                `, [order.restaurant_id, loyaltyId]);
+
+                // Also update last_visit_at to the most recent OTHER completed order if it exists
+                await query(`
+                    UPDATE loyalty_visitors 
+                    SET last_visit_at = (
+                        SELECT created_at FROM orders 
+                        WHERE loyalty_id = $1 AND restaurant_id = $2 AND status = 'completed' AND id != $3
+                        ORDER BY created_at DESC LIMIT 1
+                    )
+                    WHERE restaurant_id = $2 AND device_id = $1
+                `, [loyaltyId, order.restaurant_id, orderId]);
+            }
+
             // 4. Handle refund logic
             if (cancelCount < 2) {
                 // Within free limit - refund if it was billed
