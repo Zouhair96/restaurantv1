@@ -82,33 +82,16 @@ export const handler = async (event, context) => {
         const isNewWindow = timeSinceLastSession > SESSION_TIMEOUT;
 
         if (isNewWindow) {
-            // NEW WINDOW: Determine if we should finalize the PREVIOUS session's count
-            const hasUncountedVisit = visitor.last_visit_at &&
-                (!visitor.last_counted_at || new Date(visitor.last_visit_at) > new Date(visitor.last_counted_at));
-
-            const wasPreviousSessionValid = parseInt(visitor.orders_in_current_session || 0) > 0;
-
-            let updatedVisitCount = visitor.visit_count;
-            let lastCountedAt = visitor.last_counted_at;
-
-            if (wasPreviousSessionValid && hasUncountedVisit) {
-                // EXPLOIT SAFE: Previous session finalized with orders -> Increment visit_count once
-                updatedVisitCount++;
-                lastCountedAt = now;
-                console.log(`[Loyalty Finalization] ID: ${loyaltyId} - Finalizing previous session. New Count: ${updatedVisitCount}`);
-            }
-
-            // Update to start new window
+            // NEW WINDOW: Just reset indicators for the current UI session.
+            // DO NOT increment visit_count here. Finalization happens on Action (order submission).
             const updateRes = await query(`
                 UPDATE loyalty_visitors 
                 SET 
-                    visit_count = $1,
-                    last_counted_at = $2,
                     last_session_at = NOW(),
                     orders_in_current_session = 0
-                WHERE id = $3
+                WHERE id = $1
                 RETURNING *
-            `, [updatedVisitCount, lastCountedAt, visitor.id]);
+            `, [visitor.id]);
             visitor = updateRes.rows[0];
         } else {
             // ACTIVE SESSION: Just extend the session window to prevent premature finalization
