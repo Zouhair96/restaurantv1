@@ -160,7 +160,8 @@ export const handler = async (event, context) => {
                         restaurant_menu_id: menuSettings?.id,
                         restaurant_config: menuSettings?.config || {},
                         activation_status: rt.status,
-                        subscription_tier: rt.subscription_tier
+                        subscription_tier: rt.subscription_tier,
+                        order_number_config: user.order_number_config || {}
                     },
                     items: finalItems
                 })

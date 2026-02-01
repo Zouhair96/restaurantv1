@@ -37,6 +37,12 @@ const ManageMenu = ({ isAdminView = false }) => {
         }
     });
 
+    const [orderNumberConfig, setOrderNumberConfig] = useState({
+        starting_number: 1,
+        reset_period: 'never',
+        weekly_start_day: 1
+    });
+
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
@@ -89,6 +95,14 @@ const ManageMenu = ({ isAdminView = false }) => {
                         ...mergedConfig,
                         restaurantName: data.template?.restaurant_config?.restaurantName || currentUser?.restaurant_name || ''
                     });
+
+                    if (data.template?.order_number_config) {
+                        setOrderNumberConfig({
+                            starting_number: data.template.order_number_config.starting_number || 1,
+                            reset_period: data.template.order_number_config.reset_period || 'never',
+                            weekly_start_day: data.template.order_number_config.weekly_start_day || 1
+                        });
+                    }
                 }
             }
         } catch (error) {
@@ -271,6 +285,16 @@ const ManageMenu = ({ isAdminView = false }) => {
                 });
 
                 if (response.ok) {
+                    // Save Order Number config separately to its dedicated endpoint
+                    await fetch('/.netlify/functions/update-order-number-config', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(orderNumberConfig)
+                    });
+
                     if (!configOverride) alert('Settings Saved!');
                 }
             }
@@ -764,7 +788,8 @@ const ManageMenu = ({ isAdminView = false }) => {
                                     <input
                                         type="number"
                                         min="1"
-                                        defaultValue="1"
+                                        value={orderNumberConfig.starting_number}
+                                        onChange={(e) => setOrderNumberConfig({ ...orderNumberConfig, starting_number: parseInt(e.target.value) || 1 })}
                                         className="w-full px-5 py-3 rounded-xl border border-gray-100 dark:border-white/10 bg-white dark:bg-[#24262d] text-gray-900 dark:text-white font-bold focus:ring-2 focus:ring-indigo-500 outline-none"
                                         placeholder="e.g., 1 or 100"
                                     />
@@ -773,7 +798,11 @@ const ManageMenu = ({ isAdminView = false }) => {
 
                                 <div>
                                     <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Reset Period</label>
-                                    <select className="w-full px-5 py-3 rounded-xl border border-gray-100 dark:border-white/10 bg-white dark:bg-[#24262d] text-gray-900 dark:text-white font-bold focus:ring-2 focus:ring-indigo-500 outline-none">
+                                    <select
+                                        value={orderNumberConfig.reset_period}
+                                        onChange={(e) => setOrderNumberConfig({ ...orderNumberConfig, reset_period: e.target.value })}
+                                        className="w-full px-5 py-3 rounded-xl border border-gray-100 dark:border-white/10 bg-white dark:bg-[#24262d] text-gray-900 dark:text-white font-bold focus:ring-2 focus:ring-indigo-500 outline-none"
+                                    >
                                         <option value="never">Never (Continuous)</option>
                                         <option value="daily">Daily</option>
                                         <option value="weekly">Weekly</option>
