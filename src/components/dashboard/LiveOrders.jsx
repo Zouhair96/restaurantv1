@@ -180,13 +180,13 @@ const LiveOrders = ({ onSelectOrder }) => {
                             <button
                                 key={status.id}
                                 onClick={() => setFilter(status.id)}
-                                className={`flex items-center justify-center gap-3 px-8 py-5 rounded-2xl font-black text-base transition-all transform active:scale-95 shadow-md ${filter === status.id
-                                    ? `${status.color} text-white shadow-xl ring-4 ring-offset-2 ring-offset-white dark:ring-offset-gray-900 ring-${status.color === 'bg-yum-primary' ? 'red' : status.color.split('-')[1]}-500/30`
-                                    : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-100 dark:border-gray-700'
+                                className={`flex flex-col items-center justify-center gap-2 px-6 py-6 rounded-none font-black text-base transition-all transform active:scale-95 shadow-sm border-2 ${filter === status.id
+                                    ? `${status.color} text-white border-transparent shadow-xl translate-y-[-2px]`
+                                    : 'bg-white dark:bg-gray-800 text-gray-400 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 border-gray-100 dark:border-gray-800'
                                     }`}
                             >
-                                <span className="text-xl">{status.icon}</span>
-                                <span className="uppercase tracking-widest">{status.label}</span>
+                                <span className="text-2xl">{status.icon}</span>
+                                <span className="uppercase tracking-tighter text-xs">{status.label}</span>
                             </button>
                         ))}
                     </div>
@@ -200,7 +200,7 @@ const LiveOrders = ({ onSelectOrder }) => {
                             <button
                                 key={type.id}
                                 onClick={() => setOrderTypeFilter(type.id === orderTypeFilter ? 'all' : type.id)}
-                                className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold text-xs transition-all uppercase tracking-widest border ${orderTypeFilter === type.id
+                                className={`flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-none font-black text-[10px] transition-all uppercase tracking-widest border-2 ${orderTypeFilter === type.id
                                     ? `${type.activeColor} text-white shadow-lg border-transparent`
                                     : 'bg-gray-50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400 border-gray-100 dark:border-gray-800 hover:bg-white dark:hover:bg-gray-800'
                                     }`}
@@ -212,7 +212,7 @@ const LiveOrders = ({ onSelectOrder }) => {
                         {orderTypeFilter !== 'all' && (
                             <button
                                 onClick={() => setOrderTypeFilter('all')}
-                                className="px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest bg-gray-900 text-white"
+                                className="px-4 py-4 rounded-none font-black text-[10px] uppercase tracking-widest bg-gray-900 text-white border-2 border-gray-900"
                             >
                                 Clear
                             </button>
