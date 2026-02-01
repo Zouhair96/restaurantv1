@@ -24,12 +24,12 @@ const AddMemberModal = ({ isOpen, onClose, onAdd }) => {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-in">
             <div className="bg-white dark:bg-[#1a1c23] border border-white dark:border-white/10 rounded-[2.5rem] w-full max-w-lg shadow-2xl overflow-hidden animate-scale-in">
                 {/* Header */}
-                <div className="p-8 bg-gray-50/50 dark:bg-white/5 border-b border-gray-100 dark:border-white/5 flex justify-between items-center">
+                <div className="p-8 bg-gray-50/80 dark:bg-white/5 border-b border-gray-100 dark:border-white/10 flex justify-between items-center">
                     <div>
-                        <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Add Team Member</h2>
-                        <p className="text-gray-400 text-[10px] font-black uppercase tracking-widest mt-1">Configure access and role</p>
+                        <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Add New Team Member</h2>
+                        <p className="text-gray-500 dark:text-gray-400 text-[10px] font-black uppercase tracking-widest mt-1">Configure access and role</p>
                     </div>
-                    <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-all">
+                    <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 rounded-full transition-all">
                         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -38,35 +38,42 @@ const AddMemberModal = ({ isOpen, onClose, onAdd }) => {
 
                 <form onSubmit={handleSubmit} className="p-8 space-y-6">
                     <div>
-                        <label className="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 ml-1">Full Name</label>
+                        <label className="block text-[11px] font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest mb-2 ml-1">Full Name</label>
                         <input
                             type="text"
                             required
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className="w-full px-5 py-4 rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-[#24262d] text-gray-900 dark:text-white font-bold focus:ring-2 focus:ring-yum-primary outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-gray-600 shadow-sm"
+                            className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 dark:border-white/10 bg-white dark:bg-[#24262d] text-gray-900 dark:text-white font-bold focus:border-yum-primary focus:ring-0 outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-gray-500 shadow-sm"
                             placeholder="e.g. Sarah Johnson"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2 ml-1">Role Assignment</label>
-                        <select
-                            value={role}
-                            onChange={(e) => setRole(e.target.value)}
-                            className="w-full px-5 py-4 rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-[#24262d] text-gray-900 dark:text-white font-bold focus:ring-2 focus:ring-yum-primary outline-none transition-all appearance-none cursor-pointer shadow-sm"
-                        >
-                            <option value="Manager">Manager</option>
-                            <option value="Chef">Chef</option>
-                            <option value="Sous Chef">Sous Chef</option>
-                            <option value="Server">Server</option>
-                            <option value="Bartender">Bartender</option>
-                            <option value="Host">Host</option>
-                        </select>
+                        <label className="block text-[11px] font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest mb-2 ml-1">Role Assignment</label>
+                        <div className="relative">
+                            <select
+                                value={role}
+                                onChange={(e) => setRole(e.target.value)}
+                                className="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 dark:border-white/10 bg-white dark:bg-[#24262d] text-gray-900 dark:text-white font-bold focus:border-yum-primary focus:ring-0 outline-none transition-all appearance-none cursor-pointer shadow-sm"
+                            >
+                                <option value="Manager">Manager</option>
+                                <option value="Chef">Chef</option>
+                                <option value="Sous Chef">Sous Chef</option>
+                                <option value="Server">Server</option>
+                                <option value="Bartender">Bartender</option>
+                                <option value="Host">Host</option>
+                            </select>
+                            <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="bg-gray-50 dark:bg-white/5 p-6 rounded-[2rem] border border-gray-100 dark:border-white/5">
-                        <label className="block text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 ml-1">Terminal Access PIN</label>
+                    <div className="bg-gray-50 dark:bg-white/5 p-6 rounded-[2rem] border-2 border-gray-100 dark:border-white/5">
+                        <label className="block text-[11px] font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest mb-3 ml-1">Terminal Access PIN</label>
                         <input
                             type="text"
                             required
@@ -77,12 +84,12 @@ const AddMemberModal = ({ isOpen, onClose, onAdd }) => {
                                 const val = e.target.value.replace(/\D/g, '');
                                 if (val.length <= 4) setPin(val);
                             }}
-                            className="w-full px-6 py-5 border-2 border-dashed border-gray-200 dark:border-white/10 rounded-2xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-3xl font-black text-center tracking-[1em] focus:border-yum-primary focus:ring-0 outline-none transition-all placeholder:text-gray-200 dark:placeholder:text-gray-700"
+                            className="w-full px-6 py-5 border-2 border-dashed border-gray-200 dark:border-white/20 rounded-2xl bg-white dark:bg-gray-900 text-gray-900 dark:text-white text-3xl font-black text-center tracking-[1em] focus:border-yum-primary focus:ring-0 outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-gray-700"
                             placeholder="••••"
                         />
                         <div className="flex items-center gap-2 mt-4 ml-1">
-                            <div className="w-1.5 h-1.5 rounded-full bg-yum-primary animate-pulse"></div>
-                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">
+                            <div className="w-2 h-2 rounded-full bg-yum-primary animate-pulse"></div>
+                            <p className="text-[10px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-tight">
                                 Staff members use this PIN to log in
                             </p>
                         </div>
