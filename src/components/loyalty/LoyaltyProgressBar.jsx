@@ -22,13 +22,10 @@ const LoyaltyProgressBar = ({ loyaltyConfig = {}, isDarkMode = false, currentSpe
                 : 'bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-200'
                 }`}
         >
-            {/* Minimal Header info (No Technical labels) */}
+            {/* Minimal Header info (No Numerical Values) */}
             <div className="flex justify-between items-end mb-2">
                 <p className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-purple-400' : 'text-purple-600'}`}>
                     Progress
-                </p>
-                <p className={`text-[10px] font-bold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    €{Math.round(totalSpending)} / €{threshold}
                 </p>
             </div>
 
