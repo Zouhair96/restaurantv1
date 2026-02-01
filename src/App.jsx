@@ -12,7 +12,6 @@ import Team from './pages/dashboard/Team'
 import Promotions from './pages/dashboard/Promotions'
 import Activity from './pages/dashboard/Activity'
 import Settings from './pages/dashboard/Settings'
-import Orders from './pages/dashboard/Orders'
 
 import RoleProtectedRoute from './components/auth/RoleProtectedRoute'
 import OrderConfirmation from './pages/OrderConfirmation'
@@ -58,7 +57,7 @@ function App() {
                     {/* Dashboard Routes */}
                     <Route path="/dashboard" element={<Dashboard />}>
                       <Route index element={<RoleProtectedRoute allowedRoles={['OWNER', 'ADMIN']}><Overview /></RoleProtectedRoute>} />
-                      <Route path="orders" element={<Orders />} />
+                      <Route path="orders" element={<Navigate to="/dashboard" replace />} />
                       <Route path="menu" element={<RoleProtectedRoute allowedRoles={['OWNER', 'ADMIN']}><MenuManagement /></RoleProtectedRoute>} />
                       <Route path="analytics" element={<RoleProtectedRoute allowedRoles={['OWNER', 'ADMIN']}><Analytics /></RoleProtectedRoute>} />
                       <Route path="team" element={<RoleProtectedRoute allowedRoles={['OWNER', 'ADMIN']}><Team /></RoleProtectedRoute>} />
@@ -78,7 +77,7 @@ function App() {
                     <Route path="/testme" element={<TestMenu />} />
                     <Route path="/menu-pizza1" element={<PublicMenuPizza1 />} />
                     <Route path="/menu-testemplate" element={<PublicMenuTestemplate />} />
-                    <Route path="/orders" element={<Navigate to="/dashboard/orders" replace />} />
+                    <Route path="/orders" element={<Navigate to="/dashboard" replace />} />
 
 
                     <Route path="/menu/:templateKey" element={<PublicMenu />} />
