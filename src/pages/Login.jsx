@@ -21,6 +21,9 @@ const Login = () => {
     const [restaurantName, setRestaurantName] = useState('')
     const [address, setAddress] = useState('')
     const [phoneNumber, setPhoneNumber] = useState('')
+    const [loginMode, setLoginMode] = useState('OWNER') // 'OWNER' or 'STAFF'
+    const [restaurantId, setRestaurantId] = useState('')
+    const [pin, setPin] = useState('')
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -32,7 +35,7 @@ const Login = () => {
             if (isLogin) {
                 let user;
                 if (loginMode === 'STAFF') {
-                    const result = await loginStaff(restaurantId, pin);
+                    const result = await staffLogin(restaurantId, pin);
                     user = result.user;
                 } else {
                     const result = await login(email, password);

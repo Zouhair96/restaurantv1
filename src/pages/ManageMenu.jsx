@@ -26,8 +26,6 @@ const ManageMenu = ({ isAdminView = false }) => {
         promoDuration: 5,
         promotions: [], // Promotion management
         applyTax: false,
-        promotions: [], // Promotion management
-        applyTax: false,
         taxPercentage: 0,
         socialMedia: {
             instagram: { show: false, url: '' },
