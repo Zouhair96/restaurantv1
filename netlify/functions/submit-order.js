@@ -127,6 +127,38 @@ export const handler = async (event, context) => {
 
         const restaurantId = restaurantResult.rows[0].id;
 
+        // --- LOYALTY SERVER-SIDE ENFORCEMENT ---
+        if (loyalty_id && (loyalty_discount_applied || loyalty_gift_item)) {
+            const visitorRes = await query(
+                'SELECT visit_count, orders_in_current_session FROM loyalty_visitors WHERE restaurant_id = $1 AND device_id = $2',
+                [restaurantId, loyalty_id]
+            );
+            const visitor = visitorRes.rows[0];
+
+            if (visitor) {
+                const visitCount = parseInt(visitor.visit_count || 0);
+                const ordersInSession = parseInt(visitor.orders_in_current_session || 0);
+
+                // Rule: Session 2 (visit_count 1) is ONE-TIME only
+                if (visitCount === 1 && ordersInSession > 0) {
+                    return {
+                        statusCode: 400,
+                        headers,
+                        body: JSON.stringify({ error: 'Welcome discount already used in this session.' })
+                    };
+                }
+
+                // Rule: Session 1 (visit_count 0) has NO discount
+                if (visitCount === 0) {
+                    return {
+                        statusCode: 400,
+                        headers,
+                        body: JSON.stringify({ error: 'Not eligible for loyalty rewards in Session 1.' })
+                    };
+                }
+            }
+        }
+
         // Fetch Platform Settings
         const settingsResult = await query('SELECT key, value FROM platform_settings WHERE key = $1', ['stripe_config']);
         const stripeConfig = settingsResult.rows[0]?.value || { commission_rate: 0.02, currency: 'eur' };

@@ -124,6 +124,9 @@ const Checkout = ({
         teaserMessage,
         showProgress,
         progressPercentage,
+        progressMessage,
+        isLoyal,
+        loyalMessage,
         needsMoreSpending
     } = calculateLoyaltyDiscount(
         loyaltyInfo,
@@ -290,12 +293,23 @@ const Checkout = ({
                                         </div>
                                     </div>
                                 )}
-                                {welcomeTeaser && teaserMessage && (
+                                {loyaltyInfo.isLoyal && loyalMessage && (
+                                    <div className="flex justify-between items-center bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 p-4 rounded-2xl border-2 border-amber-200 dark:border-amber-700">
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-2xl">⭐</span>
+                                            <div className="flex flex-col">
+                                                <span className="font-black text-sm text-amber-700 dark:text-amber-400">Loyal Client</span>
+                                                <span className="text-[10px] font-bold text-amber-600 dark:text-amber-500">{loyalMessage}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                                {welcomeTeaser && teaserMessage && !loyaltyInfo.isLoyal && (
                                     <div className="flex justify-between items-center bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-4 rounded-2xl border-2 border-green-200 dark:border-green-700">
                                         <div className="flex items-center gap-3">
                                             <span className="text-2xl">🎉</span>
                                             <div className="flex flex-col">
-                                                <span className="font-black text-sm text-green-700 dark:text-green-400">Welcome Gift!</span>
+                                                <span className="font-black text-sm text-green-700 dark:text-green-400">Welcome!</span>
                                                 <span className="text-[10px] font-bold text-green-600 dark:text-green-500">{teaserMessage}</span>
                                             </div>
                                         </div>
@@ -307,6 +321,7 @@ const Checkout = ({
                                         isDarkMode={isDarkMode}
                                         currentSpending={loyaltyInfo?.serverTotalSpending ?? loyaltyInfo?.totalSpending}
                                         totalVisits={loyaltyInfo?.totalVisits || 0}
+                                        progressMessage={progressMessage}
                                     />
                                 )}
                                 {taxConfig.applyTax && (

@@ -2,7 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const LoyaltyProgressBar = ({ loyaltyConfig = {}, isDarkMode = false, currentSpending = null, totalVisits = 0 }) => {
+const LoyaltyProgressBar = ({ loyaltyConfig = {}, isDarkMode = false, currentSpending = null, totalVisits = 0, progressMessage = null }) => {
     // Calculate Spending Progress (Motivational only)
     const totalSpending = parseFloat(currentSpending || 0);
     const threshold = parseFloat(loyaltyConfig?.loyalConfig?.threshold || 50);
@@ -10,19 +10,8 @@ const LoyaltyProgressBar = ({ loyaltyConfig = {}, isDarkMode = false, currentSpe
     // Percentage for the bar
     const percentage = Math.min((totalSpending / threshold) * 100, 100);
 
-    // Authoritative messaging based on visit_count (Sessions)
-    const getMessage = () => {
-        if (totalVisits >= 3) {
-            return "🎉 Loyal status unlocked! Enjoy your reward!";
-        }
-        if (totalVisits === 2) {
-            return "🎯 You're getting closer! Final session before Loyal Rewards!";
-        }
-        if (totalVisits === 1) {
-            return "👋 Welcome back! Check out your discount for this visit.";
-        }
-        return "👋 Place your first order to start unlocking rewards!";
-    };
+    // Messaging (Authoritative from props or internal fallback)
+    const message = progressMessage || "🔥 You're close! Final session before Loyal Rewards!";
 
     return (
         <motion.div
@@ -33,13 +22,13 @@ const LoyaltyProgressBar = ({ loyaltyConfig = {}, isDarkMode = false, currentSpe
                 : 'bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-200'
                 }`}
         >
-            {/* Header info */}
+            {/* Minimal Header info (No Technical labels) */}
             <div className="flex justify-between items-end mb-2">
                 <p className={`text-[10px] font-black uppercase tracking-widest ${isDarkMode ? 'text-purple-400' : 'text-purple-600'}`}>
-                    {totalVisits >= 3 ? 'Elite Status' : `Session ${totalVisits + 1}`}
+                    Progress
                 </p>
                 <p className={`text-[10px] font-bold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    ${Math.round(totalSpending)} / ${threshold}
+                    €{Math.round(totalSpending)} / €{threshold}
                 </p>
             </div>
 
@@ -57,7 +46,7 @@ const LoyaltyProgressBar = ({ loyaltyConfig = {}, isDarkMode = false, currentSpe
             {/* Message */}
             <div className="flex items-center gap-2">
                 <p className={`text-sm font-bold ${isDarkMode ? 'text-purple-300' : 'text-purple-700'}`}>
-                    {getMessage()}
+                    {message}
                 </p>
             </div>
         </motion.div>
