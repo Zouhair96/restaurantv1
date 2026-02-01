@@ -167,54 +167,60 @@ const LiveOrders = ({ onSelectOrder }) => {
                     </p>
                 </div>
 
-                {/* Filter Buttons */}
-                <div className="flex flex-col gap-4 w-full md:w-auto">
-                    {/* Status Filters */}
-                    <div className="grid grid-cols-2 lg:flex lg:flex-row gap-3">
+                {/* Filter Buttons Section */}
+                <div className="flex flex-col gap-6 w-full">
+                    {/* Status Filters - Massive Grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                         {[
-                            { id: 'pending', label: 'Pending', icon: '🔔', color: 'bg-yellow-500' },
-                            { id: 'preparing', label: 'Preparing', icon: '👨‍🍳', color: 'bg-blue-500' },
-                            { id: 'completed', label: 'Completed', icon: '✅', color: 'bg-green-500' },
-                            { id: 'cancelled', label: 'Cancelled', icon: '❌', color: 'bg-red-500' }
+                            { id: 'pending', label: 'Pending', icon: '🔔', color: 'bg-yellow-500', ringColor: 'ring-yellow-500/30' },
+                            { id: 'preparing', label: 'Preparing', icon: '👨‍🍳', color: 'bg-blue-500', ringColor: 'ring-blue-500/30' },
+                            { id: 'completed', label: 'Completed', icon: '✅', color: 'bg-green-500', ringColor: 'ring-green-500/30' },
+                            { id: 'cancelled', label: 'Cancelled', icon: '❌', color: 'bg-red-500', ringColor: 'ring-red-500/30' }
                         ].map(status => (
                             <button
                                 key={status.id}
                                 onClick={() => setFilter(status.id)}
-                                className={`flex flex-col items-center justify-center gap-2 px-6 py-6 rounded-none font-black text-base transition-all transform active:scale-95 shadow-sm border-2 ${filter === status.id
-                                    ? `${status.color} text-white border-transparent shadow-xl translate-y-[-2px]`
+                                className={`flex flex-col items-center justify-center gap-3 p-6 md:p-10 rounded-none transition-all transform active:scale-95 shadow-sm border-2 md:border-4 ${filter === status.id
+                                    ? `${status.color} text-white border-transparent shadow-2xl translate-y-[-4px] ring-8 ${status.ringColor}`
                                     : 'bg-white dark:bg-gray-800 text-gray-400 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 border-gray-100 dark:border-gray-800'
                                     }`}
                             >
-                                <span className="text-2xl">{status.icon}</span>
-                                <span className="uppercase tracking-tighter text-xs">{status.label}</span>
+                                <span className="text-4xl md:text-6xl mb-2">{status.icon}</span>
+                                <span className="uppercase font-black tracking-widest text-xs md:text-base">{status.label}</span>
+                                {filter === status.id && (
+                                    <div className="h-1.5 w-12 bg-white/40 rounded-full mt-2 animate-pulse"></div>
+                                )}
                             </button>
                         ))}
                     </div>
 
-                    {/* Order Type Filters */}
-                    <div className="flex gap-3">
-                        {[
-                            { id: 'dine_in', label: 'Dine In', icon: '🍽️', activeColor: 'bg-indigo-600' },
-                            { id: 'take_out', label: 'Take Out', icon: '🥡', activeColor: 'bg-orange-600' }
-                        ].map(type => (
-                            <button
-                                key={type.id}
-                                onClick={() => setOrderTypeFilter(type.id === orderTypeFilter ? 'all' : type.id)}
-                                className={`flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-none font-black text-[10px] transition-all uppercase tracking-widest border-2 ${orderTypeFilter === type.id
-                                    ? `${type.activeColor} text-white shadow-lg border-transparent`
-                                    : 'bg-gray-50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400 border-gray-100 dark:border-gray-800 hover:bg-white dark:hover:bg-gray-800'
-                                    }`}
-                            >
-                                <span>{type.icon}</span>
-                                {type.label}
-                            </button>
-                        ))}
+                    {/* Order Type & Actions - Clearer Row */}
+                    <div className="flex flex-col sm:flex-row gap-4">
+                        <div className="flex gap-4 flex-1">
+                            {[
+                                { id: 'dine_in', label: 'Dine In', icon: '🍽️', activeColor: 'bg-indigo-600' },
+                                { id: 'take_out', label: 'Take Out', icon: '🥡', activeColor: 'bg-orange-600' }
+                            ].map(type => (
+                                <button
+                                    key={type.id}
+                                    onClick={() => setOrderTypeFilter(type.id === orderTypeFilter ? 'all' : type.id)}
+                                    className={`flex-1 flex items-center justify-center gap-3 py-5 md:py-6 rounded-none font-black text-sm md:text-base transition-all uppercase tracking-widest border-2 md:border-4 ${orderTypeFilter === type.id
+                                        ? `${type.activeColor} text-white shadow-xl border-transparent translate-y-[-2px]`
+                                        : 'bg-white dark:bg-gray-800 text-gray-400 dark:text-gray-500 border-gray-100 dark:border-gray-800 hover:bg-gray-50'
+                                        }`}
+                                >
+                                    <span className="text-xl md:text-2xl">{type.icon}</span>
+                                    {type.label}
+                                </button>
+                            ))}
+                        </div>
+
                         {orderTypeFilter !== 'all' && (
                             <button
                                 onClick={() => setOrderTypeFilter('all')}
-                                className="px-4 py-4 rounded-none font-black text-[10px] uppercase tracking-widest bg-gray-900 text-white border-2 border-gray-900"
+                                className="px-8 py-5 md:py-6 rounded-none font-black text-sm md:text-base uppercase tracking-widest bg-gray-900 dark:bg-white dark:text-black text-white border-2 md:border-4 border-gray-900 transition-all hover:bg-gray-800 active:scale-95"
                             >
-                                Clear
+                                Reset Filters
                             </button>
                         )}
                     </div>
