@@ -48,7 +48,7 @@ export const handler = async (event, context) => {
         if (!secret) throw new Error("JWT_SECRET missing");
 
         const decoded = jwt.verify(token, secret);
-        const restaurantId = decoded.id;
+        const restaurantId = decoded.restaurant_id;
 
         // 1. Sales Performance: Today vs Average of last 7 days
         const salesStats = await query(

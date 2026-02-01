@@ -52,7 +52,7 @@ export const handler = async (event, context) => {
         const secret = process.env.JWT_SECRET || 'your-secret-key';
 
         const token = jwt.sign(
-            { id: user.id, email: user.email, role: user.role, restaurant_id: user.restaurant_id },
+            { id: user.id, email: user.email, role: user.role, restaurant_id: user.restaurant_id || user.id },
             secret,
             { expiresIn: '7d' }
         );
@@ -63,7 +63,7 @@ export const handler = async (event, context) => {
             name: user.name,
             email: user.email,
             restaurant_name: user.restaurant_name,
-            restaurant_id: user.restaurant_id,
+            restaurant_id: user.restaurant_id || user.id,
             subscription_status: user.subscription_status,
             subscription_plan: user.subscription_plan,
             role: user.role

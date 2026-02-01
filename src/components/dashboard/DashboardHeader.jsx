@@ -204,7 +204,9 @@ const DashboardHeader = ({ onMenuClick }) => {
                         </div>
                         <div className="hidden lg:block text-left mr-2">
                             <p className="text-xs font-black text-gray-800 dark:text-white leading-none capitalize">{user?.name || 'User'}</p>
-                            <p className="text-[10px] font-bold text-gray-400 tracking-wide mt-1">RESTAURANT ADMIN</p>
+                            <p className="text-[10px] font-bold text-gray-400 tracking-wide mt-1">
+                                {user?.role === 'ADMIN' ? 'PLATFORM ADMIN' : user?.role === 'STAFF' ? 'STAFF MEMBER' : 'RESTAURANT OWNER'}
+                            </p>
                         </div>
                     </button>
 
