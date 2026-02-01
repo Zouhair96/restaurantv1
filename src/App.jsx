@@ -78,6 +78,7 @@ function App() {
                     <Route path="/testme" element={<TestMenu />} />
                     <Route path="/menu-pizza1" element={<PublicMenuPizza1 />} />
                     <Route path="/menu-testemplate" element={<PublicMenuTestemplate />} />
+                    <Route path="/orders" element={<Navigate to="/dashboard/orders" replace />} />
 
 
                     <Route path="/menu/:templateKey" element={<PublicMenu />} />
