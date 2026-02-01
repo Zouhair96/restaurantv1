@@ -13,11 +13,10 @@ import {
     HiOutlineSun
 } from 'react-icons/hi'
 
-const DashboardHeader = ({ onMenuClick }) => {
+const DashboardHeader = ({ onMenuClick, searchTerm, onSearchChange }) => {
     const { user, logout } = useAuth()
     const { isDarkMode, toggleTheme } = useTheme()
     const navigate = useNavigate()
-    const [searchTerm, setSearchTerm] = useState('')
     const [isProfileOpen, setIsProfileOpen] = useState(false)
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
     const [orders, setOrders] = useState([])
@@ -118,7 +117,7 @@ const DashboardHeader = ({ onMenuClick }) => {
                         className="block w-full pl-9 md:pl-11 pr-4 py-2 md:py-2.5 text-sm border-none rounded-xl md:rounded-2xl bg-white/80 dark:bg-gray-800/40 backdrop-blur-md shadow-sm hover:shadow-md focus:shadow-lg text-gray-600 dark:text-gray-200 placeholder-gray-400 focus:outline-none transition-all duration-300"
                         placeholder="Search everything..."
                         value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onChange={(e) => onSearchChange(e.target.value)}
                     />
                 </div>
             </div>

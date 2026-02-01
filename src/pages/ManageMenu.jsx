@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { HiPencil, HiTrash, HiXMark, HiCloudArrowUp, HiPhoto, HiPlus, HiCog6Tooth, HiArrowLeft, HiRocketLaunch, HiEye, HiEyeSlash, HiTag } from 'react-icons/hi2';
 import { FaInstagram, FaFacebookF, FaTiktok, FaSnapchatGhost, FaGoogle } from 'react-icons/fa';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
@@ -9,6 +9,7 @@ import PromoManagementModal from '../components/dashboard/PromoManagementModal';
 
 const ManageMenu = ({ isAdminView = false }) => {
     const { user: currentUser } = useAuth();
+    const { searchTerm } = useOutletContext() || { searchTerm: '' };
     const navigate = useNavigate();
     const { templateKey: urlTemplateKey } = useParams();
     const templateKey = urlTemplateKey || 'pizza1'; // Default Fallback, though routing should provide it
@@ -45,7 +46,6 @@ const ManageMenu = ({ isAdminView = false }) => {
 
     // Filter States
     const [selectedCategory, setSelectedCategory] = useState('All');
-    const [searchQuery, setSearchQuery] = useState('');
 
     const token = localStorage.getItem('token');
 
@@ -289,8 +289,9 @@ const ManageMenu = ({ isAdminView = false }) => {
 
     const filteredItems = items.filter(item => {
         const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
-        const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item.description.toLowerCase().includes(searchQuery.toLowerCase());
+        const search = (searchTerm || '').toLowerCase();
+        const matchesSearch = item.name.toLowerCase().includes(search) ||
+            item.description.toLowerCase().includes(search);
         return matchesCategory && matchesSearch;
     });
 
@@ -373,18 +374,9 @@ const ManageMenu = ({ isAdminView = false }) => {
                 </div>
             </header>
 
-            {/* Filters & Search */}
+            {/* Categories Filter */}
             <div className="flex flex-col md:flex-row gap-4 mb-8">
-                <div className="flex-1 relative">
-                    <input
-                        type="text"
-                        placeholder="Search items..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-6 pr-12 py-4 rounded-2xl bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 text-gray-800 dark:text-white font-bold focus:ring-2 focus:ring-indigo-500 outline-none transition-all shadow-sm"
-                    />
-                </div>
-                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide no-scrollbar">
+                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide no-scrollbar w-full">
                     {categories.map(cat => (
                         <button
                             key={cat}

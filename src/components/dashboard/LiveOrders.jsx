@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
+import { useOutletContext } from 'react-router-dom'
 
 const LiveOrders = ({ onSelectOrder }) => {
+    const { searchTerm } = useOutletContext() || { searchTerm: '' }
     const [orders, setOrders] = useState([])
     const [loading, setLoading] = useState(true)
     const [filter, setFilter] = useState('pending')
@@ -118,13 +120,21 @@ const LiveOrders = ({ onSelectOrder }) => {
         }
     }
 
-    // Filter by both status and order type
+    // Filter by status, order type, and search term
     const filteredOrders = orders.filter(order => {
         let statusMatch = filter === 'all' || order.status === filter
         // Treat delivery as an extension of preparing for filter purposes
         if (filter === 'preparing' && order.status === 'out_for_delivery') statusMatch = true
+
         const typeMatch = orderTypeFilter === 'all' || order.order_type === orderTypeFilter
-        return statusMatch && typeMatch
+
+        const search = (searchTerm || '').toLowerCase()
+        const searchMatch = !search ||
+            (order.order_number?.toString().toLowerCase().includes(search)) ||
+            (order.id.toString().toLowerCase().includes(search)) ||
+            (order.total_price.toString().includes(search))
+
+        return statusMatch && typeMatch && searchMatch
     })
 
     if (loading) {

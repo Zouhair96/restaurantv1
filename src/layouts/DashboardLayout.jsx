@@ -8,8 +8,10 @@ import { useAuth } from '../context/AuthContext'
 const DashboardLayout = () => {
     const { user } = useAuth()
     const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
+    const [searchTerm, setSearchTerm] = React.useState('')
 
-    const isStaff = user?.role === 'STAFF'
+    // Strictly check for owner/admin roles to show widgets
+    const showWidgets = user?.role === 'OWNER' || user?.role === 'ADMIN'
 
     return (
         <div className="min-h-screen bg-[#f3f4f6] dark:bg-[#0f1115] text-gray-800 dark:text-gray-100 font-sans selection:bg-indigo-500 selection:text-white overflow-hidden relative transition-colors duration-300">
@@ -30,14 +32,16 @@ const DashboardLayout = () => {
                     </div>
 
                     <DashboardHeader
+                        searchTerm={searchTerm}
+                        onSearchChange={setSearchTerm}
                         onMenuClick={() => setIsMobileMenuOpen(true)}
                     />
 
                     <main className="flex-1 overflow-y-auto p-4 md:p-8 relative z-0">
-                        <Outlet />
+                        <Outlet context={{ searchTerm }} />
 
                         {/* Mobile Widgets Stack (Visible only on < xl screens) */}
-                        {!isStaff && (
+                        {showWidgets && (
                             <div className="xl:hidden mt-8 space-y-6 pb-6 border-t border-gray-200 dark:border-white/10 pt-8">
                                 <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-4 px-2">Widgets & Insights</h3>
                                 <DashboardWidgets />
@@ -47,7 +51,7 @@ const DashboardLayout = () => {
                 </div>
 
                 {/* Right Panel (Widgets) */}
-                {!isStaff && (
+                {showWidgets && (
                     <aside className="w-80 bg-white/50 dark:bg-black/20 backdrop-blur-xl border-l border-white/20 dark:border-white/5 overflow-y-auto hidden xl:block p-6 shadow-sm transition-colors duration-300">
                         <DashboardWidgets />
                     </aside>

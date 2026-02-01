@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react'
+import { useOutletContext } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import TeamMemberCard from '../../components/dashboard/TeamMemberCard'
 import AddMemberModal from '../../components/dashboard/AddMemberModal'
 
 const Team = () => {
     const { user } = useAuth()
+    const { searchTerm } = useOutletContext() || { searchTerm: '' }
     const [teamMembers, setTeamMembers] = useState([])
     const [loading, setLoading] = useState(true)
     const [showAddMemberModal, setShowAddMemberModal] = useState(false)
@@ -93,6 +95,13 @@ const Team = () => {
         }
     }
 
+    const filteredStaff = teamMembers.filter(member => {
+        const search = (searchTerm || '').toLowerCase()
+        return !search ||
+            member.name.toLowerCase().includes(search) ||
+            member.role.toLowerCase().includes(search)
+    })
+
     return (
         <div>
             <div className="flex justify-between items-center mb-6">
@@ -126,7 +135,7 @@ const Team = () => {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {teamMembers.map(member => (
+                    {filteredStaff.map(member => (
                         <TeamMemberCard
                             key={member.id}
                             member={member}
