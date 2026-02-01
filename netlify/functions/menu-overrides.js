@@ -38,7 +38,7 @@ export const handler = async (event, context) => {
             const template = templateRes.rows[0];
 
             // 2. Fetch or initialize restaurant_template record (Tenancy boundary)
-            const userRes = await query('SELECT role, subscription_plan FROM users WHERE id = $1', [restaurantId]);
+            const userRes = await query('SELECT role, subscription_plan, order_number_config FROM users WHERE id = $1', [restaurantId]);
             const user = userRes.rows[0];
             const plan = user.subscription_plan?.toLowerCase() || 'starter';
 
@@ -197,7 +197,7 @@ export const handler = async (event, context) => {
             }
 
             // Plan-specific check (Prevention of legacy customization after plan downgrade)
-            const userRes = await query('SELECT role, subscription_plan FROM users WHERE id = $1', [restaurantId]);
+            const userRes = await query('SELECT role, subscription_plan, order_number_config FROM users WHERE id = $1', [restaurantId]);
             const dbUser = userRes.rows[0];
             const plan = dbUser.subscription_plan?.toLowerCase() || 'starter';
             const allowedPlans = rtCheck.rows[0].allowed_plans || [];
