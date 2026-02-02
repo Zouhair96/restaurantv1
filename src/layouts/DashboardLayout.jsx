@@ -2,7 +2,6 @@ import React from 'react'
 import { Outlet } from 'react-router-dom'
 import DashboardSidebar from '../components/dashboard/DashboardSidebar'
 import DashboardHeader from '../components/dashboard/DashboardHeader'
-import DashboardHeader from '../components/dashboard/DashboardHeader'
 import { useAuth } from '../context/AuthContext'
 
 const DashboardLayout = () => {
