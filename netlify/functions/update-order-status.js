@@ -251,15 +251,12 @@ export const handler = async (event, context) => {
 
                 if (visitor) {
                     const now = new Date();
-                    // --- STRICT EXPLOIT-SAFE SESSION TRACKING ---
-                    // On completion: record that an order happened in this session window
-                    // and update the last_visit_at timestamp for later finalization.
+                    // Record that activity happened in this session
                     await query(`
                         UPDATE loyalty_visitors 
                         SET 
                             last_visit_at = NOW(),
-                            last_session_at = NOW(),
-                            orders_in_current_session = COALESCE(orders_in_current_session, 0) + 1
+                            last_session_at = NOW()
                         WHERE id = $1
                     `, [visitor.id]);
 

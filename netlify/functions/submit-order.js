@@ -136,37 +136,37 @@ export const handler = async (event, context) => {
             const visitor = visitorRes.rows[0];
 
             if (visitor) {
-                const SESSION_TIMEOUT = 3 * 60 * 1000; // 3 Minutes (Match get-loyalty-status)
+                const SESSION_TIMEOUT = 5 * 60 * 1000; // 5 Minutes (Match get-loyalty-status)
                 const now = new Date();
 
-                // 1. FINALIZATION: If a previous valid visit exists and is uncounted, increment now.
-                const lastVisitAt = visitor.last_visit_at ? new Date(visitor.last_visit_at).getTime() : 0;
+                // 1. FINALIZATION (Redundant but Safe): Ensure visit_count is updated if this is a new window
+                const lastSessionAt = visitor.last_session_at ? new Date(visitor.last_session_at).getTime() : 0;
                 const lastCountedAt = visitor.last_counted_at ? new Date(visitor.last_counted_at).getTime() : 0;
-                const timeSinceLastVisit = now.getTime() - lastVisitAt;
+                const timeSinceLastActivity = now.getTime() - lastSessionAt;
 
-                const hasUncountedVisit = lastVisitAt > lastCountedAt;
-                const isNewVisitWindow = timeSinceLastVisit > SESSION_TIMEOUT;
+                const hasUncountedVisit = lastSessionAt > lastCountedAt;
+                const isNewVisitWindow = timeSinceLastActivity > SESSION_TIMEOUT;
 
                 let visitCount = parseInt(visitor.visit_count || 0);
                 let ordersInSession = parseInt(visitor.orders_in_current_session || 0);
 
                 if (hasUncountedVisit && isNewVisitWindow) {
-                    // ROBUSTNESS CHECK: Verify there were actually completed orders in that period
                     const ordersCheck = await query(
-                        'SELECT id FROM orders WHERE loyalty_id = $1 AND restaurant_id = $2 AND status = "completed" AND created_at > $3',
+                        'SELECT id FROM orders WHERE loyalty_id = $1 AND restaurant_id = $2 AND status = \'completed\' AND created_at >= $3',
                         [loyalty_id, restaurantId, visitor.last_counted_at || visitor.created_at]
-                    ).catch(() => ({ rows: [1] })); // Fallback to trust visitor flag if query fails
+                    ).catch(() => ({ rows: [1] }));
 
                     if (ordersCheck.rows.length > 0) {
                         visitCount++;
                         await query(
-                            'UPDATE loyalty_visitors SET visit_count = $1, last_counted_at = NOW(), orders_in_current_session = 0 WHERE id = $2',
+                            'UPDATE loyalty_visitors SET visit_count = $1, last_counted_at = NOW(), orders_in_current_session = 0, last_session_at = NOW() WHERE id = $2',
                             [visitCount, visitor.id]
                         );
-                        console.log(`[Loyalty Finalization] ID: ${loyalty_id} - Earned Visit: ${visitCount}`);
-                        // Update local markers for the rules below
                         ordersInSession = 0;
                     }
+                } else {
+                    // Just heartbeat the session
+                    await query('UPDATE loyalty_visitors SET last_session_at = NOW() WHERE id = $1', [visitor.id]);
                 }
 
                 if (loyalty_id && (loyalty_discount_applied || loyalty_gift_item)) {
@@ -274,6 +274,17 @@ export const handler = async (event, context) => {
             total_price: totalPrice,
             created_at: orderResult.rows[0].created_at
         };
+
+        // --- LOYALTY SESSION UPDATE ---
+        // Increment session order count immediately (so UI updates message)
+        if (loyalty_id) {
+            await query(`
+                UPDATE loyalty_visitors 
+                SET orders_in_current_session = COALESCE(orders_in_current_session, 0) + 1,
+                    last_session_at = NOW()
+                WHERE restaurant_id = $1 AND device_id = $2
+            `, [restaurantId, loyalty_id]);
+        }
 
         // --- STRIPE CHECKOUT SESSION ---
         let checkoutUrl = null;

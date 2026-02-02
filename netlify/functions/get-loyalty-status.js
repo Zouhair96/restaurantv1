@@ -57,7 +57,7 @@ export const handler = async (event, context) => {
         });
 
         // --- STRICT EXPLOIT-SAFE SESSION FINALIZATION ---
-        const SESSION_TIMEOUT = 3 * 60 * 1000; // 3 Minutes (Dev)
+        const SESSION_TIMEOUT = 5 * 60 * 1000; // 5 Minutes (Temp for testing)
         const now = new Date();
 
         // 1. Get Visitor State
@@ -78,24 +78,42 @@ export const handler = async (event, context) => {
 
         // 2. Detect New Session Window
         const lastSessionTime = visitor.last_session_at ? new Date(visitor.last_session_at).getTime() : 0;
+        const lastCountedTime = visitor.last_counted_at ? new Date(visitor.last_counted_at).getTime() : 0;
         const timeSinceLastSession = now.getTime() - lastSessionTime;
         const isNewWindow = timeSinceLastSession > SESSION_TIMEOUT;
 
         if (isNewWindow) {
-            // NEW WINDOW: Just reset indicators for the current UI session.
-            // DO NOT increment visit_count here. Finalization happens on Action (order submission).
+            // NEW WINDOW: Detect if we should finalized the previous visit
+            const hasUncountedVisit = lastSessionTime > lastCountedTime;
+            let visitCount = parseInt(visitor.visit_count || 0);
+
+            if (hasUncountedVisit) {
+                // Determine if there were actually completed orders in the previous session
+                const ordersCheck = await query(
+                    'SELECT id FROM orders WHERE loyalty_id = $1 AND restaurant_id = $2 AND status = \'completed\' AND created_at >= $3',
+                    [loyaltyId, targetRestaurantId, visitor.last_counted_at || visitor.created_at]
+                );
+
+                if (ordersCheck.rows.length > 0) {
+                    visitCount++;
+                }
+            }
+
+            // Sync all markers
             const updateRes = await query(`
                 UPDATE loyalty_visitors 
                 SET 
+                    visit_count = $1,
                     last_session_at = NOW(),
+                    last_visit_at = NOW(),
+                    last_counted_at = CASE WHEN $2 = TRUE THEN NOW() ELSE last_counted_at END,
                     orders_in_current_session = 0
-                WHERE id = $1
+                WHERE id = $3
                 RETURNING *
-            `, [visitor.id]);
+            `, [visitCount, ordersCheck?.rows?.length > 0 || false, visitor.id]);
             visitor = updateRes.rows[0];
         } else {
             // ACTIVE SESSION: Do nothing.
-            // Heartbeat update on NOW() removed to prevent "Blocking" refreshes from delaying the 3min gap.
         }
 
         const visitCount = visitor.visit_count;

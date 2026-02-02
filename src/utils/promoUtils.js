@@ -240,41 +240,58 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
 
     // --- CONDITION A: Session 4+ (LOYAL) ---
     if (totalVisits >= 3) {
-        if (loyalOffer.type === 'discount') {
-            const discountPercentage = parseFloat(loyalOffer.value) || 15;
-            return {
-                discount: orderTotal * (discountPercentage / 100),
-                reason: `Loyal Client Reward (${discountPercentage}%)`,
-                welcomeTeaser: false,
-                showProgress: false,
-                isLoyal: true,
-                loyalMessage: `⭐ Loyal Client - Enjoy your exclusive ${discountPercentage}% OFF on every order.`,
-                needsMoreSpending: false
-            };
-        } else if (['item', 'gift', 'dish', 'drink'].includes(loyalOffer.type)) {
+        // Enforce Spending Threshold even if Visit Count is met
+        if (totalSpending >= thresholdVal) {
+            if (loyalOffer.type === 'discount') {
+                const discountPercentage = parseFloat(loyalOffer.value) || 15;
+                return {
+                    discount: orderTotal * (discountPercentage / 100),
+                    reason: `Loyal Client Reward (${discountPercentage}%)`,
+                    welcomeTeaser: false,
+                    showProgress: false,
+                    isLoyal: true,
+                    loyalMessage: `⭐ Loyal Client - Enjoy your exclusive ${discountPercentage}% OFF on every order.`,
+                    needsMoreSpending: false
+                };
+            } else if (['item', 'gift', 'dish', 'drink'].includes(loyalOffer.type)) {
+                return {
+                    discount: 0,
+                    giftItem: loyalOffer.value,
+                    reason: `Loyal Client Gift: ${loyalOffer.value}`,
+                    welcomeTeaser: false,
+                    showProgress: false,
+                    isLoyal: true,
+                    loyalMessage: `⭐ Loyal Client - Enjoy your exclusive gift: ${loyalOffer.value}`,
+                    needsMoreSpending: false
+                };
+            }
+        } else {
+            // Visits met, but money NOT met
             return {
                 discount: 0,
-                giftItem: loyalOffer.value,
-                reason: `Loyal Client Gift: ${loyalOffer.value}`,
+                reason: null,
                 welcomeTeaser: false,
-                showProgress: false,
-                isLoyal: true,
-                loyalMessage: `⭐ Loyal Client - Enjoy your exclusive gift: ${loyalOffer.value}`,
-                needsMoreSpending: false
+                showProgress: true,
+                progressPercentage: Math.min((totalSpending / thresholdVal) * 100, 100),
+                progressMessage: "🔥 Final step! Just a bit more spending to unlock Loyal Rewards!",
+                needsMoreSpending: true
             };
         }
     }
 
     // --- CONDITION B: Session 3 (IN_PROGRESS) ---
     if (totalVisits === 2) {
+        const isVisitComplete = ordersInSession > 0;
         return {
             discount: 0,
             reason: null,
             welcomeTeaser: false,
             showProgress: true,
             progressPercentage: Math.min((totalSpending / thresholdVal) * 100, 100),
-            progressMessage: "🔥 You're close! Final session before Loyal Rewards!",
-            needsMoreSpending: true
+            progressMessage: isVisitComplete
+                ? "✅ Session complete! Rewards will unlock in your next visit."
+                : "🔥 You're close! Final session before Loyal Rewards!",
+            needsMoreSpending: !isVisitComplete
         };
     }
 
@@ -307,6 +324,17 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
 
     // --- CONDITION D: Session 1 (NEW) ---
     // Minimal Welcome
+    if (ordersInSession > 0) {
+        return {
+            discount: 0,
+            reason: null,
+            welcomeTeaser: true,
+            teaserMessage: "👋 Welcome! Enjoy your visit.",
+            showProgress: false,
+            needsMoreSpending: false
+        };
+    }
+
     return {
         discount: 0,
         reason: null,
