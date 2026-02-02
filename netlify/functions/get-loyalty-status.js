@@ -81,9 +81,25 @@ export const handler = async (event, context) => {
         const lastCountedTime = visitor.last_counted_at ? new Date(visitor.last_counted_at).getTime() : 0;
         const timeSinceLastSession = now.getTime() - lastSessionTime;
         const isNewWindow = timeSinceLastSession > SESSION_TIMEOUT;
+        if (isNewWindow) {
+            // NEW WINDOW: Detect if we should finalize the previous visit
+            const hasUncountedVisit = lastSessionTime > lastCountedTime;
+            let visitCount = parseInt(visitor.visit_count || 0);
+            let ordersEarned = false;
 
-        // Sync all markers
-        const updateRes = await query(`
+            if (hasUncountedVisit) {
+                const ordersCheck = await query(
+                    'SELECT id FROM orders WHERE loyalty_id = $1 AND restaurant_id = $2 AND status = \'completed\' AND created_at >= $3',
+                    [loyaltyId, targetRestaurantId, visitor.last_counted_at || visitor.created_at]
+                );
+                if (ordersCheck.rows.length > 0) {
+                    visitCount++;
+                    ordersEarned = true;
+                }
+            }
+
+            // Sync all markers
+            const updateRes = await query(`
                 UPDATE loyalty_visitors 
                 SET 
                     visit_count = $1,
@@ -92,41 +108,39 @@ export const handler = async (event, context) => {
                     orders_in_current_session = 0
                 WHERE id = $3
                 RETURNING *
-            `, [visitCount, ordersCheck?.rows?.length > 0 || false, visitor.id]);
-        visitor = updateRes.rows[0];
-    } else {
-        // ACTIVE SESSION: Update last_session_at with a "User Heartbeat"
-        // This ensures that as long as the user is ACTIVELY looking at the menu, 
-        // the session stays open. The 4h timer starts when they CLOSE the menu.
-        await query('UPDATE loyalty_visitors SET last_session_at = NOW() WHERE id = $1', [visitor.id]);
+            `, [visitCount, ordersEarned, visitor.id]);
+            visitor = updateRes.rows[0];
+        } else {
+            // ACTIVE SESSION: No reset of orders_in_current_session here.
+            // We just let the session continue until the timeout is reached.
+        }
+
+        const visitCount = visitor.visit_count;
+        const ordersInCurrentSession = visitor.orders_in_current_session;
+
+        // Return Authoritative Server State
+        // Add loyalty_config so public menu knows what rewards to show
+        const configRes = await query('SELECT loyalty_config FROM users WHERE id = $1', [targetRestaurantId]);
+        const loyaltyConfig = configRes.rows[0]?.loyalty_config || { isAutoPromoOn: true };
+
+        return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify({
+                completedOrders: orders.length, // Legacy/Display
+                totalSpending: totalSpending,   // Legacy/Display
+                totalVisits: visitCount,        // FROM DB (Authoritative)
+                ordersInCurrentVisit: ordersInCurrentSession, // FROM DB (Authoritative)
+                loyalty_config: loyaltyConfig
+            })
+        };
+
+    } catch (error) {
+        console.error('Get Loyalty Status Error:', error);
+        return {
+            statusCode: 500,
+            headers,
+            body: JSON.stringify({ error: 'Internal Server Error' })
+        };
     }
-
-    const visitCount = visitor.visit_count;
-    const ordersInCurrentSession = visitor.orders_in_current_session;
-
-    // Return Authoritative Server State
-    // Add loyalty_config so public menu knows what rewards to show
-    const configRes = await query('SELECT loyalty_config FROM users WHERE id = $1', [targetRestaurantId]);
-    const loyaltyConfig = configRes.rows[0]?.loyalty_config || { isAutoPromoOn: true };
-
-    return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify({
-            completedOrders: orders.length, // Legacy/Display
-            totalSpending: totalSpending,   // Legacy/Display
-            totalVisits: visitCount,        // FROM DB (Authoritative)
-            ordersInCurrentVisit: ordersInCurrentSession, // FROM DB (Authoritative)
-            loyalty_config: loyaltyConfig
-        })
-    };
-
-} catch (error) {
-    console.error('Get Loyalty Status Error:', error);
-    return {
-        statusCode: 500,
-        headers,
-        body: JSON.stringify({ error: 'Internal Server Error' })
-    };
-}
 };
