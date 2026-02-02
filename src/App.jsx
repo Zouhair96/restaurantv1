@@ -7,7 +7,6 @@ import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Overview from './pages/dashboard/Overview'
 import MenuManagement from './pages/dashboard/MenuManagement'
-import Analytics from './pages/dashboard/Analytics'
 import Team from './pages/dashboard/Team'
 import Promotions from './pages/dashboard/Promotions'
 import Activity from './pages/dashboard/Activity'
@@ -70,7 +69,6 @@ function App() {
                       <Route index element={<DashboardHome />} />
                       <Route path="orders" element={<Orders />} />
                       <Route path="menu" element={<RoleProtectedRoute allowedRoles={['OWNER', 'ADMIN']}><MenuManagement /></RoleProtectedRoute>} />
-                      <Route path="analytics" element={<RoleProtectedRoute allowedRoles={['OWNER', 'ADMIN']}><Analytics /></RoleProtectedRoute>} />
                       <Route path="team" element={<RoleProtectedRoute allowedRoles={['OWNER', 'ADMIN']}><Team /></RoleProtectedRoute>} />
                       <Route path="promos" element={<RoleProtectedRoute allowedRoles={['OWNER', 'ADMIN']}><Promotions /></RoleProtectedRoute>} />
                       <Route path="activity" element={<RoleProtectedRoute allowedRoles={['OWNER', 'ADMIN']}><Activity /></RoleProtectedRoute>} />
