@@ -107,52 +107,17 @@ const Overview = () => {
 
     return (
         <div className="space-y-8">
-            {/* Health Score Banner */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div className="md:col-span-3 bg-[#6c5ce7] bg-gradient-to-r from-[#6c5ce7] to-[#a29bfe] rounded-[2rem] p-8 border border-white/20 relative overflow-hidden group shadow-xl shadow-purple-200">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full filter blur-3xl transform translate-x-1/2 -translate-y-1/2 group-hover:bg-white/20 transition-all duration-700"></div>
-                    <div className="relative z-10 flex justify-between items-center">
-                        <div>
-                            <h2 className="text-3xl font-bold text-white mb-2">Restaurant Health</h2>
-                            <p className="text-purple-100 text-sm max-w-md">Your overall rating based on sales performance, customer reviews, and preparation time efficiency.</p>
-                        </div>
-                        <div className="flex items-center gap-6">
-                            <div className="text-right">
-                                <span className="block text-5xl font-black text-white">4.8</span>
-                                <span className="text-xs font-bold text-purple-200 uppercase tracking-widest">Excellent</span>
-                            </div>
-                            <div className="h-20 w-20 relative">
-                                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="3" />
-                                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#fff" strokeWidth="3" strokeDasharray="96, 100" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-white dark:bg-gray-800 rounded-[2rem] p-6 flex flex-col justify-center items-center text-center cursor-pointer hover:shadow-xl dark:shadow-none hover:-translate-y-1 transition-all duration-300 border border-gray-100 dark:border-gray-700 group">
-                    <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-full mb-3 group-hover:bg-red-100 dark:group-hover:bg-red-900/40 transition-colors">
-                        <svg className="w-8 h-8 text-red-500 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                    </div>
-                    <h3 className="text-gray-800 dark:text-white font-bold text-lg">Emergency Mode</h3>
-                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Activate for Rush Hour 2x</p>
-                </div>
-
-                <div
+            {/* Reset History Action */}
+            <div className="flex justify-end">
+                <button
                     onClick={handleClearOrders}
-                    className="bg-white dark:bg-gray-800 rounded-[2rem] p-6 flex flex-col justify-center items-center text-center cursor-pointer hover:shadow-xl dark:shadow-none hover:-translate-y-1 transition-all duration-300 border border-gray-100 dark:border-gray-700 group border-dashed"
+                    className="flex items-center gap-2 px-4 py-2 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 rounded-xl hover:bg-orange-100 dark:hover:bg-orange-900/40 transition-colors text-xs font-bold border border-orange-100 dark:border-orange-800/30"
                 >
-                    <div className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-full mb-3 group-hover:bg-orange-100 dark:group-hover:bg-orange-900/40 transition-colors">
-                        <svg className="w-8 h-8 text-orange-500 dark:text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                    </div>
-                    <h3 className="text-gray-800 dark:text-white font-bold text-lg">Empty Cash</h3>
-                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Reset All Order History</p>
-                </div>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Empty Cash (Reset History)
+                </button>
             </div>
 
             {/* Loyalty Analytics Row */}
