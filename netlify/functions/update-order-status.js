@@ -84,7 +84,7 @@ export const handler = async (event, context) => {
 
         // 1. Fetch order details to verify ownership and check state for STAF restrictions
         const checkResult = await query(
-            'SELECT id, restaurant_id, status FROM orders WHERE id = $1',
+            'SELECT id, restaurant_id, status, loyalty_id, customer_id FROM orders WHERE id = $1',
             [orderId]
         );
 
