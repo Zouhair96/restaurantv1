@@ -5,6 +5,7 @@ import { QRCodeSVG } from 'qrcode.react'
 import LiveOrders from '../../components/dashboard/LiveOrders'
 import OrderDetailsModal from '../../components/dashboard/OrderDetailsModal'
 import { fetchMenus, deleteMenu } from '../../utils/menus'
+import DashboardWidgets from '../../components/dashboard/DashboardWidgets'
 
 const Overview = () => {
     const { user } = useAuth()
@@ -107,6 +108,7 @@ const Overview = () => {
 
     return (
         <div className="space-y-8">
+            <DashboardWidgets />
             {/* Reset History Action */}
             <div className="flex justify-end">
                 <button
