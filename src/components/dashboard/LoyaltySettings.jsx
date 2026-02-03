@@ -312,24 +312,45 @@ const LoyaltySettings = ({ onUpdate }) => {
 
                             <div className="pt-6 border-t border-gray-100 dark:border-white/5 space-y-4">
                                 <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                                    <HiSparkles className="w-4 h-4 text-amber-500" /> Conversion Rate (Points per €)
+                                    <HiSparkles className="w-4 h-4 text-amber-500" /> Conversion Formula
                                 </label>
-                                <div className="relative group">
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        value={pointsPerEuro}
-                                        onChange={(e) => {
-                                            const val = parseInt(e.target.value) || 10;
-                                            setPointsPerEuro(val);
-                                            saveConfig({ points_per_euro: val });
-                                        }}
-                                        className="w-full px-5 py-3 rounded-xl border border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-gray-900 dark:text-white font-bold outline-none focus:ring-2 focus:ring-indigo-500/20"
-                                        placeholder="10"
-                                    />
-                                    <span className="absolute right-5 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-bold">pts / €</span>
+
+                                <div className="flex items-center gap-4">
+                                    {/* Euro Side */}
+                                    <div className="flex-shrink-0 px-6 py-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/10 flex items-center gap-2 shadow-sm">
+                                        <span className="text-xl font-black text-gray-900 dark:text-white">1</span>
+                                        <span className="text-sm font-bold text-gray-400">€</span>
+                                    </div>
+
+                                    <div className="text-2xl font-black text-gray-300 dark:text-white/20">=</div>
+
+                                    {/* Points Side */}
+                                    <div className="flex-1 relative group">
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            value={pointsPerEuro}
+                                            onChange={(e) => {
+                                                const val = parseInt(e.target.value) || 10;
+                                                setPointsPerEuro(val);
+                                                saveConfig({ points_per_euro: val });
+                                            }}
+                                            className="w-full pl-6 pr-16 py-4 rounded-2xl border-2 border-indigo-500/20 bg-white dark:bg-white/5 text-gray-900 dark:text-white text-xl font-black outline-none focus:border-indigo-500 transition-all shadow-sm"
+                                            placeholder="100"
+                                        />
+                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col items-end leading-none">
+                                            <span className="text-[10px] font-black uppercase text-indigo-500 tracking-widest">Points</span>
+                                            <span className="text-[8px] font-bold text-gray-400 mt-1 uppercase tracking-tighter">Value</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <p className="text-[10px] text-gray-400 italic">Example: A €5 gift = {5 * pointsPerEuro} points.</p>
+
+                                <div className="flex items-center gap-2 px-2">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-indigo-500/50" />
+                                    <p className="text-[10px] text-gray-400 font-medium">
+                                        Example: A <span className="text-gray-900 dark:text-white font-bold">€5 gift</span> will be converted into <span className="text-indigo-500 font-bold">{5 * pointsPerEuro} points</span>.
+                                    </p>
+                                </div>
                             </div>
                         </div>
 
