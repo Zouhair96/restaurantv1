@@ -154,17 +154,19 @@ export const LoyaltyProvider = ({ children }) => {
         try {
             const response = await fetch(`/.netlify/functions/get-loyalty-status?restaurantName=${restaurantName}&loyaltyId=${clientId}`);
             if (response.ok) {
-                const { completedOrders, totalSpending, totalVisits, ordersInCurrentVisit, loyalty_config } = await response.json();
+                const data = await response.json();
+                const { totalPoints, totalVisits, ordersInCurrentVisit, sessionIsValid, activeGifts, loyalty_config } = data;
 
                 setLoyaltyData(prev => {
                     const updated = {
                         ...prev,
                         [restaurantName]: {
                             ...(prev[restaurantName] || {}),
-                            completedOrders: Array(completedOrders).fill({ amount: 0 }),
-                            serverTotalSpending: totalSpending,
+                            totalPoints,
                             serverTotalVisits: totalVisits,
-                            ordersInCurrentVisit: ordersInCurrentVisit,
+                            ordersInCurrentVisit,
+                            sessionIsValid,
+                            activeGifts: activeGifts || [],
                             config: loyalty_config || (prev[restaurantName]?.config) || { isAutoPromoOn: true }
                         }
                     };
@@ -177,6 +179,40 @@ export const LoyaltyProvider = ({ children }) => {
         }
     };
 
+    const convertGift = async (restaurantName, giftId) => {
+        if (!restaurantName || !clientId || !giftId) return { success: false, error: 'Missing core data' };
+
+        try {
+            const log = loyaltyData[restaurantName];
+            const restaurantId = log?.config?.restaurant_id; // Assuming restaurantId is available in config
+            // If not available, we might need to get it or the API should handle name.
+            // My convert-gift-to-points.js needs restaurantId (INT).
+
+            // Let's assume restaurantId is available in the config returned by get-loyalty-status
+            const rId = restaurantId || log?.config?.id;
+
+            const response = await fetch('/.netlify/functions/convert-gift-to-points', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    giftId,
+                    loyaltyId: clientId,
+                    restaurantId: rId
+                })
+            });
+
+            if (response.ok) {
+                await refreshLoyaltyStats(restaurantName);
+                return await response.json();
+            } else {
+                const err = await response.json();
+                return { success: false, error: err.error };
+            }
+        } catch (err) {
+            return { success: false, error: 'Connection error' };
+        }
+    };
+
     const recordCompletedOrder = (restaurantName, finalAmount) => {
         // Just trigger a refresh to see if status changed
         setTimeout(() => refreshLoyaltyStats(restaurantName), 2000);
@@ -184,26 +220,13 @@ export const LoyaltyProvider = ({ children }) => {
 
     const getStatus = (restaurantId) => {
         const log = loyaltyData[restaurantId];
-        if (!log) return { status: 'NEW', totalVisits: 0, totalSpending: 0, spendingProgress: 0, config: null };
+        if (!log) return { status: 'NEW', totalVisits: 0, totalPoints: 0, activeGifts: [], sessionIsValid: false, config: null };
 
-        const visits = log.visits || [];
-        const completedOrders = log.completedOrders || [];
-
-        // Calculate total spending (Prioritize server source, fallback to local calc)
-        const totalSpending = log.serverTotalSpending !== undefined
-            ? parseFloat(log.serverTotalSpending)
-            : completedOrders.reduce((sum, order) => sum + (order.amount || 0), 0);
-
-        // Use Server-Side Visit Count
+        // Use Server-Side Source of Truth
         const totalVisits = log.serverTotalVisits !== undefined ? parseInt(log.serverTotalVisits) : 0;
-
-        // Calculate progress toward loyal threshold
-        const threshold = parseFloat(log.config?.loyalConfig?.threshold || 50);
-        const spendingProgress = Math.min(100, Math.round((totalSpending / threshold) * 100));
-
-        // A visit is "Recovery Eligible" if we flagged it during trackVisit
-        // AND it hasn't been used yet in this session
-        const isRecoveryEligible = !!log.isNextVisitRecovery && !log.rewardUsedInSession;
+        const totalPoints = log.totalPoints || 0;
+        const activeGifts = log.activeGifts || [];
+        const sessionIsValid = !!log.sessionIsValid;
 
         // Derive UI status based on server-synced visit count
         let currentStatus = 'NEW';
@@ -214,21 +237,31 @@ export const LoyaltyProvider = ({ children }) => {
 
         return {
             status: currentStatus,
-            totalVisits: totalVisits,
-            visits: visits, // Kept for legacy compatibility if needed
-            completedOrders: completedOrders,
+            totalPoints: totalPoints,
+            activeGifts: activeGifts,
+            sessionIsValid: sessionIsValid,
             ordersInCurrentVisit: log.ordersInCurrentVisit || 0,
-            totalSpending: totalSpending,
-            spendingProgress: spendingProgress,
             config: log.config,
-            isRecoveryEligible,
             welcomeShown: !!log.welcomeShown,
-            welcomeRedeemed: !!log.welcomeRedeemed || !!log.rewardUsedInSession
+            welcomeRedeemed: !!log.rewardUsedInSession,
+            // Hidden terminology (kept for internal logic if needed but discouraged in UI)
+            _internalVisitCount: totalVisits
         };
     };
 
     return (
-        <LoyaltyContext.Provider value={{ clientId, loyaltyData, trackVisit, getStatus, markRewardAsUsed, markWelcomeAsShown, recordCompletedOrder, isStorageLoaded }}>
+        <LoyaltyContext.Provider value={{
+            clientId,
+            loyaltyData,
+            trackVisit,
+            getStatus,
+            convertGift,
+            markRewardAsUsed,
+            markWelcomeAsShown,
+            recordCompletedOrder,
+            refreshLoyaltyStats,
+            isStorageLoaded
+        }}>
             {children}
         </LoyaltyContext.Provider>
     );

@@ -13,6 +13,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { isPromoActive, getDiscountedPrice, getPromosByDisplayStyle, getPromoFilteredItems, calculateOrderDiscount } from '../utils/promoUtils';
 import { HiTag, HiChevronLeft, HiChevronRight, HiArrowUturnLeft, HiStar } from 'react-icons/hi2';
 import { useLoyalty } from '../context/LoyaltyContext';
+import LoyaltyRewardUI from '../components/loyalty/LoyaltyRewardUI';
 
 const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
     const { user: clientUser, activeOrderId, activeOrder, handleCloseTracker, isTopTrackerHidden } = useClientAuth();
@@ -652,6 +653,12 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                 themeColor={config.themeColor}
                 promotions={config.promotions || []}
                 taxConfig={{ applyTax: config.applyTax, taxPercentage: config.taxPercentage }}
+            />
+
+            <LoyaltyRewardUI
+                restaurantName={restaurantName}
+                themeColor={config.themeColor}
+                isDarkMode={false}
             />
 
             {/* Top Fixed Floating Badge */}

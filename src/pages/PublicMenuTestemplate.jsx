@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { HiArrowLeft, HiHeart, HiOutlineHeart, HiShoppingBag, HiMinus, HiPlus, HiMapPin, HiMagnifyingGlass, HiAdjustmentsHorizontal, HiHome, HiChatBubbleLeftRight, HiBell, HiUserGroup, HiXMark, HiTag, HiChevronLeft, HiChevronRight, HiArrowUturnLeft, HiStar } from 'react-icons/hi2';
 import { useLoyalty } from '../context/LoyaltyContext';
+import LoyaltyRewardUI from '../components/loyalty/LoyaltyRewardUI';
 import { Link, useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { motion, AnimatePresence, useAnimation, useMotionValue, useTransform } from 'framer-motion';
@@ -730,6 +731,12 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                 themeColor={config.themeColor}
                 promotions={config.promotions || []}
                 taxConfig={{ applyTax: config.applyTax, taxPercentage: config.taxPercentage }}
+            />
+
+            <LoyaltyRewardUI
+                restaurantName={restaurantName}
+                themeColor={config.themeColor}
+                isDarkMode={false}
             />
 
             {/* Order Status Tracker */}

@@ -225,49 +225,63 @@ export const handler = async (event, context) => {
                 })
             };
         } else if (status === 'completed') {
-            // --- LOYALTY LOGIC: Increment visit count on first completion of session ---
-            const orderInfo = await query(
-                'SELECT loyalty_id, restaurant_id, status FROM orders WHERE id = $1',
-                [orderId]
-            );
-            const { loyalty_id: loyaltyId, restaurant_id: orderRestaurantId, status: prevStatus } = orderInfo.rows[0] || {};
-
-            // Update order status
-            let updateQuery = `
-                UPDATE orders 
-                SET status = $1, updated_at = CURRENT_TIMESTAMP
-                WHERE id = $2 
-                RETURNING id, status, updated_at
-            `;
-            updateResult = await query(updateQuery, [status, orderId]);
-
-            // ONLY process loyalty if moving to completed for the FIRST time
+            // --- STRICT POINTS & SESSION SYSTEM: POINTS EARNING ---
             if (loyaltyId && prevStatus !== 'completed') {
-                const visitorRes = await query(
-                    'SELECT * FROM loyalty_visitors WHERE restaurant_id = $1 AND device_id = $2',
-                    [orderRestaurantId, loyaltyId]
-                );
-                const visitor = visitorRes.rows[0];
+                await query('BEGIN');
+                try {
+                    // 1. Fetch Visitor State (Locked for Update)
+                    const visitorRes = await query(
+                        'SELECT * FROM loyalty_visitors WHERE restaurant_id = $1 AND device_id = $2 FOR UPDATE',
+                        [orderRestaurantId, loyaltyId]
+                    );
+                    const visitor = visitorRes.rows[0];
 
-                if (visitor) {
-                    const now = new Date();
-                    // Record that activity happened in this session
-                    await query(`
-                        UPDATE loyalty_visitors 
-                        SET last_visit_at = NOW()
-                        WHERE id = $1
-                    `, [visitor.id]);
-
-                    // Record event for dashboard analytics if they hit Loyal tier (Legacy/Display support)
-                    if (visitor.visit_count >= 3) {
-                        await query(
-                            'INSERT INTO visitor_events (restaurant_id, visitor_uuid, event_type, created_at) VALUES ($1, $2, $3, NOW())',
-                            [orderRestaurantId, loyaltyId, 'loyal_status_reached']
+                    if (visitor) {
+                        // 2. CHECK IDEMPOTENCY: Check if points already earned for this order
+                        const existingTx = await query(
+                            'SELECT id FROM points_transactions WHERE order_id = $1 FOR UPDATE',
+                            [orderId]
                         );
+
+                        if (existingTx.rows.length === 0) {
+                            const earnedPoints = Math.floor(parseFloat(order.total_price || 0));
+
+                            if (earnedPoints > 0) {
+                                // 3. Log Points Transaction
+                                await query(`
+                                    INSERT INTO points_transactions (restaurant_id, device_id, order_id, type, amount, created_at)
+                                    VALUES ($1, $2, $3, 'EARN', $4, NOW())
+                                `, [orderRestaurantId, loyaltyId, orderId, earnedPoints]);
+
+                                // 4. Atomically Update Cached Balance
+                                await query(`
+                                    UPDATE loyalty_visitors 
+                                    SET total_points = COALESCE(total_points, 0) + $1,
+                                        last_visit_at = NOW()
+                                    WHERE id = $2
+                                `, [earnedPoints, visitor.id]);
+                            } else {
+                                // Even if 0 points, update last_visit_at to mark activity
+                                await query('UPDATE loyalty_visitors SET last_visit_at = NOW() WHERE id = $1', [visitor.id]);
+                            }
+                        }
+
+                        // 5. Analytics Entry (Legacy support)
+                        if (visitor.visit_count >= 3) {
+                            await query(
+                                'INSERT INTO visitor_events (restaurant_id, visitor_uuid, event_type, created_at) VALUES ($1, $2, $3, NOW())',
+                                [orderRestaurantId, loyaltyId, 'loyal_status_reached']
+                            ).catch(() => { }); // Low priority
+                        }
                     }
+                    await query('COMMIT');
+                } catch (err) {
+                    await query('ROLLBACK').catch(() => { });
+                    console.error('[Loyalty Points Error]:', err.message);
                 }
             }
-        } else {
+        }
+        else {
             // Standard update for other statuses
             let updateQuery = `
                 UPDATE orders 

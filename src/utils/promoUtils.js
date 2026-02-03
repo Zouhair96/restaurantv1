@@ -273,7 +273,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
                 welcomeTeaser: false,
                 showProgress: true,
                 progressPercentage: Math.min((totalSpending / thresholdVal) * 100, 100),
-                progressMessage: "🔥 Final step! Just a bit more spending to unlock Loyal Rewards!",
+                progressMessage: "🔥 Final step! Just a bit more to unlock Loyal Rewards!",
                 needsMoreSpending: true
             };
         }
@@ -289,8 +289,8 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
             showProgress: true,
             progressPercentage: Math.min((totalSpending / thresholdVal) * 100, 100),
             progressMessage: isVisitComplete
-                ? "✅ Session complete! Rewards will unlock in your next visit."
-                : "🔥 You're close! Final session before Loyal Rewards!",
+                ? "✅ Visit complete! Rewards will unlock on your next return."
+                : "🔥 You're close! One more visit to unlock Loyal Rewards!",
             needsMoreSpending: !isVisitComplete
         };
     }

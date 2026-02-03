@@ -56,8 +56,9 @@ export const handler = async (event, context) => {
             totalSpending += parseFloat(o.total_price) || 0;
         });
 
-        // --- STRICT EXPLOIT-SAFE SESSION FINALIZATION ---
-        const SESSION_TIMEOUT = 5 * 60 * 1000; // 5 Minutes (Temp for testing)
+        // --- STRICT POINTS & SESSION SYSTEM ---
+        const IS_DEV = process.env.URL?.includes('localhost') || !process.env.URL;
+        const SESSION_TIMEOUT = IS_DEV ? 3 * 60 * 1000 : 4 * 60 * 60 * 1000;
         const now = new Date();
 
         // 1. Get Visitor State
@@ -69,65 +70,32 @@ export const handler = async (event, context) => {
         let visitor = visitorRes.rows[0];
         if (!visitor) {
             const insertRes = await query(`
-                INSERT INTO loyalty_visitors (restaurant_id, device_id, visit_count, last_session_at, current_step, orders_in_current_session)
-                VALUES ($1, $2, 0, NOW(), 'NEW', 0)
+                INSERT INTO loyalty_visitors (restaurant_id, device_id, visit_count, last_session_at, current_step, orders_in_current_session, total_points)
+                VALUES ($1, $2, 0, NOW(), 'NEW', 0, 0)
                 RETURNING *
             `, [targetRestaurantId, loyaltyId]);
             visitor = insertRes.rows[0];
         }
 
-        // 2. Detect New Session Window
-        const lastSessionTime = visitor.last_session_at ? new Date(visitor.last_session_at).getTime() : 0;
-        const lastCountedTime = visitor.last_counted_at ? new Date(visitor.last_counted_at).getTime() : 0;
-        const timeSinceLastSession = now.getTime() - lastSessionTime;
-        const isNewWindow = timeSinceLastSession > SESSION_TIMEOUT;
-        if (isNewWindow) {
-            // NEW WINDOW: Detect if we should finalize the previous visit
-            const hasUncountedVisit = lastSessionTime > lastCountedTime;
-            let visitCount = parseInt(visitor.visit_count || 0);
-            let ordersEarned = false;
+        // 2. Fetch Points & Gifts (Source of Truth)
+        const pointsRes = await query('SELECT COALESCE(SUM(amount), 0) as total FROM points_transactions WHERE device_id = $1 AND restaurant_id = $2', [loyaltyId, targetRestaurantId]);
+        const totalPoints = parseInt(pointsRes.rows[0].total);
 
-            if (hasUncountedVisit) {
-                const ordersCheck = await query(
-                    'SELECT id FROM orders WHERE loyalty_id = $1 AND restaurant_id = $2 AND status = \'completed\' AND created_at >= $3',
-                    [loyaltyId, targetRestaurantId, visitor.last_counted_at || visitor.created_at]
-                );
-                if (ordersCheck.rows.length > 0) {
-                    visitCount++;
-                    ordersEarned = true;
-                }
-            }
+        const giftsRes = await query('SELECT * FROM gifts WHERE device_id = $1 AND restaurant_id = $2 AND status = \'unused\'', [loyaltyId, targetRestaurantId]);
+        const activeGifts = giftsRes.rows;
 
-            // Sync all markers
-            const updateRes = await query(`
-                UPDATE loyalty_visitors 
-                SET 
-                    visit_count = $1,
-                    last_session_at = NOW(),
-                    last_counted_at = CASE WHEN $2 = TRUE THEN NOW() ELSE last_counted_at END,
-                    orders_in_current_session = 0
-                WHERE id = $3
-                RETURNING *
-            `, [visitCount, ordersEarned, visitor.id]);
-            visitor = updateRes.rows[0];
-        } else {
-            // ACTIVE SESSION: Update last_session_at with a "User Heartbeat"
-            // This ensures that as long as the user is ACTIVELY looking at the menu, 
-            // the session stays open. The 4h timer starts when they CLOSE the menu.
-            const updateHeartbeat = await query(
-                'UPDATE loyalty_visitors SET last_session_at = NOW() WHERE id = $1 RETURNING *',
-                [visitor.id]
-            );
-            if (updateHeartbeat.rows[0]) {
-                visitor = updateHeartbeat.rows[0];
-            }
+        // 3. Determine if current session is valid (Authoritative Rule)
+        const ordersInCurrentSession = parseInt(visitor.orders_in_current_session || 0);
+        const sessionIsValid = ordersInCurrentSession > 0;
+
+        // Sync local cache if different (Integrity Check)
+        if (parseInt(visitor.total_points) !== totalPoints) {
+            await query('UPDATE loyalty_visitors SET total_points = $1 WHERE id = $2', [totalPoints, visitor.id]);
         }
 
-        const visitCount = visitor.visit_count;
-        const ordersInCurrentSession = visitor.orders_in_current_session;
+        const visitCount = parseInt(visitor.visit_count || 0);
 
-        // Return Authoritative Server State
-        // Add loyalty_config so public menu knows what rewards to show
+        // 4. Return Authorized State
         const configRes = await query('SELECT loyalty_config FROM users WHERE id = $1', [targetRestaurantId]);
         const loyaltyConfig = configRes.rows[0]?.loyalty_config || { isAutoPromoOn: true };
 
@@ -135,11 +103,13 @@ export const handler = async (event, context) => {
             statusCode: 200,
             headers,
             body: JSON.stringify({
-                completedOrders: orders.length, // Legacy/Display
-                totalSpending: totalSpending,   // Legacy/Display
-                totalVisits: visitCount,        // FROM DB (Authoritative)
-                ordersInCurrentVisit: ordersInCurrentSession, // FROM DB (Authoritative)
-                loyalty_config: loyaltyConfig
+                totalPoints: totalPoints,
+                totalVisits: visitCount,
+                ordersInCurrentVisit: ordersInCurrentSession,
+                sessionIsValid: sessionIsValid,
+                activeGifts: activeGifts,
+                loyalty_config: loyaltyConfig,
+                session_timeout_ms: SESSION_TIMEOUT
             })
         };
 
