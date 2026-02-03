@@ -77,14 +77,17 @@ export const handler = async (event, context) => {
         const currentConfig = currentResult.rows[0]?.order_number_config || {};
 
         // Update config while preserving current_number and last_reset_date
+        // FIXED: If starting_number changed, we MUST reset current_number immediately
+        const startingNumberChanged = parseInt(starting_number) !== parseInt(currentConfig.starting_number || 1);
+
         const newConfig = {
             ...currentConfig,
-            starting_number,
+            starting_number: parseInt(starting_number),
             reset_period,
-            weekly_start_day: reset_period === 'weekly' ? weekly_start_day : 1,
-            // Preserve current_number and last_reset_date
-            current_number: currentConfig.current_number || starting_number,
-            last_reset_date: currentConfig.last_reset_date || null
+            weekly_start_day: reset_period === 'weekly' ? (parseInt(weekly_start_day) || 1) : 1,
+            // Preserve current_number UNLESS starting_number changed
+            current_number: startingNumberChanged ? parseInt(starting_number) : (currentConfig.current_number || parseInt(starting_number)),
+            last_reset_date: startingNumberChanged ? null : (currentConfig.last_reset_date || null)
         };
 
         // Update database

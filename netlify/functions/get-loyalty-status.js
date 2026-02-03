@@ -111,8 +111,16 @@ export const handler = async (event, context) => {
             `, [visitCount, ordersEarned, visitor.id]);
             visitor = updateRes.rows[0];
         } else {
-            // ACTIVE SESSION: No reset of orders_in_current_session here.
-            // We just let the session continue until the timeout is reached.
+            // ACTIVE SESSION: Update last_session_at with a "User Heartbeat"
+            // This ensures that as long as the user is ACTIVELY looking at the menu, 
+            // the session stays open. The 4h timer starts when they CLOSE the menu.
+            const updateHeartbeat = await query(
+                'UPDATE loyalty_visitors SET last_session_at = NOW() WHERE id = $1 RETURNING *',
+                [visitor.id]
+            );
+            if (updateHeartbeat.rows[0]) {
+                visitor = updateHeartbeat.rows[0];
+            }
         }
 
         const visitCount = visitor.visit_count;

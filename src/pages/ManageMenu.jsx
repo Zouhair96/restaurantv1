@@ -100,7 +100,7 @@ const ManageMenu = ({ isAdminView = false }) => {
                         setOrderNumberConfig({
                             starting_number: data.template.order_number_config.starting_number || 1,
                             reset_period: data.template.order_number_config.reset_period || 'never',
-                            weekly_start_day: data.template.order_number_config.weekly_start_day || 1
+                            weekly_start_day: data.template.order_number_config.weekly_start_day !== undefined ? data.template.order_number_config.weekly_start_day : 1
                         });
                     }
                 }
@@ -810,6 +810,26 @@ const ManageMenu = ({ isAdminView = false }) => {
                                     </select>
                                     <p className="text-[9px] text-gray-400 mt-1 ml-1">When to reset order numbers</p>
                                 </div>
+
+                                {orderNumberConfig.reset_period === 'weekly' && (
+                                    <div className="animate-fade-in">
+                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Weekly Start Day</label>
+                                        <select
+                                            value={orderNumberConfig.weekly_start_day}
+                                            onChange={(e) => setOrderNumberConfig({ ...orderNumberConfig, weekly_start_day: parseInt(e.target.value) })}
+                                            className="w-full px-5 py-3 rounded-xl border border-gray-100 dark:border-white/10 bg-white dark:bg-[#24262d] text-gray-900 dark:text-white font-bold focus:ring-2 focus:ring-indigo-500 outline-none"
+                                        >
+                                            <option value={0}>Sunday</option>
+                                            <option value={1}>Monday</option>
+                                            <option value={2}>Tuesday</option>
+                                            <option value={3}>Wednesday</option>
+                                            <option value={4}>Thursday</option>
+                                            <option value={5}>Friday</option>
+                                            <option value={6}>Saturday</option>
+                                        </select>
+                                        <p className="text-[9px] text-gray-400 mt-1 ml-1">Day of the week to start numbering from</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                         <div className="p-8 border-t border-gray-100 dark:border-white/5 flex gap-3">

@@ -254,7 +254,7 @@ export const handler = async (event, context) => {
                     // Record that activity happened in this session
                     await query(`
                         UPDATE loyalty_visitors 
-                        SET last_session_at = last_session_at -- No-op to avoid resetting customer timer
+                        SET last_visit_at = NOW()
                         WHERE id = $1
                     `, [visitor.id]);
 
