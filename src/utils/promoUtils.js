@@ -227,76 +227,64 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
     // Spending-based logic below now handles this correctly using server-synced data.
 
     // 4. STRICT SESSION-BASED LOGIC
+    // 4. STRICT SESSION-BASED LOGIC
     const totalVisits = (loyaltyInfo.totalVisits !== undefined) ? parseInt(loyaltyInfo.totalVisits) : 0;
-    const totalSpending = parseFloat(loyaltyInfo.totalSpending) || 0;
-    const ordersInSession = parseInt(loyaltyInfo.ordersInCurrentVisit) || 0;
+    const ordersInSession = parseInt(loyaltyInfo.ordersInCurrentVisit || loyaltyInfo.ordersInCurrentSession) || 0;
+    const sessionIsValid = ordersInSession > 0;
+
+    // effective_visits = visit_count + (session_is_valid ? 1 : 0)
+    const effectiveVisits = totalVisits + (sessionIsValid ? 1 : 0);
 
     // Get Reward Config
     const loyalOffer = config.loyalConfig || config.loyal_offer || { type: 'discount', value: '15', active: true, threshold: '50' };
-    const thresholdVal = parseFloat(loyalOffer.threshold || config.threshold) || 50;
     const welcomeOffer = config.welcomeConfig || { value: '10', active: true }; // Default 10%
 
-    console.log(`[Loyalty] Evaluator: visits=${totalVisits}, spend=${totalSpending}, session_orders=${ordersInSession}`);
+    console.log(`[Loyalty] Evaluator: totalVisits=${totalVisits}, ordersInSession=${ordersInSession}, effectiveVisits=${effectiveVisits}`);
 
     // --- CONDITION A: Session 4+ (LOYAL) ---
-    if (totalVisits >= 3) {
-        // Enforce Spending Threshold even if Visit Count is met
-        if (totalSpending >= thresholdVal) {
-            if (loyalOffer.type === 'discount') {
-                const discountPercentage = parseFloat(loyalOffer.value) || 15;
-                return {
-                    discount: orderTotal * (discountPercentage / 100),
-                    reason: `Loyal Client Reward (${discountPercentage}%)`,
-                    welcomeTeaser: false,
-                    showProgress: false,
-                    isLoyal: true,
-                    loyalMessage: `⭐ Loyal Client - Enjoy your exclusive ${discountPercentage}% OFF on every order.`,
-                    needsMoreSpending: false
-                };
-            } else if (['item', 'gift', 'dish', 'drink'].includes(loyalOffer.type)) {
-                return {
-                    discount: 0,
-                    giftItem: loyalOffer.value,
-                    reason: `Loyal Client Gift: ${loyalOffer.value}`,
-                    welcomeTeaser: false,
-                    showProgress: false,
-                    isLoyal: true,
-                    loyalMessage: `⭐ Loyal Client - Enjoy your exclusive gift: ${loyalOffer.value}`,
-                    needsMoreSpending: false
-                };
-            }
-        } else {
-            // Visits met, but money NOT met
+    if (effectiveVisits >= 4) {
+        if (loyalOffer.type === 'discount') {
+            const discountPercentage = parseFloat(loyalOffer.value) || 15;
+            return {
+                discount: orderTotal * (discountPercentage / 100),
+                reason: `Loyal Client Reward (${discountPercentage}%)`,
+                welcomeTeaser: false,
+                showProgress: false,
+                isLoyal: true,
+                loyalMessage: `⭐ Loyal Client - Enjoy your exclusive ${discountPercentage}% OFF on every order.`,
+                needsMoreSpending: false
+            };
+        } else if (['item', 'gift', 'dish', 'drink'].includes(loyalOffer.type)) {
             return {
                 discount: 0,
-                reason: null,
+                giftItem: loyalOffer.value,
+                reason: `Loyal Client Gift: ${loyalOffer.value}`,
                 welcomeTeaser: false,
-                showProgress: true,
-                progressPercentage: Math.min((totalSpending / thresholdVal) * 100, 100),
-                progressMessage: "🔥 Final step! Just a bit more to unlock Loyal Rewards!",
-                needsMoreSpending: true
+                showProgress: false,
+                isLoyal: true,
+                loyalMessage: `⭐ Loyal Client - Enjoy your exclusive gift: ${loyalOffer.value}`,
+                needsMoreSpending: false
             };
         }
     }
 
     // --- CONDITION B: Session 3 (IN_PROGRESS) ---
-    if (totalVisits === 2) {
-        const isVisitComplete = ordersInSession > 0;
+    if (effectiveVisits === 3) {
         return {
             discount: 0,
             reason: null,
             welcomeTeaser: false,
             showProgress: true,
-            progressPercentage: Math.min((totalSpending / thresholdVal) * 100, 100),
-            progressMessage: isVisitComplete
+            progressPercentage: 75,
+            progressMessage: sessionIsValid
                 ? "✅ Visit complete! Rewards will unlock on your next return."
                 : "🔥 You're close! One more visit to unlock Loyal Rewards!",
-            needsMoreSpending: !isVisitComplete
+            needsMoreSpending: false
         };
     }
 
     // --- CONDITION C: Session 2 (WELCOME) ---
-    if (totalVisits === 1) {
+    if (effectiveVisits === 2) {
         // ONE-TIME Rule: Only show/apply discount if first order of session
         const isEligible = ordersInSession === 0;
         const discountPercentage = parseFloat(welcomeOffer.value) || 10;
@@ -310,27 +298,33 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
                 needsMoreSpending: false
             };
         } else {
-            // After first order in session 2, show nothing or simple welcome
             return {
                 discount: 0,
                 reason: null,
                 welcomeTeaser: true,
                 teaserMessage: "👋 Welcome back! Enjoy your visit.",
-                showProgress: false,
+                showProgress: true,
+                progressPercentage: 50,
+                progressMessage: "✅ Visit complete! Keep going to unlock more rewards.",
                 needsMoreSpending: false
             };
         }
     }
 
     // --- CONDITION D: Session 1 (NEW) ---
-    // Minimal Welcome
-    if (ordersInSession > 0) {
+    if (effectiveVisits === 1) {
         return {
             discount: 0,
             reason: null,
             welcomeTeaser: true,
-            teaserMessage: "👋 Welcome! Enjoy your visit.",
-            showProgress: false,
+            teaserMessage: sessionIsValid
+                ? "👋 Welcome! Place another order next time to earn rewards."
+                : "👋 Welcome! Place your first order to start unlocking rewards.",
+            showProgress: true,
+            progressPercentage: 25,
+            progressMessage: sessionIsValid
+                ? "✅ First visit recorded! Come back soon."
+                : "🚀 Start your journey to Loyal Rewards!",
             needsMoreSpending: false
         };
     }
@@ -339,7 +333,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
         discount: 0,
         reason: null,
         welcomeTeaser: true,
-        teaserMessage: "👋 Welcome! Place your first order to start unlocking rewards.",
+        teaserMessage: "👋 Welcome! Start your loyalty journey today.",
         showProgress: false,
         needsMoreSpending: false
     };

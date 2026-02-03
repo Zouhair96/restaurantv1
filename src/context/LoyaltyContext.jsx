@@ -223,29 +223,32 @@ export const LoyaltyProvider = ({ children }) => {
         if (!log) return { status: 'NEW', totalVisits: 0, totalPoints: 0, activeGifts: [], sessionIsValid: false, config: null };
 
         // Use Server-Side Source of Truth
-        const totalVisits = log.serverTotalVisits !== undefined ? parseInt(log.serverTotalVisits) : 0;
-        const totalPoints = log.totalPoints || 0;
+        const totalVisits = (log.serverTotalVisits !== undefined) ? parseInt(log.serverTotalVisits) : 0;
+        const totalPoints = parseInt(log.totalPoints) || 0;
         const activeGifts = log.activeGifts || [];
         const sessionIsValid = !!log.sessionIsValid;
+        const ordersInSession = parseInt(log.ordersInCurrentVisit) || 0;
 
-        // Derive UI status based on server-synced visit count
+        // effective_visits = visit_count + (session_is_valid ? 1 : 0)
+        const effectiveVisits = totalVisits + (sessionIsValid ? 1 : 0);
+
+        // Derive UI status based on server-synced visit count + current activity
         let currentStatus = 'NEW';
-        if (totalVisits === 0) currentStatus = 'NEW';
-        else if (totalVisits === 1) currentStatus = 'WELCOME';
-        else if (totalVisits === 2) currentStatus = 'IN_PROGRESS';
-        else if (totalVisits >= 3) currentStatus = 'LOYAL';
+        if (effectiveVisits <= 1) currentStatus = 'NEW';
+        else if (effectiveVisits === 2) currentStatus = 'WELCOME';
+        else if (effectiveVisits === 3) currentStatus = 'IN_PROGRESS';
+        else if (effectiveVisits >= 4) currentStatus = 'LOYAL';
 
         return {
             status: currentStatus,
             totalPoints: totalPoints,
             activeGifts: activeGifts,
             sessionIsValid: sessionIsValid,
-            ordersInCurrentVisit: log.ordersInCurrentVisit || 0,
+            ordersInCurrentVisit: ordersInSession,
             config: log.config,
             welcomeShown: !!log.welcomeShown,
             welcomeRedeemed: !!log.rewardUsedInSession,
-            // Hidden terminology (kept for internal logic if needed but discouraged in UI)
-            _internalVisitCount: totalVisits
+            effectiveVisits
         };
     };
 

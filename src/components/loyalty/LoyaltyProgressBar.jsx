@@ -2,16 +2,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const LoyaltyProgressBar = ({ loyaltyConfig = {}, isDarkMode = false, currentSpending = null, totalVisits = 0, progressMessage = null }) => {
-    // Calculate Spending Progress (Motivational only)
-    const totalSpending = parseFloat(currentSpending || 0);
-    const threshold = parseFloat(loyaltyConfig?.loyalConfig?.threshold || 50);
-
-    // Percentage for the bar
-    const percentage = Math.min((totalSpending / threshold) * 100, 100);
-
+const LoyaltyProgressBar = ({ loyaltyConfig = {}, isDarkMode = false, percentage = 0, progressMessage = null }) => {
     // Messaging (Authoritative from props or internal fallback)
-    const message = progressMessage || "🔥 You're close! Final session before Loyal Rewards!";
+    const message = progressMessage || "🔥 You're close! Rewards are coming!";
 
     return (
         <motion.div

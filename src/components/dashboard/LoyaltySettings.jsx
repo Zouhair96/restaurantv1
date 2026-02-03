@@ -26,6 +26,8 @@ const LoyaltySettings = ({ onUpdate }) => {
         value: '10',
         active: true
     });
+    const [giftConversionEnabled, setGiftConversionEnabled] = useState(false);
+    const [pointsPerEuro, setPointsPerEuro] = useState(10);
     const [showDocumentation, setShowDocumentation] = useState(false);
 
     // 1. Fetch Config on Mount
@@ -62,6 +64,12 @@ const LoyaltySettings = ({ onUpdate }) => {
                                 ...prev,
                                 ...config.welcomeConfig
                             }));
+                        }
+                        if (config.gift_conversion_enabled !== undefined) {
+                            setGiftConversionEnabled(config.gift_conversion_enabled);
+                        }
+                        if (config.points_per_euro !== undefined) {
+                            setPointsPerEuro(config.points_per_euro);
                         }
                     }
                 } else {
@@ -278,6 +286,62 @@ const LoyaltySettings = ({ onUpdate }) => {
                         </div>
                     </div>
 
+                    {/* Gift Conversion Section */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                        <div className="bg-white dark:bg-[#1a1c23] p-6 rounded-[2.5rem] border border-gray-100 dark:border-white/10 shadow-sm hover:shadow-md transition-all">
+                            <div className="flex items-center justify-between mb-6">
+                                <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-500 shadow-inner">
+                                    <HiGift className="w-6 h-6" />
+                                </div>
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={giftConversionEnabled}
+                                        onChange={(e) => {
+                                            const checked = e.target.checked;
+                                            setGiftConversionEnabled(checked);
+                                            saveConfig({ gift_conversion_enabled: checked });
+                                        }}
+                                        className="sr-only peer"
+                                    />
+                                    <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-500"></div>
+                                </label>
+                            </div>
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Gift Conversion</h3>
+                            <p className="text-gray-500 text-xs mb-6">Allow customers to convert their gifts into loyalty points.</p>
+
+                            <div className="pt-6 border-t border-gray-100 dark:border-white/5 space-y-4">
+                                <label className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                    <HiSparkles className="w-4 h-4 text-amber-500" /> Conversion Rate (Points per €)
+                                </label>
+                                <div className="relative group">
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        value={pointsPerEuro}
+                                        onChange={(e) => {
+                                            const val = parseInt(e.target.value) || 10;
+                                            setPointsPerEuro(val);
+                                            saveConfig({ points_per_euro: val });
+                                        }}
+                                        className="w-full px-5 py-3 rounded-xl border border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-gray-900 dark:text-white font-bold outline-none focus:ring-2 focus:ring-indigo-500/20"
+                                        placeholder="10"
+                                    />
+                                    <span className="absolute right-5 top-1/2 -translate-y-1/2 text-xs text-gray-400 font-bold">pts / €</span>
+                                </div>
+                                <p className="text-[10px] text-gray-400 italic">Example: A €5 gift = {5 * pointsPerEuro} points.</p>
+                            </div>
+                        </div>
+
+                        <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-white/5 dark:to-white/10 p-8 rounded-[2.5rem] border border-dashed border-gray-200 dark:border-white/10 flex flex-col items-center justify-center text-center">
+                            <div className="w-16 h-16 rounded-full bg-white/50 dark:bg-white/5 flex items-center justify-center text-gray-300 mb-4">
+                                <HiSparkles className="w-8 h-8" />
+                            </div>
+                            <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest">More Settings Soon</h4>
+                            <p className="text-[10px] text-gray-400 mt-2 max-w-[150px]">We're building more advanced loyalty features for your restaurant.</p>
+                        </div>
+                    </div>
+
                     {/* Documentation Access Button */}
                     <div className="bg-gradient-to-r from-[#2c3e50] to-[#000000] p-8 rounded-[2.5rem] shadow-xl text-white flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden relative group border border-white/5 mt-6">
                         <div className="relative z-10 flex flex-col items-center md:items-start text-center md:text-left">
@@ -343,8 +407,7 @@ const LoyaltySettings = ({ onUpdate }) => {
                         </div>
                     </div>
                 </>
-            )
-            }
+            )}
 
             {/* Config Modal */}
             <RecoveryOfferModal
@@ -360,7 +423,7 @@ const LoyaltySettings = ({ onUpdate }) => {
                 onClose={() => setIsLoyalModalOpen(false)}
                 onSave={handleSaveLoyal}
             />
-        </div >
+        </div>
     );
 };
 

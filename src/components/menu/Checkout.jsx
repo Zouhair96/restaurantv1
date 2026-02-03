@@ -319,8 +319,7 @@ const Checkout = ({
                                     <LoyaltyProgressBar
                                         loyaltyConfig={loyaltyInfo?.config || {}}
                                         isDarkMode={isDarkMode}
-                                        currentSpending={loyaltyInfo?.serverTotalSpending ?? loyaltyInfo?.totalSpending}
-                                        totalVisits={loyaltyInfo?.totalVisits || 0}
+                                        percentage={progressPercentage}
                                         progressMessage={progressMessage}
                                     />
                                 )}

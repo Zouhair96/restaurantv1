@@ -225,6 +225,10 @@ export const handler = async (event, context) => {
                 })
             };
         } else if (status === 'completed') {
+            const prevStatus = order.status;
+            const loyaltyId = order.loyalty_id;
+            const orderRestaurantId = order.restaurant_id;
+
             // --- STRICT POINTS & SESSION SYSTEM: POINTS EARNING ---
             if (loyaltyId && prevStatus !== 'completed') {
                 await query('BEGIN');
@@ -280,6 +284,15 @@ export const handler = async (event, context) => {
                     console.error('[Loyalty Points Error]:', err.message);
                 }
             }
+
+            // Finally update the order status itself
+            let updateQuery = `
+                UPDATE orders 
+                SET status = $1, updated_at = CURRENT_TIMESTAMP
+                WHERE id = $2 
+                RETURNING id, status, updated_at
+            `;
+            updateResult = await query(updateQuery, [status, orderId]);
         }
         else {
             // Standard update for other statuses

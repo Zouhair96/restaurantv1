@@ -48,7 +48,10 @@ export const handler = async (event, context) => {
             [restaurantId]
         );
 
-        // ALSO delete from the new loyalty_visitors table (The source of truth for visit counts)
+        // ALSO delete from the new loyalty tables
+        await query('DELETE FROM gifts WHERE restaurant_id = $1', [restaurantId]);
+        await query('DELETE FROM points_transactions WHERE restaurant_id = $1', [restaurantId]);
+
         const visitorReset = await query(
             'DELETE FROM loyalty_visitors WHERE restaurant_id = $1',
             [restaurantId]
