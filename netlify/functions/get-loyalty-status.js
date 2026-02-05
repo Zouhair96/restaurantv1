@@ -132,7 +132,16 @@ export const handler = async (event, context) => {
                 sessionIsValid: sessionIsValid,
                 activeGifts: activeGifts,
                 loyalty_config: loyaltyConfig,
-                session_timeout_ms: SESSION_TIMEOUT
+                session_timeout_ms: SESSION_TIMEOUT,
+
+                // --- STRICT UI FLAGS (Single Source of Truth) ---
+                hasPlacedOrderInCurrentSession: ordersInCurrentSession > 0,
+                isWelcomeDiscountEligible: visitCount === 1 && ordersInCurrentSession === 0,
+                // Note: visitCount 1 means "1 banked visit", so we are in Session 2.
+                // If ordersInCurrentSession is 0, they haven't "used" the welcome discount THIS session yet.
+
+                isLoyalDiscountActive: visitCount >= 3, // Simple threshold for now, can be refined
+                totalSpending: totalSpending
             })
         };
 

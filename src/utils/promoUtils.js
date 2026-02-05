@@ -226,7 +226,32 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
     // 3. LOYAL Status Logic (REMOVED: Legacy status check that used stale localStorage)
     // Spending-based logic below now handles this correctly using server-synced data.
 
-    // 4. STRICT SESSION-BASED LOGIC
+    // 4. STRICT SESSION-BASED LOGIC (Backend Flags Priority)
+
+    // Check if we have the new backend flags
+    if (typeof loyaltyInfo.isWelcomeDiscountEligible !== 'undefined') {
+        const { isWelcomeDiscountEligible, hasPlacedOrderInCurrentSession, isLoyalDiscountActive, totalSpending } = loyaltyInfo;
+
+        // --- CONDITION: SESSION 2 (WELCOME) ---
+        if (isWelcomeDiscountEligible && !hasPlacedOrderInCurrentSession) {
+            const discountPercentage = parseFloat(welcomeOffer.value) || 10;
+            return {
+                discount: orderTotal * (discountPercentage / 100),
+                reason: `🎉 Welcome back! You unlocked ${discountPercentage}% OFF...`,
+                welcomeTeaser: true,
+                teaserMessage: `🎉 Welcome back! You unlocked ${discountPercentage}% OFF...`,
+                showProgress: false,
+                needsMoreSpending: false
+            };
+        }
+
+        // Fallback for Session 2 if order placed OR other sessions
+        // If we are in Session 2 but placed order:
+        // effectiveVisits would be 2.
+        // We can fallback to the legacy logic for other states OR implement strict mapping here.
+        // Let's integrate into the flow below but override checks.
+    }
+
     const totalVisits = parseInt(loyaltyInfo.totalVisits) || 0;
     const ordersInSession = parseInt(loyaltyInfo.ordersInCurrentVisit || loyaltyInfo.ordersInCurrentSession) || 0;
 
@@ -310,10 +335,15 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
 
     // --- CONDITION C: Session 2 (WELCOME / VISIT 1) ---
     if (effectiveVisits === 2) {
+        // Backend Flag Bypass: If we are here, surely isWelcomeDiscountEligible was false OR undefined
+        // If it was false, it means they probably placed an order, so fallback here is okay.
+
+        // Standard check
         const isEligible = ordersInSession === 0;
         const discountPercentage = parseFloat(welcomeOffer.value) || 10;
 
         if (isEligible) {
+            // Redundant if backend flag caught it, but safe to keep
             return {
                 discount: orderTotal * (discountPercentage / 100),
                 reason: `🎉 Welcome back! You unlocked ${discountPercentage}% OFF...`,
