@@ -227,7 +227,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
     // Spending-based logic below now handles this correctly using server-synced data.
 
     // 4. STRICT SESSION-BASED LOGIC
-    const totalVisits = (loyaltyInfo.totalVisits !== undefined) ? parseInt(loyaltyInfo.totalVisits) : 0;
+    const totalVisits = parseInt(loyaltyInfo.totalVisits) || 0;
     const ordersInSession = parseInt(loyaltyInfo.ordersInCurrentVisit || loyaltyInfo.ordersInCurrentSession) || 0;
 
     // effective_visits = total_banked_visits + 1 (The session the user is CURRENTLY in)

@@ -223,7 +223,7 @@ export const LoyaltyProvider = ({ children }) => {
         if (!log) return { status: 'NEW', totalVisits: 0, totalPoints: 0, activeGifts: [], sessionIsValid: false, config: null };
 
         // Use Server-Side Source of Truth
-        const totalVisits = (log.serverTotalVisits !== undefined) ? parseInt(log.serverTotalVisits) : 0;
+        const totalVisits = parseInt(log.serverTotalVisits) || 0;
         const totalPoints = parseInt(log.totalPoints) || 0;
         const activeGifts = log.activeGifts || [];
         const sessionIsValid = !!log.sessionIsValid;
