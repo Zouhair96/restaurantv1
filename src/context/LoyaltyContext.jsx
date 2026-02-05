@@ -48,7 +48,7 @@ export const LoyaltyProvider = ({ children }) => {
             }
             if (response.ok) {
                 const data = await response.json();
-                const { totalPoints, totalVisits, ordersInCurrentVisit, sessionIsValid, activeGifts, loyalty_config } = data;
+                const { totalPoints, totalVisits, ordersInCurrentVisit, sessionIsValid, activeGifts, loyalty_config, totalSpending } = data;
 
                 setLoyaltyData(prev => {
                     const updated = {
@@ -59,6 +59,7 @@ export const LoyaltyProvider = ({ children }) => {
                             serverTotalVisits: totalVisits,
                             ordersInCurrentVisit,
                             sessionIsValid,
+                            totalSpending: totalSpending || 0, // CUMULATIVE SPENDING
                             // STRICT FLAGS
                             hasPlacedOrderInCurrentSession: data.hasPlacedOrderInCurrentSession,
                             isWelcomeDiscountEligible: data.isWelcomeDiscountEligible,
@@ -269,7 +270,8 @@ export const LoyaltyProvider = ({ children }) => {
         return {
             status: currentStatus,
             totalPoints: totalPoints,
-            totalVisits: totalVisits, // ADD THIS - promoUtils needs it!
+            totalVisits: totalVisits,
+            totalSpending: parseFloat(log.totalSpending) || 0, // CUMULATIVE SPENDING
             activeGifts: activeGifts,
             sessionIsValid: sessionIsValid,
             ordersInCurrentVisit: ordersInSession,

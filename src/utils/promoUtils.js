@@ -264,25 +264,31 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
 
     console.log(`[Loyalty] Evaluator: totalVisits=${totalVisits}, ordersInSession=${ordersInSession}, effectiveVisits=${effectiveVisits}`);
 
-    // 5. CALCULATION-BASED PROGRESS LOGIC (Spending Threshold)
+    // 5. CUMULATIVE SPENDING PROGRESS LOGIC
+    // Progress bar uses TOTAL cumulative spending across ALL sessions, not just current cart
+    const totalSpending = parseFloat(loyaltyInfo.totalSpending) || 0;
     const thresholdAmount = parseFloat(loyalOffer.threshold) || 50;
-    const progressTowardThreshold = thresholdAmount > 0 ? (orderTotal / thresholdAmount) * 100 : 0;
-    const isThresholdMet = orderTotal >= thresholdAmount;
+    const cumulativeProgress = thresholdAmount > 0 ? (totalSpending / thresholdAmount) * 100 : 0;
+    const isThresholdMet = totalSpending >= thresholdAmount;
+
+    console.log(`[Loyalty] Spending: total=${totalSpending}, threshold=${thresholdAmount}, progress=${cumulativeProgress.toFixed(1)}%, met=${isThresholdMet}`);
 
     // --- CONDITION A: Session 4+ (LOYAL) ---
     if (effectiveVisits >= 4) {
         if (!isThresholdMet) {
+            // Still showing progress bar because cumulative spending hasn't reached threshold
             return {
                 discount: 0,
                 reason: null,
                 welcomeTeaser: false,
                 showProgress: true,
-                progressPercentage: Math.min(progressTowardThreshold, 100),
-                progressMessage: "🔥 Final step! Just a bit more...!",
+                progressPercentage: Math.min(cumulativeProgress, 100),
+                progressMessage: "🔥 Keep going! You're building loyalty...",
                 needsMoreSpending: true
             };
         }
 
+        // Threshold met - unlock reward!
         if (loyalOffer.type === 'discount') {
             const discountPercentage = parseFloat(loyalOffer.value) || 15;
             return {
@@ -291,7 +297,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
                 welcomeTeaser: false,
                 showProgress: false,
                 isLoyal: true,
-                loyalMessage: "⭐ Loyal Client - Enjoy 15% OFF",
+                loyalMessage: `⭐ Loyal Client - Enjoy ${discountPercentage}% OFF`,
                 needsMoreSpending: false
             };
         } else {
@@ -302,33 +308,35 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
                 welcomeTeaser: false,
                 showProgress: false,
                 isLoyal: true,
-                loyalMessage: "⭐ Loyal Client - Enjoy 15% OFF",
+                loyalMessage: `⭐ Loyal Client - Free ${loyalOffer.value}`,
                 needsMoreSpending: false
             };
         }
     }
 
+
     // --- CONDITION B: Session 3 (IN_PROGRESS / FREQUENCY) ---
     if (effectiveVisits === 3) {
         if (ordersInSession > 0) {
+            // Order already placed in Session 3
             return {
                 discount: 0,
                 reason: null,
                 welcomeTeaser: true,
-                teaserMessage: "✅ Session complete! Rewards will unlock next visit.",
+                teaserMessage: "✅ Great! Keep visiting to unlock rewards.",
                 showProgress: false,
                 needsMoreSpending: false
             };
         }
+
+        // First time in Session 3 - show cumulative progress bar
         return {
             discount: 0,
             reason: null,
             welcomeTeaser: false,
             showProgress: true,
-            progressPercentage: isThresholdMet ? 100 : Math.min(progressTowardThreshold, 100),
-            progressMessage: isThresholdMet
-                ? "🔥 You're close! Final session..."
-                : `🔥 Progressing... Just $${(thresholdAmount - orderTotal).toFixed(2)} to reach threshold!`,
+            progressPercentage: Math.min(cumulativeProgress, 100),
+            progressMessage: "🔥 Keep going! You're building loyalty...",
             needsMoreSpending: false
         };
     }
