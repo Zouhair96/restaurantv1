@@ -150,9 +150,18 @@ export const LoyaltyProvider = ({ children }) => {
 
     // New helper to fetch status by Name (API will handle lookup)
     const refreshLoyaltyStats = async (restaurantName) => {
-        if (!restaurantName || !clientId) return;
+        // ALWAYS check localStorage for the latest ID (in case Checkout generated one just now)
+        const storedId = localStorage.getItem(STORAGE_KEY_ID);
+        const effectiveId = clientId || storedId;
+
+        if (!restaurantName || !effectiveId) return;
         try {
-            const response = await fetch(`/.netlify/functions/get-loyalty-status?restaurantName=${restaurantName}&loyaltyId=${clientId}&_t=${Date.now()}`);
+            const response = await fetch(`/.netlify/functions/get-loyalty-status?restaurantName=${restaurantName}&loyaltyId=${effectiveId}&_t=${Date.now()}`);
+
+            // If we found a new ID in storage that implies we should update state too
+            if (storedId && storedId !== clientId) {
+                setClientId(storedId);
+            }
             if (response.ok) {
                 const data = await response.json();
                 const { totalPoints, totalVisits, ordersInCurrentVisit, sessionIsValid, activeGifts, loyalty_config } = data;
