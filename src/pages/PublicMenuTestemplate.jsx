@@ -290,10 +290,10 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                 {/* Points and Cart */}
                 <div className="flex items-center gap-2">
                     {loyaltyInfo.config?.points_system_enabled !== false && loyaltyInfo.totalPoints > 0 && (
-                        <div className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-gray-100 shadow-sm">
+                        <div className="flex items-center gap-1.5 px-2 md:px-3 py-2 rounded-xl bg-white border border-gray-100 shadow-sm">
                             <span className="text-amber-500">⭐</span>
                             <span className="text-xs font-black uppercase tracking-tight text-gray-600">
-                                {t('loyalty.yourPoints') || 'Your Points'}: {loyaltyInfo.totalPoints}
+                                <span className="hidden sm:inline">{t('loyalty.yourPoints') || 'Your Points'}: </span>{loyaltyInfo.totalPoints}
                             </span>
                         </div>
                     )}
