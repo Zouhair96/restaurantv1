@@ -251,26 +251,32 @@ export const handler = async (event, context) => {
                             // Fetch Point Configuration
                             const userRes = await query('SELECT loyalty_config FROM users WHERE id = $1', [orderRestaurantId]);
                             const config = userRes.rows[0]?.loyalty_config || {};
-                            const ppe = parseInt(config.points_per_euro) || 1;
 
-                            const earnedPoints = Math.floor(parseFloat(order.total_price || 0) * ppe);
+                            // 1. Check if Points System is ENABLED
+                            if (config.points_system_enabled !== false) {
+                                const ppe = parseInt(config.points_per_euro) || 1;
+                                const earnedPoints = Math.floor(parseFloat(order.total_price || 0) * ppe);
 
-                            if (earnedPoints > 0) {
-                                // 3. Log Points Transaction
-                                await query(`
-                                    INSERT INTO points_transactions (restaurant_id, device_id, order_id, type, amount, created_at)
-                                    VALUES ($1, $2, $3, 'EARN', $4, NOW())
-                                `, [orderRestaurantId, loyaltyId, orderId, earnedPoints]);
+                                if (earnedPoints > 0) {
+                                    // Log Points Transaction
+                                    await query(`
+                                        INSERT INTO points_transactions (restaurant_id, device_id, order_id, type, amount, created_at)
+                                        VALUES ($1, $2, $3, 'EARN', $4, NOW())
+                                    `, [orderRestaurantId, loyaltyId, orderId, earnedPoints]);
 
-                                // 4. Atomically Update Cached Balance
-                                await query(`
-                                    UPDATE loyalty_visitors 
-                                    SET total_points = COALESCE(total_points, 0) + $1,
-                                        last_visit_at = NOW()
-                                    WHERE id = $2
-                                `, [earnedPoints, visitor.id]);
+                                    // Atomically Update Cached Balance
+                                    await query(`
+                                        UPDATE loyalty_visitors 
+                                        SET total_points = COALESCE(total_points, 0) + $1,
+                                            last_visit_at = NOW()
+                                        WHERE id = $2
+                                    `, [earnedPoints, visitor.id]);
+                                } else {
+                                    // Even if 0 points, update last_visit_at to mark activity
+                                    await query('UPDATE loyalty_visitors SET last_visit_at = NOW() WHERE id = $1', [visitor.id]);
+                                }
                             } else {
-                                // Even if 0 points, update last_visit_at to mark activity
+                                // Points disabled, but still update last_visit_at to maintain session state
                                 await query('UPDATE loyalty_visitors SET last_visit_at = NOW() WHERE id = $1', [visitor.id]);
                             }
                         }

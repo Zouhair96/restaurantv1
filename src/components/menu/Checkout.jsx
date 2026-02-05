@@ -191,7 +191,7 @@ const Checkout = ({
                                 <div className="text-center mt-6 mb-8">
                                     <h1 className={`text-3xl font-black uppercase tracking-tight ${isDarkMode ? 'text-white' : 'text-gray-900'}`} dangerouslySetInnerHTML={{ __html: t.myCart }} />
                                     <div className={`h-1 w-12 mx-auto mt-2 rounded-full opacity-10 ${isDarkMode ? 'bg-white' : 'bg-gray-900'}`} />
-                                    {loyaltyInfo.totalPoints > 0 && (
+                                    {loyaltyInfo.config?.points_system_enabled !== false && loyaltyInfo.totalPoints > 0 && (
                                         <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-full border border-blue-100 dark:border-blue-800 animate-fade-in shadow-sm">
                                             <span className="text-sm">🎯</span>
                                             <span className="text-xs font-bold uppercase tracking-wide">

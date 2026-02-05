@@ -240,7 +240,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
 
                             {/* Right Side Actions */}
                             <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center pr-1 md:pr-2 z-20 gap-2">
-                                {loyaltyInfo.totalPoints > 0 && (
+                                {loyaltyInfo.config?.points_system_enabled !== false && loyaltyInfo.totalPoints > 0 && (
                                     <div className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-gray-100 shadow-sm">
                                         <span className="text-amber-500">⭐</span>
                                         <span className="text-xs font-black uppercase tracking-tight text-gray-600">

@@ -27,6 +27,7 @@ const LoyaltySettings = ({ onUpdate }) => {
         active: true
     });
     const [giftConversionEnabled, setGiftConversionEnabled] = useState(false);
+    const [pointsSystemEnabled, setPointsSystemEnabled] = useState(true);
     const [pointsPerEuro, setPointsPerEuro] = useState(10);
     const [showDocumentation, setShowDocumentation] = useState(false);
 
@@ -67,6 +68,9 @@ const LoyaltySettings = ({ onUpdate }) => {
                         }
                         if (config.gift_conversion_enabled !== undefined) {
                             setGiftConversionEnabled(config.gift_conversion_enabled);
+                        }
+                        if (config.points_system_enabled !== undefined) {
+                            setPointsSystemEnabled(config.points_system_enabled);
                         }
                         if (config.points_per_euro !== undefined) {
                             setPointsPerEuro(config.points_per_euro);
@@ -148,8 +152,35 @@ const LoyaltySettings = ({ onUpdate }) => {
                 />
             ) : (
                 <>
-                    {/* Main Loyalty Grid */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Loyalty Highlights Grid */}
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+                        {/* 0. Points System Global Toggle */}
+                        <div className="bg-gradient-to-br from-indigo-500/5 to-purple-500/5 dark:from-indigo-500/10 dark:to-purple-500/10 p-6 rounded-[2.5rem] border-2 border-indigo-500/20 shadow-sm">
+                            <div className="flex items-center justify-between mb-6">
+                                <div className="w-12 h-12 rounded-2xl bg-indigo-500 text-white flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                                    <HiSparkles className="w-6 h-6" />
+                                </div>
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={pointsSystemEnabled}
+                                        onChange={(e) => {
+                                            const checked = e.target.checked;
+                                            setPointsSystemEnabled(checked);
+                                            saveConfig({ points_system_enabled: checked });
+                                        }}
+                                        className="sr-only peer"
+                                    />
+                                    <div className="w-14 h-7 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-500"></div>
+                                </label>
+                            </div>
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 uppercase tracking-tight">Points System</h3>
+                            <p className="text-gray-500 text-[10px] mb-4">Enable/Disable points calculation and visibility for all customers.</p>
+                            <div className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${pointsSystemEnabled ? 'bg-indigo-50 text-indigo-600' : 'bg-gray-100 text-gray-400'}`}>
+                                {pointsSystemEnabled ? 'Active' : 'Disabled'}
+                            </div>
+                        </div>
 
                         {/* 1. Global Auto-Promo Card */}
                         <div className="bg-white dark:bg-[#1a1c23] p-6 rounded-[2.5rem] border border-gray-100 dark:border-white/10 shadow-sm hover:shadow-md transition-all">
