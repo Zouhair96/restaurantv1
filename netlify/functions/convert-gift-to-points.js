@@ -29,7 +29,7 @@ export const handler = async (event) => {
             return { statusCode: 403, headers, body: JSON.stringify({ error: 'Gift conversion is disabled for this restaurant' }) };
         }
 
-        const pointsPerEuro = config.points_per_euro || 100;
+        const pointsPerEuro = config.points_per_euro || 1;
 
         await query('BEGIN');
         try {

@@ -229,8 +229,8 @@ export const LoyaltyProvider = ({ children }) => {
         const sessionIsValid = !!log.sessionIsValid;
         const ordersInSession = parseInt(log.ordersInCurrentVisit) || 0;
 
-        // effective_visits = visit_count + (session_is_valid ? 1 : 0)
-        const effectiveVisits = totalVisits + (sessionIsValid ? 1 : 0);
+        // effective_visits = total_completed_visits + 1 (The visit the user is CURRENTLY in)
+        const effectiveVisits = totalVisits + 1;
 
         // Derive UI status based on server-synced visit count + current activity
         let currentStatus = 'NEW';

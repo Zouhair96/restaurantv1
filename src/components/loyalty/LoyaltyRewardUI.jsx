@@ -81,14 +81,20 @@ const LoyaltyRewardUI = ({ restaurantName, themeColor = '#f97316', isDarkMode = 
                                     disabled={isConverting === gift.id}
                                     className={`flex-1 py-3 px-4 rounded-xl font-black text-xs uppercase tracking-widest border-2 active:scale-95 transition-all flex items-center justify-center gap-2 ${isDarkMode ? 'border-white/10 text-white' : 'border-gray-100 text-gray-900'
                                         }`}
-                                    onClick={() => handleConvert(gift.id)}
+                                    onClick={() => {
+                                        const ppe = config.points_per_euro || 1;
+                                        const pointsValue = Math.floor(parseFloat(gift.euro_value) * ppe);
+                                        if (window.confirm(`This action is irreversible. \n\nAre you sure you want to convert this reward into ${pointsValue} points?`)) {
+                                            handleConvert(gift.id);
+                                        }
+                                    }}
                                 >
                                     {isConverting === gift.id ? (
                                         <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
                                     ) : (
                                         <>
                                             <HiSparkles className="w-4 h-4" />
-                                            To Points
+                                            {`To ${Math.floor(parseFloat(gift.euro_value) * (config.points_per_euro || 1))} Points`}
                                         </>
                                     )}
                                 </button>

@@ -287,22 +287,32 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                     )}
                 </div>
 
-                {/* Cart Icon */}
-                <motion.button
-                    animate={cartControls}
-                    onClick={() => setIsCheckoutOpen(true)}
-                    className="relative p-3 rounded-[1rem] border shadow-sm active:scale-95 flex items-center justify-center bg-white text-gray-700 hover:text-theme transition-colors"
-                    style={{
-                        borderColor: `${config.themeColor}20`,
-                    }}
-                >
-                    <HiShoppingBag className="w-6 h-6" />
-                    {cartItems.length > 0 && (
-                        <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-white">
-                            {cartItems.length}
-                        </span>
+                {/* Points and Cart */}
+                <div className="flex items-center gap-2">
+                    {loyaltyInfo.totalPoints > 0 && (
+                        <div className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-gray-100 shadow-sm">
+                            <span className="text-amber-500">⭐</span>
+                            <span className="text-xs font-black uppercase tracking-tight text-gray-600">
+                                {t('loyalty.yourPoints') || 'Your Points'}: {loyaltyInfo.totalPoints}
+                            </span>
+                        </div>
                     )}
-                </motion.button>
+                    <motion.button
+                        animate={cartControls}
+                        onClick={() => setIsCheckoutOpen(true)}
+                        className="relative p-3 rounded-[1rem] border shadow-sm active:scale-95 flex items-center justify-center bg-white text-gray-700 hover:text-theme transition-colors"
+                        style={{
+                            borderColor: `${config.themeColor}20`,
+                        }}
+                    >
+                        <HiShoppingBag className="w-6 h-6" />
+                        {cartItems.length > 0 && (
+                            <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-white">
+                                {cartItems.length}
+                            </span>
+                        )}
+                    </motion.button>
+                </div>
             </div>
 
             {/* --- MAIN CONTENT AREA --- */}

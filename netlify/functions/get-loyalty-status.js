@@ -81,6 +81,27 @@ export const handler = async (event, context) => {
         const pointsRes = await query('SELECT COALESCE(SUM(amount), 0) as total FROM points_transactions WHERE device_id = $1 AND restaurant_id = $2', [loyaltyId, targetRestaurantId]);
         const totalPoints = parseInt(pointsRes.rows[0].total);
 
+        // --- 2.5 Session Finalization Check (PROACTIVE) ---
+        const lastSessionAt = visitor.last_session_at ? new Date(visitor.last_session_at).getTime() : 0;
+        const lastCountedAt = visitor.last_counted_at ? new Date(visitor.last_counted_at).getTime() : 0;
+        const sessionsAreExpired = (new Date().getTime() - lastSessionAt) > SESSION_TIMEOUT;
+        const previousValid = parseInt(visitor.orders_in_current_session || 0) > 0;
+        const uncounted = lastSessionAt > lastCountedAt;
+
+        if (sessionsAreExpired) {
+            if (previousValid && uncounted) {
+                // Move current orders to "Total Visits" in the bank
+                const newVisitCount = parseInt(visitor.visit_count || 0) + 1;
+                await query('UPDATE loyalty_visitors SET visit_count = $1, last_counted_at = NOW(), orders_in_current_session = 0 WHERE id = $2', [newVisitCount, visitor.id]);
+                visitor.visit_count = newVisitCount;
+                visitor.orders_in_current_session = 0;
+            } else {
+                // Just reset session if it wasn't a valid order visit
+                await query('UPDATE loyalty_visitors SET orders_in_current_session = 0 WHERE id = $1', [visitor.id]);
+                visitor.orders_in_current_session = 0;
+            }
+        }
+
         const giftsRes = await query('SELECT * FROM gifts WHERE device_id = $1 AND restaurant_id = $2 AND status = \'unused\'', [loyaltyId, targetRestaurantId]);
         const activeGifts = giftsRes.rows;
 

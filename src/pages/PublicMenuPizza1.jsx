@@ -239,7 +239,15 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                             </div>
 
                             {/* Right Side Actions */}
-                            <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center pr-1 md:pr-2 z-20">
+                            <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center pr-1 md:pr-2 z-20 gap-2">
+                                {loyaltyInfo.totalPoints > 0 && (
+                                    <div className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-gray-100 shadow-sm">
+                                        <span className="text-amber-500">⭐</span>
+                                        <span className="text-xs font-black uppercase tracking-tight text-gray-600">
+                                            {t('loyalty.yourPoints') || 'Your Points'}: {loyaltyInfo.totalPoints}
+                                        </span>
+                                    </div>
+                                )}
                                 <button onClick={() => setIsCartOpen(!isCartOpen)} className="p-2.5 text-gray-900 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors shadow-sm relative">
                                     <HiShoppingBag className="w-5 h-5 md:w-6 md:h-6" />
                                     {cartItems.length > 0 && <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>}
