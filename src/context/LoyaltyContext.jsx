@@ -152,7 +152,7 @@ export const LoyaltyProvider = ({ children }) => {
     const refreshLoyaltyStats = async (restaurantName) => {
         if (!restaurantName || !clientId) return;
         try {
-            const response = await fetch(`/.netlify/functions/get-loyalty-status?restaurantName=${restaurantName}&loyaltyId=${clientId}`);
+            const response = await fetch(`/.netlify/functions/get-loyalty-status?restaurantName=${restaurantName}&loyaltyId=${clientId}&_t=${Date.now()}`);
             if (response.ok) {
                 const data = await response.json();
                 const { totalPoints, totalVisits, ordersInCurrentVisit, sessionIsValid, activeGifts, loyalty_config } = data;

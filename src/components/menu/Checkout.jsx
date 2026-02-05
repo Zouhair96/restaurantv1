@@ -59,7 +59,17 @@ const Checkout = ({
             const tableNumber = orderType === 'dine_in' ? formData.tableSelection : null;
 
             // Failsafe: Ensure loyalty_id is present even if Context hasn't synced yet
-            const fallbackId = localStorage.getItem('loyalty_client_id_v2');
+            let fallbackId = localStorage.getItem('loyalty_client_id_v2');
+
+            // AGGRESSIVE GENERATION: If no ID exists, create one now to ensure tracking
+            if (!fallbackId) {
+                fallbackId = typeof crypto.randomUUID === 'function'
+                    ? crypto.randomUUID()
+                    : 'gen_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+                localStorage.setItem('loyalty_client_id_v2', fallbackId);
+                console.log('[Checkout] Generated new Loyalty ID:', fallbackId);
+            }
+
             const finalLoyaltyId = clientId || fallbackId;
 
             console.log(`[Checkout] Submitting Order. Context ID: ${clientId}, Fallback ID: ${fallbackId}, Final: ${finalLoyaltyId}`);
