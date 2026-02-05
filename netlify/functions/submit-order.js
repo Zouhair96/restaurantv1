@@ -115,14 +115,12 @@ export const handler = async (event, context) => {
                 loyaltyVisitorId = visitor.id;
 
                 const lastSessionAt = visitor.last_session_at ? new Date(visitor.last_session_at).getTime() : 0;
-                const lastCountedAt = visitor.last_counted_at ? new Date(visitor.last_counted_at).getTime() : 0;
                 const sessionsAreExpired = (new Date().getTime() - lastSessionAt) > SESSION_TIMEOUT;
                 const previousValid = parseInt(visitor.orders_in_current_session || 0) > 0;
-                const uncounted = lastSessionAt > lastCountedAt;
 
                 if (sessionsAreExpired) {
                     let newVisitCount = parseInt(visitor.visit_count || 0);
-                    if (previousValid && uncounted) {
+                    if (previousValid) {
                         newVisitCount++;
                         await query('UPDATE loyalty_visitors SET visit_count = $1, last_counted_at = NOW(), orders_in_current_session = 0 WHERE id = $2', [newVisitCount, visitor.id]);
                     } else {
