@@ -175,6 +175,10 @@ export const LoyaltyProvider = ({ children }) => {
                             serverTotalVisits: totalVisits,
                             ordersInCurrentVisit,
                             sessionIsValid,
+                            // STRICT FLAGS
+                            hasPlacedOrderInCurrentSession: data.hasPlacedOrderInCurrentSession,
+                            isWelcomeDiscountEligible: data.isWelcomeDiscountEligible,
+
                             activeGifts: activeGifts || [],
                             config: loyalty_config || (prev[restaurantName]?.config) || { isAutoPromoOn: true }
                         }
@@ -257,7 +261,10 @@ export const LoyaltyProvider = ({ children }) => {
             config: log.config,
             welcomeShown: !!log.welcomeShown,
             welcomeRedeemed: !!log.rewardUsedInSession,
-            effectiveVisits
+            effectiveVisits,
+            // STRICT FLAGS
+            hasPlacedOrderInCurrentSession: !!log.hasPlacedOrderInCurrentSession,
+            isWelcomeDiscountEligible: !!log.isWelcomeDiscountEligible
         };
     };
 
