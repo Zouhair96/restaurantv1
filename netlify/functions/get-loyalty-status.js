@@ -58,7 +58,7 @@ export const handler = async (event, context) => {
 
         // --- STRICT POINTS & SESSION SYSTEM ---
         const IS_DEV = process.env.URL?.includes('localhost') || !process.env.URL;
-        const SESSION_TIMEOUT = IS_DEV ? 3 * 60 * 1000 : 4 * 60 * 60 * 1000;
+        const SESSION_TIMEOUT = IS_DEV ? 5 * 60 * 1000 : 4 * 60 * 60 * 1000;
         const now = new Date();
 
         // 1. Get Visitor State
