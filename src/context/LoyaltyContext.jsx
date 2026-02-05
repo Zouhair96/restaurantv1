@@ -31,7 +31,9 @@ export const LoyaltyProvider = ({ children }) => {
 
     // New helper to fetch status by Name (API will handle lookup)
     // MOVED TO TOP to prevent "Cannot access before initialization" errors
-    const refreshLoyaltyStats = async (restaurantName) => {
+    // New helper to fetch status by Name (API will handle lookup)
+    // Converted to Function Declaration to ensure correct hoisting
+    async function refreshLoyaltyStats(restaurantName) {
         // ALWAYS check localStorage for the latest ID (in case Checkout generated one just now)
         const storedId = localStorage.getItem(STORAGE_KEY_ID);
         const effectiveId = clientId || storedId;
@@ -72,7 +74,7 @@ export const LoyaltyProvider = ({ children }) => {
         } catch (err) {
             console.error('Failed to fetch loyalty stats:', err);
         }
-    };
+    }
 
     const syncLoyaltyEvent = async (restaurantName, eventType) => {
         try {
