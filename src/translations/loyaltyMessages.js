@@ -11,10 +11,10 @@ export const LOYALTY_MESSAGE_KEYS = {
     SESSION_2_BEFORE_ORDER: 'SESSION_2_BEFORE_ORDER',
     SESSION_2_AFTER_ORDER: 'SESSION_2_AFTER_ORDER',
     SESSION_3_PROGRESS: 'SESSION_3_PROGRESS',
+    SESSION_3_FINAL: 'SESSION_3_FINAL',
     SESSION_3_AFTER_ORDER: 'SESSION_3_AFTER_ORDER',
-    SESSION_4_PROGRESS: 'SESSION_4_PROGRESS',
-    LOYAL_DISCOUNT: 'LOYAL_DISCOUNT',
-    LOYAL_GIFT: 'LOYAL_GIFT',
+    LOYAL_INCOMPLETE_SPENDING: 'LOYAL_INCOMPLETE_SPENDING',
+    LOYAL_ACTIVE: 'LOYAL_ACTIVE',
 };
 
 // ============================================================================
@@ -26,40 +26,40 @@ export const LOYALTY_MESSAGE_KEYS = {
 
 export const loyaltyMessages = {
     [LOYALTY_MESSAGE_KEYS.SESSION_1_BEFORE_ORDER]: {
-        en: '👋 Welcome! Place your first order...',
-        fr: '👋 Bienvenue ! Passez votre première commande...',
+        en: '👋 Welcome! Place your first order to start earning rewards.',
+        fr: '👋 Bienvenue ! Passez votre première commande pour commencer à gagner des récompenses.',
     },
     [LOYALTY_MESSAGE_KEYS.SESSION_1_AFTER_ORDER]: {
         en: '👋 Welcome! Enjoy your visit.',
         fr: '👋 Bienvenue ! Profitez de votre visite.',
     },
     [LOYALTY_MESSAGE_KEYS.SESSION_2_BEFORE_ORDER]: {
-        en: '🎉 Welcome back! You unlocked 10% OFF',
-        fr: '🎉 Bon retour ! Vous avez débloqué 10% de réduction',
+        en: '🎉 Welcome back! You unlocked 10% OFF on this order.',
+        fr: '🎉 Bon retour ! Vous avez débloqué 10 % de réduction sur cette commande.',
     },
     [LOYALTY_MESSAGE_KEYS.SESSION_2_AFTER_ORDER]: {
         en: '👋 Welcome back! Enjoy your visit.',
         fr: '👋 Bon retour ! Profitez de votre visite.',
     },
     [LOYALTY_MESSAGE_KEYS.SESSION_3_PROGRESS]: {
-        en: '🔥 Keep going! You\'re building loyalty...',
-        fr: '🔥 Continuez ! Vous construisez votre fidélité...',
+        en: '🔥 You\'re close! One more visit to unlock loyal rewards.',
+        fr: '🔥 Vous y êtes presque ! Encore une visite pour débloquer les récompenses fidélité.',
+    },
+    [LOYALTY_MESSAGE_KEYS.SESSION_3_FINAL]: {
+        en: '🔥 Almost there! Final visit before loyal rewards unlock.',
+        fr: '🔥 Presque fini ! Dernière visite avant de débloquer les récompenses fidélité.',
     },
     [LOYALTY_MESSAGE_KEYS.SESSION_3_AFTER_ORDER]: {
-        en: '✅ Great! Keep visiting to unlock rewards.',
-        fr: '✅ Super ! Continuez à visiter pour débloquer des récompenses.',
+        en: '✅ Session complete! Rewards will unlock on your next visit.',
+        fr: '✅ Visite terminée ! Les récompenses se débloqueront lors de votre prochaine visite.',
     },
-    [LOYALTY_MESSAGE_KEYS.SESSION_4_PROGRESS]: {
-        en: '🔥 Keep going! You\'re building loyalty...',
-        fr: '🔥 Continuez ! Vous construisez votre fidélité...',
+    [LOYALTY_MESSAGE_KEYS.LOYAL_INCOMPLETE_SPENDING]: {
+        en: '🔥 Final step! Spend a little more to unlock loyal rewards.',
+        fr: '🔥 Dernière étape ! Dépensez encore un peu pour débloquer les récompenses fidélité.',
     },
-    [LOYALTY_MESSAGE_KEYS.LOYAL_DISCOUNT]: {
-        en: '⭐ Loyal Client - Enjoy {percentage}% OFF',
-        fr: '⭐ Client Fidèle - Profitez de {percentage}% de réduction',
-    },
-    [LOYALTY_MESSAGE_KEYS.LOYAL_GIFT]: {
-        en: '⭐ Loyal Client - Free {item}',
-        fr: '⭐ Client Fidèle - {item} Gratuit',
+    [LOYALTY_MESSAGE_KEYS.LOYAL_ACTIVE]: {
+        en: '⭐ Loyal Client — Enjoy 15% OFF on every order!',
+        fr: '⭐ Client Fidèle — Profitez de 15 % de réduction sur chaque commande !',
     },
 };
 
