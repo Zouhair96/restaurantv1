@@ -85,6 +85,11 @@ export const handler = async (event, context) => {
         const pointsRes = await query('SELECT COALESCE(SUM(amount), 0) as total FROM points_transactions WHERE device_id = $1 AND restaurant_id = $2', [loyaltyId, targetRestaurantId]);
         const totalPoints = parseInt(pointsRes.rows[0].total);
 
+        const lastSessionDate = new Date(visitor.last_session_at);
+        const timeDiff = now - lastSessionDate;
+        const sessionsAreExpired = timeDiff > SESSION_TIMEOUT;
+        const previousValid = parseInt(visitor.orders_in_current_session || 0) > 0;
+
         if (sessionsAreExpired) {
             if (previousValid) {
                 // Move current orders to "Total Visits" in the bank
