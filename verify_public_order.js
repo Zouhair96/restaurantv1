@@ -11,11 +11,12 @@ async function runTest() {
         // 1. Get Restaurant ID
         const uRes = await query('SELECT id FROM users WHERE restaurant_name IS NOT NULL LIMIT 1');
         if (uRes.rows.length === 0) throw new Error('No users found');
-        const restaurantId = uRes.rows[0].id;
+        const restaurantId = uRes.rows[0].id; // Integer
 
         console.log(`Using Restaurant ID: ${restaurantId}`);
 
         // 2. Insert Test Order
+        // Note: Using restaurant_id as per schema
         const insertRes = await query(`
             INSERT INTO orders (restaurant_id, order_type, payment_method, total_price, status, items, created_at, updated_at)
             VALUES ($1, 'take_out', 'cash', 10.00, 'pending', '[]', NOW(), NOW())
