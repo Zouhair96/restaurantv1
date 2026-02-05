@@ -84,7 +84,7 @@ export const handler = async (event, context) => {
 
         // 1. Fetch order details to verify ownership and check state for STAF restrictions
         const checkResult = await query(
-            'SELECT id, restaurant_id, status, loyalty_id, customer_id FROM orders WHERE id = $1',
+            'SELECT id, restaurant_id, status, loyalty_id, customer_id, total_price FROM orders WHERE id = $1',
             [orderId]
         );
 
@@ -248,7 +248,12 @@ export const handler = async (event, context) => {
                         );
 
                         if (existingTx.rows.length === 0) {
-                            const earnedPoints = Math.floor(parseFloat(order.total_price || 0));
+                            // Fetch Point Configuration
+                            const userRes = await query('SELECT loyalty_config FROM users WHERE id = $1', [orderRestaurantId]);
+                            const config = userRes.rows[0]?.loyalty_config || {};
+                            const ppe = parseInt(config.points_per_euro) || 1;
+
+                            const earnedPoints = Math.floor(parseFloat(order.total_price || 0) * ppe);
 
                             if (earnedPoints > 0) {
                                 // 3. Log Points Transaction

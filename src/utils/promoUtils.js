@@ -241,8 +241,25 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
 
     console.log(`[Loyalty] Evaluator: totalVisits=${totalVisits}, ordersInSession=${ordersInSession}, effectiveVisits=${effectiveVisits}`);
 
+    // 5. CALCULATION-BASED PROGRESS LOGIC (Spending Threshold)
+    const thresholdAmount = parseFloat(loyalOffer.threshold) || 0;
+    const progressTowardThreshold = thresholdAmount > 0 ? (orderTotal / thresholdAmount) * 100 : 0;
+    const isThresholdMet = orderTotal >= thresholdAmount;
+
     // --- CONDITION A: Session 4+ (LOYAL) ---
     if (effectiveVisits >= 4) {
+        if (!isThresholdMet) {
+            return {
+                discount: 0,
+                reason: null,
+                welcomeTeaser: false,
+                showProgress: true,
+                progressPercentage: Math.min(progressTowardThreshold, 100),
+                progressMessage: `🔥 Spend $${(thresholdAmount - orderTotal).toFixed(2)} more to unlock your Loyal Reward!`,
+                needsMoreSpending: true
+            };
+        }
+
         if (loyalOffer.type === 'discount') {
             const discountPercentage = parseFloat(loyalOffer.value) || 15;
             return {
@@ -274,18 +291,13 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
             discount: 0,
             reason: null,
             welcomeTeaser: false,
-            showProgress: true,
-            progressPercentage: 75,
-            progressMessage: sessionIsValid
-                ? "✅ Visit complete! Rewards will unlock on your next return."
-                : "🔥 You're close! One more visit to unlock Loyal Rewards!",
+            showProgress: false,
             needsMoreSpending: false
         };
     }
 
     // --- CONDITION C: Session 2 (WELCOME) ---
     if (effectiveVisits === 2) {
-        // ONE-TIME Rule: Only show/apply discount if first order of session
         const isEligible = ordersInSession === 0;
         const discountPercentage = parseFloat(welcomeOffer.value) || 10;
 
@@ -303,9 +315,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
                 reason: null,
                 welcomeTeaser: true,
                 teaserMessage: "👋 Welcome back! Enjoy your visit.",
-                showProgress: true,
-                progressPercentage: 50,
-                progressMessage: "✅ Visit complete! Keep going to unlock more rewards.",
+                showProgress: false,
                 needsMoreSpending: false
             };
         }
@@ -320,11 +330,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
             teaserMessage: sessionIsValid
                 ? "👋 Welcome! Place another order next time to earn rewards."
                 : "👋 Welcome! Place your first order to start unlocking rewards.",
-            showProgress: true,
-            progressPercentage: 25,
-            progressMessage: sessionIsValid
-                ? "✅ First visit recorded! Come back soon."
-                : "🚀 Start your journey to Loyal Rewards!",
+            showProgress: false,
             needsMoreSpending: false
         };
     }
