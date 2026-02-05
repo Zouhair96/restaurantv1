@@ -94,7 +94,9 @@ export const handler = async (event, context) => {
             // A. Loyalty Visit Finalization (Steps 1 & 2)
             let loyaltyVisitorId = null;
             if (loyalty_id) {
-                const IS_DEV = process.env.URL?.includes('localhost') || !process.env.URL;
+                const IS_DEV = process.env.URL?.includes('localhost') ||
+                    process.env.URL?.includes('netlify') ||
+                    !process.env.URL;
                 const SESSION_TIMEOUT = IS_DEV ? 5 * 60 * 1000 : 4 * 60 * 60 * 1000;
 
                 const vRes = await query('SELECT * FROM loyalty_visitors WHERE restaurant_id = $1 AND device_id = $2 FOR UPDATE', [restaurantId, loyalty_id]);
