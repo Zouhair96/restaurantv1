@@ -227,13 +227,11 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
     // Spending-based logic below now handles this correctly using server-synced data.
 
     // 4. STRICT SESSION-BASED LOGIC
-    // 4. STRICT SESSION-BASED LOGIC
     const totalVisits = (loyaltyInfo.totalVisits !== undefined) ? parseInt(loyaltyInfo.totalVisits) : 0;
     const ordersInSession = parseInt(loyaltyInfo.ordersInCurrentVisit || loyaltyInfo.ordersInCurrentSession) || 0;
-    const sessionIsValid = ordersInSession > 0;
 
-    // effective_visits = visit_count + (session_is_valid ? 1 : 0)
-    const effectiveVisits = totalVisits + (sessionIsValid ? 1 : 0);
+    // effective_visits = total_banked_visits + 1 (The session the user is CURRENTLY in)
+    const effectiveVisits = totalVisits + 1;
 
     // Get Reward Config
     const loyalOffer = config.loyalConfig || config.loyal_offer || { type: 'discount', value: '15', active: true, threshold: '50' };
