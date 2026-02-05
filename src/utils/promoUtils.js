@@ -316,8 +316,9 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
         if (isEligible) {
             return {
                 discount: orderTotal * (discountPercentage / 100),
-                reason: `🎉 Welcome back! You unlocked ${discountPercentage}% OFF on this order.`,
-                welcomeTeaser: false,
+                reason: `🎉 Welcome back! You unlocked ${discountPercentage}% OFF...`,
+                welcomeTeaser: true,
+                teaserMessage: `🎉 Welcome back! You unlocked ${discountPercentage}% OFF...`,
                 showProgress: false,
                 needsMoreSpending: false
             };
