@@ -202,6 +202,10 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
     // 1. Check if auto-promos are globally active
     if (!config.auto_promo_active && !config.loyalty_active && !config.isAutoPromoOn) return { discount: 0, reason: null };
 
+    // CRITICAL: Extract config values FIRST to avoid TDZ errors
+    const loyalOffer = config.loyalConfig || config.loyal_offer || { type: 'discount', value: '15', active: true, threshold: '50' };
+    const welcomeOffer = config.welcomeConfig || { value: '10', active: true }; // Default 10%
+
     // 2. RECOVERY Status Logic (Temporarily overrides everything if eligible)
     if (loyaltyInfo.isRecoveryEligible || loyaltyInfo.status === 'RECOVERY') {
         const recoveryOffer = config.recoveryConfig || config.recovery_offer || { type: 'discount', value: '20' };
@@ -257,10 +261,6 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
 
     // effective_visits = total_banked_visits + 1 (The session the user is CURRENTLY in)
     const effectiveVisits = totalVisits + 1;
-
-    // Get Reward Config
-    const loyalOffer = config.loyalConfig || config.loyal_offer || { type: 'discount', value: '15', active: true, threshold: '50' };
-    const welcomeOffer = config.welcomeConfig || { value: '10', active: true }; // Default 10%
 
     console.log(`[Loyalty] Evaluator: totalVisits=${totalVisits}, ordersInSession=${ordersInSession}, effectiveVisits=${effectiveVisits}`);
 
