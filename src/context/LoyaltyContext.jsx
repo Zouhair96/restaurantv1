@@ -252,6 +252,13 @@ export const LoyaltyProvider = ({ children }) => {
         // effective_visits = total_completed_visits + 1 (The visit the user is CURRENTLY in)
         const effectiveVisits = totalVisits + 1;
 
+        console.log(`[LoyaltyContext.getStatus] Restaurant: ${restaurantId}`);
+        console.log(`  serverTotalVisits from log: ${log.serverTotalVisits}`);
+        console.log(`  totalVisits (parsed): ${totalVisits}`);
+        console.log(`  effectiveVisits (totalVisits + 1): ${effectiveVisits}`);
+        console.log(`  ordersInSession: ${ordersInSession}`);
+        console.log(`  hasPlacedOrderInCurrentSession: ${!!log.hasPlacedOrderInCurrentSession}`);
+
         // Derive UI status based on server-synced visit count + current activity
         let currentStatus = 'NEW';
         if (effectiveVisits <= 1) currentStatus = 'NEW';
@@ -262,6 +269,7 @@ export const LoyaltyProvider = ({ children }) => {
         return {
             status: currentStatus,
             totalPoints: totalPoints,
+            totalVisits: totalVisits, // ADD THIS - promoUtils needs it!
             activeGifts: activeGifts,
             sessionIsValid: sessionIsValid,
             ordersInCurrentVisit: ordersInSession,
