@@ -253,7 +253,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
                 welcomeTeaser: false,
                 showProgress: true,
                 progressPercentage: Math.min(progressTowardThreshold, 100),
-                progressMessage: `🔥 Final step! Just a bit more spending to unlock Loyal Rewards!`,
+                progressMessage: "🔥 Final step! Just a bit more...!",
                 needsMoreSpending: true
             };
         }
@@ -266,7 +266,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
                 welcomeTeaser: false,
                 showProgress: false,
                 isLoyal: true,
-                loyalMessage: `⭐ Loyal Client - Enjoy your exclusive ${discountPercentage}% OFF on every order.`,
+                loyalMessage: "⭐ Loyal Client - Enjoy 15% OFF",
                 needsMoreSpending: false
             };
         } else {
@@ -277,7 +277,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
                 welcomeTeaser: false,
                 showProgress: false,
                 isLoyal: true,
-                loyalMessage: `⭐ Loyal Client - Enjoy your exclusive gift: ${loyalOffer.value}`,
+                loyalMessage: "⭐ Loyal Client - Enjoy 15% OFF",
                 needsMoreSpending: false
             };
         }
@@ -290,7 +290,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
                 discount: 0,
                 reason: null,
                 welcomeTeaser: true,
-                teaserMessage: "✅ Session complete! Rewards will unlock in your next visit.",
+                teaserMessage: "✅ Session complete! Rewards will unlock next visit.",
                 showProgress: false,
                 needsMoreSpending: false
             };
@@ -302,7 +302,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
             showProgress: true,
             progressPercentage: isThresholdMet ? 100 : Math.min(progressTowardThreshold, 100),
             progressMessage: isThresholdMet
-                ? "🔥 You're close! Final session before Loyal Rewards!"
+                ? "🔥 You're close! Final session..."
                 : `🔥 Progressing... Just $${(thresholdAmount - orderTotal).toFixed(2)} to reach threshold!`,
             needsMoreSpending: false
         };
@@ -341,7 +341,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
             welcomeTeaser: true,
             teaserMessage: ordersInSession > 0
                 ? "👋 Welcome! Enjoy your visit."
-                : "👋 Welcome! Place your first order to start unlocking rewards.",
+                : "👋 Welcome! Place your first order...",
             showProgress: false,
             needsMoreSpending: false
         };
