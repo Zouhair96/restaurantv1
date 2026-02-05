@@ -60,6 +60,13 @@ export const ClientAuthProvider = ({ children }) => {
                 const data = await response.json();
                 if (response.ok) {
                     setActiveOrder(data);
+                } else if (response.status === 404) {
+                    // Order not found (stale ID) - Stop polling to fix the 404 error loop
+                    console.warn(`[ClientAuth] Order ${activeOrderId} not found (404). Clearing stale ID.`);
+                    setActiveOrderId(null);
+                    setActiveOrder(null);
+                    safeStorage.removeItem('activeOrderId');
+                    safeStorage.removeItem(`completedAt_${activeOrderId}`);
                 }
             } catch (err) {
                 console.error("Error fetching order in context", err);
