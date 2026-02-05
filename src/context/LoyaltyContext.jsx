@@ -234,137 +234,61 @@ export const LoyaltyProvider = ({ children }) => {
         setTimeout(() => refreshLoyaltyStats(restaurantName), 2000);
     };
 
-    // New helper to fetch status by Name (API will handle lookup)
-    const refreshLoyaltyStats = async (restaurantName) => {
-        // ALWAYS check localStorage for the latest ID (in case Checkout generated one just now)
-        const storedId = localStorage.getItem(STORAGE_KEY_ID);
-        const effectiveId = clientId || storedId;
 
-        if (!restaurantName || !effectiveId) return;
-        try {
-            const response = await fetch(`/.netlify/functions/get-loyalty-status?restaurantName=${restaurantName}&loyaltyId=${effectiveId}&_t=${Date.now()}`);
 
-            // If we found a new ID in storage that implies we should update state too
-            if (storedId && storedId !== clientId) {
-                setClientId(storedId);
-            }
-            if (response.ok) {
-                const data = await response.json();
-                const { totalPoints, totalVisits, ordersInCurrentVisit, sessionIsValid, activeGifts, loyalty_config } = data;
+    const getStatus = (restaurantId) => {
+        const log = loyaltyData[restaurantId];
+        if (!log) return { status: 'NEW', totalVisits: 0, totalPoints: 0, activeGifts: [], sessionIsValid: false, config: null };
 
-                setLoyaltyData(prev => {
-                    const updated = {
-                        ...prev,
-                        [restaurantName]: {
-                            ...(prev[restaurantName] || {}),
-                            totalPoints,
-                            serverTotalVisits: totalVisits,
-                            ordersInCurrentVisit,
-                            sessionIsValid,
-                            // STRICT FLAGS
-                            hasPlacedOrderInCurrentSession: data.hasPlacedOrderInCurrentSession,
-                            isWelcomeDiscountEligible: data.isWelcomeDiscountEligible,
+        // Use Server-Side Source of Truth
+        const totalVisits = parseInt(log.serverTotalVisits) || 0;
+        const totalPoints = parseInt(log.totalPoints) || 0;
+        const activeGifts = log.activeGifts || [];
+        const sessionIsValid = !!log.sessionIsValid;
+        const ordersInSession = parseInt(log.ordersInCurrentVisit) || 0;
 
-                            activeGifts: activeGifts || [],
-                            config: loyalty_config || (prev[restaurantName]?.config) || { isAutoPromoOn: true }
-                        }
-                    };
-                    localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(updated));
-                    return updated;
-                });
-            }
-        } catch (err) {
-            console.error('Failed to fetch loyalty stats:', err);
-        }
+        // effective_visits = total_completed_visits + 1 (The visit the user is CURRENTLY in)
+        const effectiveVisits = totalVisits + 1;
+
+        // Derive UI status based on server-synced visit count + current activity
+        let currentStatus = 'NEW';
+        if (effectiveVisits <= 1) currentStatus = 'NEW';
+        else if (effectiveVisits === 2) currentStatus = 'WELCOME';
+        else if (effectiveVisits === 3) currentStatus = 'IN_PROGRESS';
+        else if (effectiveVisits >= 4) currentStatus = 'LOYAL';
+
+        return {
+            status: currentStatus,
+            totalPoints: totalPoints,
+            activeGifts: activeGifts,
+            sessionIsValid: sessionIsValid,
+            ordersInCurrentVisit: ordersInSession,
+            config: log.config,
+            welcomeShown: !!log.welcomeShown,
+            welcomeRedeemed: !!log.rewardUsedInSession,
+            effectiveVisits,
+            // STRICT FLAGS
+            hasPlacedOrderInCurrentSession: !!log.hasPlacedOrderInCurrentSession,
+            isWelcomeDiscountEligible: !!log.isWelcomeDiscountEligible
+        };
     };
 
-    const restaurantId = log?.config?.restaurant_id; // Assuming restaurantId is available in config
-    // If not available, we might need to get it or the API should handle name.
-    // My convert-gift-to-points.js needs restaurantId (INT).
-
-    // Let's assume restaurantId is available in the config returned by get-loyalty-status
-    const rId = restaurantId || log?.config?.id;
-
-    const response = await fetch('/.netlify/functions/convert-gift-to-points', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            giftId,
-            loyaltyId: clientId,
-            restaurantId: rId
-        })
-    });
-
-    if (response.ok) {
-        await refreshLoyaltyStats(restaurantName);
-        return await response.json();
-    } else {
-        const err = await response.json();
-        return { success: false, error: err.error };
-    }
-} catch (err) {
-    return { success: false, error: 'Connection error' };
-}
-    };
-
-const recordCompletedOrder = (restaurantName, finalAmount) => {
-    // Just trigger a refresh to see if status changed
-    setTimeout(() => refreshLoyaltyStats(restaurantName), 2000);
-};
-
-const getStatus = (restaurantId) => {
-    const log = loyaltyData[restaurantId];
-    if (!log) return { status: 'NEW', totalVisits: 0, totalPoints: 0, activeGifts: [], sessionIsValid: false, config: null };
-
-    // Use Server-Side Source of Truth
-    const totalVisits = parseInt(log.serverTotalVisits) || 0;
-    const totalPoints = parseInt(log.totalPoints) || 0;
-    const activeGifts = log.activeGifts || [];
-    const sessionIsValid = !!log.sessionIsValid;
-    const ordersInSession = parseInt(log.ordersInCurrentVisit) || 0;
-
-    // effective_visits = total_completed_visits + 1 (The visit the user is CURRENTLY in)
-    const effectiveVisits = totalVisits + 1;
-
-    // Derive UI status based on server-synced visit count + current activity
-    let currentStatus = 'NEW';
-    if (effectiveVisits <= 1) currentStatus = 'NEW';
-    else if (effectiveVisits === 2) currentStatus = 'WELCOME';
-    else if (effectiveVisits === 3) currentStatus = 'IN_PROGRESS';
-    else if (effectiveVisits >= 4) currentStatus = 'LOYAL';
-
-    return {
-        status: currentStatus,
-        totalPoints: totalPoints,
-        activeGifts: activeGifts,
-        sessionIsValid: sessionIsValid,
-        ordersInCurrentVisit: ordersInSession,
-        config: log.config,
-        welcomeShown: !!log.welcomeShown,
-        welcomeRedeemed: !!log.rewardUsedInSession,
-        effectiveVisits,
-        // STRICT FLAGS
-        hasPlacedOrderInCurrentSession: !!log.hasPlacedOrderInCurrentSession,
-        isWelcomeDiscountEligible: !!log.isWelcomeDiscountEligible
-    };
-};
-
-return (
-    <LoyaltyContext.Provider value={{
-        clientId,
-        loyaltyData,
-        trackVisit,
-        getStatus,
-        convertGift,
-        markRewardAsUsed,
-        markWelcomeAsShown,
-        recordCompletedOrder,
-        refreshLoyaltyStats,
-        isStorageLoaded
-    }}>
-        {children}
-    </LoyaltyContext.Provider>
-);
+    return (
+        <LoyaltyContext.Provider value={{
+            clientId,
+            loyaltyData,
+            trackVisit,
+            getStatus,
+            convertGift,
+            markRewardAsUsed,
+            markWelcomeAsShown,
+            recordCompletedOrder,
+            refreshLoyaltyStats,
+            isStorageLoaded
+        }}>
+            {children}
+        </LoyaltyContext.Provider>
+    );
 };
 
 export const useLoyalty = () => useContext(LoyaltyContext);
