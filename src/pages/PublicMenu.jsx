@@ -52,6 +52,7 @@ const PublicMenu = () => {
                     setData(result);
                     // Centralized Loyalty Tracking
                     if (restaurantName && isStorageLoaded) {
+                        console.log('[PublicMenu] Tracking visit for:', restaurantName);
                         trackVisit(restaurantName);
                         // Isolate Cart for this Restaurant
                         setContextScope(restaurantName);
