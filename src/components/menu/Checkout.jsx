@@ -58,6 +58,12 @@ const Checkout = ({
             const orderType = formData.tableSelection === 'take_out' ? 'take_out' : 'dine_in';
             const tableNumber = orderType === 'dine_in' ? formData.tableSelection : null;
 
+            // Failsafe: Ensure loyalty_id is present even if Context hasn't synced yet
+            const fallbackId = localStorage.getItem('loyalty_client_id_v2');
+            const finalLoyaltyId = clientId || fallbackId;
+
+            console.log(`[Checkout] Submitting Order. Context ID: ${clientId}, Fallback ID: ${fallbackId}, Final: ${finalLoyaltyId}`);
+
             const orderData = {
                 restaurantName,
                 orderType,
@@ -70,7 +76,7 @@ const Checkout = ({
                 loyalty_discount_applied: loyaltyDiscount > 0 || !!loyaltyGift,
                 loyalty_discount_amount: loyaltyDiscount,
                 loyalty_gift_item: loyaltyGift,
-                loyalty_id: clientId
+                loyalty_id: finalLoyaltyId
             };
 
             const token = localStorage.getItem('client_token');

@@ -154,7 +154,10 @@ export const handler = async (event, context) => {
 
             // D. Update Current Session (Step 4 & 5)
             if (loyaltyVisitorId) {
+                console.log(`[SubmitOrder] Incrementing orders for visitor ${loyaltyVisitorId}`);
                 await query('UPDATE loyalty_visitors SET orders_in_current_session = COALESCE(orders_in_current_session, 0) + 1, last_session_at = NOW() WHERE id = $1', [loyaltyVisitorId]);
+            } else {
+                console.log('[SubmitOrder] No loyaltyVisitorId determined, skipping session update. Input loyalty_id:', loyalty_id);
             }
 
             await query('COMMIT');
