@@ -1,4 +1,5 @@
 // Utility functions for promotion handling
+import { LOYALTY_MESSAGE_KEYS } from '../translations/loyaltyMessages.js';
 
 /**
  * Check if a promotion is currently active based on schedule
@@ -241,9 +242,9 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
             const discountPercentage = parseFloat(welcomeOffer.value) || 10;
             return {
                 discount: orderTotal * (discountPercentage / 100),
-                reason: `🎉 Welcome back! You unlocked ${discountPercentage}% OFF...`,
+                messageKey: LOYALTY_MESSAGE_KEYS.SESSION_2_BEFORE_ORDER,
+                reason: `Welcome Discount (${discountPercentage}%)`,
                 welcomeTeaser: true,
-                teaserMessage: `🎉 Welcome back! You unlocked ${discountPercentage}% OFF...`,
                 showProgress: false,
                 needsMoreSpending: false
             };
@@ -280,10 +281,10 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
             return {
                 discount: 0,
                 reason: null,
+                messageKey: LOYALTY_MESSAGE_KEYS.SESSION_4_PROGRESS,
                 welcomeTeaser: false,
                 showProgress: true,
                 progressPercentage: Math.min(cumulativeProgress, 100),
-                progressMessage: "🔥 Keep going! You're building loyalty...",
                 needsMoreSpending: true
             };
         }
@@ -294,10 +295,11 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
             return {
                 discount: orderTotal * (discountPercentage / 100),
                 reason: `Loyal Client Reward (${discountPercentage}%)`,
+                messageKey: LOYALTY_MESSAGE_KEYS.LOYAL_DISCOUNT,
+                messageVariables: { percentage: discountPercentage },
                 welcomeTeaser: false,
                 showProgress: false,
                 isLoyal: true,
-                loyalMessage: `⭐ Loyal Client - Enjoy ${discountPercentage}% OFF`,
                 needsMoreSpending: false
             };
         } else {
@@ -305,10 +307,11 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
                 discount: 0,
                 giftItem: loyalOffer.value,
                 reason: `Loyal Client Gift: ${loyalOffer.value}`,
+                messageKey: LOYALTY_MESSAGE_KEYS.LOYAL_GIFT,
+                messageVariables: { item: loyalOffer.value },
                 welcomeTeaser: false,
                 showProgress: false,
                 isLoyal: true,
-                loyalMessage: `⭐ Loyal Client - Free ${loyalOffer.value}`,
                 needsMoreSpending: false
             };
         }
@@ -322,8 +325,8 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
             return {
                 discount: 0,
                 reason: null,
+                messageKey: LOYALTY_MESSAGE_KEYS.SESSION_3_AFTER_ORDER,
                 welcomeTeaser: true,
-                teaserMessage: "✅ Great! Keep visiting to unlock rewards.",
                 showProgress: false,
                 needsMoreSpending: false
             };
@@ -333,10 +336,10 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
         return {
             discount: 0,
             reason: null,
+            messageKey: LOYALTY_MESSAGE_KEYS.SESSION_3_PROGRESS,
             welcomeTeaser: false,
             showProgress: true,
             progressPercentage: Math.min(cumulativeProgress, 100),
-            progressMessage: "🔥 Keep going! You're building loyalty...",
             needsMoreSpending: false
         };
     }
@@ -354,9 +357,9 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
             // Redundant if backend flag caught it, but safe to keep
             return {
                 discount: orderTotal * (discountPercentage / 100),
-                reason: `🎉 Welcome back! You unlocked ${discountPercentage}% OFF...`,
+                reason: `Welcome Discount (${discountPercentage}%)`,
+                messageKey: LOYALTY_MESSAGE_KEYS.SESSION_2_BEFORE_ORDER,
                 welcomeTeaser: true,
-                teaserMessage: `🎉 Welcome back! You unlocked ${discountPercentage}% OFF...`,
                 showProgress: false,
                 needsMoreSpending: false
             };
@@ -364,8 +367,8 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
             return {
                 discount: 0,
                 reason: null,
+                messageKey: LOYALTY_MESSAGE_KEYS.SESSION_2_AFTER_ORDER,
                 welcomeTeaser: true,
-                teaserMessage: "👋 Welcome back! Enjoy your visit.",
                 showProgress: false,
                 needsMoreSpending: false
             };
@@ -379,10 +382,10 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
             return {
                 discount: 0,
                 reason: null,
+                messageKey: loyaltyInfo.hasPlacedOrderInCurrentSession
+                    ? LOYALTY_MESSAGE_KEYS.SESSION_1_AFTER_ORDER
+                    : LOYALTY_MESSAGE_KEYS.SESSION_1_BEFORE_ORDER,
                 welcomeTeaser: true,
-                teaserMessage: loyaltyInfo.hasPlacedOrderInCurrentSession
-                    ? "👋 Welcome! Enjoy your visit."
-                    : "👋 Welcome! Place your first order...",
                 showProgress: false,
                 needsMoreSpending: false
             };
@@ -392,10 +395,10 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
         return {
             discount: 0,
             reason: null,
+            messageKey: ordersInSession > 0
+                ? LOYALTY_MESSAGE_KEYS.SESSION_1_AFTER_ORDER
+                : LOYALTY_MESSAGE_KEYS.SESSION_1_BEFORE_ORDER,
             welcomeTeaser: true,
-            teaserMessage: ordersInSession > 0
-                ? "👋 Welcome! Enjoy your visit."
-                : "👋 Welcome! Place your first order...",
             showProgress: false,
             needsMoreSpending: false
         };
@@ -404,8 +407,8 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
     return {
         discount: 0,
         reason: null,
+        messageKey: LOYALTY_MESSAGE_KEYS.SESSION_1_BEFORE_ORDER, // Safe default
         welcomeTeaser: true,
-        teaserMessage: "👋 Welcome! Start your loyalty journey today.",
         showProgress: false,
         needsMoreSpending: false
     };
