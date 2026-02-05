@@ -366,6 +366,21 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
 
     // --- CONDITION D: Session 1 (NEW) ---
     if (effectiveVisits === 1) {
+        // STRICT: Backend source of truth
+        if (typeof loyaltyInfo.hasPlacedOrderInCurrentSession !== 'undefined') {
+            return {
+                discount: 0,
+                reason: null,
+                welcomeTeaser: true,
+                teaserMessage: loyaltyInfo.hasPlacedOrderInCurrentSession
+                    ? "👋 Welcome! Enjoy your visit."
+                    : "👋 Welcome! Place your first order...",
+                showProgress: false,
+                needsMoreSpending: false
+            };
+        }
+
+        // Fallback (Should not happen with new backend)
         return {
             discount: 0,
             reason: null,
