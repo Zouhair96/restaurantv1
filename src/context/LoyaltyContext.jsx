@@ -48,7 +48,16 @@ export const LoyaltyProvider = ({ children }) => {
             }
             if (response.ok) {
                 const data = await response.json();
-                const { totalPoints, totalVisits, ordersInCurrentVisit, sessionIsValid, activeGifts, loyalty_config, totalSpending } = data;
+                const {
+                    totalPoints,
+                    totalVisits,
+                    ordersInCurrentVisit,
+                    sessionIsValid,
+                    activeGifts,
+                    loyalty_config,
+                    totalSpending,
+                    reward_used_in_session
+                } = data;
 
                 setLoyaltyData(prev => {
                     const updated = {
@@ -65,6 +74,7 @@ export const LoyaltyProvider = ({ children }) => {
                             isWelcomeDiscountEligible: data.isWelcomeDiscountEligible,
 
                             activeGifts: activeGifts || [],
+                            reward_used_in_session: !!reward_used_in_session,
                             config: loyalty_config || (prev[restaurantName]?.config) || { isAutoPromoOn: true }
                         }
                     };
@@ -281,7 +291,8 @@ export const LoyaltyProvider = ({ children }) => {
             effectiveVisits,
             // STRICT FLAGS
             hasPlacedOrderInCurrentSession: !!log.hasPlacedOrderInCurrentSession,
-            isWelcomeDiscountEligible: !!log.isWelcomeDiscountEligible
+            isWelcomeDiscountEligible: !!log.isWelcomeDiscountEligible,
+            reward_used_in_session: !!log.reward_used_in_session
         };
     };
 
