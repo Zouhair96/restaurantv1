@@ -12,6 +12,7 @@ import PersistentOrderTracker from '../components/PersistentOrderTracker';
 import { useClientAuth } from '../context/ClientAuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { isPromoActive, getDiscountedPrice, getPromosByDisplayStyle, getPromoFilteredItems } from '../utils/promoUtils';
+import { getLoyaltyMessage, LOYALTY_MESSAGE_KEYS } from '../translations/loyaltyMessages';
 
 const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
     const { restaurantName: urlRestaurantName } = useParams();
@@ -46,7 +47,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
     const homeY = useTransform(dragY, [-200, 0, 200], [0, 50, 0]);
 
     // Derived state for categories
-    const { localize, t } = useLanguage();
+    const { localize, t, language } = useLanguage();
     const categories = ['All', ...new Set(menuItems.map(i => localize(i, 'category')).filter(Boolean))];
 
     const { addToCart, cartItems } = useCart();
@@ -291,9 +292,8 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                 <div className="flex items-center gap-2">
                     {loyaltyInfo.config?.points_system_enabled !== false && loyaltyInfo.totalPoints > 0 && (
                         <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-gray-100 shadow-sm mr-4">
-                            <span className="text-amber-500">⭐</span>
                             <span className="text-xs font-black uppercase tracking-tight text-gray-600">
-                                <span className="inline-block">{t('loyalty.yourPoints') || 'Points'}: </span> {loyaltyInfo.totalPoints}
+                                {getLoyaltyMessage(LOYALTY_MESSAGE_KEYS.POINTS_BADGE, language, { points: loyaltyInfo.totalPoints })}
                             </span>
                         </div>
                     )}

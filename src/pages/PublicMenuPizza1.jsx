@@ -14,10 +14,11 @@ import { isPromoActive, getDiscountedPrice, getPromosByDisplayStyle, getPromoFil
 import { HiTag, HiChevronLeft, HiChevronRight, HiArrowUturnLeft, HiStar } from 'react-icons/hi2';
 import { useLoyalty } from '../context/LoyaltyContext';
 import LoyaltyRewardUI from '../components/loyalty/LoyaltyRewardUI';
+import { getLoyaltyMessage, LOYALTY_MESSAGE_KEYS } from '../translations/loyaltyMessages';
 
 const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
     const { user: clientUser, activeOrderId, activeOrder, handleCloseTracker, isTopTrackerHidden } = useClientAuth();
-    const { t, localize } = useLanguage();
+    const { t, localize, language } = useLanguage();
     const { restaurantName: urlRestaurantName } = useParams();
     const restaurantName = propRestaurantName || urlRestaurantName;
     const isMasterView = !restaurantName;
@@ -242,9 +243,8 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                             <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center pr-1 md:pr-2 z-20 gap-2">
                                 {loyaltyInfo.config?.points_system_enabled !== false && loyaltyInfo.totalPoints > 0 && (
                                     <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-gray-100 shadow-sm mr-2 md:mr-4">
-                                        <span className="text-amber-500">⭐</span>
                                         <span className="text-xs font-black uppercase tracking-tight text-gray-600">
-                                            <span className="inline-block">{t('loyalty.yourPoints') || 'Your Points'}: </span> {loyaltyInfo.totalPoints}
+                                            {getLoyaltyMessage(LOYALTY_MESSAGE_KEYS.POINTS_BADGE, language, { points: loyaltyInfo.totalPoints })}
                                         </span>
                                     </div>
                                 )}

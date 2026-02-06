@@ -282,7 +282,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
             // Still showing progress bar because cumulative spending hasn't reached threshold
             return {
                 discount: 0,
-                messageKey: LOYALTY_MESSAGE_KEYS.SESSION_4_PROGRESS,
+                messageKey: LOYALTY_MESSAGE_KEYS.LOYAL_INCOMPLETE_SPENDING,
                 welcomeTeaser: false,
                 showProgress: true,
                 progressPercentage: Math.min(cumulativeProgress, 100),

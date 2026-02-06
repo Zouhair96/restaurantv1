@@ -13,7 +13,6 @@ export const LOYALTY_MESSAGE_KEYS = {
     SESSION_3_PROGRESS: 'SESSION_3_PROGRESS',
     SESSION_3_FINAL: 'SESSION_3_FINAL',
     SESSION_3_AFTER_ORDER: 'SESSION_3_AFTER_ORDER',
-    SESSION_4_PROGRESS: 'SESSION_4_PROGRESS',
     LOYAL_DISCOUNT: 'LOYAL_DISCOUNT',
     LOYAL_GIFT: 'LOYAL_GIFT',
     LOYAL_INCOMPLETE_SPENDING: 'LOYAL_INCOMPLETE_SPENDING',
@@ -58,10 +57,6 @@ export const loyaltyMessages = {
     [LOYALTY_MESSAGE_KEYS.SESSION_3_AFTER_ORDER]: {
         en: '✅ Session complete! Rewards will unlock on your next visit.',
         fr: '✅ Visite terminée ! Les récompenses se débloqueront lors de votre prochaine visite.',
-    },
-    [LOYALTY_MESSAGE_KEYS.SESSION_4_PROGRESS]: {
-        en: '🔥 Keep spending to unlock your loyal reward!',
-        fr: '🔥 Continuez à dépenser pour débloquer votre récompense fidélité !',
     },
     [LOYALTY_MESSAGE_KEYS.LOYAL_DISCOUNT]: {
         en: '⭐ Loyal Client — Enjoy {percentage}% OFF on every order!',
