@@ -57,10 +57,10 @@ export const handler = async (event, context) => {
         let ordersInCurrentSession = parseInt(visitor.orders_in_current_session || 0);
 
         // 1.5. SESSION RESET LOGIC
-        // If last visit was more than 30 minutes ago, reset session orders
+        // If last visit was more than 2 minutes ago, reset session orders
         const lastVisit = visitor.last_visit_at ? new Date(visitor.last_visit_at) : new Date(0);
         const now = new Date();
-        const sessionTimeout = 30 * 60 * 1000; // 30 mins
+        const sessionTimeout = 2 * 60 * 1000; // 2 mins for testing
 
         if (now - lastVisit > sessionTimeout && ordersInCurrentSession > 0) {
             await query('UPDATE loyalty_visitors SET orders_in_current_session = 0 WHERE id = $1', [visitor.id]);
