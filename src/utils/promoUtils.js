@@ -199,9 +199,12 @@ export const getPromoFilteredItems = (promo, allItems) => {
 /**
  * Calculate optional Loyalty/Recovery discount based on user status
  */
-export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) => {
+export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}, useReward = true) => {
     // 1. Check if auto-promos are globally active
     if (!config.auto_promo_active && !config.loyalty_active && !config.isAutoPromoOn) return { discount: 0, reason: null };
+
+    // 1.5. If user opted out of using reward at checkout
+    if (!useReward) return { discount: 0, reason: null };
 
     // CRITICAL: Extract config values FIRST to avoid TDZ errors
     const loyalOffer = config.loyalConfig || config.loyal_offer || { type: 'discount', value: '15', active: true, threshold: '50' };
@@ -265,7 +268,18 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
     // effective_visits = total_banked_visits + 1 (The session the user is CURRENTLY in)
     const effectiveVisits = totalVisits + 1;
 
-    console.log(`[Loyalty] Evaluator: totalVisits=${totalVisits}, ordersInSession=${ordersInSession}, effectiveVisits=${effectiveVisits}`);
+    console.log(`[Loyalty] Evaluator: totalVisits=${totalVisits}, ordersInSession=${ordersInSession}, effectiveVisits=${effectiveVisits}, rewardUsed=${loyaltyInfo.reward_used_in_session}`);
+
+    // 4.5. ONCE PER SESSION RULE: If reward already used, skip Session 4+ rewards
+    if (loyaltyInfo.reward_used_in_session && effectiveVisits >= 4) {
+        return {
+            discount: 0,
+            messageKey: LOYALTY_MESSAGE_KEYS.SESSION_3_AFTER_ORDER, // Reuse "thanks for visit" message
+            welcomeTeaser: true,
+            showProgress: false,
+            needsMoreSpending: false
+        };
+    }
 
     // 5. CUMULATIVE SPENDING PROGRESS LOGIC
     // Progress bar uses TOTAL cumulative spending across ALL sessions, not just current cart

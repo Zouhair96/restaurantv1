@@ -94,13 +94,15 @@ export const handler = async (event, context) => {
             if (previousValid) {
                 // Move current orders to "Total Visits" in the bank
                 const newVisitCount = parseInt(visitor.visit_count || 0) + 1;
-                await query('UPDATE loyalty_visitors SET visit_count = $1, last_counted_at = NOW(), orders_in_current_session = 0 WHERE id = $2', [newVisitCount, visitor.id]);
+                await query('UPDATE loyalty_visitors SET visit_count = $1, last_counted_at = NOW(), orders_in_current_session = 0, reward_used_in_session = false WHERE id = $2', [newVisitCount, visitor.id]);
                 visitor.visit_count = newVisitCount;
                 visitor.orders_in_current_session = 0;
+                visitor.reward_used_in_session = false;
             } else {
                 // Just reset session if it wasn't a valid order visit
-                await query('UPDATE loyalty_visitors SET orders_in_current_session = 0 WHERE id = $1', [visitor.id]);
+                await query('UPDATE loyalty_visitors SET orders_in_current_session = 0, reward_used_in_session = false WHERE id = $1', [visitor.id]);
                 visitor.orders_in_current_session = 0;
+                visitor.reward_used_in_session = false;
             }
         }
 
@@ -133,6 +135,7 @@ export const handler = async (event, context) => {
                 activeGifts: activeGifts,
                 loyalty_config: loyaltyConfig,
                 session_timeout_ms: SESSION_TIMEOUT,
+                reward_used_in_session: !!visitor.reward_used_in_session,
 
                 // --- STRICT UI FLAGS (Single Source of Truth) ---
                 hasPlacedOrderInCurrentSession: ordersInCurrentSession > 0,

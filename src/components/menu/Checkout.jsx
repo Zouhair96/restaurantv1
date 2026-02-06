@@ -35,6 +35,7 @@ const Checkout = ({
         tableSelection: 'take_out',
         paymentMethod: 'cash',
     });
+    const [useLoyaltyReward, setUseLoyaltyReward] = useState(true);
 
     const handleChange = (e) => {
         setFormData({
@@ -147,7 +148,8 @@ const Checkout = ({
     } = calculateLoyaltyDiscount(
         loyaltyInfo,
         subtotal,
-        loyaltyInfo.config || { isAutoPromoOn: true }
+        loyaltyInfo.config || { isAutoPromoOn: true },
+        useLoyaltyReward
     );
 
     const totalOrderDiscount = orderDiscount + loyaltyDiscount;
@@ -295,25 +297,41 @@ const Checkout = ({
                                         <span className="font-black text-lg">-${orderDiscount.toFixed(2)}</span>
                                     </div>
                                 )}
-                                {loyaltyDiscount > 0 && (
-                                    <div className="flex justify-between items-center text-yellow-600 dark:text-yellow-500">
-                                        <div className="flex flex-col">
-                                            <span className="font-bold text-sm">Loyalty Reward</span>
-                                            <span className="text-[10px] italic font-medium">{loyaltyReason}</span>
-                                        </div>
-                                        <span className="font-black text-lg">-${loyaltyDiscount.toFixed(2)}</span>
-                                    </div>
-                                )}
                                 {loyaltyGift && (
                                     <div className="flex justify-between items-center text-pink-600 dark:text-pink-400">
                                         <div className="flex flex-col">
-                                            <span className="font-bold text-sm">Loyalty Gift</span>
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-bold text-sm">Loyalty Gift</span>
+                                                <button
+                                                    onClick={() => setUseLoyaltyReward(!useLoyaltyReward)}
+                                                    className={`w-8 h-4 rounded-full relative transition-colors ${useLoyaltyReward ? 'bg-pink-500' : 'bg-gray-300'}`}
+                                                >
+                                                    <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${useLoyaltyReward ? 'left-4.5' : 'left-0.5'}`} />
+                                                </button>
+                                            </div>
                                             <span className="text-[10px] italic font-medium">{loyaltyGift}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <span className="text-[10px] font-black uppercase bg-pink-50 text-pink-600 px-2 py-0.5 rounded-full border border-pink-100">Unlock</span>
                                             <span className="font-black text-lg">$0.00</span>
                                         </div>
+                                    </div>
+                                )}
+                                {loyaltyDiscount > 0 && (
+                                    <div className="flex justify-between items-center text-yellow-600 dark:text-yellow-500">
+                                        <div className="flex flex-col">
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-bold text-sm">Loyalty Reward</span>
+                                                <button
+                                                    onClick={() => setUseLoyaltyReward(!useLoyaltyReward)}
+                                                    className={`w-8 h-4 rounded-full relative transition-colors ${useLoyaltyReward ? 'bg-yellow-500' : 'bg-gray-300'}`}
+                                                >
+                                                    <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${useLoyaltyReward ? 'left-4.5' : 'left-0.5'}`} />
+                                                </button>
+                                            </div>
+                                            <span className="text-[10px] italic font-medium">{loyaltyReason}</span>
+                                        </div>
+                                        <span className="font-black text-lg">-${loyaltyDiscount.toFixed(2)}</span>
                                     </div>
                                 )}
                                 {loyaltyInfo.isLoyal && loyalMessage && (
