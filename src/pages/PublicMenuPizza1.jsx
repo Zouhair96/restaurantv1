@@ -10,10 +10,11 @@ import { useClientAuth } from '../context/ClientAuthContext';
 import PersistentOrderTracker from '../components/PersistentOrderTracker';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
-import { isPromoActive, getDiscountedPrice, getPromosByDisplayStyle, getPromoFilteredItems, calculateOrderDiscount } from '../utils/promoUtils';
+import { isPromoActive, getDiscountedPrice, getPromosByDisplayStyle, getPromoFilteredItems, calculateOrderDiscount, calculateLoyaltyDiscount } from '../utils/promoUtils';
 import { HiTag, HiChevronLeft, HiChevronRight, HiArrowUturnLeft, HiStar } from 'react-icons/hi2';
 import { useLoyalty } from '../context/LoyaltyContext';
 import LoyaltyRewardUI from '../components/loyalty/LoyaltyRewardUI';
+import LoyaltyProgressBar from '../components/loyalty/LoyaltyProgressBar';
 import { getLoyaltyMessage, LOYALTY_MESSAGE_KEYS } from '../translations/loyaltyMessages';
 
 const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
@@ -61,6 +62,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
 
     const { trackVisit, getStatus, markWelcomeAsShown } = useLoyalty();
     const loyaltyInfo = getStatus(restaurantName);
+    const teaser = calculateLoyaltyDiscount(loyaltyInfo, 0, config.loyalty_config || {});
 
     const {
         cartItems,
@@ -255,6 +257,17 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                             </div>
                         </div>
                     </div>
+
+                    {/* Loyalty Notification Track */}
+                    {(teaser?.showProgress || teaser?.welcomeTeaser) && (
+                        <div className="px-4 md:px-6 mt-4 -mb-2">
+                            <LoyaltyProgressBar
+                                percentage={teaser.progressPercentage || 0}
+                                progressMessage={getLoyaltyMessage(teaser.messageKey, language, teaser.messageVariables)}
+                                isDarkMode={false}
+                            />
+                        </div>
+                    )}
 
                     {/* Prominent Search Bar */}
                     <div className="px-4 md:px-6 my-4 md:my-6 flex justify-center sticky top-0 bg-white/80 backdrop-blur-sm z-50">

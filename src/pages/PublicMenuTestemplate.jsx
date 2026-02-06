@@ -11,8 +11,9 @@ import Checkout from '../components/menu/Checkout'; // Import Checkout
 import PersistentOrderTracker from '../components/PersistentOrderTracker';
 import { useClientAuth } from '../context/ClientAuthContext';
 import { useLanguage } from '../context/LanguageContext';
-import { isPromoActive, getDiscountedPrice, getPromosByDisplayStyle, getPromoFilteredItems } from '../utils/promoUtils';
+import { isPromoActive, getDiscountedPrice, getPromosByDisplayStyle, getPromoFilteredItems, calculateLoyaltyDiscount } from '../utils/promoUtils';
 import { getLoyaltyMessage, LOYALTY_MESSAGE_KEYS } from '../translations/loyaltyMessages';
+import LoyaltyProgressBar from '../components/loyalty/LoyaltyProgressBar';
 
 const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
     const { restaurantName: urlRestaurantName } = useParams();
@@ -54,6 +55,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
     const { user: clientUser, activeOrder, handleCloseTracker, isTopTrackerHidden } = useClientAuth();
     const { getStatus, markWelcomeAsShown } = useLoyalty();
     const loyaltyInfo = getStatus(restaurantName);
+    const teaser = calculateLoyaltyDiscount(loyaltyInfo, 0, config.loyalty_config || {});
 
     useEffect(() => {
         const fetchData = async () => {
@@ -334,6 +336,17 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                     ref={scrollContainerRef}
                     onScroll={handleScroll}
                 >
+
+                    {/* Loyalty Notification Track */}
+                    {(teaser?.showProgress || teaser?.welcomeTeaser) && (
+                        <div className="px-6 mt-6 -mb-2">
+                            <LoyaltyProgressBar
+                                percentage={teaser.progressPercentage || 0}
+                                progressMessage={getLoyaltyMessage(teaser.messageKey, language, teaser.messageVariables)}
+                                isDarkMode={false}
+                            />
+                        </div>
+                    )}
 
                     {/* Search Bar */}
                     <div className="flex justify-center w-full">

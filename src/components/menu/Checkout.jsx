@@ -120,6 +120,14 @@ const Checkout = ({
             const result = await response.json();
             if (!response.ok) throw new Error(result.error || t.error);
 
+            // TRACKING: Persist for Tracker & Context
+            if (result.orderId) {
+                localStorage.setItem('activeOrderId', result.orderId);
+                window.dispatchEvent(new CustomEvent('orderPlaced', {
+                    detail: { orderId: result.orderId }
+                }));
+            }
+
             setIsSubmitted(true);
             recordCompletedOrder(restaurantName, total);
 
@@ -127,8 +135,6 @@ const Checkout = ({
                 clearCart();
                 setIsSubmitted(false);
                 onClose();
-                // Refresh loyalty status
-                window.location.reload();
             }, 3000);
 
         } catch (err) {
