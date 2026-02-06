@@ -218,13 +218,7 @@ const Checkout = ({
                                 <div className="text-center mt-6 mb-8">
                                     <h1 className={`text-3xl font-black uppercase tracking-tight ${isDarkMode ? 'text-white' : 'text-gray-900'}`} dangerouslySetInnerHTML={{ __html: t.myCart }} />
                                     <div className={`h-1 w-12 mx-auto mt-2 rounded-full opacity-10 ${isDarkMode ? 'bg-white' : 'bg-gray-900'}`} />
-                                    {loyaltyInfo.config?.points_system_enabled !== false && loyaltyInfo.totalPoints > 0 && (
-                                        <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-full border border-blue-100 dark:border-blue-800 animate-fade-in shadow-sm">
-                                            <span className="text-xs font-bold uppercase tracking-wide">
-                                                {getLoyaltyMessage(LOYALTY_MESSAGE_KEYS.POINTS_REMINDER, language, { points: loyaltyInfo.totalPoints })}
-                                            </span>
-                                        </div>
-                                    )}
+
                                 </div>
 
                                 {cartItems.length === 0 ? (
@@ -326,20 +320,7 @@ const Checkout = ({
                                         </div>
                                     </div>
                                 )}
-                                {loyaltyInfo.totalPoints > 0 && (
-                                    <div className="flex justify-between items-center bg-blue-50/50 dark:bg-blue-900/10 p-3 rounded-xl border border-blue-100 dark:border-blue-800/50 mb-2">
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-xl">🎯</span>
-                                            <div className="flex flex-col">
-                                                <span className="font-bold text-xs text-blue-600 dark:text-blue-400">Your Points</span>
-                                                <span className="text-[10px] text-blue-500/70 font-medium">Use points to unlock more rewards</span>
-                                            </div>
-                                        </div>
-                                        <span className="font-black text-blue-600 dark:text-blue-400 bg-white dark:bg-blue-900/40 px-3 py-1 rounded-lg shadow-sm">
-                                            {loyaltyInfo.totalPoints} pts
-                                        </span>
-                                    </div>
-                                )}
+
                                 {(loyaltyDiscount > 0 || (isLoyal && !loyaltyGift)) && (
                                     <div className={`flex justify-between items-center ${useLoyaltyReward ? 'text-yellow-600 dark:text-yellow-500' : 'text-gray-400 dark:text-gray-500 opacity-60'}`}>
                                         <div className="flex flex-col">

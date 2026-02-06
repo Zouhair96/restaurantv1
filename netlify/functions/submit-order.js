@@ -98,9 +98,9 @@ export const handler = async (event, context) => {
                 // Ensure visitor exists and increment session order count
                 const vRes = await query('SELECT id FROM loyalty_visitors WHERE restaurant_id = $1 AND device_id = $2 FOR UPDATE', [restaurantId, loyalty_id]);
                 if (vRes.rows.length === 0) {
-                    await query('INSERT INTO loyalty_visitors (restaurant_id, device_id, orders_in_current_session, last_visit_at) VALUES ($1, $2, 1, NOW())', [restaurantId, loyalty_id]);
+                    await query('INSERT INTO loyalty_visitors (restaurant_id, device_id, orders_in_current_session) VALUES ($1, $2, 1)', [restaurantId, loyalty_id]);
                 } else {
-                    await query('UPDATE loyalty_visitors SET orders_in_current_session = COALESCE(orders_in_current_session, 0) + 1, last_visit_at = NOW() WHERE id = $1', [vRes.rows[0].id]);
+                    await query('UPDATE loyalty_visitors SET orders_in_current_session = COALESCE(orders_in_current_session, 0) + 1 WHERE id = $1', [vRes.rows[0].id]);
                 }
             }
 

@@ -41,31 +41,18 @@ export const handler = async (event, context) => {
         // 1. Fetch Points & Visitor State (Source of Truth)
         const visitorRes = await query(`
             SELECT 
-                id,
                 total_points, 
                 visit_count, 
                 orders_in_current_session,
-                last_visit_at,
                 visit_count as totalVisits
             FROM loyalty_visitors 
             WHERE restaurant_id = $1 AND device_id = $2
         `, [targetRestaurantId, loyaltyId]);
 
-        let visitor = visitorRes.rows[0] || { total_points: 0, visit_count: 0, orders_in_current_session: 0 };
-        let totalPoints = parseInt(visitor.total_points || 0);
-        let visitCount = parseInt(visitor.visit_count || 0);
-        let ordersInCurrentSession = parseInt(visitor.orders_in_current_session || 0);
-
-        // 1.5. SESSION RESET LOGIC
-        // If last visit was more than 2 minutes ago, reset session orders
-        const lastVisit = visitor.last_visit_at ? new Date(visitor.last_visit_at) : new Date(0);
-        const now = new Date();
-        const sessionTimeout = 2 * 60 * 1000; // 2 mins for testing
-
-        if (now - lastVisit > sessionTimeout && ordersInCurrentSession > 0) {
-            await query('UPDATE loyalty_visitors SET orders_in_current_session = 0 WHERE id = $1', [visitor.id]);
-            ordersInCurrentSession = 0;
-        }
+        const visitor = visitorRes.rows[0] || { total_points: 0, visit_count: 0, orders_in_current_session: 0 };
+        const totalPoints = parseInt(visitor.total_points || 0);
+        const visitCount = parseInt(visitor.visit_count || 0);
+        const ordersInCurrentSession = parseInt(visitor.orders_in_current_session || 0);
 
         // 2. Fetch Active Gifts (Source of Truth)
         const giftsRes = await query(`
