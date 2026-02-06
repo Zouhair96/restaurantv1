@@ -6,7 +6,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useLoyalty } from '../../context/LoyaltyContext';
 import { translations } from '../../translations';
 import { calculateOrderDiscount, calculateLoyaltyDiscount } from '../../utils/promoUtils';
-import { getLoyaltyMessage } from '../../translations/loyaltyMessages';
+import { getLoyaltyMessage, LOYALTY_MESSAGE_KEYS } from '../../translations/loyaltyMessages';
 import LoyaltyProgressBar from '../loyalty/LoyaltyProgressBar';
 
 const Checkout = ({
