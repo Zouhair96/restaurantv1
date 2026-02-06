@@ -215,11 +215,14 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}, u
 
         if (primaryGift.type === 'PERCENTAGE') {
             const perc = parseFloat(primaryGift.percentage_value || 0);
+            const isWelcome = effectiveVisits === 2;
             return {
                 discount: useReward ? (orderTotal * (perc / 100)) : 0,
-                messageKey: effectiveVisits === 2 ? LOYALTY_MESSAGE_KEYS.SESSION_2_BEFORE_ORDER : LOYALTY_MESSAGE_KEYS.LOYAL_DISCOUNT,
+                messageKey: isWelcome ? LOYALTY_MESSAGE_KEYS.SESSION_2_BEFORE_ORDER : LOYALTY_MESSAGE_KEYS.LOYAL_DISCOUNT,
                 messageVariables: { percentage: perc },
                 isApplied: useReward,
+                welcomeTeaser: isWelcome,
+                isLoyal: !isWelcome,
                 activeGifts
             };
         } else if (primaryGift.type === 'FIXED_VALUE') {
@@ -230,6 +233,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}, u
                     messageKey: LOYALTY_MESSAGE_KEYS.LOYAL_DISCOUNT,
                     messageVariables: { value: val },
                     isApplied: useReward,
+                    isLoyal: true,
                     activeGifts
                 };
             } else {
@@ -242,6 +246,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}, u
                     messageKey: LOYALTY_MESSAGE_KEYS.LOYAL_GIFT,
                     messageVariables: { item: config.reward_value || "Special Item" },
                     isApplied: useReward,
+                    isLoyal: true,
                     activeGifts
                 };
             }
@@ -258,13 +263,14 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}, u
         const progress = threshold > 0 ? Math.min((spending / threshold) * 100, 100) : 0;
 
         if (ordersInSession > 0) {
-            return { discount: 0, messageKey: LOYALTY_MESSAGE_KEYS.SESSION_3_AFTER_ORDER };
+            return { discount: 0, messageKey: LOYALTY_MESSAGE_KEYS.SESSION_3_AFTER_ORDER, welcomeTeaser: true };
         }
         return {
             discount: 0,
             messageKey: LOYALTY_MESSAGE_KEYS.SESSION_3_PROGRESS,
             showProgress: true,
-            progressPercentage: progress
+            progressPercentage: progress,
+            welcomeTeaser: false // Progress bar has its own container
         };
     }
 
@@ -273,7 +279,8 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}, u
         return {
             discount: 0,
             messageKey: ordersInSession > 0 ? LOYALTY_MESSAGE_KEYS.SESSION_2_AFTER_ORDER : LOYALTY_MESSAGE_KEYS.SESSION_2_BEFORE_ORDER,
-            messageVariables: { percentage: config.welcomeConfig?.value || 10 }
+            messageVariables: { percentage: config.welcomeConfig?.value || 10 },
+            welcomeTeaser: true
         };
     }
 
@@ -295,6 +302,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}, u
     // Default: Session 1 (New)
     return {
         discount: 0,
-        messageKey: ordersInSession > 0 ? LOYALTY_MESSAGE_KEYS.SESSION_1_AFTER_ORDER : LOYALTY_MESSAGE_KEYS.SESSION_1_BEFORE_ORDER
+        messageKey: ordersInSession > 0 ? LOYALTY_MESSAGE_KEYS.SESSION_1_AFTER_ORDER : LOYALTY_MESSAGE_KEYS.SESSION_1_BEFORE_ORDER,
+        welcomeTeaser: true
     };
 };
