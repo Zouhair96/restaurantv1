@@ -1,5 +1,5 @@
 // Utility functions for promotion handling
-import { LOYALTY_MESSAGE_KEYS } from '../translations/loyaltyMessages.js';
+import { LOYALTY_MESSAGE_KEYS } from '../translations/loyaltyMessages';
 
 /**
  * Check if a promotion is currently active based on schedule
