@@ -326,6 +326,20 @@ const Checkout = ({
                                         </div>
                                     </div>
                                 )}
+                                {loyaltyInfo.totalPoints > 0 && (
+                                    <div className="flex justify-between items-center bg-blue-50/50 dark:bg-blue-900/10 p-3 rounded-xl border border-blue-100 dark:border-blue-800/50 mb-2">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xl">🎯</span>
+                                            <div className="flex flex-col">
+                                                <span className="font-bold text-xs text-blue-600 dark:text-blue-400">Your Points</span>
+                                                <span className="text-[10px] text-blue-500/70 font-medium">Use points to unlock more rewards</span>
+                                            </div>
+                                        </div>
+                                        <span className="font-black text-blue-600 dark:text-blue-400 bg-white dark:bg-blue-900/40 px-3 py-1 rounded-lg shadow-sm">
+                                            {loyaltyInfo.totalPoints} pts
+                                        </span>
+                                    </div>
+                                )}
                                 {(loyaltyDiscount > 0 || (isLoyal && !loyaltyGift)) && (
                                     <div className={`flex justify-between items-center ${useLoyaltyReward ? 'text-yellow-600 dark:text-yellow-500' : 'text-gray-400 dark:text-gray-500 opacity-60'}`}>
                                         <div className="flex flex-col">
