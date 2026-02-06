@@ -85,9 +85,9 @@ const Checkout = ({
                 totalPrice: total,
                 discount: orderDiscount,
                 subtotal: subtotal,
-                loyalty_discount_applied: loyaltyDiscount > 0 || !!loyaltyGift,
-                loyalty_discount_amount: loyaltyDiscount,
-                loyalty_gift_item: loyaltyGift,
+                loyalty_discount_applied: isApplied && (loyaltyDiscount > 0 || !!loyaltyGift),
+                loyalty_discount_amount: isApplied ? loyaltyDiscount : 0,
+                loyalty_gift_item: isApplied ? loyaltyGift : null,
                 loyalty_id: finalLoyaltyId
             };
 
@@ -144,7 +144,8 @@ const Checkout = ({
         showProgress,
         progressPercentage,
         isLoyal,
-        needsMoreSpending
+        needsMoreSpending,
+        isApplied
     } = calculateLoyaltyDiscount(
         loyaltyInfo,
         subtotal,
@@ -298,7 +299,7 @@ const Checkout = ({
                                     </div>
                                 )}
                                 {loyaltyGift && (
-                                    <div className="flex justify-between items-center text-pink-600 dark:text-pink-400">
+                                    <div className={`flex justify-between items-center ${useLoyaltyReward ? 'text-pink-600 dark:text-pink-400' : 'text-gray-400 dark:text-gray-500 opacity-60'}`}>
                                         <div className="flex flex-col">
                                             <div className="flex items-center gap-2">
                                                 <span className="font-bold text-sm">Loyalty Gift</span>
@@ -312,13 +313,13 @@ const Checkout = ({
                                             <span className="text-[10px] italic font-medium">{loyaltyGift}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-[10px] font-black uppercase bg-pink-50 text-pink-600 px-2 py-0.5 rounded-full border border-pink-100">Unlock</span>
+                                            {useLoyaltyReward && <span className="text-[10px] font-black uppercase bg-pink-50 text-pink-600 px-2 py-0.5 rounded-full border border-pink-100">Unlock</span>}
                                             <span className="font-black text-lg">$0.00</span>
                                         </div>
                                     </div>
                                 )}
-                                {loyaltyDiscount > 0 && (
-                                    <div className="flex justify-between items-center text-yellow-600 dark:text-yellow-500">
+                                {(loyaltyDiscount > 0 || (isLoyal && !loyaltyGift && !loyaltyInfo.reward_used_in_session)) && (
+                                    <div className={`flex justify-between items-center ${useLoyaltyReward ? 'text-yellow-600 dark:text-yellow-500' : 'text-gray-400 dark:text-gray-500 opacity-60'}`}>
                                         <div className="flex flex-col">
                                             <div className="flex items-center gap-2">
                                                 <span className="font-bold text-sm">Loyalty Reward</span>
@@ -329,18 +330,20 @@ const Checkout = ({
                                                     <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${useLoyaltyReward ? 'left-4.5' : 'left-0.5'}`} />
                                                 </button>
                                             </div>
-                                            <span className="text-[10px] italic font-medium">{loyaltyReason}</span>
+                                            <span className="text-[10px] italic font-medium">{loyaltyReason || (messageKey ? getLoyaltyMessage(messageKey, language, messageVariables) : '')}</span>
                                         </div>
-                                        <span className="font-black text-lg">-${loyaltyDiscount.toFixed(2)}</span>
+                                        <span className="font-black text-lg">-${(loyaltyDiscount || 0).toFixed(2)}</span>
                                     </div>
                                 )}
-                                {loyaltyInfo.isLoyal && loyalMessage && (
+                                {isLoyal && messageKey && (
                                     <div className="flex justify-between items-center bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 p-4 rounded-2xl border-2 border-amber-200 dark:border-amber-700">
                                         <div className="flex items-center gap-3">
                                             <span className="text-2xl">⭐</span>
                                             <div className="flex flex-col">
                                                 <span className="font-black text-sm text-amber-700 dark:text-amber-400">Loyal Client</span>
-                                                <span className="text-[10px] font-bold text-amber-600 dark:text-amber-500">{loyalMessage}</span>
+                                                <span className="text-[10px] font-bold text-amber-600 dark:text-amber-500">
+                                                    {getLoyaltyMessage(messageKey, language, messageVariables) || null}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>

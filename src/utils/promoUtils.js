@@ -203,9 +203,6 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}, u
     // 1. Check if auto-promos are globally active
     if (!config.auto_promo_active && !config.loyalty_active && !config.isAutoPromoOn) return { discount: 0, reason: null };
 
-    // 1.5. If user opted out of using reward at checkout
-    if (!useReward) return { discount: 0, reason: null };
-
     // CRITICAL: Extract config values FIRST to avoid TDZ errors
     const loyalOffer = config.loyalConfig || config.loyal_offer || { type: 'discount', value: '15', active: true, threshold: '50' };
     const welcomeOffer = config.welcomeConfig || { value: '10', active: true }; // Default 10%
@@ -217,9 +214,10 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}, u
         if (recoveryOffer.type === 'discount') {
             const val = parseFloat(recoveryOffer.value) / 100;
             return {
-                discount: orderTotal * val,
+                discount: useReward ? (orderTotal * val) : 0,
                 messageKey: 'RECOVERY_DISCOUNT',
-                messageVariables: { percentage: recoveryOffer.value }
+                messageVariables: { percentage: recoveryOffer.value },
+                isApplied: useReward
             };
         }
 
@@ -228,7 +226,8 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}, u
                 discount: 0,
                 giftItem: recoveryOffer.value,
                 messageKey: 'RECOVERY_GIFT',
-                messageVariables: { item: recoveryOffer.value }
+                messageVariables: { item: recoveryOffer.value },
+                isApplied: useReward
             };
         }
     }
@@ -246,12 +245,13 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}, u
         if (isWelcomeDiscountEligible && !hasPlacedOrderInCurrentSession) {
             const discountPercentage = parseFloat(welcomeOffer.value) || 10;
             return {
-                discount: orderTotal * (discountPercentage / 100),
+                discount: useReward ? (orderTotal * (discountPercentage / 100)) : 0,
                 messageKey: LOYALTY_MESSAGE_KEYS.SESSION_2_BEFORE_ORDER,
                 messageVariables: { percentage: discountPercentage },
                 welcomeTeaser: true,
                 showProgress: false,
-                needsMoreSpending: false
+                needsMoreSpending: false,
+                isApplied: useReward
             };
         }
 
@@ -308,13 +308,14 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}, u
         if (loyalOffer.type === 'discount') {
             const discountPercentage = parseFloat(loyalOffer.value) || 15;
             return {
-                discount: orderTotal * (discountPercentage / 100),
+                discount: useReward ? (orderTotal * (discountPercentage / 100)) : 0,
                 messageKey: LOYALTY_MESSAGE_KEYS.LOYAL_DISCOUNT,
                 messageVariables: { percentage: discountPercentage },
                 welcomeTeaser: false,
                 showProgress: false,
                 isLoyal: true,
-                needsMoreSpending: false
+                needsMoreSpending: false,
+                isApplied: useReward
             };
         } else {
             return {
@@ -325,7 +326,8 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}, u
                 welcomeTeaser: false,
                 showProgress: false,
                 isLoyal: true,
-                needsMoreSpending: false
+                needsMoreSpending: false,
+                isApplied: useReward
             };
         }
     }
@@ -367,12 +369,13 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}, u
         if (isEligible) {
             // Redundant if backend flag caught it, but safe to keep
             return {
-                discount: orderTotal * (discountPercentage / 100),
+                discount: useReward ? (orderTotal * (discountPercentage / 100)) : 0,
                 messageKey: LOYALTY_MESSAGE_KEYS.SESSION_2_BEFORE_ORDER,
                 messageVariables: { percentage: discountPercentage },
                 welcomeTeaser: true,
                 showProgress: false,
-                needsMoreSpending: false
+                needsMoreSpending: false,
+                isApplied: useReward
             };
         } else {
             return {
