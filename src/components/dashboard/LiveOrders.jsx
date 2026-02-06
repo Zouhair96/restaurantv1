@@ -247,9 +247,16 @@ const LiveOrders = ({ onSelectOrder }) => {
                                 <div className="flex justify-between items-start mb-4 relative z-10">
                                     <div>
                                         <h3 className="text-xl font-black text-gray-800 dark:text-white">Order #{order.order_number || order.id}</h3>
-                                        <p className="text-xs text-gray-500 mt-1">
-                                            {new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                        </p>
+                                        <div className="flex flex-col items-start gap-1 mt-1">
+                                            <span className="px-3 py-1 rounded-lg bg-gray-100 dark:bg-white/5 text-sm font-mono font-bold text-gray-700 dark:text-gray-300 transition-colors">
+                                                {new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </span>
+                                            {order.loyalty_gift_item && (
+                                                <span className="px-2 py-0.5 rounded-full text-[8px] font-black uppercase bg-pink-500 text-white animate-pulse">
+                                                    🎁 Gift
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
                                     <div className="flex flex-col items-end gap-1">
                                         <span className={`px-3 py-1 rounded-full text-[10px] font-bold border ${getStatusColor(order.status)} capitalize`}>
@@ -261,6 +268,16 @@ const LiveOrders = ({ onSelectOrder }) => {
                                             }`}>
                                             {order.payment_status === 'pending_cash' ? 'Cash' : (order.payment_status || 'Unpaid')}
                                         </span>
+                                        {order.loyalty_gift_item && (
+                                            <span className="px-2 py-0.5 rounded-full text-[8px] font-black uppercase bg-pink-500 text-white animate-pulse">
+                                                🎁 Gift Inside
+                                            </span>
+                                        )}
+                                        {parseFloat(order.loyalty_discount_amount || 0) > 0 && (
+                                            <span className="px-2 py-0.5 rounded-full text-[8px] font-black uppercase bg-amber-500 text-white">
+                                                ⭐ Discount
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
 

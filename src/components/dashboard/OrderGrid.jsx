@@ -124,9 +124,21 @@ const OrderGrid = () => {
                                     {order.order_type === 'take_out' ? '🥡 Take Out' : `🍽️ Table ${order.table_number}`}
                                 </p>
                             </div>
-                            <span className="px-3 py-1 rounded-lg bg-gray-100 dark:bg-white/5 text-sm font-mono font-bold text-gray-700 dark:text-gray-300 transition-colors">
-                                {new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </span>
+                            <div className="flex flex-col items-end gap-1">
+                                <span className="px-3 py-1 rounded-lg bg-gray-100 dark:bg-white/5 text-sm font-mono font-bold text-gray-700 dark:text-gray-300 transition-colors">
+                                    {new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                                {order.loyalty_gift_item && (
+                                    <span className="px-2 py-0.5 rounded-full text-[8px] font-black uppercase bg-pink-500 text-white animate-pulse">
+                                        🎁 Gift
+                                    </span>
+                                )}
+                                {parseFloat(order.loyalty_discount_amount || 0) > 0 && (
+                                    <span className="px-2 py-0.5 rounded-full text-[8px] font-black uppercase bg-amber-500 text-white">
+                                        ⭐ Promo
+                                    </span>
+                                )}
+                            </div>
                         </div>
 
                         <div className="space-y-2 mb-6">

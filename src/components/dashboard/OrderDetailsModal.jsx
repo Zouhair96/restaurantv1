@@ -97,6 +97,43 @@ const OrderDetailsModal = ({ order, isOpen, onClose, onStatusUpdate, getStatusCo
                                     <span className="font-bold text-gray-800 dark:text-white">${item.price || item.size?.price}</span>
                                 </div>
                             ))}
+
+                            {/* Loyalty Gift Item */}
+                            {order.loyalty_gift_item && (
+                                <div className="flex justify-between items-center py-4 border-t-2 border-dashed border-pink-100 dark:border-pink-900/30">
+                                    <div className="flex items-center gap-3">
+                                        <span className="w-8 h-8 rounded-full bg-pink-50 dark:bg-pink-900/20 flex items-center justify-center text-xs shadow-sm">
+                                            🎁
+                                        </span>
+                                        <div>
+                                            <p className="text-lg font-black text-pink-600 dark:text-pink-400 capitalize">
+                                                {order.loyalty_gift_item}
+                                            </p>
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-pink-400">
+                                                Loyalty Gift • Unlocked
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <span className="font-bold text-pink-600 dark:text-pink-400">$0.00</span>
+                                </div>
+                            )}
+
+                            {/* Loyalty Discount */}
+                            {parseFloat(order.loyalty_discount_amount || 0) > 0 && (
+                                <div className="flex justify-between items-center py-4 border-t border-gray-100 dark:border-gray-700">
+                                    <div className="flex items-center gap-3">
+                                        <span className="w-8 h-8 rounded-full bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-xs shadow-sm">
+                                            ⭐
+                                        </span>
+                                        <div>
+                                            <p className="text-lg font-black text-amber-600 dark:text-amber-400">
+                                                Loyalty Discount
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <span className="font-bold text-amber-600 dark:text-amber-400">-${parseFloat(order.loyalty_discount_amount).toFixed(2)}</span>
+                                </div>
+                            )}
                         </div>
                     </div>
 
