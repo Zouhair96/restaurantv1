@@ -35,6 +35,7 @@ const Checkout = ({
         tableSelection: 'take_out',
         paymentMethod: 'cash',
     });
+    const [useLoyaltyReward, setUseLoyaltyReward] = useState(true);
     const [showConversionModal, setShowConversionModal] = useState(false);
     const [intentToConvert, setIntentToConvert] = useState(false);
 
