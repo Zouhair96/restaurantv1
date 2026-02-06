@@ -38,91 +38,41 @@ export const handler = async (event, context) => {
             targetRestaurantId = userRes.rows[0].id;
         }
 
-        // Query strict Completed orders with Timestamps
-        const result = await query(`
+        // 1. Fetch Points & Visitor State (Source of Truth)
+        const visitorRes = await query(`
             SELECT 
-                total_price,
-                created_at
-            FROM orders
-            WHERE restaurant_id = $1 
-            AND loyalty_id = $2
-            AND status = 'completed'
-            ORDER BY created_at ASC
-        `, [targetRestaurantId, loyaltyId]);
-
-        const orders = result.rows;
-        let totalSpending = 0;
-        orders.forEach(o => {
-            totalSpending += parseFloat(o.total_price) || 0;
-        });
-
-        // --- STRICT POINTS & SESSION SYSTEM ---
-        const IS_DEV = process.env.URL?.includes('localhost') ||
-            process.env.URL?.includes('netlify') ||
-            process.env.NETLIFY === 'true' ||
-            process.env.DEV === 'true' ||
-            !process.env.URL;
-        const SESSION_TIMEOUT = IS_DEV ? 2 * 60 * 1000 : 4 * 60 * 60 * 1000;
-        const now = new Date();
-
-        // 1. Get Visitor State
-        let visitorRes = await query(`
-            SELECT * FROM loyalty_visitors 
+                total_points, 
+                visit_count, 
+                orders_in_current_session,
+                visit_count as totalVisits
+            FROM loyalty_visitors 
             WHERE restaurant_id = $1 AND device_id = $2
         `, [targetRestaurantId, loyaltyId]);
 
-        let visitor = visitorRes.rows[0];
-        if (!visitor) {
-            const insertRes = await query(`
-                INSERT INTO loyalty_visitors (restaurant_id, device_id, visit_count, last_session_at, current_step, orders_in_current_session, total_points)
-                VALUES ($1, $2, 0, NOW(), 'NEW', 0, 0)
-                RETURNING *
-            `, [targetRestaurantId, loyaltyId]);
-            visitor = insertRes.rows[0];
-        }
+        const visitor = visitorRes.rows[0] || { total_points: 0, visit_count: 0, orders_in_current_session: 0 };
+        const totalPoints = parseInt(visitor.total_points || 0);
+        const visitCount = parseInt(visitor.visit_count || 0);
+        const ordersInCurrentSession = parseInt(visitor.orders_in_current_session || 0);
 
-        // 2. Fetch Points & Gifts (Source of Truth)
-        const pointsRes = await query('SELECT COALESCE(SUM(amount), 0) as total FROM points_transactions WHERE device_id = $1 AND restaurant_id = $2', [loyaltyId, targetRestaurantId]);
-        const totalPoints = parseInt(pointsRes.rows[0].total);
-
-        const lastSessionDate = new Date(visitor.last_session_at);
-        const timeDiff = now - lastSessionDate;
-        const sessionsAreExpired = timeDiff > SESSION_TIMEOUT;
-        const previousValid = parseInt(visitor.orders_in_current_session || 0) > 0;
-
-        if (sessionsAreExpired) {
-            if (previousValid) {
-                // Move current orders to "Total Visits" in the bank
-                const newVisitCount = parseInt(visitor.visit_count || 0) + 1;
-                await query('UPDATE loyalty_visitors SET visit_count = $1, last_counted_at = NOW(), orders_in_current_session = 0, reward_used_in_session = false WHERE id = $2', [newVisitCount, visitor.id]);
-                visitor.visit_count = newVisitCount;
-                visitor.orders_in_current_session = 0;
-                visitor.reward_used_in_session = false;
-            } else {
-                // Just reset session if it wasn't a valid order visit
-                await query('UPDATE loyalty_visitors SET orders_in_current_session = 0, reward_used_in_session = false WHERE id = $1', [visitor.id]);
-                visitor.orders_in_current_session = 0;
-                visitor.reward_used_in_session = false;
-            }
-        }
-
-        const giftsRes = await query('SELECT * FROM gifts WHERE device_id = $1 AND restaurant_id = $2 AND status = \'unused\'', [loyaltyId, targetRestaurantId]);
+        // 2. Fetch Active Gifts (Source of Truth)
+        const giftsRes = await query(`
+            SELECT id, euro_value, type, percentage_value, status, created_at 
+            FROM gifts 
+            WHERE device_id = $1 AND restaurant_id = $2 AND status = 'unused'
+        `, [loyaltyId, targetRestaurantId]);
         const activeGifts = giftsRes.rows;
 
-        // 3. Determine if current session is valid (Authoritative Rule)
-        const ordersInCurrentSession = parseInt(visitor.orders_in_current_session || 0);
-        const sessionIsValid = ordersInCurrentSession > 0;
-
-        // Sync local cache if different (Integrity Check)
-        if (parseInt(visitor.total_points) !== totalPoints) {
-            await query('UPDATE loyalty_visitors SET total_points = $1 WHERE id = $2', [totalPoints, visitor.id]);
-        }
-
-        const visitCount = parseInt(visitor.visit_count || 0);
-
-        // 4. Return Authorized State
+        // 3. Fetch Restaurant Config
         const configRes = await query('SELECT loyalty_config FROM users WHERE id = $1', [targetRestaurantId]);
         const loyaltyConfig = configRes.rows[0]?.loyalty_config || { isAutoPromoOn: true };
+
+        // 4. Calculate total spending from completed orders for UI stats
+        const spendingRes = await query(`
+            SELECT SUM(total_price) as total 
+            FROM orders 
+            WHERE restaurant_id = $1 AND loyalty_id = $2 AND status = 'completed'
+        `, [targetRestaurantId, loyaltyId]);
+        const totalSpending = parseFloat(spendingRes.rows[0]?.total || 0);
 
         return {
             statusCode: 200,
@@ -131,20 +81,15 @@ export const handler = async (event, context) => {
                 totalPoints: totalPoints,
                 totalVisits: visitCount,
                 ordersInCurrentVisit: ordersInCurrentSession,
-                sessionIsValid: sessionIsValid,
+                sessionIsValid: ordersInCurrentSession > 0,
                 activeGifts: activeGifts,
                 loyalty_config: loyaltyConfig,
-                session_timeout_ms: SESSION_TIMEOUT,
-                reward_used_in_session: !!visitor.reward_used_in_session,
+                totalSpending: totalSpending,
 
-                // --- STRICT UI FLAGS (Single Source of Truth) ---
+                // --- UI Helpers (Based strictly on state above) ---
                 hasPlacedOrderInCurrentSession: ordersInCurrentSession > 0,
                 isWelcomeDiscountEligible: visitCount === 1 && ordersInCurrentSession === 0,
-                // Note: visitCount 1 means "1 banked visit", so we are in Session 2.
-                // If ordersInCurrentSession is 0, they haven't "used" the welcome discount THIS session yet.
-
-                isLoyalDiscountActive: visitCount >= 3, // Simple threshold for now, can be refined
-                totalSpending: totalSpending
+                isLoyalDiscountActive: visitCount >= 3
             })
         };
 

@@ -35,7 +35,31 @@ const Checkout = ({
         tableSelection: 'take_out',
         paymentMethod: 'cash',
     });
-    const [useLoyaltyReward, setUseLoyaltyReward] = useState(true);
+    const [showConversionModal, setShowConversionModal] = useState(false);
+    const [intentToConvert, setIntentToConvert] = useState(false);
+
+    const handleToggleReward = () => {
+        if (useLoyaltyReward) {
+            // User is trying to turn it OFF -> Show Modal
+            setShowConversionModal(true);
+        } else {
+            // User is turning it back ON
+            setUseLoyaltyReward(true);
+            setIntentToConvert(false);
+        }
+    };
+
+    const confirmConversion = () => {
+        setUseLoyaltyReward(false);
+        setIntentToConvert(true);
+        setShowConversionModal(false);
+    };
+
+    const cancelConversion = () => {
+        setUseLoyaltyReward(true);
+        setIntentToConvert(false);
+        setShowConversionModal(false);
+    };
 
     const handleChange = (e) => {
         setFormData({
@@ -59,22 +83,11 @@ const Checkout = ({
         try {
             const orderType = formData.tableSelection === 'take_out' ? 'take_out' : 'dine_in';
             const tableNumber = orderType === 'dine_in' ? formData.tableSelection : null;
+            const finalLoyaltyId = clientId || localStorage.getItem('loyalty_client_id_v2');
 
-            // Failsafe: Ensure loyalty_id is present even if Context hasn't synced yet
-            let fallbackId = localStorage.getItem('loyalty_client_id_v2');
-
-            // AGGRESSIVE GENERATION: If no ID exists, create one now to ensure tracking
-            if (!fallbackId) {
-                fallbackId = typeof crypto.randomUUID === 'function'
-                    ? crypto.randomUUID()
-                    : 'gen_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
-                localStorage.setItem('loyalty_client_id_v2', fallbackId);
-                console.log('[Checkout] Generated new Loyalty ID:', fallbackId);
-            }
-
-            const finalLoyaltyId = clientId || fallbackId;
-
-            console.log(`[Checkout] Submitting Order. Context ID: ${clientId}, Fallback ID: ${fallbackId}, Final: ${finalLoyaltyId}`);
+            // Find the specific gift ID being used/converted
+            const activeGift = loyaltyInfo.activeGifts?.[0]; // Support first available for now
+            const loyaltyGiftId = activeGift ? activeGift.id : null;
 
             const orderData = {
                 restaurantName,
@@ -88,7 +101,9 @@ const Checkout = ({
                 loyalty_discount_applied: isApplied && (loyaltyDiscount > 0 || !!loyaltyGift),
                 loyalty_discount_amount: isApplied ? loyaltyDiscount : 0,
                 loyalty_gift_item: isApplied ? loyaltyGift : null,
-                loyalty_id: finalLoyaltyId
+                loyalty_id: finalLoyaltyId,
+                loyalty_gift_id: loyaltyGiftId,
+                convertToPoints: intentToConvert
             };
 
             const token = localStorage.getItem('client_token');
@@ -105,22 +120,14 @@ const Checkout = ({
             if (!response.ok) throw new Error(result.error || t.error);
 
             setIsSubmitted(true);
-
-            // Record completed order for loyalty spending tracking
             recordCompletedOrder(restaurantName, total);
-
-            // NOTE: Reward marking moved to backend - only mark as used when order reaches 'completed' status
-            // This ensures cancelled orders don't consume the welcome offer
-
-            // Trigger tracking
-            window.dispatchEvent(new CustomEvent('orderPlaced', {
-                detail: { orderId: result.orderId }
-            }));
 
             setTimeout(() => {
                 clearCart();
                 setIsSubmitted(false);
                 onClose();
+                // Refresh loyalty status
+                window.location.reload();
             }, 3000);
 
         } catch (err) {
@@ -304,7 +311,7 @@ const Checkout = ({
                                             <div className="flex items-center gap-2">
                                                 <span className="font-bold text-sm">Loyalty Gift</span>
                                                 <button
-                                                    onClick={() => setUseLoyaltyReward(!useLoyaltyReward)}
+                                                    onClick={handleToggleReward}
                                                     className={`w-8 h-4 rounded-full relative transition-colors ${useLoyaltyReward ? 'bg-pink-500' : 'bg-gray-300'}`}
                                                 >
                                                     <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${useLoyaltyReward ? 'left-4.5' : 'left-0.5'}`} />
@@ -318,13 +325,13 @@ const Checkout = ({
                                         </div>
                                     </div>
                                 )}
-                                {(loyaltyDiscount > 0 || (isLoyal && !loyaltyGift && !loyaltyInfo.reward_used_in_session)) && (
+                                {(loyaltyDiscount > 0 || (isLoyal && !loyaltyGift)) && (
                                     <div className={`flex justify-between items-center ${useLoyaltyReward ? 'text-yellow-600 dark:text-yellow-500' : 'text-gray-400 dark:text-gray-500 opacity-60'}`}>
                                         <div className="flex flex-col">
                                             <div className="flex items-center gap-2">
                                                 <span className="font-bold text-sm">Loyalty Reward</span>
                                                 <button
-                                                    onClick={() => setUseLoyaltyReward(!useLoyaltyReward)}
+                                                    onClick={handleToggleReward}
                                                     className={`w-8 h-4 rounded-full relative transition-colors ${useLoyaltyReward ? 'bg-yellow-500' : 'bg-gray-300'}`}
                                                 >
                                                     <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${useLoyaltyReward ? 'left-4.5' : 'left-0.5'}`} />
@@ -407,6 +414,13 @@ const Checkout = ({
                             </motion.div>
                         </>
                     )}
+                    <ConversionConfirmationModal
+                        isOpen={showConversionModal}
+                        onConfirm={confirmConversion}
+                        onCancel={cancelConversion}
+                        isDarkMode={isDarkMode}
+                        themeColor={themeColor}
+                    />
                 </motion.div>
             )}
 
@@ -423,6 +437,55 @@ const HiArrowRight = ({ size }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
         <path d="M5 12h14M12 5l7 7-7 7" />
     </svg>
+);
+
+const ConversionConfirmationModal = ({ isOpen, onConfirm, onCancel, isDarkMode, themeColor }) => (
+    <AnimatePresence>
+        {isOpen && (
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[120] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm"
+            >
+                <motion.div
+                    initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                    exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                    className={`w-full max-w-sm rounded-[2.5rem] p-8 overflow-hidden shadow-2xl ${isDarkMode ? 'bg-[#1a1c23] text-white' : 'bg-white text-gray-900'}`}
+                >
+                    <div className="text-center">
+                        <div className="w-20 h-20 rounded-3xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center mx-auto mb-6">
+                            <span className="text-4xl text-blue-500">💰</span>
+                        </div>
+                        <h3 className="text-xl font-black mb-4 uppercase tracking-tight">Convert to Points?</h3>
+                        <p className={`text-sm font-medium mb-8 leading-relaxed ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                            Are you sure you want to convert this reward into loyalty points?
+                            <br />
+                            <span className="font-bold text-blue-500">This action is irreversible.</span>
+                        </p>
+
+                        <div className="space-y-3">
+                            <motion.button
+                                whileTap={{ scale: 0.95 }}
+                                onClick={onConfirm}
+                                className="w-full py-4 rounded-2xl bg-blue-500 text-white font-black uppercase tracking-wider shadow-lg shadow-blue-500/25"
+                            >
+                                Yes, Convert
+                            </motion.button>
+                            <motion.button
+                                whileTap={{ scale: 0.95 }}
+                                onClick={onCancel}
+                                className={`w-full py-4 rounded-2xl font-black uppercase tracking-wider transition-colors ${isDarkMode ? 'bg-white/5 hover:bg-white/10' : 'bg-gray-100 hover:bg-gray-200'}`}
+                            >
+                                No, Keep Reward
+                            </motion.button>
+                        </div>
+                    </div>
+                </motion.div>
+            </motion.div>
+        )}
+    </AnimatePresence>
 );
 
 export default Checkout;

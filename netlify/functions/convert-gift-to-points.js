@@ -15,26 +15,22 @@ export const handler = async (event) => {
     if (event.httpMethod !== 'POST') return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method Not Allowed' }) };
 
     try {
-        const { giftId, loyaltyId, restaurantId } = JSON.parse(event.body);
+        const body = JSON.parse(event.body);
+        const { giftId, loyaltyId, restaurantId } = body;
 
         if (!giftId || !loyaltyId || !restaurantId) {
             return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing required fields' }) };
         }
 
-        // 1. Fetch Restaurant Config
-        const configRes = await query('SELECT loyalty_config FROM users WHERE id = $1', [restaurantId]);
-        const config = configRes.rows[0]?.loyalty_config || {};
-
-        if (!config.gift_conversion_enabled) {
-            return { statusCode: 403, headers, body: JSON.stringify({ error: 'Gift conversion is disabled for this restaurant' }) };
-        }
-
-        const pointsPerEuro = config.points_per_euro || 1;
-
         await query('BEGIN');
         try {
-            // 2. Fetch & Lock Gift
-            const giftRes = await query('SELECT * FROM gifts WHERE id = $1 AND device_id = $2 AND restaurant_id = $3 FOR UPDATE', [giftId, loyaltyId, restaurantId]);
+            // 1. SELECT FOR UPDATE - Lock the gift row and ensure it is UNUSED
+            const giftRes = await query(`
+                SELECT * FROM gifts 
+                WHERE id = $1 AND device_id = $2 AND restaurant_id = $3 
+                FOR UPDATE
+            `, [giftId, loyaltyId, restaurantId]);
+
             const gift = giftRes.rows[0];
 
             if (!gift) {
@@ -44,27 +40,51 @@ export const handler = async (event) => {
 
             if (gift.status !== 'unused') {
                 await query('ROLLBACK');
-                return { statusCode: 400, headers, body: JSON.stringify({ error: 'Gift has already been used or converted' }) };
+                return { statusCode: 400, headers, body: JSON.stringify({ error: `Gift cannot be converted (Current status: ${gift.status})` }) };
             }
 
-            // 3. Calculate Points
-            const conversionPoints = Math.floor(parseFloat(gift.euro_value) * pointsPerEuro);
+            // 2. Determine points value
+            const userRes = await query('SELECT loyalty_config FROM users WHERE id = $1', [restaurantId]);
+            const config = userRes.rows[0]?.loyalty_config || {};
+            const ppe = parseInt(config.points_per_euro) || 100; // Default to 100 if not set
 
-            // 4. Mark Gift as Consumed
-            await query('UPDATE gifts SET status = \'consumed\' WHERE id = $1', [giftId]);
+            let conversionPoints = 0;
 
-            // 5. Log Point Transaction
+            if (gift.type === 'PERCENTAGE') {
+                if (!gift.order_id) {
+                    await query('ROLLBACK');
+                    return { statusCode: 400, headers, body: JSON.stringify({ error: 'Percentage gift must be linked to an order for conversion' }) };
+                }
+                const orderRes = await query('SELECT total_price FROM orders WHERE id = $1', [gift.order_id]);
+                const orderTotal = parseFloat(orderRes.rows[0]?.total_price || 0);
+                const perc = parseFloat(gift.percentage_value || 0);
+                conversionPoints = Math.floor((orderTotal * perc / 100) * ppe);
+            } else {
+                // FIXED_VALUE
+                const value = parseFloat(gift.euro_value || 0);
+                conversionPoints = Math.floor(value * ppe);
+            }
+
+            if (conversionPoints <= 0) {
+                await query('ROLLBACK');
+                return { statusCode: 400, headers, body: JSON.stringify({ error: 'Conversion resulted in 0 points' }) };
+            }
+
+            // 3. Log Points Transaction (UNIQUE constraint on gift_id prevents duplicates)
             await query(`
-                INSERT INTO points_transactions (restaurant_id, device_id, type, amount, created_at)
-                VALUES ($1, $2, 'CONVERT_GIFT', $3, NOW())
-            `, [restaurantId, loyaltyId, conversionPoints]);
+                INSERT INTO points_transactions (restaurant_id, device_id, type, amount, gift_id, created_at)
+                VALUES ($1, $2, 'CONVERT_GIFT', $3, $4, NOW())
+            `, [restaurantId, loyaltyId, conversionPoints, giftId]);
 
-            // 6. Update Visitor Balance
+            // 4. Update Cached Balance
             await query(`
                 UPDATE loyalty_visitors 
                 SET total_points = COALESCE(total_points, 0) + $1 
                 WHERE restaurant_id = $2 AND device_id = $3
             `, [conversionPoints, restaurantId, loyaltyId]);
+
+            // 5. Finalize Gift Lifecycle
+            await query('UPDATE gifts SET status = \'converted\' WHERE id = $1', [giftId]);
 
             await query('COMMIT');
 
@@ -73,14 +93,14 @@ export const handler = async (event) => {
                 headers,
                 body: JSON.stringify({
                     success: true,
-                    convertedPoints: conversionPoints,
-                    message: `Successfully converted gift to ${conversionPoints} points`
+                    addedPoints: conversionPoints,
+                    message: `Successfully converted reward to ${conversionPoints} points`
                 })
             };
 
-        } catch (err) {
+        } catch (txErr) {
             await query('ROLLBACK').catch(() => { });
-            throw err;
+            throw txErr;
         }
 
     } catch (error) {

@@ -229,70 +229,104 @@ export const handler = async (event, context) => {
             const loyaltyId = order.loyalty_id;
             const orderRestaurantId = order.restaurant_id;
 
-            // --- STRICT POINTS & SESSION SYSTEM: POINTS EARNING ---
+            // --- ENTITY-BASED LOYALTY SYSTEM: COMPLETION HOOK ---
             if (loyaltyId && prevStatus !== 'completed') {
                 await query('BEGIN');
                 try {
-                    // 1. Fetch Visitor State (Locked for Update)
-                    const visitorRes = await query(
+                    // 1. Get or Create Visitor Profile
+                    let visitorRes = await query(
                         'SELECT * FROM loyalty_visitors WHERE restaurant_id = $1 AND device_id = $2 FOR UPDATE',
                         [orderRestaurantId, loyaltyId]
                     );
-                    const visitor = visitorRes.rows[0];
+                    let visitor = visitorRes.rows[0];
+                    if (!visitor) {
+                        const insertRes = await query(`
+                            INSERT INTO loyalty_visitors (restaurant_id, device_id, visit_count, total_points, orders_in_current_session)
+                            VALUES ($1, $2, 0, 0, 0)
+                            RETURNING *
+                        `, [orderRestaurantId, loyaltyId]);
+                        visitor = insertRes.rows[0];
+                    }
 
-                    if (visitor) {
-                        // 2. CHECK IDEMPOTENCY: Check if points already earned for this order
-                        const existingTx = await query(
-                            'SELECT id FROM points_transactions WHERE order_id = $1 FOR UPDATE',
-                            [orderId]
-                        );
+                    // 2. IDEMPOTENCY CHECK: Ensure we haven't processed points for this order
+                    const existingTx = await query(
+                        'SELECT id FROM points_transactions WHERE order_id = $1 FOR UPDATE',
+                        [orderId]
+                    );
 
-                        if (existingTx.rows.length === 0) {
-                            // Fetch Point Configuration
-                            const userRes = await query('SELECT loyalty_config FROM users WHERE id = $1', [orderRestaurantId]);
-                            const config = userRes.rows[0]?.loyalty_config || {};
+                    if (existingTx.rows.length === 0) {
+                        const userRes = await query('SELECT loyalty_config FROM users WHERE id = $1', [orderRestaurantId]);
+                        const config = userRes.rows[0]?.loyalty_config || {};
 
-                            // 1. Check if Points System is ENABLED
-                            if (config.points_system_enabled !== false) {
-                                const ppe = parseInt(config.points_per_euro) || 1;
-                                const earnedPoints = Math.floor(parseFloat(order.total_price || 0) * ppe);
+                        // --- POINT EARNING ---
+                        if (config.points_system_enabled !== false) {
+                            const ppe = parseInt(config.points_per_euro) || 1;
+                            const earnedPoints = Math.floor(parseFloat(order.total_price || 0) * ppe);
 
-                                if (earnedPoints > 0) {
-                                    // Log Points Transaction
-                                    await query(`
-                                        INSERT INTO points_transactions (restaurant_id, device_id, order_id, type, amount, created_at)
-                                        VALUES ($1, $2, $3, 'EARN', $4, NOW())
-                                    `, [orderRestaurantId, loyaltyId, orderId, earnedPoints]);
+                            if (earnedPoints > 0) {
+                                await query(`
+                                    INSERT INTO points_transactions (restaurant_id, device_id, order_id, type, amount, created_at)
+                                    VALUES ($1, $2, $3, 'EARN', $4, NOW())
+                                `, [orderRestaurantId, loyaltyId, orderId, earnedPoints]);
 
-                                    // Atomically Update Cached Balance
-                                    await query(`
-                                        UPDATE loyalty_visitors 
-                                        SET total_points = COALESCE(total_points, 0) + $1,
-                                            last_visit_at = NOW()
-                                        WHERE id = $2
-                                    `, [earnedPoints, visitor.id]);
-                                } else {
-                                    // Even if 0 points, update last_visit_at to mark activity
-                                    await query('UPDATE loyalty_visitors SET last_visit_at = NOW() WHERE id = $1', [visitor.id]);
-                                }
-                            } else {
-                                // Points disabled, but still update last_visit_at to maintain session state
-                                await query('UPDATE loyalty_visitors SET last_visit_at = NOW() WHERE id = $1', [visitor.id]);
+                                await query(`
+                                    UPDATE loyalty_visitors SET total_points = COALESCE(total_points, 0) + $1 WHERE id = $2
+                                `, [earnedPoints, visitor.id]);
                             }
                         }
 
-                        // 5. Analytics Entry (Legacy support)
-                        if (visitor.visit_count >= 3) {
-                            await query(
-                                'INSERT INTO visitor_events (restaurant_id, visitor_uuid, event_type, created_at) VALUES ($1, $2, $3, NOW())',
-                                [orderRestaurantId, loyaltyId, 'loyal_status_reached']
-                            ).catch(() => { }); // Low priority
+                        // --- VISIT COUNTING & REWARD PROVISIONING ---
+                        // Rule: First order in a session increments visit_count and triggers rewards
+                        const ordersInSession = parseInt(visitor.orders_in_current_session || 0);
+                        if (ordersInSession === 0) {
+                            const newVisitCount = parseInt(visitor.visit_count || 0) + 1;
+
+                            // Provisioning Logic
+                            if (newVisitCount === 1) {
+                                // Just completed Session 1 -> Provision Welcome Discount for Session 2
+                                const welcomeVal = config.welcome_discount_value || 10;
+                                await query(`
+                                    INSERT INTO gifts (restaurant_id, device_id, type, percentage_value, status)
+                                    VALUES ($1, $2, 'PERCENTAGE', $3, 'unused')
+                                `, [orderRestaurantId, loyaltyId, welcomeVal]);
+                            } else if (newVisitCount === 3) {
+                                // Just completed Session 3 -> Provision Loyal Reward for Session 4+
+                                const rewardType = config.reward_type === 'item' ? 'FIXED_VALUE' : 'PERCENTAGE';
+                                const rewardVal = config.reward_value || (rewardType === 'FIXED_VALUE' ? 2 : 15);
+
+                                await query(`
+                                    INSERT INTO gifts (restaurant_id, device_id, type, euro_value, percentage_value, status)
+                                    VALUES ($1, $2, $3, $4, $5, 'unused')
+                                `, [
+                                    orderRestaurantId,
+                                    loyaltyId,
+                                    rewardType,
+                                    rewardType === 'FIXED_VALUE' ? rewardVal : 0,
+                                    rewardType === 'PERCENTAGE' ? rewardVal : 0,
+                                    'unused'
+                                ]);
+                            }
+
+                            await query(`
+                                UPDATE loyalty_visitors 
+                                SET visit_count = $1, orders_in_current_session = 1, last_visit_at = NOW()
+                                WHERE id = $2
+                            `, [newVisitCount, visitor.id]);
+                        } else {
+                            // Subsequent order in same session
+                            await query(`
+                                UPDATE loyalty_visitors 
+                                SET orders_in_current_session = COALESCE(orders_in_current_session, 0) + 1,
+                                    last_visit_at = NOW()
+                                WHERE id = $2
+                            `, [visitor.id]);
                         }
                     }
+
                     await query('COMMIT');
                 } catch (err) {
                     await query('ROLLBACK').catch(() => { });
-                    console.error('[Loyalty Points Error]:', err.message);
+                    console.error('[Loyalty Completion Error]:', err.message);
                 }
             }
 

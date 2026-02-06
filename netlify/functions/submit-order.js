@@ -34,9 +34,6 @@ export const handler = async (event, context) => {
             for (const fix of tableFixes) {
                 await query(`ALTER TABLE orders ${fix}`).catch(e => console.warn(`[DB Patch] ${fix} failed:`, e.message));
             }
-
-            // Patch loyalty_visitors
-            await query(`ALTER TABLE loyalty_visitors ADD COLUMN IF NOT EXISTS reward_used_in_session BOOLEAN DEFAULT false`).catch(e => console.warn(`[DB Patch] reward_used_in_session failed:`, e.message));
         } catch (dbErr) {
             console.warn('[DB Warning]: Could not ensure orders schema:', dbErr.message);
         }
@@ -49,7 +46,9 @@ export const handler = async (event, context) => {
             loyalty_discount_applied = false,
             loyalty_discount_amount = 0,
             loyalty_gift_item = null,
-            loyalty_id = null
+            loyalty_id = null,
+            loyalty_gift_id = null,
+            convertToPoints = false
         } = body;
 
         if (!restaurantName || !orderType || !paymentMethod || !items || totalPrice === undefined) {
@@ -97,38 +96,10 @@ export const handler = async (event, context) => {
             // A. Loyalty Visit Finalization (Steps 1 & 2)
             let loyaltyVisitorId = null;
             if (loyalty_id) {
-                const IS_DEV = process.env.URL?.includes('localhost') ||
-                    process.env.URL?.includes('netlify') ||
-                    process.env.NETLIFY === 'true' ||
-                    process.env.DEV === 'true' ||
-                    !process.env.URL;
-                const SESSION_TIMEOUT = IS_DEV ? 2 * 60 * 1000 : 4 * 60 * 60 * 1000;
-
-                const vRes = await query('SELECT * FROM loyalty_visitors WHERE restaurant_id = $1 AND device_id = $2 FOR UPDATE', [restaurantId, loyalty_id]);
-                let visitor = vRes.rows[0];
-
-                if (!visitor) {
-                    const iRes = await query(`
-                        INSERT INTO loyalty_visitors (restaurant_id, device_id, visit_count, last_session_at, current_step, orders_in_current_session, total_points, last_counted_at)
-                        VALUES ($1, $2, 0, NOW(), 'NEW', 0, 0, NOW())
-                        RETURNING *
-                    `, [restaurantId, loyalty_id]);
-                    visitor = iRes.rows[0];
-                }
-                loyaltyVisitorId = visitor.id;
-
-                const lastSessionAt = visitor.last_session_at ? new Date(visitor.last_session_at).getTime() : 0;
-                const sessionsAreExpired = (new Date().getTime() - lastSessionAt) > SESSION_TIMEOUT;
-                const previousValid = parseInt(visitor.orders_in_current_session || 0) > 0;
-
-                if (sessionsAreExpired) {
-                    let newVisitCount = parseInt(visitor.visit_count || 0);
-                    if (previousValid) {
-                        newVisitCount++;
-                        await query('UPDATE loyalty_visitors SET visit_count = $1, last_counted_at = NOW(), orders_in_current_session = 0 WHERE id = $2', [newVisitCount, visitor.id]);
-                    } else {
-                        await query('UPDATE loyalty_visitors SET orders_in_current_session = 0 WHERE id = $1', [visitor.id]);
-                    }
+                // Ensure visitor exists for relation
+                const vRes = await query('SELECT id FROM loyalty_visitors WHERE restaurant_id = $1 AND device_id = $2', [restaurantId, loyalty_id]);
+                if (vRes.rows.length === 0) {
+                    await query('INSERT INTO loyalty_visitors (restaurant_id, device_id) VALUES ($1, $2)', [restaurantId, loyalty_id]);
                 }
             }
 
@@ -155,19 +126,15 @@ export const handler = async (event, context) => {
             newOrderId = orderRes.rows[0].id;
             orderDate = orderRes.rows[0].created_at;
 
-            // D. Update Current Session (Step 4 & 5)
-            if (loyaltyVisitorId) {
-                console.log(`[SubmitOrder] Incrementing orders for visitor ${loyaltyVisitorId}`);
-                const rewardApplied = loyalty_discount_applied || (loyalty_discount_amount > 0) || !!loyalty_gift_item;
-                await query(`
-                    UPDATE loyalty_visitors 
-                    SET orders_in_current_session = COALESCE(orders_in_current_session, 0) + 1, 
-                        last_session_at = NOW(),
-                        reward_used_in_session = reward_used_in_session OR $1
-                    WHERE id = $2
-                `, [rewardApplied, loyaltyVisitorId]);
-            } else {
-                console.log('[SubmitOrder] No loyaltyVisitorId determined, skipping session update. Input loyalty_id:', loyalty_id);
+            // D. Lifecycle Attachment
+            if (loyalty_gift_id) {
+                if (convertToPoints) {
+                    // Update only order_id, keep status unused for conversion tool
+                    await query('UPDATE gifts SET order_id = $1 WHERE id = $2 AND device_id = $3', [newOrderId, loyalty_gift_id, loyalty_id]);
+                } else {
+                    // Mark as consumed immediately
+                    await query('UPDATE gifts SET order_id = $1, status = \'consumed\' WHERE id = $2 AND device_id = $3', [newOrderId, loyalty_gift_id, loyalty_id]);
+                }
             }
 
             await query('COMMIT');
@@ -176,7 +143,21 @@ export const handler = async (event, context) => {
             throw txErr;
         }
 
-        // --- 4. Post-Transaction (Stripe & Response) ---
+        // --- 4. Post-Transaction (Conversion, Stripe & Response) ---
+        if (convertToPoints && loyalty_gift_id) {
+            try {
+                const fetch = (await import('node-fetch')).default;
+                const baseUrl = process.env.URL || 'http://localhost:8888';
+                await fetch(`${baseUrl}/.netlify/functions/convert-gift-to-points`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ giftId: loyalty_gift_id, loyaltyId: loyalty_id, restaurantId: restaurantId })
+                });
+            } catch (convErr) {
+                console.error('[Conversion Trigger Failed]:', convErr.message);
+            }
+        }
+
         let checkoutUrl = null;
         if (paymentMethod === 'credit_card') {
             try {
