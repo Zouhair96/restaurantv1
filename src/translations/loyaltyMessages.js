@@ -13,8 +13,14 @@ export const LOYALTY_MESSAGE_KEYS = {
     SESSION_3_PROGRESS: 'SESSION_3_PROGRESS',
     SESSION_3_FINAL: 'SESSION_3_FINAL',
     SESSION_3_AFTER_ORDER: 'SESSION_3_AFTER_ORDER',
+    SESSION_4_PROGRESS: 'SESSION_4_PROGRESS',
+    LOYAL_DISCOUNT: 'LOYAL_DISCOUNT',
+    LOYAL_GIFT: 'LOYAL_GIFT',
     LOYAL_INCOMPLETE_SPENDING: 'LOYAL_INCOMPLETE_SPENDING',
     LOYAL_ACTIVE: 'LOYAL_ACTIVE',
+    POINTS_BADGE: 'POINTS_BADGE',
+    POINTS_REMINDER: 'POINTS_REMINDER',
+    GIFT_CONVERSION_CONFIRM: 'GIFT_CONVERSION_CONFIRM',
 };
 
 // ============================================================================
@@ -53,6 +59,18 @@ export const loyaltyMessages = {
         en: '✅ Session complete! Rewards will unlock on your next visit.',
         fr: '✅ Visite terminée ! Les récompenses se débloqueront lors de votre prochaine visite.',
     },
+    [LOYALTY_MESSAGE_KEYS.SESSION_4_PROGRESS]: {
+        en: '🔥 Keep spending to unlock your loyal reward!',
+        fr: '🔥 Continuez à dépenser pour débloquer votre récompense fidélité !',
+    },
+    [LOYALTY_MESSAGE_KEYS.LOYAL_DISCOUNT]: {
+        en: '⭐ Loyal Client — Enjoy {percentage}% OFF on every order!',
+        fr: '⭐ Client Fidèle — Profitez de {percentage}% de réduction sur chaque commande !',
+    },
+    [LOYALTY_MESSAGE_KEYS.LOYAL_GIFT]: {
+        en: '🎁 Loyal Client Gift: {item}',
+        fr: '🎁 Cadeau Client Fidèle : {item}',
+    },
     [LOYALTY_MESSAGE_KEYS.LOYAL_INCOMPLETE_SPENDING]: {
         en: '🔥 Final step! Spend a little more to unlock loyal rewards.',
         fr: '🔥 Dernière étape ! Dépensez encore un peu pour débloquer les récompenses fidélité.',
@@ -60,6 +78,18 @@ export const loyaltyMessages = {
     [LOYALTY_MESSAGE_KEYS.LOYAL_ACTIVE]: {
         en: '⭐ Loyal Client — Enjoy 15% OFF on every order!',
         fr: '⭐ Client Fidèle — Profitez de 15 % de réduction sur chaque commande !',
+    },
+    [LOYALTY_MESSAGE_KEYS.POINTS_BADGE]: {
+        en: '⭐ Your Points: {points}',
+        fr: '⭐ Vos Points : {points}',
+    },
+    [LOYALTY_MESSAGE_KEYS.POINTS_REMINDER]: {
+        en: '🎯 You have {points} points. Use them to unlock rewards.',
+        fr: '🎯 Vous avez {points} points. Utilisez-les pour débloquer des récompenses.',
+    },
+    [LOYALTY_MESSAGE_KEYS.GIFT_CONVERSION_CONFIRM]: {
+        en: 'Convert this gift to {points} points? This action is irreversible.',
+        fr: 'Convertir ce cadeau en {points} points ? Cette action est irréversible.',
     },
 };
 

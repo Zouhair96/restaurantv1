@@ -3,10 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { HiGift, HiChevronRight, HiSparkles, HiXMark } from 'react-icons/hi2';
 import { useLoyalty } from '../../context/LoyaltyContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { getLoyaltyMessage, LOYALTY_MESSAGE_KEYS } from '../../translations/loyaltyMessages';
 
 const LoyaltyRewardUI = ({ restaurantName, themeColor = '#f97316', isDarkMode = false }) => {
     const { getStatus, convertGift } = useLoyalty();
-    const { t } = useLanguage();
+    const { language: currentLanguage } = useLanguage();
     const loyaltyInfo = getStatus(restaurantName);
     const [isConverting, setIsConverting] = useState(null); // stores giftId being converted
     const [dismissed, setDismissed] = useState(false);
@@ -84,7 +85,12 @@ const LoyaltyRewardUI = ({ restaurantName, themeColor = '#f97316', isDarkMode = 
                                     onClick={() => {
                                         const ppe = config.points_per_euro || 1;
                                         const pointsValue = Math.floor(parseFloat(gift.euro_value) * ppe);
-                                        if (window.confirm(`This action is irreversible. \n\nAre you sure you want to convert this reward into ${pointsValue} points?`)) {
+                                        const confirmMessage = getLoyaltyMessage(
+                                            LOYALTY_MESSAGE_KEYS.GIFT_CONVERSION_CONFIRM,
+                                            currentLanguage,
+                                            { points: pointsValue }
+                                        );
+                                        if (window.confirm(confirmMessage || `Convert to ${pointsValue} points? This action is irreversible.`)) {
                                             handleConvert(gift.id);
                                         }
                                     }}

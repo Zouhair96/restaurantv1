@@ -215,7 +215,8 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
             const val = parseFloat(recoveryOffer.value) / 100;
             return {
                 discount: orderTotal * val,
-                reason: `Recovery Offer (${recoveryOffer.value}%)`
+                messageKey: 'RECOVERY_DISCOUNT',
+                messageVariables: { percentage: recoveryOffer.value }
             };
         }
 
@@ -223,7 +224,8 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
             return {
                 discount: 0,
                 giftItem: recoveryOffer.value,
-                reason: `Recovery Special: ${recoveryOffer.value}`
+                messageKey: 'RECOVERY_GIFT',
+                messageVariables: { item: recoveryOffer.value }
             };
         }
     }
@@ -243,7 +245,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
             return {
                 discount: orderTotal * (discountPercentage / 100),
                 messageKey: LOYALTY_MESSAGE_KEYS.SESSION_2_BEFORE_ORDER,
-                reason: `Welcome Discount (${discountPercentage}%)`,
+                messageVariables: { percentage: discountPercentage },
                 welcomeTeaser: true,
                 showProgress: false,
                 needsMoreSpending: false
@@ -280,7 +282,6 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
             // Still showing progress bar because cumulative spending hasn't reached threshold
             return {
                 discount: 0,
-                reason: null,
                 messageKey: LOYALTY_MESSAGE_KEYS.SESSION_4_PROGRESS,
                 welcomeTeaser: false,
                 showProgress: true,
@@ -294,7 +295,6 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
             const discountPercentage = parseFloat(loyalOffer.value) || 15;
             return {
                 discount: orderTotal * (discountPercentage / 100),
-                reason: `Loyal Client Reward (${discountPercentage}%)`,
                 messageKey: LOYALTY_MESSAGE_KEYS.LOYAL_DISCOUNT,
                 messageVariables: { percentage: discountPercentage },
                 welcomeTeaser: false,
@@ -306,7 +306,6 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
             return {
                 discount: 0,
                 giftItem: loyalOffer.value,
-                reason: `Loyal Client Gift: ${loyalOffer.value}`,
                 messageKey: LOYALTY_MESSAGE_KEYS.LOYAL_GIFT,
                 messageVariables: { item: loyalOffer.value },
                 welcomeTeaser: false,
@@ -324,7 +323,6 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
             // Order already placed in Session 3
             return {
                 discount: 0,
-                reason: null,
                 messageKey: LOYALTY_MESSAGE_KEYS.SESSION_3_AFTER_ORDER,
                 welcomeTeaser: true,
                 showProgress: false,
@@ -335,7 +333,6 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
         // First time in Session 3 - show cumulative progress bar
         return {
             discount: 0,
-            reason: null,
             messageKey: LOYALTY_MESSAGE_KEYS.SESSION_3_PROGRESS,
             welcomeTeaser: false,
             showProgress: true,
@@ -357,8 +354,8 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
             // Redundant if backend flag caught it, but safe to keep
             return {
                 discount: orderTotal * (discountPercentage / 100),
-                reason: `Welcome Discount (${discountPercentage}%)`,
                 messageKey: LOYALTY_MESSAGE_KEYS.SESSION_2_BEFORE_ORDER,
+                messageVariables: { percentage: discountPercentage },
                 welcomeTeaser: true,
                 showProgress: false,
                 needsMoreSpending: false
@@ -366,7 +363,6 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
         } else {
             return {
                 discount: 0,
-                reason: null,
                 messageKey: LOYALTY_MESSAGE_KEYS.SESSION_2_AFTER_ORDER,
                 welcomeTeaser: true,
                 showProgress: false,
@@ -381,7 +377,6 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
         if (typeof loyaltyInfo.hasPlacedOrderInCurrentSession !== 'undefined') {
             return {
                 discount: 0,
-                reason: null,
                 messageKey: loyaltyInfo.hasPlacedOrderInCurrentSession
                     ? LOYALTY_MESSAGE_KEYS.SESSION_1_AFTER_ORDER
                     : LOYALTY_MESSAGE_KEYS.SESSION_1_BEFORE_ORDER,
@@ -394,7 +389,6 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
         // Fallback (Should not happen with new backend)
         return {
             discount: 0,
-            reason: null,
             messageKey: ordersInSession > 0
                 ? LOYALTY_MESSAGE_KEYS.SESSION_1_AFTER_ORDER
                 : LOYALTY_MESSAGE_KEYS.SESSION_1_BEFORE_ORDER,
@@ -406,7 +400,6 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}) =
 
     return {
         discount: 0,
-        reason: null,
         messageKey: LOYALTY_MESSAGE_KEYS.SESSION_1_BEFORE_ORDER, // Safe default
         welcomeTeaser: true,
         showProgress: false,
