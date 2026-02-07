@@ -95,20 +95,20 @@ export const handler = async (event, context) => {
         const totalSpending = parseFloat(orderStatsRes.rows[0]?.total || 0);
 
         // --- NEW: DETERMINISTIC STATE MACHINE ---
-        // Priorities: WELCOME -> GIFT_AVAILABLE -> POINTS_PROGRESS -> ACTIVE_EARNING
+        // Priorities: WELCOME -> COOLDOWN (Just Ordered) -> GIFT_AVAILABLE -> POINTS_PROGRESS
         let uiState = 'ACTIVE_EARNING';
 
         if (totalCompletedOrders === 0) {
             uiState = 'WELCOME';
+        } else if (ordersInCurrentSession > 0) {
+            // GLOBAL RULE (User Requested):
+            // "The only way to terminate a session is to buy something AND time of session termiante."
+            // If the user has placed an order in this current visit, they are in a "Cooldown" state.
+            // They cannot see the *next* reward or progress until they leave and come back (Time Limit).
+            uiState = 'ACTIVE_EARNING';
         } else if (totalCompletedOrders === 1) {
             // SESSION 2: GIFT_AVAILABLE
-            // CONSTRIANT: User must have terminated the previous session (Time).
-            // If ordersInCurrentSession > 0, they just finished Session 1. We wait for them to leave and come back.
-            if (ordersInCurrentSession > 0) {
-                uiState = 'ACTIVE_EARNING';
-            } else {
-                uiState = 'GIFT_AVAILABLE';
-            }
+            uiState = 'GIFT_AVAILABLE';
         } else if (activeGifts.length > 0) {
             // Any other session with a gift
             uiState = 'GIFT_AVAILABLE';
