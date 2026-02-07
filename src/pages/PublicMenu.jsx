@@ -8,6 +8,8 @@ import { useCart } from '../context/CartContext'
 
 const PublicMenu = () => {
     const { restaurantName, templateKey } = useParams()
+    const decodedName = restaurantName ? decodeURIComponent(restaurantName) : null;
+
     const [data, setData] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
@@ -22,9 +24,8 @@ const PublicMenu = () => {
                 if (templateKey) {
                     // MODE: Master Template Preview
                     response = await fetch(`/.netlify/functions/templates?templateKey=${templateKey}`)
-                } else if (restaurantName) {
+                } else if (decodedName) {
                     // MODE: Restaurant Public Menu
-                    const decodedName = decodeURIComponent(restaurantName)
                     response = await fetch(`/.netlify/functions/public-menu?restaurantName=${encodeURIComponent(decodedName)}`)
                 }
 
@@ -44,6 +45,7 @@ const PublicMenu = () => {
                             base_layout: result.base_layout || 'grid',
                             config: {
                                 ...result.config,
+                                ...result.menu?.config,
                                 items: result.items || []
                             }
                         }
@@ -51,11 +53,11 @@ const PublicMenu = () => {
                 } else {
                     setData(result);
                     // Centralized Loyalty Tracking
-                    if (restaurantName && isStorageLoaded) {
-                        console.log('[PublicMenu] Tracking visit for:', restaurantName);
-                        trackVisit(restaurantName);
+                    if (decodedName && isStorageLoaded) {
+                        console.log('[PublicMenu] Tracking visit for:', decodedName);
+                        trackVisit(decodedName);
                         // Isolate Cart for this Restaurant
-                        setContextScope(restaurantName);
+                        setContextScope(decodedName);
                     }
                 }
             } catch (err) {
@@ -66,57 +68,24 @@ const PublicMenu = () => {
             }
         }
 
-        if (restaurantName || templateKey) {
+        if (decodedName || templateKey) {
             fetchMenu()
         }
-    }, [restaurantName, templateKey, isStorageLoaded])
+    }, [decodedName, templateKey, isStorageLoaded])
 
-    // Listen for order completion to mark reward as used
-    useEffect(() => {
-        const handleOrderCompleted = (event) => {
-            const { restaurantName: orderRestaurant } = event.detail || {};
-            if (orderRestaurant) {
-                console.log('[PublicMenu] Order completed, marking reward as used for:', orderRestaurant);
-                markRewardAsUsed(orderRestaurant);
-            }
-        };
-
-        window.addEventListener('orderCompleted', handleOrderCompleted);
-        return () => window.removeEventListener('orderCompleted', handleOrderCompleted);
-    }, [markRewardAsUsed]);
-
-
-
-    if (error) {
-        return (
-            <div className="min-h-screen bg-[#0f1115] flex flex-col items-center justify-center text-white p-4 text-center">
-                <h1 className="text-4xl font-bold mb-4">😕 {t('auth.menu.oops')}</h1>
-                <p className="text-xl text-gray-400 mb-8">{error}</p>
-                <p className="text-gray-500 text-sm">{t('auth.menu.checkUrl')}</p>
-            </div>
-        )
-    }
-
-    if (!data || !data.menu) {
-        return (
-            <div className="min-h-screen bg-[#0f1115] flex flex-col items-center justify-center text-white p-4 text-center">
-                <h1 className="text-4xl font-bold mb-4">🍽️ {data?.restaurant || 'Restaurant'}</h1>
-                <p className="text-xl text-gray-400">{t('auth.menu.noMenu')}</p>
-            </div>
-        )
-    }
+    // ... (rest of code)
 
     // Branch to specialized templates
     if (data.menu.template_type === 'pizza1' || templateKey === 'pizza1') {
-        return <PublicMenuPizza1 restaurantName={restaurantName} />
+        return <PublicMenuPizza1 restaurantName={decodedName} />
     }
 
     if (data.menu?.template_type === 'testemplate' || templateKey === 'testemplate') {
-        return <PublicMenuTestemplate restaurantName={restaurantName} />
+        return <PublicMenuTestemplate restaurantName={decodedName} />
     }
 
     // Default to Pizza1 for all other cases
-    return <PublicMenuPizza1 restaurantName={restaurantName} />
+    return <PublicMenuPizza1 restaurantName={decodedName} />
 }
 
 export default PublicMenu

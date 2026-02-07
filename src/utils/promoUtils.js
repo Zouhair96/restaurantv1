@@ -211,19 +211,20 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, configArg = {}
     const { uiState = 'ACTIVE_EARNING', activeGifts = [], ordersInCurrentVisit = 0 } = loyaltyInfo;
 
     // --- CASE 1: GIFT_AVAILABLE (Deterministic) ---
-    if (uiState === 'GIFT_AVAILABLE' && activeGifts.length > 0) {
-        const primaryGift = activeGifts[0];
+    if (uiState === 'GIFT_AVAILABLE') {
         const isWelcomeGift = (parseInt(loyaltyInfo.totalCompletedOrders) || 0) === 1;
+        // Use first active gift OR fallback to a default 10% welcome gift if array is empty but state says AVAILABLE
+        const primaryGift = (activeGifts.length > 0) ? activeGifts[0] : { type: 'PERCENTAGE', percentage_value: 10 };
 
         if (primaryGift.type === 'PERCENTAGE') {
-            const perc = parseFloat(primaryGift.percentage_value || 0);
+            const perc = parseFloat(primaryGift.percentage_value || 10);
             return {
                 discount: useReward ? (orderTotal * (perc / 100)) : 0,
                 messageKey: isWelcomeGift ? LOYALTY_MESSAGE_KEYS.SESSION_2_BEFORE_ORDER : LOYALTY_MESSAGE_KEYS.LOYAL_DISCOUNT,
                 messageVariables: { percentage: perc },
                 isApplied: useReward,
                 welcomeTeaser: true, // Show the bar for available gifts
-                activeGifts
+                activeGifts: activeGifts.length > 0 ? activeGifts : [primaryGift]
             };
         } else if (primaryGift.type === 'FIXED_VALUE') {
             const val = parseFloat(primaryGift.euro_value || 0);
@@ -235,7 +236,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, configArg = {}
                     isApplied: useReward,
                     welcomeTeaser: true,
                     isLoyal: true,
-                    activeGifts
+                    activeGifts: activeGifts.length > 0 ? activeGifts : [primaryGift]
                 };
             } else {
                 return {
@@ -246,7 +247,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, configArg = {}
                     isApplied: useReward,
                     welcomeTeaser: true,
                     isLoyal: true,
-                    activeGifts
+                    activeGifts: activeGifts.length > 0 ? activeGifts : [primaryGift]
                 };
             }
         }

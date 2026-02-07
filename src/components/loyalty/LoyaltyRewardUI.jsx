@@ -16,7 +16,10 @@ const LoyaltyRewardUI = ({ restaurantName, themeColor = '#f97316', isDarkMode = 
     const config = loyaltyInfo?.config || {};
     const giftConversionEnabled = config.gift_conversion_enabled;
 
-    if (activeGifts.length === 0 || dismissed) return null;
+    // Aggressive check: If state is GIFT_AVAILABLE, we MUST show something, even if activeGifts is empty (fallback)
+    const shouldShow = (loyaltyInfo?.uiState === 'GIFT_AVAILABLE') || (activeGifts.length > 0);
+
+    if (!shouldShow || dismissed) return null;
 
     const handleConvert = async (giftId) => {
         setIsConverting(giftId);
@@ -30,7 +33,7 @@ const LoyaltyRewardUI = ({ restaurantName, themeColor = '#f97316', isDarkMode = 
     return (
         <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[90] w-full max-w-sm px-4">
             <AnimatePresence>
-                {activeGifts.map((gift, idx) => (
+                {(activeGifts.length > 0 ? activeGifts : [{ id: 'fallback', type: 'PERCENTAGE', percentage_value: 10 }]).map((gift, idx) => (
                     <motion.div
                         key={gift.id}
                         initial={{ y: 50, opacity: 0, scale: 0.9 }}
