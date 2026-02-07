@@ -270,6 +270,6 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}, u
     return {
         discount: 0,
         messageKey: ordersInCurrentVisit > 0 ? LOYALTY_MESSAGE_KEYS.SESSION_1_AFTER_ORDER : LOYALTY_MESSAGE_KEYS.LOYAL_ACTIVE,
-        welcomeTeaser: false
+        welcomeTeaser: ordersInCurrentVisit > 0 // Persist teaser for "Enjoy your visit" message
     };
 };
