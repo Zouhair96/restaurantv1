@@ -308,49 +308,77 @@ export const handler = async (event, context) => {
                                     INSERT INTO gifts (restaurant_id, device_id, type, percentage_value, status)
                                     VALUES ($1, $2, 'PERCENTAGE', $3, 'unused')
                                 `, [orderRestaurantId, loyaltyId, welcomeVal]);
-                            } else if (newVisitCount === 3) {
-                                // Support both old and new config structures
-                                const rType = config.loyalConfig?.type || config.reward_type;
-                                const rVal = config.loyalConfig?.value || config.reward_value;
+                                // --- SPENDING THRESHOLD REWARD LOGIC ---
+                                // Check if this order pushes them over the threshold
+                                const spendRes = await client.query(`
+                                SELECT SUM(total_price) as total FROM orders 
+                                WHERE restaurant_id = $1 AND loyalty_id = $2 AND status = 'completed'
+                            `, [orderRestaurantId, loyaltyId]);
+                                // The current order is likely NOT yet 'completed' in the sum if we are inside the transaction before commit?
+                                // Actually we are inside a transaction but the order status update happens LATER in this file (lines 357).
+                                // So 'completed' orders in DB do NOT include this one yet.
+                                // We must add this order's total manually.
 
-                                const rewardType = rType === 'item' ? 'FIXED_VALUE' : 'PERCENTAGE';
-                                const rewardVal = parseInt(rVal) || (rewardType === 'FIXED_VALUE' ? 2 : 15);
+                                const previousSpending = parseFloat(spendRes.rows[0]?.total || 0);
+                                const currentOrderTotal = parseFloat(order.total_price || 0);
+                                const totalSpending = previousSpending + currentOrderTotal;
 
-                                await client.query(`
+                                const threshold = parseFloat(config.loyalConfig?.threshold || 50);
+
+                                console.log(`[Loyalty] Checking Spending Trigger. Total: ${totalSpending}, Threshold: ${threshold}`);
+
+                                // Check active gifts to prevent duplicates
+                                const giftCheck = await client.query(`
+                                SELECT id FROM gifts 
+                                WHERE restaurant_id = $1 AND device_id = $2 AND type IN ('PERCENTAGE', 'FIXED_VALUE') AND (percentage_value = $3 OR euro_value = $4)
+                            `, [orderRestaurantId, loyaltyId,
+                                    (config.loyalConfig?.type === 'item' ? 0 : (parseInt(config.loyalConfig?.value) || 15)),
+                                    (config.loyalConfig?.type === 'item' ? (parseInt(config.loyalConfig?.value) || 0) : 0)
+                                ]);
+
+                                if (totalSpending >= threshold && giftCheck.rows.length === 0) {
+                                    console.log('[Loyalty] Spending Threshold Reached! Granting Loyal Gift.');
+                                    const rType = config.loyalConfig?.type || config.reward_type;
+                                    const rVal = config.loyalConfig?.value || config.reward_value;
+
+                                    const rewardType = rType === 'item' ? 'FIXED_VALUE' : 'PERCENTAGE';
+                                    const rewardVal = parseInt(rVal) || (rewardType === 'FIXED_VALUE' ? 2 : 15);
+
+                                    await client.query(`
                                     INSERT INTO gifts (restaurant_id, device_id, type, euro_value, percentage_value, status)
                                     VALUES ($1, $2, $3, $4, $5, 'unused')
                                 `, [
-                                    orderRestaurantId,
-                                    loyaltyId,
-                                    rewardType,
-                                    rewardType === 'FIXED_VALUE' ? rewardVal : 0,
-                                    rewardType === 'PERCENTAGE' ? rewardVal : 0
-                                ]);
-                            }
+                                        orderRestaurantId,
+                                        loyaltyId,
+                                        rewardType,
+                                        rewardType === 'FIXED_VALUE' ? rewardVal : 0,
+                                        rewardType === 'PERCENTAGE' ? rewardVal : 0
+                                    ]);
+                                }
 
-                            await client.query(`
+                                await client.query(`
                                 UPDATE loyalty_visitors 
                                 SET visit_count = $1, orders_in_current_session = 1, last_visit_at = NOW()
                                 WHERE id = $2
                             `, [newVisitCount, visitor.id]);
-                        } else {
-                            await client.query(`
+                            } else {
+                                await client.query(`
                                 UPDATE loyalty_visitors 
                                 SET orders_in_current_session = COALESCE(orders_in_current_session, 0) + 1,
                                     last_visit_at = NOW()
                                 WHERE id = $1
                             `, [visitor.id]);
+                            }
                         }
-                    }
 
-                    await client.query('COMMIT');
-                } catch (err) {
-                    await client.query('ROLLBACK').catch(() => { });
-                    console.error('[Loyalty Completion Error]:', err.message);
-                } finally {
-                    client.release();
+                        await client.query('COMMIT');
+                    } catch (err) {
+                        await client.query('ROLLBACK').catch(() => { });
+                        console.error('[Loyalty Completion Error]:', err.message);
+                    } finally {
+                        client.release();
+                    }
                 }
-            }
 
             // Finally update the order status itself
             let updateQuery = `
@@ -359,46 +387,46 @@ export const handler = async (event, context) => {
                 WHERE id = $2 
                 RETURNING id, status, updated_at
             `;
-            updateResult = await query(updateQuery, [status, orderId]);
-        }
-        else {
-            // Standard update for other statuses
-            let updateQuery = `
+                updateResult = await query(updateQuery, [status, orderId]);
+            }
+            else {
+                // Standard update for other statuses
+                let updateQuery = `
                 UPDATE orders 
                 SET status = $1, updated_at = CURRENT_TIMESTAMP
                 WHERE id = $2 
                 RETURNING id, status, updated_at
             `;
-            updateResult = await query(updateQuery, [status, orderId]);
-        }
+                updateResult = await query(updateQuery, [status, orderId]);
+            }
 
-        return {
-            statusCode: 200,
-            headers,
-            body: JSON.stringify({
-                success: true,
-                order: updateResult.rows[0]
-            })
-        };
-
-    } catch (error) {
-        console.error('Update Order Status Error:', error);
-
-        if (error.name === 'JsonWebTokenError') {
             return {
-                statusCode: 401,
+                statusCode: 200,
                 headers,
-                body: JSON.stringify({ error: 'Invalid token' })
+                body: JSON.stringify({
+                    success: true,
+                    order: updateResult.rows[0]
+                })
+            };
+
+        } catch (error) {
+            console.error('Update Order Status Error:', error);
+
+            if (error.name === 'JsonWebTokenError') {
+                return {
+                    statusCode: 401,
+                    headers,
+                    body: JSON.stringify({ error: 'Invalid token' })
+                };
+            }
+
+            return {
+                statusCode: 500,
+                headers,
+                body: JSON.stringify({
+                    error: 'Internal Server Error',
+                    details: error.message
+                })
             };
         }
-
-        return {
-            statusCode: 500,
-            headers,
-            body: JSON.stringify({
-                error: 'Internal Server Error',
-                details: error.message
-            })
-        };
-    }
-};
+    };
