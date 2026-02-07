@@ -49,6 +49,7 @@ export const LoyaltyProvider = ({ children }) => {
                 setClientId(storedId);
             }
             if (response.ok) {
+                const data = await response.json();
                 const {
                     totalPoints,
                     totalVisits,
