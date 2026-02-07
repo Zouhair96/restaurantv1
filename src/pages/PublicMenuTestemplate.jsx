@@ -55,7 +55,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
     const { user: clientUser, activeOrder, handleCloseTracker, isTopTrackerHidden } = useClientAuth();
     const { getStatus, markWelcomeAsShown } = useLoyalty();
     const loyaltyInfo = getStatus(restaurantName);
-    const teaser = calculateLoyaltyDiscount(loyaltyInfo, 0, config.loyalty_config || {});
+    const teaser = calculateLoyaltyDiscount(loyaltyInfo, 0, loyaltyInfo.config || {});
 
     useEffect(() => {
         const fetchData = async () => {

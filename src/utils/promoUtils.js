@@ -199,7 +199,12 @@ export const getPromoFilteredItems = (promo, allItems) => {
 /**
  * Calculate optional Loyalty/Recovery discount based on PURE SERVER uiState
  */
-export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}, useReward = true) => {
+export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, configArg = {}, useReward = true) => {
+    if (!loyaltyInfo) return { discount: 0 };
+
+    // Authroritative config from server (loyaltyInfo.config) or the provided argument
+    const config = { ...(loyaltyInfo.config || {}), ...configArg };
+
     // 1. Check if loyalty system is enabled
     if (!config.points_system_enabled && !config.loyalty_active && !config.isAutoPromoOn) return { discount: 0, reason: null };
 

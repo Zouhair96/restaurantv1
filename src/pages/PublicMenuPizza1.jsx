@@ -62,7 +62,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
 
     const { trackVisit, getStatus, markWelcomeAsShown } = useLoyalty();
     const loyaltyInfo = getStatus(restaurantName);
-    const teaser = calculateLoyaltyDiscount(loyaltyInfo, 0, config.loyalty_config || {});
+    const teaser = calculateLoyaltyDiscount(loyaltyInfo, 0, loyaltyInfo.config || {});
 
     const {
         cartItems,
