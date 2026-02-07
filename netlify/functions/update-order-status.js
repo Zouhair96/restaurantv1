@@ -84,7 +84,7 @@ export const handler = async (event, context) => {
 
         // 1. Fetch order details to verify ownership and check state for STAF restrictions
         const checkResult = await query(
-            'SELECT id, restaurant_id, status, loyalty_id, device_id, customer_id, total_price, created_at FROM orders WHERE id = $1',
+            'SELECT id, restaurant_id, status, loyalty_id, customer_id, total_price, created_at FROM orders WHERE id = $1',
             [orderId]
         );
 
@@ -178,8 +178,8 @@ export const handler = async (event, context) => {
             let message = "Order cancelled.";
 
             // --- LOYALTY ROLLBACK ---
-            if (order.loyalty_id || order.device_id) {
-                const loyaltyId = order.loyalty_id || order.device_id;
+            if (order.loyalty_id) {
+                const loyaltyId = order.loyalty_id;
                 console.log(`[Loyalty Rollback] Reversing progress for visitor: ${loyaltyId}`);
 
                 await query(`
@@ -188,7 +188,6 @@ export const handler = async (event, context) => {
                     WHERE restaurant_id = $1 AND device_id = $2
                 `, [order.restaurant_id, loyaltyId]);
 
-                // Also update last_visit_at to the most recent OTHER completed order if it exists
                 await query(`
                     UPDATE loyalty_visitors 
                     SET last_visit_at = (
@@ -226,7 +225,7 @@ export const handler = async (event, context) => {
             };
         } else if (status === 'completed') {
             const prevStatus = order.status;
-            const loyaltyId = order.loyalty_id || order.device_id;
+            const loyaltyId = order.loyalty_id;
             const orderRestaurantId = order.restaurant_id;
 
             // --- ENTITY-BASED LOYALTY SYSTEM: COMPLETION HOOK ---
@@ -279,7 +278,7 @@ export const handler = async (event, context) => {
                         // Rule: Start a "new visit" if THIS order's creation time is > 2 mins after the PREVIOUS completed order
                         const prevOrderRes = await query(`
                             SELECT created_at FROM orders 
-                            WHERE (loyalty_id = $1 OR device_id = $1) AND restaurant_id = $2 AND status = 'completed' AND id != $3
+                            WHERE loyalty_id = $1 AND restaurant_id = $2 AND status = 'completed' AND id != $3
                             ORDER BY created_at DESC LIMIT 1
                         `, [loyaltyId, orderRestaurantId, orderId]);
 
