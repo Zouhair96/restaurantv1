@@ -327,7 +327,7 @@ export const handler = async (event, context) => {
                                 UPDATE loyalty_visitors 
                                 SET orders_in_current_session = COALESCE(orders_in_current_session, 0) + 1,
                                     last_visit_at = NOW()
-                                WHERE id = $2
+                                WHERE id = $1
                             `, [visitor.id]);
                         }
                     }
