@@ -717,6 +717,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
             }
 
             {/* Badge Promotions List Modal */}
+            <LoyaltyRewardUI restaurantName={restaurantName} themeColor={config.themeColor} />
             <AnimatePresence>
                 {showBadgePromos && (
                     <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">

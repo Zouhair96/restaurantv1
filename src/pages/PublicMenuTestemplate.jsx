@@ -764,6 +764,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
             }
 
             {/* Floating Badge Promotions Modal */}
+            <LoyaltyRewardUI restaurantName={restaurantName} themeColor={config.themeColor} />
             <AnimatePresence>
                 {showBadgePromos && (
                     <div className="fixed inset-0 z-[100] flex items-end justify-center px-4 pb-6 sm:items-center sm:p-0">
