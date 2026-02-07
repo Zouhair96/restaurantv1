@@ -306,8 +306,8 @@ export const handler = async (event, context) => {
                                 // Support both old and new config structures
                                 const welcomeVal = parseInt(config.welcomeConfig?.value || config.welcome_discount_value) || 10;
                                 await client.query(`
-                                    INSERT INTO gifts (restaurant_id, device_id, type, percentage_value, status)
-                                    VALUES ($1, $2, 'PERCENTAGE', $3, 'unused')
+                                    INSERT INTO gifts (restaurant_id, device_id, type, percentage_value, euro_value, status)
+                                    VALUES ($1, $2, 'PERCENTAGE', $3, 0.00, 'unused')
                                 `, [orderRestaurantId, loyaltyId, welcomeVal]);
                             }
 
