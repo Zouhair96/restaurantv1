@@ -276,9 +276,13 @@ export const handler = async (event, context) => {
                         }
 
                         // --- VISIT COUNTING & REWARD PROVISIONING ---
-                        // Rule: First order in a session increments visit_count and triggers rewards
-                        const ordersInSession = parseInt(visitor.orders_in_current_session || 0);
-                        if (ordersInSession === 0) {
+                        // Rule: Start a "new visit" if this is the first completion in > 2 minutes
+                        const lastVisit = visitor.last_visit_at ? new Date(visitor.last_visit_at) : null;
+                        const now = new Date();
+                        const sessionTimeout = 2 * 60 * 1000; // 2 minutes
+                        const isNewVisit = !lastVisit || (now - lastVisit > sessionTimeout);
+
+                        if (isNewVisit) {
                             const newVisitCount = parseInt(visitor.visit_count || 0) + 1;
 
                             // Provisioning Logic

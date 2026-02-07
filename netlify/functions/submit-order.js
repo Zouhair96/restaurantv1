@@ -95,12 +95,23 @@ export const handler = async (event, context) => {
         try {
             // A. Loyalty Visit Finalization (Steps 1 & 2)
             if (loyalty_id) {
-                // Ensure visitor exists and increment session order count
-                const vRes = await query('SELECT id FROM loyalty_visitors WHERE restaurant_id = $1 AND device_id = $2 FOR UPDATE', [restaurantId, loyalty_id]);
+                // Ensure visitor exists and increment session order count with timeout check
+                const vRes = await query('SELECT id, orders_in_current_session, last_visit_at FROM loyalty_visitors WHERE restaurant_id = $1 AND device_id = $2 FOR UPDATE', [restaurantId, loyalty_id]);
                 if (vRes.rows.length === 0) {
                     await query('INSERT INTO loyalty_visitors (restaurant_id, device_id, orders_in_current_session) VALUES ($1, $2, 1)', [restaurantId, loyalty_id]);
                 } else {
-                    await query('UPDATE loyalty_visitors SET orders_in_current_session = COALESCE(orders_in_current_session, 0) + 1 WHERE id = $1', [vRes.rows[0].id]);
+                    const visitor = vRes.rows[0];
+                    const lastVisit = visitor.last_visit_at ? new Date(visitor.last_visit_at) : null;
+                    const now = new Date();
+                    const sessionTimeout = 2 * 60 * 1000; // 2 minutes
+
+                    if (lastVisit && (now - lastVisit > sessionTimeout)) {
+                        // NEW SESSION: Start from 1
+                        await query('UPDATE loyalty_visitors SET orders_in_current_session = 1 WHERE id = $1', [visitor.id]);
+                    } else {
+                        // CONTINUING SESSION: Increment
+                        await query('UPDATE loyalty_visitors SET orders_in_current_session = COALESCE(orders_in_current_session, 0) + 1 WHERE id = $1', [visitor.id]);
+                    }
                 }
             }
 

@@ -55,11 +55,11 @@ export const handler = async (event, context) => {
         let visitCount = parseInt(visitor.visit_count || 0);
         let ordersInCurrentSession = parseInt(visitor.orders_in_current_session || 0);
 
-        // --- SESSION TIMEOUT LOGIC (Standard: 30 Minutes) ---
+        // --- SESSION TIMEOUT LOGIC (Pure Time-Based: 2 Minutes) ---
         if (ordersInCurrentSession > 0 && visitor.last_visit_at) {
             const lastVisit = new Date(visitor.last_visit_at);
             const now = new Date();
-            const sessionTimeout = 2 * 60 * 1000; // 2 minutes for testing
+            const sessionTimeout = 2 * 60 * 1000; // 2 minutes (User Requested)
 
             if (now - lastVisit > sessionTimeout) {
                 console.log(`[Loyalty Session] Timeout reached for visitor ${loyaltyId}. Resetting session orders.`);
