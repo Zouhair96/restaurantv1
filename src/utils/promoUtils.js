@@ -207,15 +207,17 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}, u
 
     // --- CASE 1: GIFT_AVAILABLE (Deterministic) ---
     if (uiState === 'GIFT_AVAILABLE' && activeGifts.length > 0) {
-        const primaryGift = activeGifts[0]; // Apply first for now
+        const primaryGift = activeGifts[0];
+        const isWelcomeGift = (parseInt(loyaltyInfo.totalCompletedOrders) || 0) === 1;
 
         if (primaryGift.type === 'PERCENTAGE') {
             const perc = parseFloat(primaryGift.percentage_value || 0);
             return {
                 discount: useReward ? (orderTotal * (perc / 100)) : 0,
-                messageKey: LOYALTY_MESSAGE_KEYS.LOYAL_DISCOUNT,
+                messageKey: isWelcomeGift ? LOYALTY_MESSAGE_KEYS.SESSION_2_BEFORE_ORDER : LOYALTY_MESSAGE_KEYS.LOYAL_DISCOUNT,
                 messageVariables: { percentage: perc },
                 isApplied: useReward,
+                welcomeTeaser: true, // Show the bar for available gifts
                 activeGifts
             };
         } else if (primaryGift.type === 'FIXED_VALUE') {
@@ -226,6 +228,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}, u
                     messageKey: LOYALTY_MESSAGE_KEYS.LOYAL_DISCOUNT,
                     messageVariables: { value: val },
                     isApplied: useReward,
+                    welcomeTeaser: true,
                     isLoyal: true,
                     activeGifts
                 };
@@ -236,6 +239,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}, u
                     messageKey: LOYALTY_MESSAGE_KEYS.LOYAL_GIFT,
                     messageVariables: { item: config.reward_value || "Special Item" },
                     isApplied: useReward,
+                    welcomeTeaser: true,
                     isLoyal: true,
                     activeGifts
                 };
