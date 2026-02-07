@@ -73,7 +73,38 @@ const PublicMenu = () => {
         }
     }, [decodedName, templateKey, isStorageLoaded])
 
-    // ... (rest of code)
+    // Listen for order completion to mark reward as used
+    useEffect(() => {
+        const handleOrderCompleted = (event) => {
+            const { restaurantName: orderRestaurant } = event.detail || {};
+            if (orderRestaurant) {
+                console.log('[PublicMenu] Order completed, marking reward as used for:', orderRestaurant);
+                markRewardAsUsed(orderRestaurant);
+            }
+        };
+
+        window.addEventListener('orderCompleted', handleOrderCompleted);
+        return () => window.removeEventListener('orderCompleted', handleOrderCompleted);
+    }, [markRewardAsUsed]);
+
+    if (error) {
+        return (
+            <div className="min-h-screen bg-[#0f1115] flex flex-col items-center justify-center text-white p-4 text-center">
+                <h1 className="text-4xl font-bold mb-4">😕 {t('auth.menu.oops')}</h1>
+                <p className="text-xl text-gray-400 mb-8">{error}</p>
+                <p className="text-gray-500 text-sm">{t('auth.menu.checkUrl')}</p>
+            </div>
+        )
+    }
+
+    if (!data || !data.menu) {
+        return (
+            <div className="min-h-screen bg-[#0f1115] flex flex-col items-center justify-center text-white p-4 text-center">
+                <h1 className="text-4xl font-bold mb-4">🍽️ {data?.restaurant || 'Restaurant'}</h1>
+                <p className="text-xl text-gray-400">{t('auth.menu.noMenu')}</p>
+            </div>
+        )
+    }
 
     // Branch to specialized templates
     if (data.menu.template_type === 'pizza1' || templateKey === 'pizza1') {
