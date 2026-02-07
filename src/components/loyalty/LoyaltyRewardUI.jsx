@@ -12,7 +12,9 @@ const LoyaltyRewardUI = ({ restaurantName, themeColor = '#f97316', isDarkMode = 
     const [isConverting, setIsConverting] = useState(null);
     const [dismissed, setDismissed] = useState(false);
 
-    if (dismissed) return null;
+    // User requested to STOP showing popups for sessions.
+    // We strictly return null here to disable the floating UI.
+    return null;
 
     const activeGifts = loyaltyInfo?.activeGifts || [];
     const config = loyaltyInfo?.config || {};
