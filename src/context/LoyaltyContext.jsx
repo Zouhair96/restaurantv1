@@ -49,7 +49,6 @@ export const LoyaltyProvider = ({ children }) => {
                 setClientId(storedId);
             }
             if (response.ok) {
-                const data = await response.json();
                 const {
                     totalPoints,
                     totalVisits,
@@ -58,7 +57,9 @@ export const LoyaltyProvider = ({ children }) => {
                     sessionIsValid,
                     activeGifts,
                     loyalty_config,
-                    totalSpending
+                    totalSpending,
+                    uiState,
+                    eligibility
                 } = data;
 
                 setLoyaltyData(prev => {
@@ -72,6 +73,8 @@ export const LoyaltyProvider = ({ children }) => {
                             totalCompletedOrders: totalCompletedOrders || 0,
                             sessionIsValid,
                             totalSpending: totalSpending || 0, // CUMULATIVE SPENDING
+                            uiState,
+                            eligibility,
                             // STRICT FLAGS
                             hasPlacedOrderInCurrentSession: data.hasPlacedOrderInCurrentSession,
 
@@ -224,6 +227,8 @@ export const LoyaltyProvider = ({ children }) => {
 
         return {
             status: currentStatus,
+            uiState: log.uiState || 'ACTIVE_EARNING',
+            eligibility: log.eligibility || {},
             totalPoints: totalPoints,
             totalVisits: totalVisits,
             totalCompletedOrders: totalCompletedOrders,

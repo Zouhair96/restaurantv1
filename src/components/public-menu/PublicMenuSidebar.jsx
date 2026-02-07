@@ -10,7 +10,6 @@ import { translations } from '../../translations';
 import PersistentOrderTracker from '../PersistentOrderTracker';
 
 const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, designConfig, isDarkMode, setIsDarkMode, themeColor = '#f97316', socialMedia, loyaltyInfo }) => {
-    const isReturning = loyaltyInfo && ((parseInt(loyaltyInfo.totalCompletedOrders) || 0) > 0 || (parseInt(loyaltyInfo.totalPoints) || 0) > 0 || (loyaltyInfo.activeGifts && loyaltyInfo.activeGifts.length > 0));
     const { user: authUser, logout: authLogout, activeOrderId, activeOrder, handleCloseTracker } = useClientAuth();
     const { language, toggleLanguage, t } = useLanguage();
     const [view, setView] = useState('welcome');
@@ -267,7 +266,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                         <HiOutlineUserCircle size={48} />
                                     </motion.div>
                                     <h3 className={`text-2xl font-black mb-4 transition-colors ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                                        {isReturning ? t('auth.welcomeBackTitle') : t('auth.welcomeTitle')}
+                                        {loyaltyInfo?.uiState === 'WELCOME' ? t('auth.welcomeTitle') : t('auth.welcomeBackTitle')}
                                     </h3>
                                     <p className={`mb-8 px-4 transition-colors ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                                         {t('auth.welcomeSubtitle')}

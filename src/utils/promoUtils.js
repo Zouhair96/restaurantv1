@@ -197,32 +197,25 @@ export const getPromoFilteredItems = (promo, allItems) => {
     }
 };
 /**
- * Calculate optional Loyalty/Recovery discount based on user status
+ * Calculate optional Loyalty/Recovery discount based on PURE SERVER uiState
  */
 export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}, useReward = true) => {
     // 1. Check if loyalty system is enabled
     if (!config.points_system_enabled && !config.loyalty_active && !config.isAutoPromoOn) return { discount: 0, reason: null };
 
-    const activeGifts = loyaltyInfo.activeGifts || [];
-    const totalVisits = parseInt(loyaltyInfo.totalVisits) || 0;
-    const ordersInSession = parseInt(loyaltyInfo.ordersInCurrentVisit) || 0;
-    const effectiveVisits = totalVisits + 1;
+    const { uiState = 'ACTIVE_EARNING', activeGifts = [], ordersInCurrentVisit = 0 } = loyaltyInfo;
 
-    // --- PHASE A: REWARD APPLICATION (Entity-Based) ---
-    // If we have active gifts from the server, we use THEM.
-    if (activeGifts.length > 0) {
+    // --- CASE 1: GIFT_AVAILABLE (Deterministic) ---
+    if (uiState === 'GIFT_AVAILABLE' && activeGifts.length > 0) {
         const primaryGift = activeGifts[0]; // Apply first for now
 
         if (primaryGift.type === 'PERCENTAGE') {
             const perc = parseFloat(primaryGift.percentage_value || 0);
-            const isWelcome = effectiveVisits === 2;
             return {
                 discount: useReward ? (orderTotal * (perc / 100)) : 0,
-                messageKey: isWelcome ? LOYALTY_MESSAGE_KEYS.SESSION_2_BEFORE_ORDER : LOYALTY_MESSAGE_KEYS.LOYAL_DISCOUNT,
+                messageKey: LOYALTY_MESSAGE_KEYS.LOYAL_DISCOUNT,
                 messageVariables: { percentage: perc },
                 isApplied: useReward,
-                welcomeTeaser: isWelcome,
-                isLoyal: !isWelcome,
                 activeGifts
             };
         } else if (primaryGift.type === 'FIXED_VALUE') {
@@ -237,9 +230,6 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}, u
                     activeGifts
                 };
             } else {
-                // Legacy representation of a special item/gift
-                // In a real system this might be a product_id. 
-                // For this project, we treat FIXED_VALUE 0 as "Special Item"
                 return {
                     discount: 0,
                     giftItem: config.reward_value || "Special Item",
@@ -253,71 +243,33 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}, u
         }
     }
 
-    // --- PHASE B: VISIT PROGRESS & MESSAGING (Status-Based) ---
-    // If no active gifts, we show the status-based messaging.
-
-    // 1. STRICT WELCOME ELIGIBILITY (Source of Truth)
-    const isStrictlyNew = (parseInt(loyaltyInfo.totalCompletedOrders) || 0) === 0 &&
-        (parseInt(loyaltyInfo.totalPoints) || 0) === 0 &&
-        activeGifts.length === 0;
-
-    if (isStrictlyNew) {
+    // --- CASE 2: WELCOME (Deterministic: 0 completed orders) ---
+    if (uiState === 'WELCOME') {
         return {
             discount: 0,
-            messageKey: ordersInSession > 0 ? LOYALTY_MESSAGE_KEYS.SESSION_1_AFTER_ORDER : LOYALTY_MESSAGE_KEYS.SESSION_1_BEFORE_ORDER,
+            messageKey: ordersInCurrentVisit > 0 ? LOYALTY_MESSAGE_KEYS.SESSION_1_AFTER_ORDER : LOYALTY_MESSAGE_KEYS.SESSION_1_BEFORE_ORDER,
             welcomeTeaser: true
         };
     }
 
-    // 2. Session 3 (Progress Bar Session)
-    if (effectiveVisits === 3) {
-        const threshold = parseFloat(config.loyalConfig?.threshold || 50);
-        const spending = parseFloat(loyaltyInfo.totalSpending || 0);
-        const progress = threshold > 0 ? Math.min((spending / threshold) * 100, 100) : 0;
-
-        if (ordersInSession > 0) {
-            return { discount: 0, messageKey: LOYALTY_MESSAGE_KEYS.SESSION_3_AFTER_ORDER, welcomeTeaser: true };
-        }
-        return {
-            discount: 0,
-            messageKey: LOYALTY_MESSAGE_KEYS.SESSION_3_PROGRESS,
-            showProgress: true,
-            progressPercentage: progress,
-            welcomeTeaser: false // Progress bar has its own container
-        };
-    }
-
-    // 3. Session 2 (Welcome Session - returned if not strictly new but maybe visit_count=1)
-    if (effectiveVisits === 2) {
-        const hasOrdered = ordersInSession > 0;
-        return {
-            discount: 0,
-            messageKey: hasOrdered ? LOYALTY_MESSAGE_KEYS.SESSION_2_AFTER_ORDER : LOYALTY_MESSAGE_KEYS.SESSION_2_BEFORE_ORDER,
-            messageVariables: { percentage: config.welcomeConfig?.value || 10 },
-            welcomeTeaser: true
-        };
-    }
-
-    // 4. Session 4+ (Loyal, but no active gifts? Show progress bar again)
-    if (effectiveVisits >= 4) {
+    // --- CASE 3: POINTS_PROGRESS (Deterministic: Progressing towards threshold) ---
+    if (uiState === 'POINTS_PROGRESS') {
         const threshold = parseFloat(config.loyalConfig?.threshold || 50);
         const spending = parseFloat(loyaltyInfo.totalSpending || 0);
         const progress = threshold > 0 ? Math.min((spending / threshold) * 100, 100) : 0;
 
         return {
             discount: 0,
-            messageKey: LOYALTY_MESSAGE_KEYS.LOYAL_INCOMPLETE_SPENDING,
+            messageKey: ordersInCurrentVisit > 0 ? LOYALTY_MESSAGE_KEYS.SESSION_3_AFTER_ORDER : LOYALTY_MESSAGE_KEYS.SESSION_3_PROGRESS,
             showProgress: true,
-            progressPercentage: progress,
-            needsMoreSpending: true
+            progressPercentage: progress
         };
     }
 
-    // Default Fallback: If not "Strictly New" and it doesn't fit a session index perfectly,
-    // we show Session 2 (Returning) as a safe neutral state.
+    // --- CASE 4: ACTIVE_EARNING (Default Fallback) ---
     return {
         discount: 0,
-        messageKey: LOYALTY_MESSAGE_KEYS.SESSION_2_AFTER_ORDER,
-        welcomeTeaser: true
+        messageKey: LOYALTY_MESSAGE_KEYS.LOYAL_ACTIVE, // "Vous gagnez des points à chaque commande"
+        welcomeTeaser: false
     };
 };

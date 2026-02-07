@@ -94,6 +94,25 @@ export const handler = async (event, context) => {
         const totalCompletedOrders = parseInt(orderStatsRes.rows[0]?.count || 0);
         const totalSpending = parseFloat(orderStatsRes.rows[0]?.total || 0);
 
+        // --- NEW: DETERMINISTIC STATE MACHINE ---
+        // Priorities: WELCOME -> GIFT_AVAILABLE -> POINTS_PROGRESS -> ACTIVE_EARNING
+        let uiState = 'ACTIVE_EARNING';
+        if (totalCompletedOrders === 0) {
+            uiState = 'WELCOME';
+        } else if (activeGifts.length > 0) {
+            uiState = 'GIFT_AVAILABLE';
+        } else {
+            // Check if we show progress bar (Session 3+ logic)
+            // Even if we don't use visits, we can show progress if they have points or have ordered once
+            uiState = 'POINTS_PROGRESS';
+        }
+
+        const eligibility = {
+            canEarnPoints: loyaltyConfig.points_system_enabled !== false,
+            canReceiveGift: totalCompletedOrders === 0 || (totalCompletedOrders >= 2), // Example logic
+            canConvertGift: activeGifts.length > 0
+        };
+
         return {
             statusCode: 200,
             headers,
@@ -106,6 +125,8 @@ export const handler = async (event, context) => {
                 activeGifts: activeGifts,
                 loyalty_config: loyaltyConfig,
                 totalSpending: totalSpending,
+                uiState: uiState,
+                eligibility: eligibility,
 
                 // --- UI Helpers (MANDATORY: Used by the frontend for basic visibility) ---
                 hasPlacedOrderInCurrentSession: ordersInCurrentSession > 0
