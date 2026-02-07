@@ -290,15 +290,16 @@ export const handler = async (event, context) => {
                         const sessionTimeout = 2 * 60 * 1000; // 2 minutes
 
                         // If no previous completed orders, this is Visit 1
-                        const isNewVisit = !lastVisitCompletion || (thisOrderCreation - lastVisitCompletion > sessionTimeout);
+                        // FORCE new visit if visit_count is currently 0 (insurance for first-timers)
+                        const isNewVisit = !lastVisitCompletion || (thisOrderCreation - lastVisitCompletion > sessionTimeout) || (parseInt(visitor.visit_count || 0) === 0);
 
-                        console.log(`[Loyalty] isNewVisit: ${isNewVisit}, lastVisitCompletion: ${lastVisitCompletion}`);
+                        console.log(`[Loyalty] isNewVisit: ${isNewVisit}, lastVisitCompletion: ${lastVisitCompletion}, currentVisitCount: ${visitor.visit_count}`);
 
                         if (isNewVisit) {
                             const newVisitCount = parseInt(visitor.visit_count || 0) + 1;
                             console.log(`[Loyalty] Incrementing visit_count to: ${newVisitCount}`);
 
-                            // Provisioning Logic
+                            // Provisioning Logic (Welcome Discount for graduation to Visit 1)
                             if (newVisitCount === 1) {
                                 const welcomeVal = parseInt(config.welcome_discount_value) || 10;
                                 await query(`

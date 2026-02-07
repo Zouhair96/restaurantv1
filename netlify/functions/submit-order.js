@@ -46,10 +46,12 @@ export const handler = async (event, context) => {
             loyalty_discount_applied = false,
             loyalty_discount_amount = 0,
             loyalty_gift_item = null,
-            loyalty_id = null,
             loyalty_gift_id = null,
-            convertToPoints = false
+            convertToPoints = false,
+            loyaltyId = null // Fallback
         } = body;
+
+        const finalLoyaltyId = loyalty_id || loyaltyId;
 
         if (!restaurantName || !orderType || !paymentMethod || !items || totalPrice === undefined) {
             return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing required fields' }) };
@@ -94,11 +96,11 @@ export const handler = async (event, context) => {
         await query('BEGIN');
         try {
             // A. Loyalty Visit Finalization (Steps 1 & 2)
-            if (loyalty_id) {
+            if (finalLoyaltyId) {
                 // Ensure visitor exists and increment session order count with timeout check
-                const vRes = await query('SELECT id, orders_in_current_session, last_visit_at FROM loyalty_visitors WHERE restaurant_id = $1 AND device_id = $2 FOR UPDATE', [restaurantId, loyalty_id]);
+                const vRes = await query('SELECT id, orders_in_current_session, last_visit_at FROM loyalty_visitors WHERE restaurant_id = $1 AND device_id = $2 FOR UPDATE', [restaurantId, finalLoyaltyId]);
                 if (vRes.rows.length === 0) {
-                    await query('INSERT INTO loyalty_visitors (restaurant_id, device_id, orders_in_current_session, last_visit_at) VALUES ($1, $2, 1, NOW())', [restaurantId, loyalty_id]);
+                    await query('INSERT INTO loyalty_visitors (restaurant_id, device_id, orders_in_current_session, last_visit_at) VALUES ($1, $2, 1, NOW())', [restaurantId, finalLoyaltyId]);
                 } else {
                     const visitor = vRes.rows[0];
                     const lastVisit = visitor.last_visit_at ? new Date(visitor.last_visit_at) : null;
@@ -133,7 +135,7 @@ export const handler = async (event, context) => {
                     loyalty_id, created_at, updated_at
                 ) VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending', $8, $9, $10, $11, $12, $13, $14, $15, NOW(), NOW())
                 RETURNING id, created_at
-            `, [restaurantId, orderType, tableNumber || null, deliveryAddress || null, paymentMethod, JSON.stringify(items), totalPrice, customerId, commissionAmount, paymentMethod === 'cash' ? 'pending_cash' : 'pending', order_number, loyalty_discount_applied, loyalty_discount_amount, loyalty_gift_item, loyalty_id]);
+            `, [restaurantId, orderType, tableNumber || null, deliveryAddress || null, paymentMethod, JSON.stringify(items), totalPrice, customerId, commissionAmount, paymentMethod === 'cash' ? 'pending_cash' : 'pending', order_number, loyalty_discount_applied, loyalty_discount_amount, loyalty_gift_item, finalLoyaltyId]);
 
             newOrderId = orderRes.rows[0].id;
             orderDate = orderRes.rows[0].created_at;
