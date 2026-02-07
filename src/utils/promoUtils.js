@@ -289,13 +289,10 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}, u
 
     // 3. Session 2 (Welcome Session - returned if not strictly new but maybe visit_count=1)
     if (effectiveVisits === 2) {
-        const perc = config.welcomeConfig?.value || 10;
         return {
-            discount: useReward ? (orderTotal * (perc / 100)) : 0,
-            messageKey: ordersInSession > 0 ? LOYALTY_MESSAGE_KEYS.SESSION_2_AFTER_ORDER : LOYALTY_MESSAGE_KEYS.SESSION_2_BEFORE_ORDER,
-            messageVariables: { percentage: perc },
-            welcomeTeaser: true,
-            isApplied: useReward && ordersInSession === 0
+            discount: 0,
+            messageKey: LOYALTY_MESSAGE_KEYS.SESSION_2_AFTER_ORDER,
+            welcomeTeaser: true
         };
     }
 
@@ -316,12 +313,9 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}, u
 
     // Default Fallback: If not "Strictly New" and it doesn't fit a session index perfectly,
     // we show Session 2 (Returning) as a safe neutral state.
-    const fallbackPerc = config.welcomeConfig?.value || 10;
     return {
-        discount: useReward ? (orderTotal * (fallbackPerc / 100)) : 0,
-        messageKey: ordersInSession > 0 ? LOYALTY_MESSAGE_KEYS.SESSION_2_AFTER_ORDER : LOYALTY_MESSAGE_KEYS.SESSION_2_BEFORE_ORDER,
-        messageVariables: { percentage: fallbackPerc },
-        welcomeTeaser: true,
-        isApplied: useReward && ordersInSession === 0
+        discount: 0,
+        messageKey: LOYALTY_MESSAGE_KEYS.SESSION_2_AFTER_ORDER,
+        welcomeTeaser: true
     };
 };
