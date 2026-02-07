@@ -233,16 +233,19 @@ export const handler = async (event, context) => {
                 await query('BEGIN');
                 try {
                     // 1. Get or Create Visitor Profile
+                    console.log(`[Loyalty] Processing completion for order ${orderId}, loyaltyId: ${loyaltyId}`);
+
                     let visitorRes = await query(
-                        'SELECT * FROM loyalty_visitors WHERE restaurant_id = $1 AND device_id = $2 FOR UPDATE',
+                        'SELECT id, visit_count, orders_in_current_session, last_visit_at FROM loyalty_visitors WHERE restaurant_id = $1 AND device_id = $2 FOR UPDATE',
                         [orderRestaurantId, loyaltyId]
                     );
+
                     let visitor = visitorRes.rows[0];
                     if (!visitor) {
                         const insertRes = await query(`
                             INSERT INTO loyalty_visitors (restaurant_id, device_id, visit_count, total_points, orders_in_current_session, last_visit_at)
                             VALUES ($1, $2, 0, 0, 0, NOW())
-                            RETURNING *
+                            RETURNING id, visit_count, orders_in_current_session, last_visit_at
                         `, [orderRestaurantId, loyaltyId]);
                         visitor = insertRes.rows[0];
                     }
@@ -285,23 +288,26 @@ export const handler = async (event, context) => {
                         const lastVisitCompletion = prevOrderRes.rows[0]?.created_at ? new Date(prevOrderRes.rows[0].created_at) : null;
                         const thisOrderCreation = new Date(order.created_at);
                         const sessionTimeout = 2 * 60 * 1000; // 2 minutes
+
+                        // If no previous completed orders, this is Visit 1
                         const isNewVisit = !lastVisitCompletion || (thisOrderCreation - lastVisitCompletion > sessionTimeout);
+
+                        console.log(`[Loyalty] isNewVisit: ${isNewVisit}, lastVisitCompletion: ${lastVisitCompletion}`);
 
                         if (isNewVisit) {
                             const newVisitCount = parseInt(visitor.visit_count || 0) + 1;
+                            console.log(`[Loyalty] Incrementing visit_count to: ${newVisitCount}`);
 
                             // Provisioning Logic
                             if (newVisitCount === 1) {
-                                // Just completed Session 1 -> Provision Welcome Discount for Session 2
-                                const welcomeVal = config.welcome_discount_value || 10;
+                                const welcomeVal = parseInt(config.welcome_discount_value) || 10;
                                 await query(`
                                     INSERT INTO gifts (restaurant_id, device_id, type, percentage_value, status)
                                     VALUES ($1, $2, 'PERCENTAGE', $3, 'unused')
                                 `, [orderRestaurantId, loyaltyId, welcomeVal]);
                             } else if (newVisitCount === 3) {
-                                // Just completed Session 3 -> Provision Loyal Reward for Session 4+
                                 const rewardType = config.reward_type === 'item' ? 'FIXED_VALUE' : 'PERCENTAGE';
-                                const rewardVal = config.reward_value || (rewardType === 'FIXED_VALUE' ? 2 : 15);
+                                const rewardVal = parseInt(config.reward_value) || (rewardType === 'FIXED_VALUE' ? 2 : 15);
 
                                 await query(`
                                     INSERT INTO gifts (restaurant_id, device_id, type, euro_value, percentage_value, status)
