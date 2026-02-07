@@ -362,7 +362,7 @@ const Checkout = ({
                                         <div className="flex items-center gap-3">
                                             <span className="text-2xl">🎉</span>
                                             <div className="flex flex-col">
-                                                <span className="font-black text-sm text-green-700 dark:text-green-400">Welcome!</span>
+                                                <span className="font-black text-sm text-green-700 dark:text-green-400">{translations[lang]?.auth?.welcomeTitle || "Welcome!"}</span>
                                                 <span className="text-[10px] font-bold text-green-600 dark:text-green-500">
                                                     {getLoyaltyMessage(messageKey, language, messageVariables) || null}
                                                 </span>

@@ -662,7 +662,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                 {/* Modal Header */}
                                 <div className={`p-4 border-b flex items-center justify-between ${isDarkMode ? 'border-white/10' : 'border-gray-100'}`}>
                                     <div>
-                                        <h3 className="font-bold text-lg">Order Details</h3>
+                                        <h3 className="font-bold text-lg">{t('auth.checkout.summary') || 'Order Details'}</h3>
                                         <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>#{String(selectedOrder.id).slice(0, 8)} • {new Date(selectedOrder.created_at).toLocaleString()}</p>
                                     </div>
                                     <button
@@ -677,7 +677,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                 <div className="p-4 overflow-y-auto flex-1 space-y-4">
                                     {/* Status Badge */}
                                     <div className={`p-3 rounded-xl flex items-center justify-between ${isDarkMode ? 'bg-white/5' : 'bg-gray-50'}`}>
-                                        <span className="text-sm font-medium opacity-70">Status</span>
+                                        <span className="text-sm font-medium opacity-70">{t('auth.checkout.status') || 'Status'}</span>
                                         <span
                                             className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider"
                                             style={selectedOrder.status === 'completed' ? { backgroundColor: '#22c55e33', color: '#22c55e' } :
@@ -690,7 +690,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
 
                                     {/* Items List */}
                                     <div>
-                                        <h4 className="font-bold text-sm mb-3 opacity-80 uppercase tracking-widest">Items</h4>
+                                        <h4 className="font-bold text-sm mb-3 opacity-80 uppercase tracking-widest">{t('auth.checkout.items') || 'Items'}</h4>
                                         <div className="space-y-3">
                                             {(selectedOrder.items || []).map((item, idx) => (
                                                 <div key={idx} className="flex items-start gap-3">
@@ -719,7 +719,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                     {/* Summary */}
                                     <div className="space-y-1 text-sm">
                                         <div className="flex justify-between opacity-70">
-                                            <span>Subtotal</span>
+                                            <span>{t('auth.checkout.subtotal') || 'Subtotal'}</span>
                                             <span>${Number(selectedOrder.total_price).toFixed(2)}</span>
                                         </div>
                                         {/* Add tax/delivery if available in order object */}
@@ -729,7 +729,7 @@ const PublicMenuSidebar = ({ isOpen, onClose, restaurantName, displayName, desig
                                 {/* Modal Footer - Total */}
                                 <div className={`p-4 border-t ${isDarkMode ? 'bg-white/5 border-white/10' : 'bg-gray-50 border-gray-100'}`}>
                                     <div className="flex justify-between items-center">
-                                        <span className="font-bold text-lg">Total</span>
+                                        <span className="font-bold text-lg">{t('auth.checkout.total') || 'Total'}</span>
                                         <span className="font-black text-xl" style={{ color: themeColor }}>${Number(selectedOrder.total_price).toFixed(2)}</span>
                                     </div>
                                 </div>

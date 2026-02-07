@@ -84,7 +84,7 @@ export const handler = async (event, context) => {
 
         // 1. Fetch order details to verify ownership and check state for STAF restrictions
         const checkResult = await query(
-            'SELECT id, restaurant_id, status, loyalty_id, customer_id, total_price FROM orders WHERE id = $1',
+            'SELECT id, restaurant_id, status, loyalty_id, device_id, customer_id, total_price, created_at FROM orders WHERE id = $1',
             [orderId]
         );
 
@@ -276,11 +276,17 @@ export const handler = async (event, context) => {
                         }
 
                         // --- VISIT COUNTING & REWARD PROVISIONING ---
-                        // Rule: Start a "new visit" if this is the first completion in > 2 minutes
-                        const lastVisit = visitor.last_visit_at ? new Date(visitor.last_visit_at) : null;
-                        const now = new Date();
+                        // Rule: Start a "new visit" if THIS order's creation time is > 2 mins after the PREVIOUS completed order
+                        const prevOrderRes = await query(`
+                            SELECT created_at FROM orders 
+                            WHERE (loyalty_id = $1 OR device_id = $1) AND restaurant_id = $2 AND status = 'completed' AND id != $3
+                            ORDER BY created_at DESC LIMIT 1
+                        `, [loyaltyId, orderRestaurantId, orderId]);
+
+                        const lastVisitCompletion = prevOrderRes.rows[0]?.created_at ? new Date(prevOrderRes.rows[0].created_at) : null;
+                        const thisOrderCreation = new Date(order.created_at);
                         const sessionTimeout = 2 * 60 * 1000; // 2 minutes
-                        const isNewVisit = !lastVisit || (now - lastVisit > sessionTimeout);
+                        const isNewVisit = !lastVisitCompletion || (thisOrderCreation - lastVisitCompletion > sessionTimeout);
 
                         if (isNewVisit) {
                             const newVisitCount = parseInt(visitor.visit_count || 0) + 1;
