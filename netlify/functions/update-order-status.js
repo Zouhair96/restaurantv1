@@ -312,48 +312,55 @@ export const handler = async (event, context) => {
                             }
 
                             // --- SPENDING THRESHOLD REWARD LOGIC ---
-                            // Check if this order pushes them over the threshold
-                            const spendRes = await client.query(`
-                                SELECT SUM(total_price) as total FROM orders 
-                                WHERE restaurant_id = $1 AND loyalty_id = $2 AND status = 'completed'
-                            `, [orderRestaurantId, loyaltyId]);
+                            // Only applies from Session 4+ (Visit Count 3+)
+                            if (newVisitCount >= 3) {
+                                // Check if this order pushes them over the threshold
+                                const spendRes = await client.query(`
+                                    SELECT SUM(total_price) as total FROM orders 
+                                    WHERE restaurant_id = $1 AND loyalty_id = $2 AND status = 'completed'
+                                `, [orderRestaurantId, loyaltyId]);
 
-                            // Note: We need to add the current order manually as it's not 'completed' in DB yet
-                            const previousSpending = parseFloat(spendRes.rows[0]?.total || 0);
-                            const currentOrderTotal = parseFloat(order.total_price || 0);
-                            const totalSpending = previousSpending + currentOrderTotal;
+                                // Note: We need to add the current order manually as it's not 'completed' in DB yet
+                                const previousSpending = parseFloat(spendRes.rows[0]?.total || 0);
+                                const currentOrderTotal = parseFloat(order.total_price || 0);
+                                const totalSpending = previousSpending + currentOrderTotal;
 
-                            const threshold = parseFloat(config.loyalConfig?.threshold || 50);
+                                const threshold = parseFloat(config.loyalConfig?.threshold || 50);
 
-                            console.log(`[Loyalty] Checking Spending Trigger. Total: ${totalSpending}, Threshold: ${threshold}`);
+                                console.log(`[Loyalty] Checking Spending Trigger. Total: ${totalSpending}, Threshold: ${threshold}`);
 
-                            // Check active gifts to prevent duplicates
-                            const giftCheck = await client.query(`
-                                SELECT id FROM gifts 
-                                WHERE restaurant_id = $1 AND device_id = $2 AND type IN ('PERCENTAGE', 'FIXED_VALUE') AND (percentage_value = $3 OR euro_value = $4)
-                            `, [orderRestaurantId, loyaltyId,
-                                (config.loyalConfig?.type === 'item' ? 0 : (parseInt(config.loyalConfig?.value) || 15)),
-                                (config.loyalConfig?.type === 'item' ? (parseInt(config.loyalConfig?.value) || 0) : 0)
-                            ]);
-
-                            if (totalSpending >= threshold && giftCheck.rows.length === 0) {
-                                console.log('[Loyalty] Spending Threshold Reached! Granting Loyal Gift.');
-                                const rType = config.loyalConfig?.type || config.reward_type;
-                                const rVal = config.loyalConfig?.value || config.reward_value;
-
-                                const rewardType = rType === 'item' ? 'FIXED_VALUE' : 'PERCENTAGE';
-                                const rewardVal = parseInt(rVal) || (rewardType === 'FIXED_VALUE' ? 2 : 15);
-
-                                await client.query(`
-                                    INSERT INTO gifts (restaurant_id, device_id, type, euro_value, percentage_value, status)
-                                    VALUES ($1, $2, $3, $4, $5, 'unused')
-                                `, [
-                                    orderRestaurantId,
-                                    loyaltyId,
-                                    rewardType,
-                                    rewardType === 'FIXED_VALUE' ? rewardVal : 0,
-                                    rewardType === 'PERCENTAGE' ? rewardVal : 0
+                                // Check active gifts to prevent duplicates (RECURRING CHECK)
+                                // Only block if they currently have an UNUSED gift of this type
+                                const giftCheck = await client.query(`
+                                    SELECT id FROM gifts 
+                                    WHERE restaurant_id = $1 AND device_id = $2 
+                                    AND type IN ('PERCENTAGE', 'FIXED_VALUE') 
+                                    AND (percentage_value = $3 OR euro_value = $4)
+                                    AND status = 'unused'
+                                `, [orderRestaurantId, loyaltyId,
+                                    (config.loyalConfig?.type === 'item' ? 0 : (parseInt(config.loyalConfig?.value) || 15)),
+                                    (config.loyalConfig?.type === 'item' ? (parseInt(config.loyalConfig?.value) || 0) : 0)
                                 ]);
+
+                                if (totalSpending >= threshold && giftCheck.rows.length === 0) {
+                                    console.log('[Loyalty] Spending Threshold Reached! Granting Loyal Gift.');
+                                    const rType = config.loyalConfig?.type || config.reward_type;
+                                    const rVal = config.loyalConfig?.value || config.reward_value;
+
+                                    const rewardType = rType === 'item' ? 'FIXED_VALUE' : 'PERCENTAGE';
+                                    const rewardVal = parseInt(rVal) || (rewardType === 'FIXED_VALUE' ? 2 : 15);
+
+                                    await client.query(`
+                                        INSERT INTO gifts (restaurant_id, device_id, type, euro_value, percentage_value, status)
+                                        VALUES ($1, $2, $3, $4, $5, 'unused')
+                                    `, [
+                                        orderRestaurantId,
+                                        loyaltyId,
+                                        rewardType,
+                                        rewardType === 'FIXED_VALUE' ? rewardVal : 0,
+                                        rewardType === 'PERCENTAGE' ? rewardVal : 0
+                                    ]);
+                                }
                             }
 
                             await client.query(`
