@@ -273,33 +273,9 @@ const Checkout = ({
                                                             </div>
                                                         );
 
-                                                    case 'POINTS_PROGRESS':
-                                                        return (
-                                                            <LoyaltyProgressBar
-                                                                loyaltyConfig={loyaltyInfo?.config || {}}
-                                                                isDarkMode={isDarkMode}
-                                                                percentage={progressPercentage}
-                                                                progressMessage={getLoyaltyMessage(LOYALTY_MESSAGE_KEYS.SESSION_3_PROGRESS, language) || 'Keep earning!'}
-                                                            />
-                                                        );
-
                                                     case 'ACTIVE_EARNING':
                                                     default:
-                                                        return (
-                                                            <div className="flex justify-between items-center bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 p-5 rounded-3xl border-2 border-amber-200 dark:border-amber-700">
-                                                                <div className="flex items-center gap-3">
-                                                                    <span className="text-2xl">💎</span>
-                                                                    <div className="flex flex-col">
-                                                                        <span className="font-black text-sm text-amber-700 dark:text-amber-400">
-                                                                            Loyal Member
-                                                                        </span>
-                                                                        <span className="text-[10px] font-bold text-amber-600 dark:text-amber-500">
-                                                                            Earn points with every order
-                                                                        </span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        );
+                                                        return null;
                                                 }
                                             })()}
                                         </div>
