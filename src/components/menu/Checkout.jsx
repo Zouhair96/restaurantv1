@@ -392,7 +392,7 @@ const Checkout = ({
                                                     <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${useLoyaltyReward ? 'left-4.5' : 'left-0.5'}`} />
                                                 </button>
                                             </div>
-                                            <span className="text-[10px] italic font-medium">{loyaltyReason || (messageKey ? getLoyaltyMessage(messageKey, language, messageVariables) : '')}</span>
+                                            <span className="text-[10px] italic font-medium">{loyaltyGift || ''}</span>
                                         </div>
                                         <span className="font-black text-lg">-${(loyaltyDiscount || 0).toFixed(2)}</span>
                                     </div>
@@ -402,7 +402,9 @@ const Checkout = ({
                                         <div className="flex items-center gap-3">
                                             <span className="text-2xl">⭐</span>
                                             <div className="flex flex-col">
-                                                <span className="font-black text-sm text-amber-700 dark:text-amber-400">Loyal Client</span>
+                                                <span className="font-black text-sm text-amber-700 dark:text-amber-400">
+                                                    {getLoyaltyMessage(LOYALTY_MESSAGE_KEYS.LOYAL_TITLE, language) || "Loyal Client"}
+                                                </span>
                                                 <span className="text-[10px] font-bold text-amber-600 dark:text-amber-500">
                                                     {getLoyaltyMessage(messageKey, language, messageVariables) || null}
                                                 </span>

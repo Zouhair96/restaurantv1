@@ -16,7 +16,8 @@ export const LOYALTY_MESSAGE_KEYS = {
     LOYAL_DISCOUNT: 'LOYAL_DISCOUNT',
     LOYAL_GIFT: 'LOYAL_GIFT',
     LOYAL_INCOMPLETE_SPENDING: 'LOYAL_INCOMPLETE_SPENDING',
-    LOYAL_ACTIVE: 'LOYAL_ACTIVE',
+    LOYAL_FIXED_DISCOUNT: 'LOYAL_FIXED_DISCOUNT',
+    LOYAL_TITLE: 'LOYAL_TITLE',
     POINTS_BADGE: 'POINTS_BADGE',
     POINTS_REMINDER: 'POINTS_REMINDER',
     GIFT_CONVERSION_CONFIRM: 'GIFT_CONVERSION_CONFIRM',
@@ -71,8 +72,16 @@ export const loyaltyMessages = {
         fr: '🔥 Dernière étape ! Dépensez encore un peu pour débloquer les récompenses fidélité.',
     },
     [LOYALTY_MESSAGE_KEYS.LOYAL_ACTIVE]: {
-        en: '⭐ Loyal Client — Enjoy 15% OFF on every order!',
-        fr: '⭐ Client Fidèle — Profitez de 15 % de réduction sur chaque commande !',
+        en: '⭐ Loyal Client — Enjoy special rewards on every order!',
+        fr: '⭐ Client Fidèle — Profitez de récompenses spéciales sur chaque commande !',
+    },
+    [LOYALTY_MESSAGE_KEYS.LOYAL_FIXED_DISCOUNT]: {
+        en: '⭐ Loyal Client — Enjoy {value}€ OFF on every order!',
+        fr: '⭐ Client Fidèle — Profitez de {value}€ de réduction sur chaque commande !',
+    },
+    [LOYALTY_MESSAGE_KEYS.LOYAL_TITLE]: {
+        en: 'Loyal Client',
+        fr: 'Client Fidèle',
     },
     [LOYALTY_MESSAGE_KEYS.POINTS_BADGE]: {
         en: '⭐ Your Points: {points}',

@@ -231,7 +231,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, configArg = {}
             if (val > 0) {
                 return {
                     discount: useReward ? val : 0,
-                    messageKey: LOYALTY_MESSAGE_KEYS.LOYAL_DISCOUNT,
+                    messageKey: LOYALTY_MESSAGE_KEYS.LOYAL_FIXED_DISCOUNT,
                     messageVariables: { value: val },
                     isApplied: useReward,
                     welcomeTeaser: true,

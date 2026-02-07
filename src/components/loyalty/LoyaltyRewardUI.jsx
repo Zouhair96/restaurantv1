@@ -55,13 +55,23 @@ const LoyaltyRewardUI = ({ restaurantName, themeColor = '#f97316', isDarkMode = 
 
             case 'ACTIVE_EARNING':
             default:
-                // Silent state or simple badge - User said "Zero blank screens", so we show a small loyal badge
-                return {
-                    icon: '💎',
-                    title: getLoyaltyMessage(LOYALTY_MESSAGE_KEYS.LOYAL_ACTIVE, currentLanguage) || 'Loyal Member',
-                    subtitle: 'Earn points with every order',
-                    action: null
-                };
+                // User requirement: Only show "Loyal Member" badge if:
+                // 1. They are in LOYAL status (Session 4+)
+                // 2. They met the spending threshold (e.g. 50€)
+                const isLoyal = loyaltyInfo?.status === 'LOYAL';
+                const spending = parseFloat(loyaltyInfo?.totalSpending || 0);
+                const threshold = parseFloat(config?.loyalConfig?.threshold || 50);
+
+                if (isLoyal && spending >= threshold) {
+                    return {
+                        icon: '💎',
+                        title: getLoyaltyMessage(LOYALTY_MESSAGE_KEYS.LOYAL_TITLE, currentLanguage) || 'Loyal Member',
+                        subtitle: getLoyaltyMessage(LOYALTY_MESSAGE_KEYS.LOYAL_ACTIVE, currentLanguage) || 'Enjoy your rewards',
+                        action: null
+                    };
+                }
+                // Hide if not truly loyal yet
+                return null;
         }
     };
 
