@@ -226,7 +226,7 @@ export const handler = async (event, context) => {
             };
         } else if (status === 'completed') {
             const prevStatus = order.status;
-            const loyaltyId = order.loyalty_id;
+            const loyaltyId = order.loyalty_id || order.device_id;
             const orderRestaurantId = order.restaurant_id;
 
             // --- ENTITY-BASED LOYALTY SYSTEM: COMPLETION HOOK ---
@@ -312,8 +312,7 @@ export const handler = async (event, context) => {
                                     loyaltyId,
                                     rewardType,
                                     rewardType === 'FIXED_VALUE' ? rewardVal : 0,
-                                    rewardType === 'PERCENTAGE' ? rewardVal : 0,
-                                    'unused'
+                                    rewardType === 'PERCENTAGE' ? rewardVal : 0
                                 ]);
                             }
 
