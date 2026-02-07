@@ -39,12 +39,12 @@ export const loyaltyMessages = {
         fr: '👋 Bienvenue ! Profitez de votre visite.',
     },
     [LOYALTY_MESSAGE_KEYS.SESSION_2_BEFORE_ORDER]: {
-        en: '🎉 Welcome back! You unlocked {percentage}% OFF on this order.',
-        fr: '🎉 Bon retour ! Vous avez débloqué {percentage} % de réduction sur cette commande.',
+        en: '🎉 You unlocked {percentage}% OFF on this order.',
+        fr: '🎉 Vous avez débloqué {percentage} % de réduction sur cette commande.',
     },
     [LOYALTY_MESSAGE_KEYS.SESSION_2_AFTER_ORDER]: {
-        en: '👋 Welcome back! Enjoy your visit.',
-        fr: '👋 Bon retour ! Profitez de votre visite.',
+        en: '👋 Enjoy your visit!',
+        fr: '👋 Profitez de votre visite.',
     },
     [LOYALTY_MESSAGE_KEYS.SESSION_3_PROGRESS]: {
         en: '🔥 You\'re close! One more visit to unlock loyal rewards.',

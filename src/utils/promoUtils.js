@@ -289,9 +289,11 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}, u
 
     // 3. Session 2 (Welcome Session - returned if not strictly new but maybe visit_count=1)
     if (effectiveVisits === 2) {
+        const hasOrdered = ordersInSession > 0;
         return {
             discount: 0,
-            messageKey: LOYALTY_MESSAGE_KEYS.SESSION_2_AFTER_ORDER,
+            messageKey: hasOrdered ? LOYALTY_MESSAGE_KEYS.SESSION_2_AFTER_ORDER : LOYALTY_MESSAGE_KEYS.SESSION_2_BEFORE_ORDER,
+            messageVariables: { percentage: config.welcomeConfig?.value || 10 },
             welcomeTeaser: true
         };
     }
