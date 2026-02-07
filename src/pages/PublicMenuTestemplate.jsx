@@ -343,6 +343,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                             <LoyaltyProgressBar
                                 percentage={teaser.progressPercentage || 0}
                                 progressMessage={getLoyaltyMessage(teaser.messageKey, language, teaser.messageVariables)}
+                                showProgress={!!teaser.showProgress}
                                 isDarkMode={false}
                             />
                         </div>
