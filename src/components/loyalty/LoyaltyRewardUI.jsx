@@ -65,6 +65,8 @@ const LoyaltyRewardUI = ({ restaurantName, themeColor = '#f97316', isDarkMode = 
 
     const content = renderContent();
 
+    if (!content) return null;
+
     return (
         <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[90] w-full max-w-sm px-4">
             <AnimatePresence>
