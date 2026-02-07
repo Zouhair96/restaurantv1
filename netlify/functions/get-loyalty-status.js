@@ -101,10 +101,12 @@ export const handler = async (event, context) => {
             uiState = 'WELCOME';
         } else if (activeGifts.length > 0) {
             uiState = 'GIFT_AVAILABLE';
-        } else {
-            // Check if we show progress bar (Session 3+ logic)
-            // Even if we don't use visits, we can show progress if they have points or have ordered once
+        } else if (totalCompletedOrders >= 2) {
+            // Check if we show progress bar (Session 4+ or late Session 3)
             uiState = 'POINTS_PROGRESS';
+        } else {
+            // Default for 1 order but no gift yet (e.g., Still in Session 1)
+            uiState = 'ACTIVE_EARNING';
         }
 
         const eligibility = {

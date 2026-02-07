@@ -266,10 +266,10 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}, u
         };
     }
 
-    // --- CASE 4: ACTIVE_EARNING (Default Fallback) ---
+    // --- CASE 4: ACTIVE_EARNING (Default Fallback / Post-Welcome Transition) ---
     return {
         discount: 0,
-        messageKey: LOYALTY_MESSAGE_KEYS.LOYAL_ACTIVE, // "Vous gagnez des points à chaque commande"
+        messageKey: ordersInCurrentVisit > 0 ? LOYALTY_MESSAGE_KEYS.SESSION_1_AFTER_ORDER : LOYALTY_MESSAGE_KEYS.LOYAL_ACTIVE,
         welcomeTeaser: false
     };
 };
