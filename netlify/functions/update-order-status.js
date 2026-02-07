@@ -241,8 +241,8 @@ export const handler = async (event, context) => {
                     let visitor = visitorRes.rows[0];
                     if (!visitor) {
                         const insertRes = await query(`
-                            INSERT INTO loyalty_visitors (restaurant_id, device_id, visit_count, total_points, orders_in_current_session)
-                            VALUES ($1, $2, 0, 0, 0)
+                            INSERT INTO loyalty_visitors (restaurant_id, device_id, visit_count, total_points, orders_in_current_session, last_visit_at)
+                            VALUES ($1, $2, 0, 0, 0, NOW())
                             RETURNING *
                         `, [orderRestaurantId, loyaltyId]);
                         visitor = insertRes.rows[0];

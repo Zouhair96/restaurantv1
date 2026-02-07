@@ -63,7 +63,9 @@ export const handler = async (event, context) => {
 
             if (now - lastVisit > sessionTimeout) {
                 console.log(`[Loyalty Session] Timeout reached for visitor ${loyaltyId}. Resetting session orders.`);
-                await query('UPDATE loyalty_visitors SET orders_in_current_session = 0 WHERE id = $1', [visitor.id]);
+                if (visitor.id) {
+                    await query('UPDATE loyalty_visitors SET orders_in_current_session = 0 WHERE id = $1', [visitor.id]);
+                }
                 ordersInCurrentSession = 0;
             }
         }
