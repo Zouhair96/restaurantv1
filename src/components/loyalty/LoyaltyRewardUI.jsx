@@ -57,10 +57,15 @@ const LoyaltyRewardUI = ({ restaurantName, themeColor = '#f97316', isDarkMode = 
                             </div>
                             <div>
                                 <h3 className={`font-black text-lg leading-tight ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                                    You received a reward!
+                                    {loyaltyInfo.uiState === 'WELCOME' ?
+                                        getLoyaltyMessage(LOYALTY_MESSAGE_KEYS.SESSION_1_BEFORE_ORDER, currentLanguage) || 'Welcome!' :
+                                        (parseInt(loyaltyInfo.totalCompletedOrders) === 1 ?
+                                            getLoyaltyMessage(LOYALTY_MESSAGE_KEYS.SESSION_2_BEFORE_ORDER, currentLanguage, { percentage: gift.percentage_value || 10 }) :
+                                            'You received a reward!')
+                                    }
                                 </h3>
                                 <p className="text-sm font-bold text-gray-400">
-                                    Valid for this session
+                                    {getLoyaltyMessage(LOYALTY_MESSAGE_KEYS.SESSION_2_AFTER_ORDER, currentLanguage) || 'Valid for this session'}
                                 </p>
                             </div>
                         </div>

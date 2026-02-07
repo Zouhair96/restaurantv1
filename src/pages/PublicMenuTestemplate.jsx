@@ -337,17 +337,6 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                     onScroll={handleScroll}
                 >
 
-                    {/* Loyalty Notification Track */}
-                    {(teaser?.showProgress || teaser?.welcomeTeaser) && (
-                        <div className="px-6 mt-6 -mb-2">
-                            <LoyaltyProgressBar
-                                percentage={teaser.progressPercentage || 0}
-                                progressMessage={getLoyaltyMessage(teaser.messageKey, language, teaser.messageVariables)}
-                                showProgress={!!teaser.showProgress}
-                                isDarkMode={false}
-                            />
-                        </div>
-                    )}
 
                     {/* Search Bar */}
                     <div className="flex justify-center w-full">
