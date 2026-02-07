@@ -94,22 +94,40 @@ export const handler = async (event, context) => {
         const totalCompletedOrders = parseInt(orderStatsRes.rows[0]?.count || 0);
         const totalSpending = parseFloat(orderStatsRes.rows[0]?.total || 0);
 
-        // --- NEW: DETERMINISTIC STATE MACHINE ---
+        // --- NEW: DETERMINISTIC STATE MACHINE (Visit-Count Based) ---
         // Priorities: WELCOME -> COOLDOWN -> GIFT_AVAILABLE -> POINTS_PROGRESS
         let uiState = 'ACTIVE_EARNING';
 
-        if (totalCompletedOrders === 0) {
+        // 1. Session 1: The New Guest (Visit Count 0 or Visit Count 1 & Just Ordered)
+        if (visitCount === 0) {
             uiState = 'WELCOME';
-        } else if (totalCompletedOrders === 1) {
-            // SESSION 2
+        }
+        else if (visitCount === 1) {
+            // If they are currently in Session 1 (ordered > 0), show Cooldown
             if (ordersInCurrentSession > 0) {
-                // Cooldown for Session 1->2 transition
                 uiState = 'ACTIVE_EARNING';
             } else {
+                // If they are returning for Session 2 (orders = 0), show Gift
                 uiState = 'GIFT_AVAILABLE';
             }
-        } else if (totalCompletedOrders >= 2) {
-            // SESSION 3+
+        }
+        else if (visitCount === 2) {
+            // If they are currently in Session 2 (ordered > 0), show Cooldown
+            if (ordersInCurrentSession > 0) {
+                uiState = 'ACTIVE_EARNING';
+            } else {
+                // If they are returning for Session 3+ (orders = 0), show Progress or Loyal Gift based on spending
+                // Check if they are already loyal (spending >= threshold)
+                // Note: Spending check is done below in POINTS_PROGRESS vs GIFT_AVAILABLE logic
+                if (activeGifts.length > 0) {
+                    uiState = 'GIFT_AVAILABLE';
+                } else {
+                    uiState = 'POINTS_PROGRESS';
+                }
+            }
+        }
+        else {
+            // Session 3+
             if (ordersInCurrentSession > 0) {
                 // USER REQUEST: After order, show Progress Bar ("You're close!")
                 // This effectively masks any newly earned gift until next session
