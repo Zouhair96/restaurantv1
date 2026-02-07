@@ -55,8 +55,8 @@ export const loyaltyMessages = {
         fr: '🔥 Presque fini ! Dernière visite avant de débloquer les récompenses fidélité.',
     },
     [LOYALTY_MESSAGE_KEYS.SESSION_3_AFTER_ORDER]: {
-        en: '✅ Session complete! Rewards will unlock on your next visit.',
-        fr: '✅ Visite terminée ! Les récompenses se débloqueront lors de votre prochaine visite.',
+        en: '🔥 You\'re close! One more visit to unlock loyal rewards.',
+        fr: '🔥 Presque fini ! Dernière visite avant de débloquer les récompenses fidélité.',
     },
     [LOYALTY_MESSAGE_KEYS.LOYAL_DISCOUNT]: {
         en: '⭐ Loyal Client — Enjoy {percentage}% OFF on every order!',

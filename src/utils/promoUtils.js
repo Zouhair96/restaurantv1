@@ -268,6 +268,16 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, configArg = {}
         const spending = parseFloat(loyaltyInfo.totalSpending || 0);
         const progress = threshold > 0 ? Math.min((spending / threshold) * 100, 100) : 0;
 
+        // Check if they are actually loyal (spending >= threshold) but in cooldown
+        if (ordersInCurrentVisit > 0 && spending >= threshold) {
+            return {
+                discount: 0,
+                messageKey: LOYALTY_MESSAGE_KEYS.SESSION_2_AFTER_ORDER, // "Enjoy your visit"
+                showProgress: true,
+                progressPercentage: progress
+            };
+        }
+
         return {
             discount: 0,
             messageKey: ordersInCurrentVisit > 0 ? LOYALTY_MESSAGE_KEYS.SESSION_3_AFTER_ORDER : LOYALTY_MESSAGE_KEYS.SESSION_3_PROGRESS,
