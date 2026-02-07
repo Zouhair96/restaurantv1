@@ -46,6 +46,7 @@ export const handler = async (event, context) => {
             loyalty_discount_applied = false,
             loyalty_discount_amount = 0,
             loyalty_gift_item = null,
+            loyalty_id = null,
             loyalty_gift_id = null,
             convertToPoints = false,
             loyaltyId = null // Fallback
