@@ -371,13 +371,14 @@ export const handler = async (event, context) => {
                         }
 
                         await client.query('COMMIT');
-                    } catch (err) {
-                        await client.query('ROLLBACK').catch(() => { });
-                        console.error('[Loyalty Completion Error]:', err.message);
-                    } finally {
-                        client.release();
                     }
+                } catch (err) { // FIXED BRACE HERE
+                    await client.query('ROLLBACK').catch(() => { });
+                    console.error('[Loyalty Completion Error]:', err.message);
+                } finally {
+                    client.release();
                 }
+            }
 
             // Finally update the order status itself
             let updateQuery = `
@@ -386,46 +387,46 @@ export const handler = async (event, context) => {
                 WHERE id = $2 
                 RETURNING id, status, updated_at
             `;
-                updateResult = await query(updateQuery, [status, orderId]);
-            }
-            else {
-                // Standard update for other statuses
-                let updateQuery = `
+            updateResult = await query(updateQuery, [status, orderId]);
+        }
+        else {
+            // Standard update for other statuses
+            let updateQuery = `
                 UPDATE orders 
                 SET status = $1, updated_at = CURRENT_TIMESTAMP
                 WHERE id = $2 
                 RETURNING id, status, updated_at
             `;
-                updateResult = await query(updateQuery, [status, orderId]);
-            }
+            updateResult = await query(updateQuery, [status, orderId]);
+        }
 
+        return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify({
+                success: true,
+                order: updateResult.rows[0]
+            })
+        };
+
+    } catch (error) {
+        console.error('Update Order Status Error:', error);
+
+        if (error.name === 'JsonWebTokenError') {
             return {
-                statusCode: 200,
+                statusCode: 401,
                 headers,
-                body: JSON.stringify({
-                    success: true,
-                    order: updateResult.rows[0]
-                })
-            };
-
-        } catch (error) {
-            console.error('Update Order Status Error:', error);
-
-            if (error.name === 'JsonWebTokenError') {
-                return {
-                    statusCode: 401,
-                    headers,
-                    body: JSON.stringify({ error: 'Invalid token' })
-                };
-            }
-
-            return {
-                statusCode: 500,
-                headers,
-                body: JSON.stringify({
-                    error: 'Internal Server Error',
-                    details: error.message
-                })
+                body: JSON.stringify({ error: 'Invalid token' })
             };
         }
-    };
+
+        return {
+            statusCode: 500,
+            headers,
+            body: JSON.stringify({
+                error: 'Internal Server Error',
+                details: error.message
+            })
+        };
+    }
+};
