@@ -347,18 +347,26 @@ export const handler = async (event, context) => {
                                     const rType = config.loyalConfig?.type || config.reward_type;
                                     const rVal = config.loyalConfig?.value || config.reward_value;
 
-                                    const rewardType = rType === 'item' ? 'FIXED_VALUE' : 'PERCENTAGE';
-                                    const rewardVal = parseInt(rVal) || (rewardType === 'FIXED_VALUE' ? 2 : 15);
+                                    let rewardType = 'PERCENTAGE';
+                                    if (rType === 'item') {
+                                        rewardType = 'ITEM';
+                                    } else if (rType === 'fixed') {
+                                        rewardType = 'FIXED_VALUE';
+                                    }
+
+                                    const rewardVal = (rewardType === 'ITEM') ? 0 : (parseInt(rVal) || 15);
+                                    const giftName = (rewardType === 'ITEM') ? rVal : null;
 
                                     await client.query(`
-                                        INSERT INTO gifts (restaurant_id, device_id, type, euro_value, percentage_value, status)
-                                        VALUES ($1, $2, $3, $4, $5, 'unused')
+                                        INSERT INTO gifts (restaurant_id, device_id, type, euro_value, percentage_value, gift_name, status)
+                                        VALUES ($1, $2, $3, $4, $5, $6, 'unused')
                                     `, [
                                         orderRestaurantId,
                                         loyaltyId,
                                         rewardType,
                                         rewardType === 'FIXED_VALUE' ? rewardVal : 0,
-                                        rewardType === 'PERCENTAGE' ? rewardVal : 0
+                                        rewardType === 'PERCENTAGE' ? rewardVal : 0,
+                                        giftName
                                     ]);
                                 }
                             }

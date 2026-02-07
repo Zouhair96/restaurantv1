@@ -64,8 +64,8 @@ export const loyaltyMessages = {
         fr: '⭐ Client Fidèle — Profitez de {percentage}% de réduction sur chaque commande !',
     },
     [LOYALTY_MESSAGE_KEYS.LOYAL_GIFT]: {
-        en: '🎁 Loyal Client Gift: {item}',
-        fr: '🎁 Cadeau Client Fidèle : {item}',
+        en: '⭐ Loyal Client — Get a free {item} on us!',
+        fr: '⭐ Client Fidèle — On vous offre un {item} !',
     },
     [LOYALTY_MESSAGE_KEYS.LOYAL_INCOMPLETE_SPENDING]: {
         en: '🔥 Final step! Spend a little more to unlock loyal rewards.',

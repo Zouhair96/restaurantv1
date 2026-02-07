@@ -228,28 +228,27 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, configArg = {}
             };
         } else if (primaryGift.type === 'FIXED_VALUE') {
             const val = parseFloat(primaryGift.euro_value || 0);
-            if (val > 0) {
-                return {
-                    discount: useReward ? val : 0,
-                    messageKey: LOYALTY_MESSAGE_KEYS.LOYAL_FIXED_DISCOUNT,
-                    messageVariables: { value: val },
-                    isApplied: useReward,
-                    welcomeTeaser: true,
-                    isLoyal: true,
-                    activeGifts: activeGifts.length > 0 ? activeGifts : [primaryGift]
-                };
-            } else {
-                return {
-                    discount: 0,
-                    giftItem: config.reward_value || "Special Item",
-                    messageKey: LOYALTY_MESSAGE_KEYS.LOYAL_GIFT,
-                    messageVariables: { item: config.reward_value || "Special Item" },
-                    isApplied: useReward,
-                    welcomeTeaser: true,
-                    isLoyal: true,
-                    activeGifts: activeGifts.length > 0 ? activeGifts : [primaryGift]
-                };
-            }
+            return {
+                discount: useReward ? val : 0,
+                messageKey: LOYALTY_MESSAGE_KEYS.LOYAL_FIXED_DISCOUNT,
+                messageVariables: { value: val },
+                isApplied: useReward,
+                welcomeTeaser: true,
+                isLoyal: true,
+                activeGifts: activeGifts.length > 0 ? activeGifts : [primaryGift]
+            };
+        } else if (primaryGift.type === 'ITEM') {
+            const itemName = primaryGift.gift_name || "Special Gift";
+            return {
+                discount: 0,
+                giftItem: itemName,
+                messageKey: LOYALTY_MESSAGE_KEYS.LOYAL_GIFT,
+                messageVariables: { item: itemName },
+                isApplied: useReward,
+                welcomeTeaser: true,
+                isLoyal: true,
+                activeGifts: activeGifts.length > 0 ? activeGifts : [primaryGift]
+            };
         }
     }
 

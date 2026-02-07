@@ -72,7 +72,7 @@ export const handler = async (event, context) => {
 
         // 2. Fetch Active Gifts (Source of Truth)
         const giftsRes = await query(`
-            SELECT id, euro_value, type, percentage_value, status, created_at 
+            SELECT id, euro_value, type, percentage_value, gift_name, status, created_at 
             FROM gifts 
             WHERE device_id = $1 AND restaurant_id = $2 AND status = 'unused'
         `, [loyaltyId, targetRestaurantId]);
