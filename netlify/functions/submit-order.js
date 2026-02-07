@@ -94,14 +94,18 @@ export const handler = async (event, context) => {
         let orderDate = null;
         let generatedOrderNumber = null;
 
-        await query('BEGIN');
+        const { getClient } = await import('./db.js');
+        const client = await getClient();
+
         try {
+            await client.query('BEGIN');
+
             // A. Loyalty Visit Finalization (Steps 1 & 2)
             if (finalLoyaltyId) {
                 // Ensure visitor exists and increment session order count with timeout check
-                const vRes = await query('SELECT id, orders_in_current_session, last_visit_at FROM loyalty_visitors WHERE restaurant_id = $1 AND device_id = $2 FOR UPDATE', [restaurantId, finalLoyaltyId]);
+                const vRes = await client.query('SELECT id, orders_in_current_session, last_visit_at FROM loyalty_visitors WHERE restaurant_id = $1 AND device_id = $2 FOR UPDATE', [restaurantId, finalLoyaltyId]);
                 if (vRes.rows.length === 0) {
-                    await query('INSERT INTO loyalty_visitors (restaurant_id, device_id, orders_in_current_session, last_visit_at) VALUES ($1, $2, 1, NOW())', [restaurantId, finalLoyaltyId]);
+                    await client.query('INSERT INTO loyalty_visitors (restaurant_id, device_id, orders_in_current_session, last_visit_at) VALUES ($1, $2, 1, NOW())', [restaurantId, finalLoyaltyId]);
                 } else {
                     const visitor = vRes.rows[0];
                     const lastVisit = visitor.last_visit_at ? new Date(visitor.last_visit_at) : null;
@@ -110,25 +114,25 @@ export const handler = async (event, context) => {
 
                     if (lastVisit && (now - lastVisit > sessionTimeout)) {
                         // NEW SESSION: Start from 1
-                        await query('UPDATE loyalty_visitors SET orders_in_current_session = 1, last_visit_at = NOW() WHERE id = $1', [visitor.id]);
+                        await client.query('UPDATE loyalty_visitors SET orders_in_current_session = 1, last_visit_at = NOW() WHERE id = $1', [visitor.id]);
                     } else {
                         // CONTINUING SESSION: Increment
-                        await query('UPDATE loyalty_visitors SET orders_in_current_session = COALESCE(orders_in_current_session, 0) + 1, last_visit_at = NOW() WHERE id = $1', [visitor.id]);
+                        await client.query('UPDATE loyalty_visitors SET orders_in_current_session = COALESCE(orders_in_current_session, 0) + 1, last_visit_at = NOW() WHERE id = $1', [visitor.id]);
                     }
                 }
             }
 
             // B. Order Number Generation
-            const nrConfigRes = await query('SELECT order_number_config FROM users WHERE id = $1 FOR UPDATE', [restaurantId]);
+            const nrConfigRes = await client.query('SELECT order_number_config FROM users WHERE id = $1 FOR UPDATE', [restaurantId]);
             const nrConfig = nrConfigRes.rows[0]?.order_number_config || { starting_number: 1, current_number: 1, reset_period: 'never', weekly_start_day: 1, last_reset_date: null };
             const { order_number, new_current, last_reset_date } = getNextOrderNumber(nrConfig);
             generatedOrderNumber = order_number;
 
-            await query(`UPDATE users SET order_number_config = jsonb_set(jsonb_set(order_number_config, '{current_number}', $1::text::jsonb), '{last_reset_date}', $2::text::jsonb) WHERE id = $3`,
+            await client.query(`UPDATE users SET order_number_config = jsonb_set(jsonb_set(order_number_config, '{current_number}', $1::text::jsonb), '{last_reset_date}', $2::text::jsonb) WHERE id = $3`,
                 [new_current, last_reset_date ? `"${last_reset_date}"` : 'null', restaurantId]);
 
             // C. Insert Order (Step 3)
-            const orderRes = await query(`
+            const orderRes = await client.query(`
                 INSERT INTO orders (
                     restaurant_id, order_type, table_number, delivery_address, payment_method, 
                     items, total_price, status, customer_id, commission_amount, payment_status, 
@@ -144,18 +148,18 @@ export const handler = async (event, context) => {
             // D. Lifecycle Attachment
             if (loyalty_gift_id) {
                 if (convertToPoints) {
-                    // Update only order_id, keep status unused for conversion tool
-                    await query('UPDATE gifts SET order_id = $1 WHERE id = $2 AND device_id = $3', [newOrderId, loyalty_gift_id, loyalty_id]);
+                    await client.query('UPDATE gifts SET order_id = $1 WHERE id = $2 AND device_id = $3', [newOrderId, loyalty_gift_id, finalLoyaltyId]);
                 } else {
-                    // Mark as consumed immediately
-                    await query('UPDATE gifts SET order_id = $1, status = \'consumed\' WHERE id = $2 AND device_id = $3', [newOrderId, loyalty_gift_id, loyalty_id]);
+                    await client.query('UPDATE gifts SET order_id = $1, status = \'consumed\' WHERE id = $2 AND device_id = $3', [newOrderId, loyalty_gift_id, finalLoyaltyId]);
                 }
             }
 
-            await query('COMMIT');
+            await client.query('COMMIT');
         } catch (txErr) {
-            await query('ROLLBACK').catch(() => { });
+            await client.query('ROLLBACK').catch(() => { });
             throw txErr;
+        } finally {
+            client.release();
         }
 
         // --- 4. Post-Transaction (Conversion, Stripe & Response) ---

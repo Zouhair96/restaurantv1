@@ -746,7 +746,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                 )}
             </AnimatePresence >
 
-            <PublicMenuSidebar isOpen={showAuthSidebar} onClose={() => setShowAuthSidebar(false)} restaurantName={restaurantName} displayName={config.restaurantName} themeColor={config.themeColor} socialMedia={config.socialMedia} />
+            <PublicMenuSidebar isOpen={showAuthSidebar} onClose={() => setShowAuthSidebar(false)} restaurantName={restaurantName} displayName={config.restaurantName} themeColor={config.themeColor} socialMedia={config.socialMedia} loyaltyInfo={loyaltyInfo} />
             <Checkout
                 isOpen={isCheckoutOpen}
                 onClose={() => setIsCheckoutOpen(false)}

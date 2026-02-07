@@ -41,3 +41,8 @@ export const query = async (text, params) => {
         throw error;
     }
 };
+
+export const getClient = async () => {
+    const client = await pool.connect();
+    return client;
+};

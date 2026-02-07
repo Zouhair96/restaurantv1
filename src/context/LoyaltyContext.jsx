@@ -54,6 +54,7 @@ export const LoyaltyProvider = ({ children }) => {
                     totalPoints,
                     totalVisits,
                     ordersInCurrentVisit,
+                    totalCompletedOrders,
                     sessionIsValid,
                     activeGifts,
                     loyalty_config,
@@ -68,11 +69,11 @@ export const LoyaltyProvider = ({ children }) => {
                             totalPoints,
                             serverTotalVisits: totalVisits,
                             ordersInCurrentVisit,
+                            totalCompletedOrders: totalCompletedOrders || 0,
                             sessionIsValid,
                             totalSpending: totalSpending || 0, // CUMULATIVE SPENDING
                             // STRICT FLAGS
                             hasPlacedOrderInCurrentSession: data.hasPlacedOrderInCurrentSession,
-                            isWelcomeDiscountEligible: data.isWelcomeDiscountEligible,
 
                             activeGifts: activeGifts || [],
                             config: loyalty_config || (prev[restaurantName]?.config) || { isAutoPromoOn: true }
@@ -207,15 +208,17 @@ export const LoyaltyProvider = ({ children }) => {
 
         const totalVisits = parseInt(log.serverTotalVisits) || 0;
         const totalPoints = parseInt(log.totalPoints) || 0;
+        const totalCompletedOrders = parseInt(log.totalCompletedOrders) || 0;
         const activeGifts = log.activeGifts || [];
         const sessionIsValid = !!log.sessionIsValid;
         const ordersInSession = parseInt(log.ordersInCurrentVisit) || 0;
 
         const effectiveVisits = totalVisits + 1;
+        const isStrictlyNew = totalCompletedOrders === 0 && totalPoints === 0 && activeGifts.length === 0;
 
         let currentStatus = 'NEW';
-        if (effectiveVisits <= 1) currentStatus = 'NEW';
-        else if (effectiveVisits === 2) currentStatus = 'WELCOME';
+        if (isStrictlyNew) currentStatus = 'NEW';
+        else if (effectiveVisits <= 2) currentStatus = 'WELCOME';
         else if (effectiveVisits === 3) currentStatus = 'IN_PROGRESS';
         else if (effectiveVisits >= 4) currentStatus = 'LOYAL';
 
@@ -223,6 +226,7 @@ export const LoyaltyProvider = ({ children }) => {
             status: currentStatus,
             totalPoints: totalPoints,
             totalVisits: totalVisits,
+            totalCompletedOrders: totalCompletedOrders,
             totalSpending: parseFloat(log.totalSpending) || 0, // CUMULATIVE SPENDING
             activeGifts: activeGifts,
             sessionIsValid: sessionIsValid,

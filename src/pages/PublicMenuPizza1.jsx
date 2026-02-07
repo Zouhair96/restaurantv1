@@ -666,6 +666,7 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                 displayName={config.restaurantName}
                 themeColor={config.themeColor}
                 socialMedia={config.socialMedia}
+                loyaltyInfo={loyaltyInfo}
             />
             <Checkout
                 isOpen={isCheckoutOpen}

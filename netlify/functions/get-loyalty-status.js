@@ -82,13 +82,17 @@ export const handler = async (event, context) => {
         const configRes = await query('SELECT loyalty_config FROM users WHERE id = $1', [targetRestaurantId]);
         const loyaltyConfig = configRes.rows[0]?.loyalty_config || { isAutoPromoOn: true };
 
-        // 4. Calculate total spending from completed orders for UI stats
-        const spendingRes = await query(`
-            SELECT SUM(total_price) as total 
+        // 4. Calculate total spending AND total completed orders count
+        const orderStatsRes = await query(`
+            SELECT 
+                COUNT(*) as count,
+                SUM(total_price) as total 
             FROM orders 
             WHERE restaurant_id = $1 AND loyalty_id = $2 AND status = 'completed'
         `, [targetRestaurantId, loyaltyId]);
-        const totalSpending = parseFloat(spendingRes.rows[0]?.total || 0);
+
+        const totalCompletedOrders = parseInt(orderStatsRes.rows[0]?.count || 0);
+        const totalSpending = parseFloat(orderStatsRes.rows[0]?.total || 0);
 
         return {
             statusCode: 200,
@@ -97,15 +101,14 @@ export const handler = async (event, context) => {
                 totalPoints: totalPoints,
                 totalVisits: visitCount,
                 ordersInCurrentVisit: ordersInCurrentSession,
+                totalCompletedOrders: totalCompletedOrders,
                 sessionIsValid: ordersInCurrentSession > 0,
                 activeGifts: activeGifts,
                 loyalty_config: loyaltyConfig,
                 totalSpending: totalSpending,
 
-                // --- UI Helpers (Based strictly on state above) ---
-                hasPlacedOrderInCurrentSession: ordersInCurrentSession > 0,
-                isWelcomeDiscountEligible: visitCount === 1 && ordersInCurrentSession === 0,
-                isLoyalDiscountActive: visitCount >= 3
+                // --- UI Helpers (MANDATORY: Used by the frontend for basic visibility) ---
+                hasPlacedOrderInCurrentSession: ordersInCurrentSession > 0
             })
         };
 

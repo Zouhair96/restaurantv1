@@ -254,9 +254,22 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}, u
     }
 
     // --- PHASE B: VISIT PROGRESS & MESSAGING (Status-Based) ---
-    // If no active gifts, we show the status-based messaging (Session 1, 3, or completion states)
+    // If no active gifts, we show the status-based messaging.
 
-    // Condition 1: Session 3 (Progress Bar Session)
+    // 1. STRICT WELCOME ELIGIBILITY (Source of Truth)
+    const isStrictlyNew = (parseInt(loyaltyInfo.totalCompletedOrders) || 0) === 0 &&
+        (parseInt(loyaltyInfo.totalPoints) || 0) === 0 &&
+        activeGifts.length === 0;
+
+    if (isStrictlyNew) {
+        return {
+            discount: 0,
+            messageKey: ordersInSession > 0 ? LOYALTY_MESSAGE_KEYS.SESSION_1_AFTER_ORDER : LOYALTY_MESSAGE_KEYS.SESSION_1_BEFORE_ORDER,
+            welcomeTeaser: true
+        };
+    }
+
+    // 2. Session 3 (Progress Bar Session)
     if (effectiveVisits === 3) {
         const threshold = parseFloat(config.loyalConfig?.threshold || 50);
         const spending = parseFloat(loyaltyInfo.totalSpending || 0);
@@ -274,7 +287,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}, u
         };
     }
 
-    // Condition 2: Session 2 (Welcome Session, but maybe gift already used or not provisioned yet)
+    // 3. Session 2 (Welcome Session - returned if not strictly new but maybe visit_count=1)
     if (effectiveVisits === 2) {
         return {
             discount: 0,
@@ -284,7 +297,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}, u
         };
     }
 
-    // Condition 3: Session 4+ (Loyal, but no active gifts? Show progress bar again)
+    // 4. Session 4+ (Loyal, but no active gifts? Show progress bar again)
     if (effectiveVisits >= 4) {
         const threshold = parseFloat(config.loyalConfig?.threshold || 50);
         const spending = parseFloat(loyaltyInfo.totalSpending || 0);
@@ -299,10 +312,12 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, config = {}, u
         };
     }
 
-    // Default: Session 1 (New)
+    // Default Fallback: If not "Strictly New" and it doesn't fit a session index perfectly,
+    // we show Session 2 (Returning) as a safe neutral state.
     return {
         discount: 0,
-        messageKey: ordersInSession > 0 ? LOYALTY_MESSAGE_KEYS.SESSION_1_AFTER_ORDER : LOYALTY_MESSAGE_KEYS.SESSION_1_BEFORE_ORDER,
+        messageKey: ordersInSession > 0 ? LOYALTY_MESSAGE_KEYS.SESSION_2_AFTER_ORDER : LOYALTY_MESSAGE_KEYS.SESSION_2_BEFORE_ORDER,
+        messageVariables: { percentage: config.welcomeConfig?.value || 10 },
         welcomeTeaser: true
     };
 };

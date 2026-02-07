@@ -230,34 +230,39 @@ export const handler = async (event, context) => {
 
             // --- ENTITY-BASED LOYALTY SYSTEM: COMPLETION HOOK ---
             if (loyaltyId && prevStatus !== 'completed') {
-                await query('BEGIN');
+                const { getClient } = await import('./db.js');
+                const client = await getClient();
+
                 try {
+                    await client.query('BEGIN');
+
                     // 1. Get or Create Visitor Profile
                     console.log(`[Loyalty] Processing completion for order ${orderId}, loyaltyId: ${loyaltyId}`);
 
-                    let visitorRes = await query(
+                    let visitorRes = await client.query(
                         'SELECT id, visit_count, orders_in_current_session, last_visit_at FROM loyalty_visitors WHERE restaurant_id = $1 AND device_id = $2 FOR UPDATE',
                         [orderRestaurantId, loyaltyId]
                     );
 
                     let visitor = visitorRes.rows[0];
                     if (!visitor) {
-                        const insertRes = await query(`
+                        const insertRes = await client.query(`
                             INSERT INTO loyalty_visitors (restaurant_id, device_id, visit_count, total_points, orders_in_current_session, last_visit_at)
                             VALUES ($1, $2, 0, 0, 0, NOW())
                             RETURNING id, visit_count, orders_in_current_session, last_visit_at
                         `, [orderRestaurantId, loyaltyId]);
                         visitor = insertRes.rows[0];
+                        console.log(`[Loyalty] Created new visitor ${visitor.id}`);
                     }
 
                     // 2. IDEMPOTENCY CHECK: Ensure we haven't processed points for this order
-                    const existingTx = await query(
+                    const existingTx = await client.query(
                         'SELECT id FROM points_transactions WHERE order_id = $1 FOR UPDATE',
                         [orderId]
                     );
 
                     if (existingTx.rows.length === 0) {
-                        const userRes = await query('SELECT loyalty_config FROM users WHERE id = $1', [orderRestaurantId]);
+                        const userRes = await client.query('SELECT loyalty_config FROM users WHERE id = $1', [orderRestaurantId]);
                         const config = userRes.rows[0]?.loyalty_config || {};
 
                         // --- POINT EARNING ---
@@ -266,20 +271,19 @@ export const handler = async (event, context) => {
                             const earnedPoints = Math.floor(parseFloat(order.total_price || 0) * ppe);
 
                             if (earnedPoints > 0) {
-                                await query(`
+                                await client.query(`
                                     INSERT INTO points_transactions (restaurant_id, device_id, order_id, type, amount, created_at)
                                     VALUES ($1, $2, $3, 'EARN', $4, NOW())
                                 `, [orderRestaurantId, loyaltyId, orderId, earnedPoints]);
 
-                                await query(`
+                                await client.query(`
                                     UPDATE loyalty_visitors SET total_points = COALESCE(total_points, 0) + $1 WHERE id = $2
                                 `, [earnedPoints, visitor.id]);
                             }
                         }
 
                         // --- VISIT COUNTING & REWARD PROVISIONING ---
-                        // Rule: Start a "new visit" if THIS order's creation time is > 2 mins after the PREVIOUS completed order
-                        const prevOrderRes = await query(`
+                        const prevOrderRes = await client.query(`
                             SELECT created_at FROM orders 
                             WHERE loyalty_id = $1 AND restaurant_id = $2 AND status = 'completed' AND id != $3
                             ORDER BY created_at DESC LIMIT 1
@@ -289,28 +293,30 @@ export const handler = async (event, context) => {
                         const thisOrderCreation = new Date(order.created_at);
                         const sessionTimeout = 2 * 60 * 1000; // 2 minutes
 
-                        // If no previous completed orders, this is Visit 1
-                        // FORCE new visit if visit_count is currently 0 (insurance for first-timers)
                         const isNewVisit = !lastVisitCompletion || (thisOrderCreation - lastVisitCompletion > sessionTimeout) || (parseInt(visitor.visit_count || 0) === 0);
 
-                        console.log(`[Loyalty] isNewVisit: ${isNewVisit}, lastVisitCompletion: ${lastVisitCompletion}, currentVisitCount: ${visitor.visit_count}`);
+                        console.log(`[Loyalty] isNewVisit: ${isNewVisit}, lastVisitComp: ${lastVisitCompletion}, currentVisits: ${visitor.visit_count}`);
 
                         if (isNewVisit) {
                             const newVisitCount = parseInt(visitor.visit_count || 0) + 1;
                             console.log(`[Loyalty] Incrementing visit_count to: ${newVisitCount}`);
 
-                            // Provisioning Logic (Welcome Discount for graduation to Visit 1)
                             if (newVisitCount === 1) {
-                                const welcomeVal = parseInt(config.welcome_discount_value) || 10;
-                                await query(`
+                                // Support both old and new config structures
+                                const welcomeVal = parseInt(config.welcomeConfig?.value || config.welcome_discount_value) || 10;
+                                await client.query(`
                                     INSERT INTO gifts (restaurant_id, device_id, type, percentage_value, status)
                                     VALUES ($1, $2, 'PERCENTAGE', $3, 'unused')
                                 `, [orderRestaurantId, loyaltyId, welcomeVal]);
                             } else if (newVisitCount === 3) {
-                                const rewardType = config.reward_type === 'item' ? 'FIXED_VALUE' : 'PERCENTAGE';
-                                const rewardVal = parseInt(config.reward_value) || (rewardType === 'FIXED_VALUE' ? 2 : 15);
+                                // Support both old and new config structures
+                                const rType = config.loyalConfig?.type || config.reward_type;
+                                const rVal = config.loyalConfig?.value || config.reward_value;
 
-                                await query(`
+                                const rewardType = rType === 'item' ? 'FIXED_VALUE' : 'PERCENTAGE';
+                                const rewardVal = parseInt(rVal) || (rewardType === 'FIXED_VALUE' ? 2 : 15);
+
+                                await client.query(`
                                     INSERT INTO gifts (restaurant_id, device_id, type, euro_value, percentage_value, status)
                                     VALUES ($1, $2, $3, $4, $5, 'unused')
                                 `, [
@@ -322,14 +328,13 @@ export const handler = async (event, context) => {
                                 ]);
                             }
 
-                            await query(`
+                            await client.query(`
                                 UPDATE loyalty_visitors 
                                 SET visit_count = $1, orders_in_current_session = 1, last_visit_at = NOW()
                                 WHERE id = $2
                             `, [newVisitCount, visitor.id]);
                         } else {
-                            // Subsequent order in same session
-                            await query(`
+                            await client.query(`
                                 UPDATE loyalty_visitors 
                                 SET orders_in_current_session = COALESCE(orders_in_current_session, 0) + 1,
                                     last_visit_at = NOW()
@@ -338,10 +343,12 @@ export const handler = async (event, context) => {
                         }
                     }
 
-                    await query('COMMIT');
+                    await client.query('COMMIT');
                 } catch (err) {
-                    await query('ROLLBACK').catch(() => { });
+                    await client.query('ROLLBACK').catch(() => { });
                     console.error('[Loyalty Completion Error]:', err.message);
+                } finally {
+                    client.release();
                 }
             }
 

@@ -365,8 +365,16 @@ const Checkout = ({
                                             <span className="text-2xl">🎉</span>
                                             <div className="flex flex-col">
                                                 <span className="font-black text-sm text-green-700 dark:text-green-400">
-                                                    {isLoyal ? (translations[lang]?.auth?.loyalTitle || "Loyal Member!") :
-                                                        (totalVisits > 0 ? (translations[lang]?.auth?.welcomeBackTitle || "Welcome Back!") : (translations[lang]?.auth?.welcomeTitle || "Welcome!"))}
+                                                    {(() => {
+                                                        if (isLoyal) return translations[lang]?.auth?.loyalTitle || "Loyal Member!";
+                                                        const isStrictlyNew = (parseInt(loyaltyInfo.totalCompletedOrders) || 0) === 0 &&
+                                                            (parseInt(loyaltyInfo.totalPoints) || 0) === 0 &&
+                                                            (loyaltyInfo.activeGifts?.length || 0) === 0;
+
+                                                        return isStrictlyNew ?
+                                                            (translations[lang]?.auth?.welcomeTitle || "Welcome!") :
+                                                            (translations[lang]?.auth?.welcomeBackTitle || "Welcome Back!");
+                                                    })()}
                                                 </span>
                                                 <span className="text-[10px] font-bold text-green-600 dark:text-green-500">
                                                     {getLoyaltyMessage(messageKey, language, messageVariables) || null}
