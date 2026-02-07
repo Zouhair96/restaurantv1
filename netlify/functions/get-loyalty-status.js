@@ -101,9 +101,14 @@ export const handler = async (event, context) => {
         if (totalCompletedOrders === 0) {
             uiState = 'WELCOME';
         } else if (totalCompletedOrders === 1) {
-            // SESSION 2: ALWAYS GIFT_AVAILABLE (Deterministic)
-            // Even if activeGifts is empty (delayed creation), the UI must know we are in the "Gift Session"
-            uiState = 'GIFT_AVAILABLE';
+            // SESSION 2: GIFT_AVAILABLE
+            // CONSTRIANT: User must have terminated the previous session (Time).
+            // If ordersInCurrentSession > 0, they just finished Session 1. We wait for them to leave and come back.
+            if (ordersInCurrentSession > 0) {
+                uiState = 'ACTIVE_EARNING';
+            } else {
+                uiState = 'GIFT_AVAILABLE';
+            }
         } else if (activeGifts.length > 0) {
             // Any other session with a gift
             uiState = 'GIFT_AVAILABLE';
