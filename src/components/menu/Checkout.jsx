@@ -231,50 +231,78 @@ const Checkout = ({
 
                                 {cartItems.length === 0 ? (
                                     <>
-                                        {/* Loyalty messages visible even when empty */}
-                                        {(welcomeTeaser || showProgress) && (
-                                            <div className="mb-8">
-                                                {isLoyal && messageKey && (
-                                                    <div className="flex justify-between items-center bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 p-5 rounded-3xl border-2 border-amber-200 dark:border-amber-700">
-                                                        <div className="flex items-center gap-3">
-                                                            <span className="text-2xl">⭐</span>
-                                                            <div className="flex flex-col">
-                                                                <span className="font-black text-sm text-amber-700 dark:text-amber-400">Loyal Client</span>
-                                                                <span className="text-[10px] font-bold text-amber-600 dark:text-amber-500">
-                                                                    {getLoyaltyMessage(messageKey, language, messageVariables) || null}
-                                                                </span>
+                                        {/* Loyalty messages visible even when empty - SWITCH Implementation */}
+                                        <div className="mb-8">
+                                            {(() => {
+                                                const uiState = loyaltyInfo?.uiState || 'ACTIVE_EARNING';
+                                                const activeGifts = loyaltyInfo?.activeGifts || [];
+                                                const gift = activeGifts.length > 0 ? activeGifts[0] : { type: 'PERCENTAGE', percentage_value: 10 };
+
+                                                switch (uiState) {
+                                                    case 'WELCOME':
+                                                        return (
+                                                            <div className="flex justify-between items-center bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-5 rounded-3xl border-2 border-green-200 dark:border-green-700">
+                                                                <div className="flex items-center gap-3">
+                                                                    <span className="text-2xl">👋</span>
+                                                                    <div className="flex flex-col">
+                                                                        <span className="font-black text-sm text-green-700 dark:text-green-400">
+                                                                            {translations[lang]?.auth?.welcomeTitle || "Welcome!"}
+                                                                        </span>
+                                                                        <span className="text-[10px] font-bold text-green-600 dark:text-green-500">
+                                                                            {getLoyaltyMessage(LOYALTY_MESSAGE_KEYS.SESSION_1_AFTER_ORDER, language) || 'Join us to earn rewards'}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                                {welcomeTeaser && messageKey && !isLoyal && (
-                                                    <div className="flex justify-between items-center bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-5 rounded-3xl border-2 border-green-200 dark:border-green-700">
-                                                        <div className="flex items-center gap-3">
-                                                            <span className="text-2xl">🎉</span>
-                                                            <div className="flex flex-col">
-                                                                <span className="font-black text-sm text-green-700 dark:text-green-400">
-                                                                    {loyaltyInfo?.uiState === 'WELCOME' ?
-                                                                        (translations[lang]?.auth?.welcomeTitle || "Welcome!") :
-                                                                        (translations[lang]?.auth?.welcomeBackTitle || "Welcome Back!")
-                                                                    }
-                                                                </span>
-                                                                <span className="text-[10px] font-bold text-green-600 dark:text-green-500">
-                                                                    {getLoyaltyMessage(messageKey, language, messageVariables) || null}
-                                                                </span>
+                                                        );
+
+                                                    case 'GIFT_AVAILABLE':
+                                                        return (
+                                                            <div className="flex justify-between items-center bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 p-5 rounded-3xl border-2 border-pink-200 dark:border-pink-700">
+                                                                <div className="flex items-center gap-3">
+                                                                    <span className="text-2xl">🎁</span>
+                                                                    <div className="flex flex-col">
+                                                                        <span className="font-black text-sm text-pink-700 dark:text-pink-400">
+                                                                            {getLoyaltyMessage(LOYALTY_MESSAGE_KEYS.SESSION_2_BEFORE_ORDER, language, { percentage: gift.percentage_value || 10 }) || 'Welcome Back!'}
+                                                                        </span>
+                                                                        <span className="text-[10px] font-bold text-pink-600 dark:text-pink-500">
+                                                                            {getLoyaltyMessage(LOYALTY_MESSAGE_KEYS.SESSION_2_AFTER_ORDER, language) || 'Valid for this session'}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                                {showProgress && (
-                                                    <LoyaltyProgressBar
-                                                        loyaltyConfig={loyaltyInfo?.config || {}}
-                                                        isDarkMode={isDarkMode}
-                                                        percentage={progressPercentage}
-                                                        progressMessage={messageKey ? getLoyaltyMessage(messageKey, language, messageVariables) : null}
-                                                    />
-                                                )}
-                                            </div>
-                                        )}
+                                                        );
+
+                                                    case 'POINTS_PROGRESS':
+                                                        return (
+                                                            <LoyaltyProgressBar
+                                                                loyaltyConfig={loyaltyInfo?.config || {}}
+                                                                isDarkMode={isDarkMode}
+                                                                percentage={progressPercentage}
+                                                                progressMessage={getLoyaltyMessage(LOYALTY_MESSAGE_KEYS.SESSION_3_PROGRESS, language) || 'Keep earning!'}
+                                                            />
+                                                        );
+
+                                                    case 'ACTIVE_EARNING':
+                                                    default:
+                                                        return (
+                                                            <div className="flex justify-between items-center bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 p-5 rounded-3xl border-2 border-amber-200 dark:border-amber-700">
+                                                                <div className="flex items-center gap-3">
+                                                                    <span className="text-2xl">💎</span>
+                                                                    <div className="flex flex-col">
+                                                                        <span className="font-black text-sm text-amber-700 dark:text-amber-400">
+                                                                            Loyal Member
+                                                                        </span>
+                                                                        <span className="text-[10px] font-bold text-amber-600 dark:text-amber-500">
+                                                                            Earn points with every order
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                }
+                                            })()}
+                                        </div>
 
                                         <motion.div
                                             animate={isShaking ? {

@@ -9,119 +9,108 @@ const LoyaltyRewardUI = ({ restaurantName, themeColor = '#f97316', isDarkMode = 
     const { getStatus, convertGift } = useLoyalty();
     const { language: currentLanguage } = useLanguage();
     const loyaltyInfo = getStatus(restaurantName);
-    const [isConverting, setIsConverting] = useState(null); // stores giftId being converted
+    const [isConverting, setIsConverting] = useState(null);
     const [dismissed, setDismissed] = useState(false);
+
+    if (dismissed) return null;
 
     const activeGifts = loyaltyInfo?.activeGifts || [];
     const config = loyaltyInfo?.config || {};
-    const giftConversionEnabled = config.gift_conversion_enabled;
+    const uiState = loyaltyInfo?.uiState || 'ACTIVE_EARNING'; // Default fallback
 
-    // Aggressive check: If state is GIFT_AVAILABLE, we MUST show something, even if activeGifts is empty (fallback)
-    const shouldShow = (loyaltyInfo?.uiState === 'GIFT_AVAILABLE') || (activeGifts.length > 0);
+    // Content Generators based on State
+    const renderContent = () => {
+        switch (uiState) {
+            case 'WELCOME':
+                return {
+                    icon: '👋',
+                    title: getLoyaltyMessage(LOYALTY_MESSAGE_KEYS.SESSION_1_BEFORE_ORDER, currentLanguage) || 'Welcome!',
+                    subtitle: getLoyaltyMessage(LOYALTY_MESSAGE_KEYS.SESSION_1_AFTER_ORDER, currentLanguage) || 'Join us to earn rewards',
+                    action: null
+                };
 
-    if (!shouldShow || dismissed) return null;
+            case 'GIFT_AVAILABLE':
+                // Use first gift or fallback 10%
+                const gift = activeGifts.length > 0 ? activeGifts[0] : { type: 'PERCENTAGE', percentage_value: 10 };
+                const isPercentage = gift.type === 'PERCENTAGE';
+                const valueDisplay = isPercentage ? `${gift.percentage_value}%` : `${gift.euro_value}€`;
 
-    const handleConvert = async (giftId) => {
-        setIsConverting(giftId);
-        const result = await convertGift(restaurantName, giftId);
-        setIsConverting(null);
-        if (result.success) {
-            // Succession message could be added here
+                return {
+                    icon: '🎁',
+                    title: getLoyaltyMessage(LOYALTY_MESSAGE_KEYS.SESSION_2_BEFORE_ORDER, currentLanguage, { percentage: gift.percentage_value || 10 }) || 'Welcome Back!',
+                    subtitle: getLoyaltyMessage(LOYALTY_MESSAGE_KEYS.SESSION_2_AFTER_ORDER, currentLanguage) || 'Valid for this session',
+                    action: 'Use Gift',
+                    giftId: gift.id || 'fallback'
+                };
+
+            case 'POINTS_PROGRESS':
+                return {
+                    icon: '⭐',
+                    title: getLoyaltyMessage(LOYALTY_MESSAGE_KEYS.SESSION_3_PROGRESS, currentLanguage) || 'Keep earning!',
+                    subtitle: 'You are getting closer to a reward',
+                    action: null
+                };
+
+            case 'ACTIVE_EARNING':
+            default:
+                // Silent state or simple badge - User said "Zero blank screens", so we show a small loyal badge
+                return {
+                    icon: '💎',
+                    title: getLoyaltyMessage(LOYALTY_MESSAGE_KEYS.LOYAL_ACTIVE, currentLanguage) || 'Loyal Member',
+                    subtitle: 'Earn points with every order',
+                    action: null
+                };
         }
     };
+
+    const content = renderContent();
 
     return (
         <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[90] w-full max-w-sm px-4">
             <AnimatePresence>
-                {(activeGifts.length > 0 ? activeGifts : [{ id: 'fallback', type: 'PERCENTAGE', percentage_value: 10 }]).map((gift, idx) => (
-                    <motion.div
-                        key={gift.id}
-                        initial={{ y: 50, opacity: 0, scale: 0.9 }}
-                        animate={{ y: 0, opacity: 1, scale: 1 }}
-                        exit={{ y: 20, opacity: 0, scale: 0.9 }}
-                        className={`p-5 rounded-[2rem] border shadow-2xl overflow-hidden relative ${isDarkMode ? 'bg-gray-900 border-white/10' : 'bg-white border-gray-100'
-                            }`}
-                        style={{ borderBottom: `4px solid ${themeColor}` }}
+                <motion.div
+                    initial={{ y: 50, opacity: 0, scale: 0.9 }}
+                    animate={{ y: 0, opacity: 1, scale: 1 }}
+                    exit={{ y: 20, opacity: 0, scale: 0.9 }}
+                    className={`p-5 rounded-[2rem] border shadow-2xl overflow-hidden relative ${isDarkMode ? 'bg-gray-900 border-white/10' : 'bg-white border-gray-100'}`}
+                    style={{ borderBottom: `4px solid ${themeColor}` }}
+                >
+                    <button
+                        onClick={() => setDismissed(true)}
+                        className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-1"
                     >
-                        {/* Dismiss Button */}
-                        <button
-                            onClick={() => setDismissed(true)}
-                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-1"
+                        <HiXMark className="w-5 h-5" />
+                    </button>
+
+                    <div className="flex items-center gap-4 mb-4">
+                        <div
+                            className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl shadow-inner"
+                            style={{ backgroundColor: `${themeColor}15`, color: themeColor }}
                         >
-                            <HiXMark className="w-5 h-5" />
-                        </button>
-
-                        <div className="flex items-center gap-4 mb-4">
-                            <div
-                                className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl shadow-inner"
-                                style={{ backgroundColor: `${themeColor}15`, color: themeColor }}
-                            >
-                                🎁
-                            </div>
-                            <div>
-                                <h3 className={`font-black text-lg leading-tight ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                                    {loyaltyInfo.uiState === 'WELCOME' ?
-                                        getLoyaltyMessage(LOYALTY_MESSAGE_KEYS.SESSION_1_BEFORE_ORDER, currentLanguage) || 'Welcome!' :
-                                        (parseInt(loyaltyInfo.totalCompletedOrders) === 1 ?
-                                            getLoyaltyMessage(LOYALTY_MESSAGE_KEYS.SESSION_2_BEFORE_ORDER, currentLanguage, { percentage: gift.percentage_value || 10 }) :
-                                            'You received a reward!')
-                                    }
-                                </h3>
-                                <p className="text-sm font-bold text-gray-400">
-                                    {getLoyaltyMessage(LOYALTY_MESSAGE_KEYS.SESSION_2_AFTER_ORDER, currentLanguage) || 'Valid for this session'}
-                                </p>
-                            </div>
+                            {content.icon}
                         </div>
+                        <div>
+                            <h3 className={`font-black text-lg leading-tight ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                                {content.title}
+                            </h3>
+                            <p className="text-sm font-bold text-gray-400">
+                                {content.subtitle}
+                            </p>
+                        </div>
+                    </div>
 
+                    {content.action && (
                         <div className="flex gap-3">
                             <button
                                 className="flex-1 py-3 px-4 rounded-xl font-black text-xs uppercase tracking-widest text-white shadow-lg active:scale-95 transition-all"
                                 style={{ backgroundColor: themeColor }}
-                                onClick={() => {
-                                    // Clicking "Use Gift" might just scroll to checkout or open it
-                                    window.dispatchEvent(new CustomEvent('openCheckout'));
-                                }}
+                                onClick={() => window.dispatchEvent(new CustomEvent('openCheckout'))}
                             >
-                                Use Gift
+                                {content.action}
                             </button>
-
-                            {giftConversionEnabled && (
-                                <button
-                                    disabled={isConverting === gift.id}
-                                    className={`flex-1 py-3 px-4 rounded-xl font-black text-xs uppercase tracking-widest border-2 active:scale-95 transition-all flex items-center justify-center gap-2 ${isDarkMode ? 'border-white/10 text-white' : 'border-gray-100 text-gray-900'
-                                        }`}
-                                    onClick={() => {
-                                        const ppe = config.points_per_euro || 1;
-                                        const pointsValue = Math.floor(parseFloat(gift.euro_value) * ppe);
-                                        const confirmMessage = getLoyaltyMessage(
-                                            LOYALTY_MESSAGE_KEYS.GIFT_CONVERSION_CONFIRM,
-                                            currentLanguage,
-                                            { points: pointsValue }
-                                        );
-                                        if (window.confirm(confirmMessage || `Convert to ${pointsValue} points? This action is irreversible.`)) {
-                                            handleConvert(gift.id);
-                                        }
-                                    }}
-                                >
-                                    {isConverting === gift.id ? (
-                                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                                    ) : (
-                                        <>
-                                            <HiSparkles className="w-4 h-4" />
-                                            {`To ${Math.floor(parseFloat(gift.euro_value) * (config.points_per_euro || 1))} Points`}
-                                        </>
-                                    )}
-                                </button>
-                            )}
                         </div>
-
-                        {!giftConversionEnabled && (
-                            <p className="mt-3 text-[10px] font-black uppercase tracking-tighter text-gray-400 text-center">
-                                * Applied automatically to your order
-                            </p>
-                        )}
-                    </motion.div>
-                ))}
+                    )}
+                </motion.div>
             </AnimatePresence>
         </div>
     );

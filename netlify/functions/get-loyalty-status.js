@@ -97,15 +97,20 @@ export const handler = async (event, context) => {
         // --- NEW: DETERMINISTIC STATE MACHINE ---
         // Priorities: WELCOME -> GIFT_AVAILABLE -> POINTS_PROGRESS -> ACTIVE_EARNING
         let uiState = 'ACTIVE_EARNING';
+
         if (totalCompletedOrders === 0) {
             uiState = 'WELCOME';
+        } else if (totalCompletedOrders === 1) {
+            // SESSION 2: ALWAYS GIFT_AVAILABLE (Deterministic)
+            // Even if activeGifts is empty (delayed creation), the UI must know we are in the "Gift Session"
+            uiState = 'GIFT_AVAILABLE';
         } else if (activeGifts.length > 0) {
+            // Any other session with a gift
             uiState = 'GIFT_AVAILABLE';
         } else if (totalCompletedOrders >= 2) {
-            // Check if we show progress bar (Session 4+ or late Session 3)
+            // Check if we show progress bar (Session 3+)
             uiState = 'POINTS_PROGRESS';
         } else {
-            // Default for 1 order but no gift yet (e.g., Still in Session 1)
             uiState = 'ACTIVE_EARNING';
         }
 
