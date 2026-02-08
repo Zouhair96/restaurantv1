@@ -154,11 +154,8 @@ export const handler = async (event, context) => {
 
             // D. Lifecycle Attachment
             if (loyalty_gift_id) {
-                if (convertToPoints) {
-                    await client.query('UPDATE gifts SET order_id = $1 WHERE id = $2 AND device_id = $3', [newOrderId, loyalty_gift_id, finalLoyaltyId]);
-                } else {
-                    await client.query('UPDATE gifts SET order_id = $1, status = \'consumed\' WHERE id = $2 AND device_id = $3', [newOrderId, loyalty_gift_id, finalLoyaltyId]);
-                }
+                // Mark gift as consumed if it's being used in this order
+                await client.query('UPDATE gifts SET order_id = $1, status = \'consumed\' WHERE id = $2 AND device_id = $3', [newOrderId, loyalty_gift_id, finalLoyaltyId]);
             }
 
             await client.query('COMMIT');
@@ -169,20 +166,7 @@ export const handler = async (event, context) => {
             client.release();
         }
 
-        // --- 4. Post-Transaction (Conversion, Stripe & Response) ---
-        if (convertToPoints && loyalty_gift_id) {
-            try {
-                const fetch = (await import('node-fetch')).default;
-                const baseUrl = process.env.URL || 'http://localhost:8888';
-                await fetch(`${baseUrl}/.netlify/functions/convert-gift-to-points`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ giftId: loyalty_gift_id, loyaltyId: loyalty_id, restaurantId: restaurantId })
-                });
-            } catch (convErr) {
-                console.error('[Conversion Trigger Failed]:', convErr.message);
-            }
-        }
+        // --- 4. Post-Transaction (Stripe & Response) ---
 
         let checkoutUrl = null;
         if (paymentMethod === 'credit_card') {

@@ -80,13 +80,16 @@ export const handler = async (event, context) => {
             }
         }
 
-        // 2. Fetch Active Gifts (Source of Truth)
+        // 2. Fetch Gifts (Active & Converted for reversal)
         const giftsRes = await query(`
             SELECT id, euro_value, type, percentage_value, gift_name, status, created_at 
             FROM gifts 
-            WHERE device_id = $1 AND restaurant_id = $2 AND status = 'unused'
+            WHERE device_id = $1 AND restaurant_id = $2 AND status IN ('unused', 'converted')
+            ORDER BY created_at DESC
         `, [loyaltyId, targetRestaurantId]);
-        const activeGifts = giftsRes.rows;
+        const allGifts = giftsRes.rows;
+        const activeGifts = allGifts.filter(g => g.status === 'unused');
+        const convertedGifts = allGifts.filter(g => g.status === 'converted');
 
         // 3. Fetch Restaurant Config
         const configRes = await query('SELECT loyalty_config FROM users WHERE id = $1', [targetRestaurantId]);
@@ -206,6 +209,7 @@ export const handler = async (event, context) => {
                 totalCompletedOrders: totalCompletedOrders,
                 sessionIsValid: ordersInCurrentSession > 0,
                 activeGifts: activeGifts,
+                convertedGifts: convertedGifts,
                 loyalty_config: loyaltyConfig,
                 totalSpending: totalSpending,
                 totalPotentialSpending: totalPotentialSpending,

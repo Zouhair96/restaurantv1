@@ -20,7 +20,7 @@ const Checkout = ({
 }) => {
     const { cartItems, getCartTotal, clearCart, updateQuantity, removeFromCart } = useCart();
     const { language, t: globalT } = useLanguage();
-    const { getStatus, recordCompletedOrder, clientId } = useLoyalty();
+    const { getStatus, recordCompletedOrder, clientId, convertGift, revertGift } = useLoyalty();
     const loyaltyInfo = getStatus(restaurantName);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -35,31 +35,41 @@ const Checkout = ({
         tableSelection: 'take_out',
         paymentMethod: 'cash',
     });
+
     const [useLoyaltyReward, setUseLoyaltyReward] = useState(true);
-    const [showConversionModal, setShowConversionModal] = useState(false);
-    const [intentToConvert, setIntentToConvert] = useState(false);
+    const [modalState, setModalState] = useState({ show: false, type: null, giftId: null });
 
     const handleToggleReward = () => {
-        if (useLoyaltyReward) {
-            // User is trying to turn it OFF -> Show Modal
-            setShowConversionModal(true);
+        const activeGift = loyaltyInfo.activeGifts?.[0];
+        const convertedGift = loyaltyInfo.convertedGifts?.[0];
+
+        if (activeGift) {
+            // Unused gift exists -> Show Conversion Modal
+            setModalState({ show: true, type: 'CONVERT', giftId: activeGift.id });
+        } else if (convertedGift) {
+            // Converted gift exists -> Show Reversal Modal
+            setModalState({ show: true, type: 'REVERT', giftId: convertedGift.id });
         } else {
-            // User is turning it back ON
-            setUseLoyaltyReward(true);
-            setIntentToConvert(false);
+            setUseLoyaltyReward(!useLoyaltyReward);
         }
     };
 
-    const confirmConversion = () => {
-        setUseLoyaltyReward(false);
-        setIntentToConvert(true);
-        setShowConversionModal(false);
-    };
+    const confirmAction = async () => {
+        const { type, giftId } = modalState;
+        setModalState({ ...modalState, show: false });
+        setLoading(true);
 
-    const cancelConversion = () => {
-        setUseLoyaltyReward(true);
-        setIntentToConvert(false);
-        setShowConversionModal(false);
+        try {
+            if (type === 'CONVERT') {
+                await convertGift(restaurantName, giftId, subtotal);
+            } else if (type === 'REVERT') {
+                await revertGift(restaurantName, giftId);
+            }
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleChange = (e) => {
@@ -86,8 +96,8 @@ const Checkout = ({
             const tableNumber = orderType === 'dine_in' ? formData.tableSelection : null;
             const finalLoyaltyId = clientId || localStorage.getItem('loyalty_client_id_v2');
 
-            // Find the specific gift ID being used/converted
-            const activeGift = loyaltyInfo.activeGifts?.[0]; // Support first available for now
+            // Find the active gift being used
+            const activeGift = loyaltyInfo.activeGifts?.[0];
             const loyaltyGiftId = activeGift ? activeGift.id : null;
 
             const orderData = {
@@ -103,8 +113,7 @@ const Checkout = ({
                 loyalty_discount_amount: isApplied ? loyaltyDiscount : 0,
                 loyalty_gift_item: isApplied ? loyaltyGift : null,
                 loyalty_id: finalLoyaltyId,
-                loyalty_gift_id: loyaltyGiftId,
-                convertToPoints: intentToConvert
+                loyalty_gift_id: loyaltyGiftId
             };
 
             const token = localStorage.getItem('client_token');
@@ -312,36 +321,62 @@ const Checkout = ({
                                     </div>
                                 )}
                                 {loyaltyGift && (
-                                    <div className={`flex justify-between items-center ${useLoyaltyReward ? 'text-pink-600 dark:text-pink-400' : 'text-gray-400 dark:text-gray-500 opacity-60'}`}>
+                                    <div className={`flex justify-between items-center ${activeGift ? 'text-pink-600 dark:text-pink-400' : 'text-gray-400 dark:text-gray-500 opacity-60'}`}>
                                         <div className="flex flex-col">
                                             <div className="flex items-center gap-2">
                                                 <span className="font-bold text-sm">Loyalty Gift</span>
                                                 <button
                                                     onClick={handleToggleReward}
-                                                    className={`w-8 h-4 rounded-full relative transition-colors ${useLoyaltyReward ? 'bg-pink-500' : 'bg-gray-300'}`}
+                                                    disabled={loading}
+                                                    className={`w-8 h-4 rounded-full relative transition-colors ${activeGift ? 'bg-pink-500' : 'bg-gray-300'}`}
                                                 >
-                                                    <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${useLoyaltyReward ? 'left-4.5' : 'left-0.5'}`} />
+                                                    <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${activeGift ? 'left-4.5' : 'left-0.5'}`} />
                                                 </button>
                                             </div>
                                             <span className="text-[10px] italic font-medium">{loyaltyGift}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            {useLoyaltyReward && <span className="text-[10px] font-black uppercase bg-pink-50 text-pink-600 px-2 py-0.5 rounded-full border border-pink-100">Unlock</span>}
+                                            {activeGift && <span className="text-[10px] font-black uppercase bg-pink-50 text-pink-600 px-2 py-0.5 rounded-full border border-pink-100">Unlock</span>}
                                             <span className="font-black text-lg">$0.00</span>
                                         </div>
                                     </div>
                                 )}
 
+                                {loyaltyInfo.convertedGifts?.length > 0 && (
+                                    <div className="flex justify-between items-center text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/10 p-3 rounded-xl border border-blue-100 dark:border-blue-800/50">
+                                        <div className="flex flex-col">
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-black text-xs uppercase tracking-wider">Converted to Points</span>
+                                                <button
+                                                    onClick={handleToggleReward}
+                                                    disabled={loading}
+                                                    className="w-8 h-4 rounded-full relative transition-colors bg-blue-500"
+                                                >
+                                                    <div className="absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all left-4.5" />
+                                                </button>
+                                            </div>
+                                            <span className="text-[10px] font-bold">
+                                                {getLoyaltyMessage(LOYALTY_MESSAGE_KEYS.GIFT_CONVERTED_POINTS, language, { points: '? ' })}
+                                                {/* Note: Backend returns addedPoints, but for history we might need to store it in gift.metadata or find the tx */}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xl">✨</span>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {(loyaltyDiscount > 0 || (isLoyal && !loyaltyGift)) && (
-                                    <div className={`flex justify-between items-center ${useLoyaltyReward ? 'text-yellow-600 dark:text-yellow-500' : 'text-gray-400 dark:text-gray-500 opacity-60'}`}>
+                                    <div className={`flex justify-between items-center ${activeGift ? 'text-yellow-600 dark:text-yellow-500' : 'text-gray-400 dark:text-gray-500 opacity-60'}`}>
                                         <div className="flex flex-col">
                                             <div className="flex items-center gap-2">
                                                 <span className="font-bold text-sm">Loyalty Reward</span>
                                                 <button
                                                     onClick={handleToggleReward}
-                                                    className={`w-8 h-4 rounded-full relative transition-colors ${useLoyaltyReward ? 'bg-yellow-500' : 'bg-gray-300'}`}
+                                                    disabled={loading}
+                                                    className={`w-8 h-4 rounded-full relative transition-colors ${activeGift ? 'bg-yellow-500' : 'bg-gray-300'}`}
                                                 >
-                                                    <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${useLoyaltyReward ? 'left-4.5' : 'left-0.5'}`} />
+                                                    <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${activeGift ? 'left-4.5' : 'left-0.5'}`} />
                                                 </button>
                                             </div>
                                             <span className="text-[10px] italic font-medium">{loyaltyGift || ''}</span>
@@ -436,11 +471,14 @@ const Checkout = ({
                         </>
                     )}
                     <ConversionConfirmationModal
-                        isOpen={showConversionModal}
-                        onConfirm={confirmConversion}
-                        onCancel={cancelConversion}
+                        state={modalState}
+                        onConfirm={confirmAction}
+                        onCancel={() => setModalState({ show: false, type: null, giftId: null })}
                         isDarkMode={isDarkMode}
                         themeColor={themeColor}
+                        language={language}
+                        loyaltyInfo={loyaltyInfo}
+                        subtotal={subtotal}
                     />
                 </motion.div>
             )}
@@ -460,53 +498,75 @@ const HiArrowRight = ({ size }) => (
     </svg>
 );
 
-const ConversionConfirmationModal = ({ isOpen, onConfirm, onCancel, isDarkMode, themeColor }) => (
-    <AnimatePresence>
-        {isOpen && (
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[120] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm"
-            >
-                <motion.div
-                    initial={{ scale: 0.9, opacity: 0, y: 20 }}
-                    animate={{ scale: 1, opacity: 1, y: 0 }}
-                    exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                    className={`w-full max-w-sm rounded-[2.5rem] p-8 overflow-hidden shadow-2xl ${isDarkMode ? 'bg-[#1a1c23] text-white' : 'bg-white text-gray-900'}`}
-                >
-                    <div className="text-center">
-                        <div className="w-20 h-20 rounded-3xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center mx-auto mb-6">
-                            <span className="text-4xl text-blue-500">💰</span>
-                        </div>
-                        <h3 className="text-xl font-black mb-4 uppercase tracking-tight">Convert to Points?</h3>
-                        <p className={`text-sm font-medium mb-8 leading-relaxed ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                            Are you sure you want to convert this reward into loyalty points?
-                            <br />
-                            <span className="font-bold text-blue-500">This action is irreversible.</span>
-                        </p>
+const ConversionConfirmationModal = ({ state, onConfirm, onCancel, isDarkMode, themeColor, language, loyaltyInfo, subtotal }) => {
+    const { isOpen = state.show, type = state.type } = state;
 
-                        <div className="space-y-3">
-                            <motion.button
-                                whileTap={{ scale: 0.95 }}
-                                onClick={onConfirm}
-                                className="w-full py-4 rounded-2xl bg-blue-500 text-white font-black uppercase tracking-wider shadow-lg shadow-blue-500/25"
-                            >
-                                Yes, Convert
-                            </motion.button>
-                            <motion.button
-                                whileTap={{ scale: 0.95 }}
-                                onClick={onCancel}
-                                className={`w-full py-4 rounded-2xl font-black uppercase tracking-wider transition-colors ${isDarkMode ? 'bg-white/5 hover:bg-white/10' : 'bg-gray-100 hover:bg-gray-200'}`}
-                            >
-                                No, Keep Reward
-                            </motion.button>
+    // Calculate potential points preview
+    const activeGift = loyaltyInfo?.activeGifts?.[0];
+    const ppe = parseInt(loyaltyInfo?.config?.points_per_euro || 100);
+    let pointsPreview = 0;
+
+    if (activeGift) {
+        if (activeGift.type === 'PERCENTAGE') {
+            pointsPreview = Math.floor((subtotal * parseFloat(activeGift.percentage_value || 0) / 100) * ppe);
+        } else {
+            pointsPreview = Math.floor(parseFloat(activeGift.euro_value || 0) * ppe);
+        }
+    }
+
+    const title = type === 'CONVERT' ? 'Convert to Points?' : 'Restore Reward?';
+    const messageKey = type === 'CONVERT' ? LOYALTY_MESSAGE_KEYS.GIFT_CONVERSION_CONFIRM : LOYALTY_MESSAGE_KEYS.REVERT_CONVERSION_CONFIRM;
+    const confirmText = type === 'CONVERT' ? 'Yes, Convert' : 'Yes, Restore';
+    const cancelText = type === 'CONVERT' ? 'No, Keep Reward' : 'Cancel';
+    const icon = type === 'CONVERT' ? '💰' : '🎁';
+    const colorClass = type === 'CONVERT' ? 'bg-blue-500' : 'bg-pink-500';
+
+    return (
+        <AnimatePresence>
+            {state.show && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-[120] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm"
+                >
+                    <motion.div
+                        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                        animate={{ scale: 1, opacity: 1, y: 0 }}
+                        exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                        className={`w-full max-w-sm rounded-[2.5rem] p-8 overflow-hidden shadow-2xl ${isDarkMode ? 'bg-[#1a1c23] text-white' : 'bg-white text-gray-900'}`}
+                    >
+                        <div className="text-center">
+                            <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 ${type === 'CONVERT' ? 'bg-blue-50 dark:bg-blue-900/20' : 'bg-pink-50 dark:bg-pink-900/20'}`}>
+                                <span className="text-4xl">{icon}</span>
+                            </div>
+                            <h3 className="text-xl font-black mb-4 uppercase tracking-tight">{title}</h3>
+                            <p className={`text-sm font-medium mb-8 leading-relaxed ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                {getLoyaltyMessage(messageKey, language, { points: pointsPreview })}
+                            </p>
+
+                            <div className="space-y-3">
+                                <motion.button
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={onConfirm}
+                                    className={`w-full py-4 rounded-2xl text-white font-black uppercase tracking-wider shadow-lg ${colorClass} ${type === 'CONVERT' ? 'shadow-blue-500/25' : 'shadow-pink-500/25'}`}
+                                >
+                                    {confirmText}
+                                </motion.button>
+                                <motion.button
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={onCancel}
+                                    className={`w-full py-4 rounded-2xl font-black uppercase tracking-wider transition-colors ${isDarkMode ? 'bg-white/5 hover:bg-white/10' : 'bg-gray-100 hover:bg-gray-200'}`}
+                                >
+                                    {cancelText}
+                                </motion.button>
+                            </div>
                         </div>
-                    </div>
+                    </motion.div>
                 </motion.div>
-            </motion.div>
-        )}
-    </AnimatePresence>
-);
+            )}
+        </AnimatePresence>
+    );
+};
 
 export default Checkout;

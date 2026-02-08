@@ -57,6 +57,7 @@ export const LoyaltyProvider = ({ children }) => {
                     totalCompletedOrders,
                     sessionIsValid,
                     activeGifts,
+                    convertedGifts,
                     loyalty_config,
                     totalSpending,
                     uiState,
@@ -80,6 +81,7 @@ export const LoyaltyProvider = ({ children }) => {
                             hasPlacedOrderInCurrentSession: data.hasPlacedOrderInCurrentSession,
 
                             activeGifts: activeGifts || [],
+                            convertedGifts: convertedGifts || [],
                             config: loyalty_config || (prev[restaurantName]?.config) || { isAutoPromoOn: true }
                         }
                     };
@@ -172,7 +174,7 @@ export const LoyaltyProvider = ({ children }) => {
         });
     };
 
-    const convertGift = async (restaurantName, giftId) => {
+    const convertGift = async (restaurantName, giftId, orderTotal = 0) => {
         if (!restaurantName || !clientId || !giftId) return { success: false, error: 'Missing core data' };
 
         try {
@@ -181,6 +183,37 @@ export const LoyaltyProvider = ({ children }) => {
             const rId = restaurantId || log?.config?.id;
 
             const response = await fetch('/.netlify/functions/convert-gift-to-points', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    giftId,
+                    loyaltyId: clientId,
+                    restaurantId: rId,
+                    orderTotal: orderTotal
+                })
+            });
+
+            if (response.ok) {
+                await refreshLoyaltyStats(restaurantName);
+                return await response.json();
+            } else {
+                const err = await response.json();
+                return { success: false, error: err.error };
+            }
+        } catch (err) {
+            return { success: false, error: 'Connection error' };
+        }
+    };
+
+    const revertGift = async (restaurantName, giftId) => {
+        if (!restaurantName || !clientId || !giftId) return { success: false, error: 'Missing core data' };
+
+        try {
+            const log = loyaltyData[restaurantName];
+            const restaurantId = log?.config?.restaurant_id;
+            const rId = restaurantId || log?.config?.id;
+
+            const response = await fetch('/.netlify/functions/revert-points-to-gift', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -244,8 +277,9 @@ export const LoyaltyProvider = ({ children }) => {
             totalCompletedOrders: totalCompletedOrders,
             totalSpending: parseFloat(log.totalSpending) || 0, // CUMULATIVE SPENDING
             activeGifts: activeGifts,
+            convertedGifts: log.convertedGifts || [],
             sessionIsValid: sessionIsValid,
-            ordersInCurrentVisit: ordersInSession,
+            ordersInCurrentVisit: ordersInCurrentSession,
             config: log.config,
             welcomeShown: !!log.welcomeShown,
             effectiveVisits,
@@ -261,6 +295,7 @@ export const LoyaltyProvider = ({ children }) => {
             trackVisit,
             getStatus,
             convertGift,
+            revertGift,
             markWelcomeAsShown,
             recordCompletedOrder,
             refreshLoyaltyStats,

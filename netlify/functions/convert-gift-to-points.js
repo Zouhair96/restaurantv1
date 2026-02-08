@@ -51,14 +51,52 @@ export const handler = async (event) => {
             let conversionPoints = 0;
 
             if (gift.type === 'PERCENTAGE') {
-                if (!gift.order_id) {
+                let orderTotal = 0;
+                if (gift.order_id) {
+                    const orderRes = await query('SELECT total_price FROM orders WHERE id = $1', [gift.order_id]);
+                    orderTotal = parseFloat(orderRes.rows[0]?.total_price || 0);
+                } else if (body.orderTotal) {
+                    orderTotal = parseFloat(body.orderTotal);
+                } else {
                     await query('ROLLBACK');
-                    return { statusCode: 400, headers, body: JSON.stringify({ error: 'Percentage gift must be linked to an order for conversion' }) };
+                    return { statusCode: 400, headers, body: JSON.stringify({ error: 'Percentage gift must have an orderTotal for conversion' }) };
                 }
-                const orderRes = await query('SELECT total_price FROM orders WHERE id = $1', [gift.order_id]);
-                const orderTotal = parseFloat(orderRes.rows[0]?.total_price || 0);
                 const perc = parseFloat(gift.percentage_value || 0);
                 conversionPoints = Math.floor((orderTotal * perc / 100) * ppe);
+            } else if (gift.type === 'ITEM') {
+                // Determine item price dynamically
+                const itemName = gift.gift_name;
+                let currentPrice = parseFloat(gift.euro_value || 0);
+
+                if (itemName) {
+                    try {
+                        const priceRes = await query(`
+                            SELECT price FROM (
+                                SELECT DISTINCT ON (name)
+                                    COALESCE(io.name_override, ti.name) as name,
+                                    COALESCE(io.price_override, ti.price) as price
+                                FROM restaurant_templates rt
+                                JOIN templates t ON rt.template_id = t.id
+                                LEFT JOIN template_items ti ON ti.template_id = t.id AND ti.is_deleted = false
+                                LEFT JOIN item_overrides io ON io.template_item_id = ti.id AND io.restaurant_id = rt.restaurant_id
+                                WHERE rt.restaurant_id = $1 AND rt.status = 'active'
+                                
+                                UNION
+                                
+                                SELECT name_override as name, price_override as price
+                                FROM item_overrides
+                                WHERE restaurant_id = $1 AND template_item_id IS NULL
+                            ) menu_lookup WHERE name = $2
+                        `, [restaurantId, itemName]);
+
+                        if (priceRes.rows.length > 0) {
+                            currentPrice = parseFloat(priceRes.rows[0].price || 0);
+                        }
+                    } catch (priceErr) {
+                        console.warn('[Loyalty] Live price lookup failed, falling back to stored value:', priceErr.message);
+                    }
+                }
+                conversionPoints = Math.floor(currentPrice * ppe);
             } else {
                 // FIXED_VALUE
                 const value = parseFloat(gift.euro_value || 0);

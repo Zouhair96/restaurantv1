@@ -260,8 +260,8 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, configArg = {}
     // --- CASE 1: GIFT_AVAILABLE (Deterministic: Not yet ordered) ---
     if (uiState === 'GIFT_AVAILABLE') {
         const isWelcomeGift = (parseInt(loyaltyInfo.totalCompletedOrders) || 0) === 1;
-        // Use first active gift OR fallback to a default 10% welcome gift if array is empty but state says AVAILABLE
-        const primaryGift = (activeGifts.length > 0) ? activeGifts[0] : { type: 'PERCENTAGE', percentage_value: 10 };
+        if (activeGifts.length === 0) return { discount: 0, reason: null };
+        const primaryGift = activeGifts[0];
 
         if (primaryGift.type === 'PERCENTAGE') {
             const perc = parseFloat(primaryGift.percentage_value || 10);

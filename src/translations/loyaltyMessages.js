@@ -21,6 +21,8 @@ export const LOYALTY_MESSAGE_KEYS = {
     POINTS_BADGE: 'POINTS_BADGE',
     POINTS_REMINDER: 'POINTS_REMINDER',
     GIFT_CONVERSION_CONFIRM: 'GIFT_CONVERSION_CONFIRM',
+    REVERT_CONVERSION_CONFIRM: 'REVERT_CONVERSION_CONFIRM',
+    GIFT_CONVERTED_POINTS: 'GIFT_CONVERTED_POINTS',
     LOYAL_REACHED_CONFIRMATION: 'LOYAL_REACHED_CONFIRMATION',
 };
 
@@ -93,8 +95,16 @@ export const loyaltyMessages = {
         fr: '🎯 Vous avez {points} points. Utilisez-les pour débloquer des récompenses.',
     },
     [LOYALTY_MESSAGE_KEYS.GIFT_CONVERSION_CONFIRM]: {
-        en: 'Convert this gift to {points} points? This action is irreversible.',
-        fr: 'Convertir ce cadeau en {points} points ? Cette action est irréversible.',
+        en: 'Convert this gift to {points} points? This action is reversible.',
+        fr: 'Convertir ce cadeau en {points} points ? Cette action est réversible.',
+    },
+    [LOYALTY_MESSAGE_KEYS.REVERT_CONVERSION_CONFIRM]: {
+        en: 'Restore this gift? Your points will be reduced.',
+        fr: 'Restaurer ce cadeau ? Vos points seront diminués.',
+    },
+    [LOYALTY_MESSAGE_KEYS.GIFT_CONVERTED_POINTS]: {
+        en: '✨ Reward converted to {points} points!',
+        fr: '✨ Récompense convertie en {points} points !',
     },
     [LOYALTY_MESSAGE_KEYS.LOYAL_REACHED_CONFIRMATION]: {
         en: '🎉 Enjoy your visit, your reward will be ready for your next visit.',
