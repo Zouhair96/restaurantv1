@@ -279,7 +279,7 @@ export const LoyaltyProvider = ({ children }) => {
             activeGifts: activeGifts,
             convertedGifts: log.convertedGifts || [],
             sessionIsValid: sessionIsValid,
-            ordersInCurrentVisit: ordersInCurrentSession,
+            ordersInCurrentVisit: ordersInSession,
             config: log.config,
             welcomeShown: !!log.welcomeShown,
             effectiveVisits,

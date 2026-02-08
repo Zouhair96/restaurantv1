@@ -22,6 +22,7 @@ const Checkout = ({
     const { language, t: globalT } = useLanguage();
     const { getStatus, recordCompletedOrder, clientId, convertGift, revertGift } = useLoyalty();
     const loyaltyInfo = getStatus(restaurantName);
+    const activeGift = loyaltyInfo.activeGifts?.[0];
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -97,7 +98,6 @@ const Checkout = ({
             const finalLoyaltyId = clientId || localStorage.getItem('loyalty_client_id_v2');
 
             // Find the active gift being used
-            const activeGift = loyaltyInfo.activeGifts?.[0];
             const loyaltyGiftId = activeGift ? activeGift.id : null;
 
             const orderData = {
