@@ -97,8 +97,8 @@ export const loyaltyMessages = {
         fr: 'Convertir ce cadeau en {points} points ? Cette action est irréversible.',
     },
     [LOYALTY_MESSAGE_KEYS.LOYAL_REACHED_CONFIRMATION]: {
-        en: '🎉 Goal reached! Enjoy your visit, your reward will be ready for your next session.',
-        fr: '🎉 Objectif atteint ! Profitez de votre visite, votre cadeau sera prêt pour votre prochaine session.',
+        en: '🎉 Goal reached! Enjoy your visit, your reward will be ready for your next visit.',
+        fr: '🎉 Objectif atteint ! Profitez de votre visite, votre cadeau sera prêt pour votre prochaine visite.',
     },
 };
 
