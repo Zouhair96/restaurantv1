@@ -82,17 +82,28 @@ export const handler = async (event, context) => {
         const configRes = await query('SELECT loyalty_config FROM users WHERE id = $1', [targetRestaurantId]);
         const loyaltyConfig = configRes.rows[0]?.loyalty_config || { isAutoPromoOn: true };
 
-        // 4. Calculate total spending AND total completed orders count
         const orderStatsRes = await query(`
             SELECT 
+                status,
                 COUNT(*) as count,
                 SUM(total_price) as total 
             FROM orders 
-            WHERE restaurant_id = $1 AND loyalty_id = $2 AND status = 'completed'
+            WHERE restaurant_id = $1 AND loyalty_id = $2
+            GROUP BY status
         `, [targetRestaurantId, loyaltyId]);
 
-        const totalCompletedOrders = parseInt(orderStatsRes.rows[0]?.count || 0);
-        const totalSpending = parseFloat(orderStatsRes.rows[0]?.total || 0);
+        const stats = orderStatsRes.rows;
+        const completed = stats.find(s => s.status === 'completed') || { count: 0, total: 0 };
+        const active = stats.filter(s => ['pending', 'preparing', 'ready'].includes(s.status))
+            .reduce((acc, curr) => ({
+                count: acc.count + parseInt(curr.count),
+                total: acc.total + parseFloat(curr.total)
+            }), { count: 0, total: 0 });
+
+        const totalCompletedOrders = parseInt(completed.count || 0);
+        const totalSpending = parseFloat(completed.total || 0);
+        const activeOrdersCount = active.count;
+        const totalPotentialSpending = totalSpending + active.total;
 
         // --- NEW: DETERMINISTIC STATE MACHINE (Visit-Count Based) ---
         // Priorities: WELCOME -> COOLDOWN -> GIFT_AVAILABLE -> POINTS_PROGRESS
@@ -159,6 +170,8 @@ export const handler = async (event, context) => {
                 activeGifts: activeGifts,
                 loyalty_config: loyaltyConfig,
                 totalSpending: totalSpending,
+                totalPotentialSpending: totalPotentialSpending,
+                activeOrdersCount: activeOrdersCount,
                 uiState: uiState,
                 eligibility: eligibility,
 

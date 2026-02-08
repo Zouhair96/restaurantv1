@@ -208,15 +208,21 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, configArg = {}
     // 1. Check if loyalty system is enabled
     if (!config.points_system_enabled && !config.loyalty_active && !config.isAutoPromoOn) return { discount: 0, reason: null };
 
-    const { uiState = 'ACTIVE_EARNING', activeGifts = [], ordersInCurrentVisit = 0 } = loyaltyInfo;
+    const {
+        uiState = 'ACTIVE_EARNING',
+        activeGifts = [],
+        ordersInCurrentVisit = 0,
+        activeOrdersCount = 0,
+        totalPotentialSpending = 0
+    } = loyaltyInfo;
 
     // --- GLOBAL: AFTER-ORDER GREETINGS (Priority) ---
     const threshold = parseFloat(config.loyalConfig?.threshold || 50);
     const spending = parseFloat(loyaltyInfo.totalSpending || 0);
-    const progress = threshold > 0 ? Math.min((spending / threshold) * 100, 100) : 0;
+    const progress = threshold > 0 ? Math.min((totalPotentialSpending / threshold) * 100, 100) : 0;
 
     if (ordersInCurrentVisit > 0) {
-        // Session 1: Show "Gift ready for next visit" message
+        // Session 1: Always show "Gift ready" once an order is placed in this session
         if (uiState === 'WELCOME') {
             return {
                 discount: 0,
@@ -225,17 +231,8 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, configArg = {}
             };
         }
 
-        // Session 2: Show generic greeting after order
-        if (uiState === 'ACTIVE_EARNING') {
-            return {
-                discount: 0,
-                messageKey: LOYALTY_MESSAGE_KEYS.SESSION_1_AFTER_ORDER,
-                welcomeTeaser: true
-            };
-        }
-
-        // Sessions 3+: Show reaching threshold if met
-        if (spending >= threshold) {
+        // Sessions 3+: Show threshold reached once target is met
+        if (totalPotentialSpending >= threshold || spending >= threshold) {
             return {
                 discount: 0,
                 messageKey: LOYALTY_MESSAGE_KEYS.LOYAL_REACHED_CONFIRMATION,
@@ -243,7 +240,16 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, configArg = {}
                 welcomeTeaser: true
             };
         }
-        // Sessions 3+ and < threshold: Fall through to show progress bar 
+
+        // Session 2: Generic greeting after order
+        if (uiState === 'ACTIVE_EARNING') {
+            return {
+                discount: 0,
+                messageKey: LOYALTY_MESSAGE_KEYS.SESSION_1_AFTER_ORDER,
+                welcomeTeaser: true
+            };
+        }
+        // Fall through to show progress bar for Session 3+ < threshold
     }
 
     // --- CASE 1: GIFT_AVAILABLE (Deterministic: Not yet ordered) ---
