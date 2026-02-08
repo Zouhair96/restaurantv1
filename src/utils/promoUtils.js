@@ -216,9 +216,17 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, configArg = {}
     const progress = threshold > 0 ? Math.min((spending / threshold) * 100, 100) : 0;
 
     if (ordersInCurrentVisit > 0) {
-        // Sessions 1 & 2: Show generic greeting after order
-        // Note: Session 1 after order is WELCOME, Session 2 after order is ACTIVE_EARNING
-        if (uiState === 'WELCOME' || uiState === 'ACTIVE_EARNING') {
+        // Session 1: Show "Gift ready for next visit" message
+        if (uiState === 'WELCOME') {
+            return {
+                discount: 0,
+                messageKey: LOYALTY_MESSAGE_KEYS.LOYAL_REACHED_CONFIRMATION,
+                welcomeTeaser: true
+            };
+        }
+
+        // Session 2: Show generic greeting after order
+        if (uiState === 'ACTIVE_EARNING') {
             return {
                 discount: 0,
                 messageKey: LOYALTY_MESSAGE_KEYS.SESSION_1_AFTER_ORDER,
