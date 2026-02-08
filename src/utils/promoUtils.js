@@ -220,7 +220,9 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, configArg = {}
     // --- GLOBAL: AFTER-ORDER GREETINGS (Priority) ---
     const threshold = parseFloat(config.loyalConfig?.threshold || 50);
     const spending = parseFloat(loyaltyInfo.totalSpending || 0);
-    const progress = threshold > 0 ? Math.min((totalPotentialSpending / threshold) * 100, 100) : 0;
+    // Calculate potential total including the current cart to show real-time progress
+    const potentialTotal = spending + orderTotal;
+    const progress = threshold > 0 ? Math.min((potentialTotal / threshold) * 100, 100) : 0;
 
     const ordersDetected = ordersInCurrentVisit > 0 || hasPlacedOrderInCurrentSession;
 
