@@ -39,6 +39,12 @@ export const handler = async (event, context) => {
                 ADD COLUMN IF NOT EXISTS last_counted_at TIMESTAMP WITH TIME ZONE,
                 ADD COLUMN IF NOT EXISTS last_visit_at TIMESTAMP WITH TIME ZONE
             `);
+
+            // Ensure gifts has granted_by_order_id
+            await query(`
+                ALTER TABLE gifts 
+                ADD COLUMN IF NOT EXISTS granted_by_order_id INTEGER
+            `);
         } catch (dbErr) {
             console.warn('[DB Warning]: Could not ensure schemas:', dbErr.message);
         }
@@ -180,23 +186,58 @@ export const handler = async (event, context) => {
             // --- LOYALTY ROLLBACK ---
             if (order.loyalty_id) {
                 const loyaltyId = order.loyalty_id;
-                console.log(`[Loyalty Rollback] Reversing progress for visitor: ${loyaltyId}`);
+                const prevStatus = order.status;
+                console.log(`[Loyalty Rollback] Reversing progress for visitor: ${loyaltyId} (from status: ${prevStatus})`);
 
+                // 1. Return consumed gifts to 'unused'
                 await query(`
-                    UPDATE loyalty_visitors 
-                    SET orders_in_current_session = GREATEST(0, COALESCE(orders_in_current_session, 1) - 1)
-                    WHERE restaurant_id = $1 AND device_id = $2
-                `, [order.restaurant_id, loyaltyId]);
+                        UPDATE gifts 
+                        SET status = 'unused', order_id = NULL 
+                        WHERE order_id = $1 AND device_id = $2
+                    `, [orderId, loyaltyId]);
 
+                // 2. Rollback session order count
                 await query(`
-                    UPDATE loyalty_visitors 
-                    SET last_visit_at = (
-                        SELECT created_at FROM orders 
-                        WHERE loyalty_id = $1 AND restaurant_id = $2 AND status = 'completed' AND id != $3
-                        ORDER BY created_at DESC LIMIT 1
-                    )
-                    WHERE restaurant_id = $2 AND device_id = $1
-                `, [loyaltyId, order.restaurant_id, orderId]);
+                        UPDATE loyalty_visitors 
+                        SET orders_in_current_session = GREATEST(0, COALESCE(orders_in_current_session, 1) - 1)
+                        WHERE restaurant_id = $1 AND device_id = $2
+                    `, [order.restaurant_id, loyaltyId]);
+
+                // 3. Rollback Visit Timestamp
+                await query(`
+                        UPDATE loyalty_visitors 
+                        SET last_visit_at = (
+                            SELECT created_at FROM orders 
+                            WHERE loyalty_id = $1 AND restaurant_id = $2 AND status = 'completed' AND id != $3
+                            ORDER BY created_at DESC LIMIT 1
+                        )
+                        WHERE restaurant_id = $2 AND device_id = $1
+                    `, [loyaltyId, order.restaurant_id, orderId]);
+
+                // 4. Handle transition from COMPLETED to CANCELLED (Revoke points and granted gifts)
+                if (prevStatus === 'completed') {
+                    console.log(`[Loyalty Rollback] Order was COMPLETED. Reversing points and revoking granted gifts.`);
+
+                    // A. Calculate points to reverse
+                    const pointsRes = await query('SELECT SUM(amount) as total FROM points_transactions WHERE order_id = $1', [orderId]);
+                    const pointsToReverse = parseInt(pointsRes.rows[0]?.total || 0);
+
+                    if (pointsToReverse > 0) {
+                        await query(`
+                                UPDATE loyalty_visitors 
+                                SET total_points = GREATEST(0, COALESCE(total_points, 0) - $1) 
+                                WHERE restaurant_id = $2 AND device_id = $3
+                            `, [pointsToReverse, order.restaurant_id, loyaltyId]);
+
+                        await query('DELETE FROM points_transactions WHERE order_id = $1', [orderId]);
+                    }
+
+                    // B. Revoke granted gifts (only if still unused)
+                    await query(`
+                            DELETE FROM gifts 
+                            WHERE granted_by_order_id = $1 AND status = 'unused'
+                        `, [orderId]);
+                }
             }
 
             // 4. Handle refund logic
@@ -306,9 +347,9 @@ export const handler = async (event, context) => {
                                 // Support both old and new config structures
                                 const welcomeVal = parseInt(config.welcomeConfig?.value || config.welcome_discount_value) || 10;
                                 await client.query(`
-                                    INSERT INTO gifts (restaurant_id, device_id, type, percentage_value, euro_value, status)
-                                    VALUES ($1, $2, 'PERCENTAGE', $3, 0.00, 'unused')
-                                `, [orderRestaurantId, loyaltyId, welcomeVal]);
+                                    INSERT INTO gifts (restaurant_id, device_id, type, percentage_value, euro_value, status, granted_by_order_id)
+                                    VALUES ($1, $2, 'PERCENTAGE', $3, 0.00, 'unused', $4)
+                                `, [orderRestaurantId, loyaltyId, welcomeVal, orderId]);
                             }
 
                             // --- SPENDING THRESHOLD REWARD LOGIC ---
@@ -358,15 +399,16 @@ export const handler = async (event, context) => {
                                     const giftName = (rewardType === 'ITEM') ? rVal : null;
 
                                     await client.query(`
-                                        INSERT INTO gifts (restaurant_id, device_id, type, euro_value, percentage_value, gift_name, status)
-                                        VALUES ($1, $2, $3, $4, $5, $6, 'unused')
+                                        INSERT INTO gifts (restaurant_id, device_id, type, euro_value, percentage_value, gift_name, status, granted_by_order_id)
+                                        VALUES ($1, $2, $3, $4, $5, $6, 'unused', $7)
                                     `, [
                                         orderRestaurantId,
                                         loyaltyId,
                                         rewardType,
                                         rewardType === 'FIXED_VALUE' ? rewardVal : 0,
                                         rewardType === 'PERCENTAGE' ? rewardVal : 0,
-                                        giftName
+                                        giftName,
+                                        orderId
                                     ]);
                                 }
                             }
