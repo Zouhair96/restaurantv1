@@ -45,15 +45,17 @@ export const handler = async (event, context) => {
                 total_points, 
                 visit_count, 
                 orders_in_current_session,
-                last_visit_at
+                last_visit_at,
+                current_session_id
             FROM loyalty_visitors 
             WHERE restaurant_id = $1 AND device_id = $2
         `, [targetRestaurantId, loyaltyId]);
 
-        let visitor = visitorRes.rows[0] || { total_points: 0, visit_count: 0, orders_in_current_session: 0 };
+        let visitor = visitorRes.rows[0] || { total_points: 0, visit_count: 0, orders_in_current_session: 0, current_session_id: null };
         let totalPoints = parseInt(visitor.total_points || 0);
         let visitCount = parseInt(visitor.visit_count || 0);
         let ordersInCurrentSession = parseInt(visitor.orders_in_current_session || 0);
+        const currentSessionIdFromVisitor = visitor.current_session_id;
 
         // --- SESSION TIMEOUT LOGIC (Pure Time-Based: 1 Minute) ---
         if (ordersInCurrentSession > 0 && visitor.last_visit_at) {
@@ -83,13 +85,6 @@ export const handler = async (event, context) => {
         const loyaltyConfig = configRes.rows[0]?.loyalty_config || { isAutoPromoOn: true };
 
         // 4. Calculate visit count (EXCLUDING current session to maintain state stability)
-        const latestOrderRes = await query(`
-            SELECT session_id FROM orders 
-            WHERE restaurant_id = $1 AND loyalty_id = $2 
-            ORDER BY created_at DESC LIMIT 1
-        `, [targetRestaurantId, loyaltyId]);
-        const currentSessionId = latestOrderRes.rows[0]?.session_id;
-
         const visitCountRes = await query(`
             SELECT COUNT(DISTINCT session_id) as count
             FROM orders
@@ -98,10 +93,20 @@ export const handler = async (event, context) => {
 
         visitCount = parseInt(visitCountRes.rows[0]?.count || 0);
 
-        // If we have an active order in THIS session, it's included in the count above.
-        // We subtract it to get the "completed previous visits" count for the state machine.
+        // If we have an active order in THIS session, and it's counted in visitCount
+        // we might want the uiState to reflect the "after-order" message IF it's the first order.
+        // However, the state machine below uses visitCount.
+
+        // CRITICAL FIX: To maintain "Session 1" as 0 visits for logic during current visit:
         if (ordersInCurrentSession > 0 && visitCount > 0) {
-            visitCount -= 1;
+            // Check if this session is already in the orders table
+            const sessionInOrders = await query(`
+                SELECT 1 FROM orders WHERE restaurant_id = $1 AND loyalty_id = $2 AND session_id = $3 LIMIT 1
+            `, [targetRestaurantId, loyaltyId, currentSessionIdFromVisitor]);
+
+            if (sessionInOrders.rows.length > 0) {
+                visitCount -= 1;
+            }
         }
 
 

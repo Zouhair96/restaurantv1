@@ -101,22 +101,28 @@ export const handler = async (event, context) => {
             await client.query('BEGIN');
 
             // A. Loyalty Visit Finalization (Steps 1 & 2)
+            let currentSessionId = null;
             if (finalLoyaltyId) {
                 // Ensure visitor exists and increment session order count with timeout check
-                const vRes = await client.query('SELECT id, orders_in_current_session, last_visit_at FROM loyalty_visitors WHERE restaurant_id = $1 AND device_id = $2 FOR UPDATE', [restaurantId, finalLoyaltyId]);
+                const vRes = await client.query('SELECT id, orders_in_current_session, last_visit_at, current_session_id FROM loyalty_visitors WHERE restaurant_id = $1 AND device_id = $2 FOR UPDATE', [restaurantId, finalLoyaltyId]);
+
+                const now = new Date();
+                const sessionTimeout = 1 * 60 * 1000; // 1 minute
+
                 if (vRes.rows.length === 0) {
-                    await client.query('INSERT INTO loyalty_visitors (restaurant_id, device_id, orders_in_current_session, last_visit_at) VALUES ($1, $2, 1, NOW())', [restaurantId, finalLoyaltyId]);
+                    currentSessionId = Math.random().toString(36).substring(2) + Date.now().toString(36);
+                    await client.query('INSERT INTO loyalty_visitors (restaurant_id, device_id, orders_in_current_session, last_visit_at, current_session_id) VALUES ($1, $2, 1, NOW(), $3)', [restaurantId, finalLoyaltyId, currentSessionId]);
                 } else {
                     const visitor = vRes.rows[0];
                     const lastVisit = visitor.last_visit_at ? new Date(visitor.last_visit_at) : null;
-                    const now = new Date();
-                    const sessionTimeout = 1 * 60 * 1000; // 1 minute
 
-                    if (lastVisit && (now - lastVisit > sessionTimeout)) {
-                        // NEW SESSION: Start from 1
-                        await client.query('UPDATE loyalty_visitors SET orders_in_current_session = 1, last_visit_at = NOW() WHERE id = $1', [visitor.id]);
+                    if (!visitor.current_session_id || (lastVisit && (now - lastVisit > sessionTimeout))) {
+                        // NEW SESSION: Start from 1 and generate new session ID
+                        currentSessionId = Math.random().toString(36).substring(2) + Date.now().toString(36);
+                        await client.query('UPDATE loyalty_visitors SET orders_in_current_session = 1, last_visit_at = NOW(), current_session_id = $1 WHERE id = $2', [currentSessionId, visitor.id]);
                     } else {
                         // CONTINUING SESSION: Increment
+                        currentSessionId = visitor.current_session_id;
                         await client.query('UPDATE loyalty_visitors SET orders_in_current_session = COALESCE(orders_in_current_session, 0) + 1, last_visit_at = NOW() WHERE id = $1', [visitor.id]);
                     }
                 }
@@ -137,10 +143,10 @@ export const handler = async (event, context) => {
                     restaurant_id, order_type, table_number, delivery_address, payment_method, 
                     items, total_price, status, customer_id, commission_amount, payment_status, 
                     order_number, loyalty_discount_applied, loyalty_discount_amount, loyalty_gift_item, 
-                    loyalty_id, created_at, updated_at
-                ) VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending', $8, $9, $10, $11, $12, $13, $14, $15, NOW(), NOW())
+                    loyalty_id, session_id, created_at, updated_at
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending', $8, $9, $10, $11, $12, $13, $14, $15, $16, NOW(), NOW())
                 RETURNING id, created_at
-            `, [restaurantId, orderType, tableNumber || null, deliveryAddress || null, paymentMethod, JSON.stringify(items), totalPrice, customerId, commissionAmount, paymentMethod === 'cash' ? 'pending_cash' : 'pending', order_number, loyalty_discount_applied, loyalty_discount_amount, loyalty_gift_item, finalLoyaltyId]);
+            `, [restaurantId, orderType, tableNumber || null, deliveryAddress || null, paymentMethod, JSON.stringify(items), totalPrice, customerId, commissionAmount, paymentMethod === 'cash' ? 'pending_cash' : 'pending', order_number, loyalty_discount_applied, loyalty_discount_amount, loyalty_gift_item, finalLoyaltyId, currentSessionId]);
 
             newOrderId = orderRes.rows[0].id;
             orderDate = orderRes.rows[0].created_at;

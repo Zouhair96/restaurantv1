@@ -13,6 +13,7 @@ const runMigration = async () => {
                 last_visit_at TIMESTAMP WITH TIME ZONE,
                 current_step TEXT DEFAULT 'NEW',
                 orders_in_current_session INTEGER DEFAULT 0,
+                current_session_id TEXT,
                 created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
                 UNIQUE(restaurant_id, device_id)
             );

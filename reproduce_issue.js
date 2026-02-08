@@ -1,110 +1,106 @@
 
 import dotenv from 'dotenv';
 dotenv.config();
-import { handler as getStatus } from './netlify/functions/get-loyalty-status.js';
-import { handler as submitOrder } from './netlify/functions/submit-order.js';
 import { query } from './netlify/functions/db.js';
 
-async function runTest() {
-    console.log('--- STARTING LOYALTY REPRODUCTION TEST (ROBUST) ---');
+async function verifySessionFlow() {
+    const testLoyaltyId = 'test-visitor-' + Date.now();
+
+    // Get valid restaurant
+    const restRes = await query('SELECT id, restaurant_name FROM users WHERE role = \'OWNER\' LIMIT 1');
+    if (restRes.rows.length === 0) {
+        console.error('❌ No restaurant found in DB');
+        return;
+    }
+    const restaurantId = restRes.rows[0].id;
+    const restaurantName = restRes.rows[0].restaurant_name;
+
+    console.log(`--- 🧪 VERIFYING SESSION FLOW FOR: ${testLoyaltyId} (Rest: ${restaurantName} ID: ${restaurantId}) ---`);
 
     try {
-        // 0. Get Valid Restaurant
-        const uRes = await query('SELECT restaurant_name FROM users WHERE restaurant_name IS NOT NULL LIMIT 1');
-        if (uRes.rows.length === 0) throw new Error('No users found in DB');
-        const restaurantName = uRes.rows[0].restaurant_name;
-        console.log(`Using Restaurant: "${restaurantName}"`);
+        // 1. Initial Status (Session 1, Visit 0)
+        console.log('\n[Step 1] Checking initial status...');
+        const res1 = await fetchStatus(testLoyaltyId, restaurantName);
+        console.log(`UI State: ${res1.uiState}`);
+        console.log(`Orders in current visit: ${res1.ordersInCurrentVisit}`);
 
-        const testLoyaltyId = 'test_user_' + Date.now();
-        console.log(`Test Loyalty ID: ${testLoyaltyId}`);
-
-        // 1. Initial Status Check
-        console.log('\n1. Checking Initial Status...');
-        const event1 = {
-            httpMethod: 'GET',
-            queryStringParameters: {
-                loyaltyId: testLoyaltyId,
-                restaurantName: restaurantName
-            }
-        };
-        const res1 = await getStatus(event1);
-        const body1 = JSON.parse(res1.body);
-
-        if (res1.statusCode !== 200) {
-            console.error('❌ GET FAILED:', body1);
-            throw new Error('Get status failed');
+        if (res1.uiState === 'WELCOME' && res1.ordersInCurrentVisit === 0) {
+            console.log('✅ PASS: Initial state is WELCOME');
+        } else {
+            console.error('❌ FAIL: Expected WELCOME state');
         }
 
-        console.log('Initial Status:', {
-            totalVisits: body1.totalVisits,
-            ordersInCurrentVisit: body1.ordersInCurrentVisit,
-            sessionIsValid: body1.sessionIsValid
-        });
+        // 2. Place Order
+        console.log('\n[Step 2] Placing order...');
+        const orderRes = await submitOrder(testLoyaltyId, restaurantName);
+        console.log(`Order ID: ${orderRes.orderId}`);
 
-        if (body1.ordersInCurrentVisit !== 0) throw new Error('Expected 0 orders initially');
+        // 3. Verify status after order (Should be WELCOME with ordersInCurrentVisit > 0)
+        console.log('\n[Step 3] Checking status after order...');
+        const res2 = await fetchStatus(testLoyaltyId, restaurantName);
+        console.log(`UI State: ${res2.uiState}`);
+        console.log(`Orders in current visit: ${res2.ordersInCurrentVisit}`);
+        console.log(`Visit Count: ${res2.totalVisits}`);
 
-        // 2. Submit Order
-        console.log('\n2. Submitting Order...');
-        const orderBody = {
-            restaurantName: restaurantName,
+        if (res2.uiState === 'WELCOME' && res2.ordersInCurrentVisit > 0 && res2.totalVisits === 0) {
+            console.log('✅ PASS: Session 1 persisted with order recorded');
+            console.log('   (In frontend, this combination triggers "Profitez de votre visite...")');
+        } else {
+            console.error('❌ FAIL: Status discrepancy after order');
+        }
+
+        // 4. Wait for 1 minute (mocking by updating DB directly for speed)
+        console.log('\n[Step 4] Simulating session timeout (1 minute)...');
+        await query('UPDATE loyalty_visitors SET last_visit_at = NOW() - INTERVAL \'2 minutes\' WHERE device_id = $1', [testLoyaltyId]);
+
+        // 5. Verify status after timeout (Should reset ordersInCurrentVisit)
+        console.log('\n[Step 5] Checking status after timeout...');
+        const res3 = await fetchStatus(testLoyaltyId, restaurantName);
+        console.log(`Orders in current visit: ${res3.ordersInCurrentVisit}`);
+
+        if (res3.ordersInCurrentVisit === 0) {
+            console.log('✅ PASS: Session timed out correctly');
+        } else {
+            console.error('❌ FAIL: Session did not timeout');
+        }
+
+    } catch (err) {
+        console.error('❌ ERROR:', err);
+    } finally {
+        // Clean up test data to keep DB clean
+        await query('DELETE FROM orders WHERE loyalty_id = $1', [testLoyaltyId]);
+        await query('DELETE FROM loyalty_visitors WHERE device_id = $1', [testLoyaltyId]);
+        process.exit(0);
+    }
+}
+
+async function fetchStatus(loyaltyId, restaurantName) {
+    const { handler } = await import('./netlify/functions/get-loyalty-status.js');
+    const event = {
+        httpMethod: 'GET',
+        queryStringParameters: { loyaltyId, restaurantName },
+        headers: {}
+    };
+    const response = await handler(event);
+    return JSON.parse(response.body);
+}
+
+async function submitOrder(loyaltyId, restaurantName) {
+    const { handler } = await import('./netlify/functions/submit-order.js');
+    const event = {
+        httpMethod: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+            restaurantName,
             orderType: 'take_out',
             paymentMethod: 'cash',
             items: [{ id: 1, name: 'Test Pizza', price: 10, quantity: 1 }],
             totalPrice: 10,
-            loyalty_id: testLoyaltyId
-        };
-
-        const event2 = {
-            httpMethod: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(orderBody)
-        };
-
-        const res2 = await submitOrder(event2);
-        const body2 = JSON.parse(res2.body);
-        console.log('Submit Result:', res2.statusCode, body2);
-
-        if (res2.statusCode !== 201) {
-            console.error('❌ SUBMIT FAILED:', body2);
-            throw new Error('Order submission failed');
-        }
-
-        // 3. Verify DB State Directly
-        const dbRes = await query('SELECT * FROM loyalty_visitors WHERE device_id = $1', [testLoyaltyId]);
-        const visitor = dbRes.rows[0];
-
-        console.log('\n3. DB Verification:');
-        console.log('Visitor Record:', {
-            orders_in_current_session: visitor.orders_in_current_session,
-            visit_count: visitor.visit_count,
-            last_session_at: visitor.last_session_at
-        });
-
-        if (parseInt(visitor.orders_in_current_session) !== 1) {
-            console.error('❌ FAILURE: orders_in_current_session is ' + visitor.orders_in_current_session + ', expected 1');
-        } else {
-            console.log('✅ SUCCESS: orders_in_current_session incremented correctly.');
-        }
-
-        // 4. Post-Order Status Check
-        console.log('\n4. Checking Status After Order (Immediate)...');
-        const res3 = await getStatus(event1);
-        const body3 = JSON.parse(res3.body);
-        console.log('Immediate Status:', {
-            ordersInCurrentVisit: body3.ordersInCurrentVisit
-        });
-
-        if (body3.ordersInCurrentVisit !== 1) {
-            console.error('❌ FAILURE: API returned ordersInCurrentVisit=' + body3.ordersInCurrentVisit);
-        } else {
-            console.log('✅ SUCCESS: API reflects the order count.');
-        }
-
-    } catch (err) {
-        console.error('❌ TEST CRASHED:', err);
-    } finally {
-        process.exit();
-    }
+            loyalty_id: loyaltyId
+        })
+    };
+    const response = await handler(event);
+    return JSON.parse(response.body);
 }
 
-runTest();
+verifySessionFlow();

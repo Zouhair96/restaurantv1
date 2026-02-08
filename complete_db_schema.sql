@@ -103,6 +103,7 @@ CREATE TABLE IF NOT EXISTS orders (
     loyalty_discount_applied BOOLEAN DEFAULT FALSE,
     loyalty_discount_amount NUMERIC(12, 2) DEFAULT 0.00,
     loyalty_gift_item TEXT,
+    session_id TEXT,
 
     -- Timestamps and Status Extensions
     accepted_at TIMESTAMP WITH TIME ZONE,
