@@ -199,14 +199,21 @@ export const LoyaltyProvider = ({ children }) => {
                 })
             });
 
+            console.log('[Loyalty] Conversion request sent:', { giftId, restaurantId, orderTotal });
+
             if (response.ok) {
+                const result = await response.json();
+                console.log('[Loyalty] Conversion successful:', result);
                 await refreshLoyaltyStats(restaurantName);
-                return await response.json();
+                console.log('[Loyalty] Stats refreshed after conversion');
+                return result;
             } else {
                 const err = await response.json();
+                console.error('[Loyalty] Conversion failed:', err);
                 return { success: false, error: err.error };
             }
         } catch (err) {
+            console.error('[Loyalty] Conversion exception:', err);
             return { success: false, error: 'Connection error' };
         }
     };
@@ -233,14 +240,21 @@ export const LoyaltyProvider = ({ children }) => {
                 })
             });
 
+            console.log('[Loyalty] Reversal request sent:', { giftId, restaurantId });
+
             if (response.ok) {
+                const result = await response.json();
+                console.log('[Loyalty] Reversal successful:', result);
                 await refreshLoyaltyStats(restaurantName);
-                return await response.json();
+                console.log('[Loyalty] Stats refreshed after reversal');
+                return result;
             } else {
                 const err = await response.json();
+                console.error('[Loyalty] Reversal failed:', err);
                 return { success: false, error: err.error };
             }
         } catch (err) {
+            console.error('[Loyalty] Reversal exception:', err);
             return { success: false, error: 'Connection error' };
         }
     };

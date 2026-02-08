@@ -22,7 +22,6 @@ const Checkout = ({
     const { language, t: globalT } = useLanguage();
     const { getStatus, recordCompletedOrder, clientId, convertGift, revertGift } = useLoyalty();
     const loyaltyInfo = getStatus(restaurantName);
-    const activeGift = loyaltyInfo.activeGifts?.[0];
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -106,6 +105,7 @@ const Checkout = ({
             const finalLoyaltyId = clientId || localStorage.getItem('loyalty_client_id_v2');
 
             // Find the active gift being used
+            const activeGift = loyaltyInfo.activeGifts?.[0];
             const loyaltyGiftId = activeGift ? activeGift.id : null;
 
             const orderData = {
@@ -329,22 +329,22 @@ const Checkout = ({
                                     </div>
                                 )}
                                 {loyaltyGift && (
-                                    <div className={`flex justify-between items-center ${activeGift ? 'text-pink-600 dark:text-pink-400' : 'text-gray-400 dark:text-gray-500 opacity-60'}`}>
+                                    <div className={`flex justify-between items-center ${loyaltyInfo.activeGifts?.[0] ? 'text-pink-600 dark:text-pink-400' : 'text-gray-400 dark:text-gray-500 opacity-60'}`}>
                                         <div className="flex flex-col">
                                             <div className="flex items-center gap-2">
                                                 <span className="font-bold text-sm">Loyalty Gift</span>
                                                 <button
                                                     onClick={handleToggleReward}
                                                     disabled={loading}
-                                                    className={`w-8 h-4 rounded-full relative transition-colors ${activeGift ? 'bg-pink-500' : 'bg-gray-300'}`}
+                                                    className={`w-8 h-4 rounded-full relative transition-colors ${loyaltyInfo.activeGifts?.[0] ? 'bg-pink-500' : 'bg-gray-300'}`}
                                                 >
-                                                    <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${activeGift ? 'left-4.5' : 'left-0.5'}`} />
+                                                    <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${loyaltyInfo.activeGifts?.[0] ? 'left-4.5' : 'left-0.5'}`} />
                                                 </button>
                                             </div>
                                             <span className="text-[10px] italic font-medium">{loyaltyGift}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            {activeGift && <span className="text-[10px] font-black uppercase bg-pink-50 text-pink-600 px-2 py-0.5 rounded-full border border-pink-100">Unlock</span>}
+                                            {loyaltyInfo.activeGifts?.[0] && <span className="text-[10px] font-black uppercase bg-pink-50 text-pink-600 px-2 py-0.5 rounded-full border border-pink-100">Unlock</span>}
                                             <span className="font-black text-lg">$0.00</span>
                                         </div>
                                     </div>
@@ -375,16 +375,16 @@ const Checkout = ({
                                 )}
 
                                 {(loyaltyDiscount > 0 || (isLoyal && !loyaltyGift)) && (
-                                    <div className={`flex justify-between items-center ${activeGift ? 'text-yellow-600 dark:text-yellow-500' : 'text-gray-400 dark:text-gray-500 opacity-60'}`}>
+                                    <div className={`flex justify-between items-center ${loyaltyInfo.activeGifts?.[0] ? 'text-yellow-600 dark:text-yellow-500' : 'text-gray-400 dark:text-gray-500 opacity-60'}`}>
                                         <div className="flex flex-col">
                                             <div className="flex items-center gap-2">
                                                 <span className="font-bold text-sm">Loyalty Reward</span>
                                                 <button
                                                     onClick={handleToggleReward}
                                                     disabled={loading}
-                                                    className={`w-8 h-4 rounded-full relative transition-colors ${activeGift ? 'bg-yellow-500' : 'bg-gray-300'}`}
+                                                    className={`w-8 h-4 rounded-full relative transition-colors ${loyaltyInfo.activeGifts?.[0] ? 'bg-yellow-500' : 'bg-gray-300'}`}
                                                 >
-                                                    <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${activeGift ? 'left-4.5' : 'left-0.5'}`} />
+                                                    <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${loyaltyInfo.activeGifts?.[0] ? 'left-4.5' : 'left-0.5'}`} />
                                                 </button>
                                             </div>
                                             <span className="text-[10px] italic font-medium">{loyaltyGift || ''}</span>
