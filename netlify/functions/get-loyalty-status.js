@@ -82,12 +82,37 @@ export const handler = async (event, context) => {
         const configRes = await query('SELECT loyalty_config FROM users WHERE id = $1', [targetRestaurantId]);
         const loyaltyConfig = configRes.rows[0]?.loyalty_config || { isAutoPromoOn: true };
 
+        // 4. Calculate visit count (EXCLUDING current session to maintain state stability)
+        const latestOrderRes = await query(`
+            SELECT session_id FROM orders 
+            WHERE restaurant_id = $1 AND loyalty_id = $2 
+            ORDER BY created_at DESC LIMIT 1
+        `, [targetRestaurantId, loyaltyId]);
+        const currentSessionId = latestOrderRes.rows[0]?.session_id;
+
+        let visitCountQuery = `
+            SELECT COUNT(DISTINCT session_id) as count
+            FROM orders
+            WHERE restaurant_id = $1 AND loyalty_id = $2 AND status = 'completed'
+        `;
+        let visitCountParams = [targetRestaurantId, loyaltyId];
+
+        if (currentSessionId) {
+            visitCountQuery += ` AND session_id != $3`;
+            visitCountParams.push(currentSessionId);
+        }
+
+        const visitCountRes = await query(visitCountQuery, visitCountParams);
+        visitCount = parseInt(visitCountRes.rows[0]?.count || 0);
+
+
+        // 5. Calculate total completed orders and spending (INCLUDING current session)
         const orderStatsRes = await query(`
-            SELECT 
+            SELECT
                 status,
                 COUNT(*) as count,
-                SUM(total_price) as total 
-            FROM orders 
+                SUM(total_price) as total
+            FROM orders
             WHERE restaurant_id = $1 AND loyalty_id = $2
             GROUP BY status
         `, [targetRestaurantId, loyaltyId]);
