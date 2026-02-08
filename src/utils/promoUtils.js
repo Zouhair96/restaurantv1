@@ -212,6 +212,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, configArg = {}
         uiState = 'ACTIVE_EARNING',
         activeGifts = [],
         ordersInCurrentVisit = 0,
+        hasPlacedOrderInCurrentSession = false,
         activeOrdersCount = 0,
         totalPotentialSpending = 0
     } = loyaltyInfo;
@@ -221,7 +222,9 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, configArg = {}
     const spending = parseFloat(loyaltyInfo.totalSpending || 0);
     const progress = threshold > 0 ? Math.min((totalPotentialSpending / threshold) * 100, 100) : 0;
 
-    if (ordersInCurrentVisit > 0) {
+    const ordersDetected = ordersInCurrentVisit > 0 || hasPlacedOrderInCurrentSession;
+
+    if (ordersDetected) {
         // Session 1: Always show "Gift ready" once an order is placed in this session
         if (uiState === 'WELCOME') {
             return {

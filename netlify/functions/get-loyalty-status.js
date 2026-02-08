@@ -90,20 +90,19 @@ export const handler = async (event, context) => {
         `, [targetRestaurantId, loyaltyId]);
         const currentSessionId = latestOrderRes.rows[0]?.session_id;
 
-        let visitCountQuery = `
+        const visitCountRes = await query(`
             SELECT COUNT(DISTINCT session_id) as count
             FROM orders
-            WHERE restaurant_id = $1 AND loyalty_id = $2 AND status = 'completed'
-        `;
-        let visitCountParams = [targetRestaurantId, loyaltyId];
+            WHERE restaurant_id = $1 AND loyalty_id = $2 AND status != 'cancelled'
+        `, [targetRestaurantId, loyaltyId]);
 
-        if (currentSessionId) {
-            visitCountQuery += ` AND session_id != $3`;
-            visitCountParams.push(currentSessionId);
-        }
-
-        const visitCountRes = await query(visitCountQuery, visitCountParams);
         visitCount = parseInt(visitCountRes.rows[0]?.count || 0);
+
+        // If we have an active order in THIS session, it's included in the count above.
+        // We subtract it to get the "completed previous visits" count for the state machine.
+        if (ordersInCurrentSession > 0 && visitCount > 0) {
+            visitCount -= 1;
+        }
 
 
         // 5. Calculate total completed orders and spending (INCLUDING current session)
@@ -176,6 +175,7 @@ export const handler = async (event, context) => {
                 }
             }
         }
+
 
         const eligibility = {
             canEarnPoints: loyaltyConfig.points_system_enabled !== false,

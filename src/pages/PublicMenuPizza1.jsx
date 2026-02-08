@@ -136,6 +136,12 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
         return () => window.removeEventListener('openClientAuth', handleOpenAuth);
     }, []);
 
+    useEffect(() => {
+        if (restaurantName) {
+            trackVisit(restaurantName);
+        }
+    }, [restaurantName]);
+
     const handleCategorySelect = (category) => {
         setActiveCategory(category);
         const firstItem = menuItems.find(item => category === 'All' || item.category === category);
