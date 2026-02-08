@@ -126,6 +126,33 @@ export const handler = async (event, context) => {
                 console.warn('[Loyalty] Stats fetch failed:', statsErr.message);
             }
 
+            let menuItems = [];
+            try {
+                const menuItemsQuery = `
+                    SELECT DISTINCT ON (name)
+                        COALESCE(io.name_override, ti.name) as name,
+                        COALESCE(io.price_override, ti.price) as price
+                    FROM restaurant_templates rt
+                    JOIN templates t ON rt.template_id = t.id
+                    LEFT JOIN template_items ti ON ti.template_id = t.id AND ti.is_deleted = false
+                    LEFT JOIN item_overrides io ON io.template_item_id = ti.id AND io.restaurant_id = rt.restaurant_id
+                    WHERE rt.restaurant_id = $1 AND rt.status = 'active'
+                    
+                    UNION
+                    
+                    SELECT name_override as name, price_override as price
+                    FROM item_overrides
+                    WHERE restaurant_id = $1 AND template_item_id IS NULL
+                `;
+                const menuItemsResult = await query(menuItemsQuery, [restaurantId]);
+                menuItems = menuItemsResult.rows.map(item => ({
+                    name: item.name,
+                    price: parseFloat(item.price || 0)
+                }));
+            } catch (menuErr) {
+                console.warn('[Loyalty] Menu items fetch failed:', menuErr.message);
+            }
+
             return {
                 statusCode: 200,
                 headers,
@@ -133,7 +160,8 @@ export const handler = async (event, context) => {
                     loyal_clients: parseInt(stats.loyal_count || 0),
                     offers_applied: parseInt(stats.offers_applied || 0),
                     loyalty_revenue: parseFloat(stats.loyalty_revenue || 0).toFixed(2),
-                    loyalty_config: loyalty_config
+                    loyalty_config: loyalty_config,
+                    menu_items: menuItems
                 })
             };
         }

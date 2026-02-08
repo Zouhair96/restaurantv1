@@ -29,6 +29,7 @@ const LoyaltySettings = ({ onUpdate }) => {
     const [giftConversionEnabled, setGiftConversionEnabled] = useState(false);
     const [pointsSystemEnabled, setPointsSystemEnabled] = useState(true);
     const [pointsPerEuro, setPointsPerEuro] = useState(10);
+    const [menuItems, setMenuItems] = useState([]);
     const [showDocumentation, setShowDocumentation] = useState(false);
 
     // 1. Fetch Config on Mount
@@ -43,6 +44,10 @@ const LoyaltySettings = ({ onUpdate }) => {
                 if (response.ok) {
                     const data = await response.json();
                     console.log('[Loyalty] Loaded data:', data);
+
+                    if (data.menu_items) {
+                        setMenuItems(data.menu_items);
+                    }
                     if (data.loyalty_config) {
                         const config = data.loyalty_config;
                         if (config.isAutoPromoOn !== undefined) {
@@ -472,6 +477,7 @@ const LoyaltySettings = ({ onUpdate }) => {
             <LoyalOfferModal
                 isOpen={isLoyalModalOpen}
                 currentConfig={loyalConfig}
+                menuItems={menuItems}
                 onClose={() => setIsLoyalModalOpen(false)}
                 onSave={handleSaveLoyal}
             />
