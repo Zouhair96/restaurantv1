@@ -261,21 +261,22 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, configArg = {}
         };
     }
 
+    // --- GLOBAL: GOAL REACHED CHECK (If threshold met during active session) ---
+    const threshold = parseFloat(config.loyalConfig?.threshold || 50);
+    const spending = parseFloat(loyaltyInfo.totalSpending || 0);
+    const progress = threshold > 0 ? Math.min((spending / threshold) * 100, 100) : 0;
+
+    if (ordersInCurrentVisit > 0 && spending >= threshold) {
+        return {
+            discount: 0,
+            messageKey: LOYALTY_MESSAGE_KEYS.LOYAL_REACHED_CONFIRMATION,
+            showProgress: false,
+            welcomeTeaser: true // Ensure the bar stays visible to show this message
+        };
+    }
+
     // --- CASE 3: POINTS_PROGRESS (Deterministic: Progressing towards threshold) ---
     if (uiState === 'POINTS_PROGRESS') {
-        const threshold = parseFloat(config.loyalConfig?.threshold || 50);
-        const spending = parseFloat(loyaltyInfo.totalSpending || 0);
-        const progress = threshold > 0 ? Math.min((spending / threshold) * 100, 100) : 0;
-
-        // Check if they are actually loyal (spending >= threshold) but in cooldown
-        if (ordersInCurrentVisit > 0 && spending >= threshold) {
-            return {
-                discount: 0,
-                messageKey: LOYALTY_MESSAGE_KEYS.LOYAL_REACHED_CONFIRMATION,
-                showProgress: false
-            };
-        }
-
         return {
             discount: 0,
             messageKey: ordersInCurrentVisit > 0 ? LOYALTY_MESSAGE_KEYS.SESSION_3_AFTER_ORDER : LOYALTY_MESSAGE_KEYS.SESSION_3_PROGRESS,
