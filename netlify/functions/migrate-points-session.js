@@ -36,13 +36,8 @@ async function runMigration() {
         await query(`ALTER TABLE gifts ADD COLUMN IF NOT EXISTS percentage_value NUMERIC(5, 2)`).catch(() => { });
         await query(`ALTER TABLE gifts ADD COLUMN IF NOT EXISTS order_id INTEGER`).catch(() => { });
         await query(`
-            DO $$ 
-            BEGIN 
-                IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'gifts_status_check') THEN
-                    ALTER TABLE gifts DROP CONSTRAINT IF EXISTS gifts_status_check;
-                    ALTER TABLE gifts ADD CONSTRAINT gifts_status_check CHECK (status IN ('unused', 'consumed', 'converted'));
-                END IF;
-            END $$;
+            ALTER TABLE gifts DROP CONSTRAINT IF EXISTS gifts_status_check;
+            ALTER TABLE gifts ADD CONSTRAINT gifts_status_check CHECK (status IN ('unused', 'consumed', 'converted'));
         `).catch(() => { });
 
         // 3. Create/Update points_transactions table
