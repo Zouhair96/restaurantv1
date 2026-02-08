@@ -253,9 +253,16 @@ const Checkout = ({
                                                                         : (translations[lang]?.auth?.welcomeBackTitle || translations[lang]?.auth?.loyaltyGift || "Reward!")
                                                                     }
                                                                 </span>
-                                                                <span className={`text-[10px] font-bold ${isSession1 ? 'text-green-600 dark:text-green-500' : 'text-pink-600 dark:text-pink-500'}`}>
-                                                                    {getLoyaltyMessage(messageKey, language, messageVariables)}
-                                                                </span>
+                                                                {(() => {
+                                                                    const title = isSession1 ? (translations[lang]?.auth?.welcomeTitle || "Welcome!") : "";
+                                                                    const subtitle = getLoyaltyMessage(messageKey, language, messageVariables);
+                                                                    if (!subtitle || subtitle === title) return null;
+                                                                    return (
+                                                                        <span className={`text-[10px] font-bold ${isSession1 ? 'text-green-600 dark:text-green-500' : 'text-pink-600 dark:text-pink-500'}`}>
+                                                                            {subtitle}
+                                                                        </span>
+                                                                    );
+                                                                })()}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -406,9 +413,16 @@ const Checkout = ({
                                                         (translations[lang]?.auth?.welcomeBackTitle || "Welcome Back!")
                                                     }
                                                 </span>
-                                                <span className="text-[10px] font-bold text-green-600 dark:text-green-500">
-                                                    {getLoyaltyMessage(messageKey, language, messageVariables) || null}
-                                                </span>
+                                                {(() => {
+                                                    const title = loyaltyInfo?.uiState === 'WELCOME' ? (translations[lang]?.auth?.welcomeTitle || "Welcome!") : "";
+                                                    const subtitle = getLoyaltyMessage(messageKey, language, messageVariables);
+                                                    if (!subtitle || subtitle === title) return null;
+                                                    return (
+                                                        <span className="text-[10px] font-bold text-green-600 dark:text-green-500">
+                                                            {subtitle}
+                                                        </span>
+                                                    );
+                                                })()}
                                             </div>
                                         </div>
                                     </div>

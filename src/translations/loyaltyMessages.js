@@ -33,12 +33,12 @@ export const LOYALTY_MESSAGE_KEYS = {
 
 export const loyaltyMessages = {
     [LOYALTY_MESSAGE_KEYS.SESSION_1_BEFORE_ORDER]: {
-        en: '👋 Welcome! Place your first order to start earning rewards.',
-        fr: '👋 Bienvenue ! Passez votre première commande pour commencer à gagner des récompenses.',
+        en: 'Welcome!',
+        fr: 'Bienvenue !',
     },
     [LOYALTY_MESSAGE_KEYS.SESSION_1_AFTER_ORDER]: {
-        en: '🎉 Enjoy your visit!',
-        fr: '🎉 Profitez de votre visite.',
+        en: '🎉 Enjoy your visit, your reward will be ready for your next visit.',
+        fr: '🎉 Profitez de votre visite, votre cadeau sera prêt pour votre prochaine visite.',
     },
     [LOYALTY_MESSAGE_KEYS.SESSION_2_BEFORE_ORDER]: {
         en: '🎉 You unlocked {percentage}% OFF on this order.',
