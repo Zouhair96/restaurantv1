@@ -110,7 +110,7 @@ export const handler = async (event, context) => {
                     const visitor = vRes.rows[0];
                     const lastVisit = visitor.last_visit_at ? new Date(visitor.last_visit_at) : null;
                     const now = new Date();
-                    const sessionTimeout = 2 * 60 * 1000; // 2 minutes
+                    const sessionTimeout = 1 * 60 * 1000; // 1 minute
 
                     if (lastVisit && (now - lastVisit > sessionTimeout)) {
                         // NEW SESSION: Start from 1

@@ -332,7 +332,7 @@ export const handler = async (event, context) => {
 
                         const lastVisitCompletion = prevOrderRes.rows[0]?.created_at ? new Date(prevOrderRes.rows[0].created_at) : null;
                         const thisOrderCreation = new Date(order.created_at);
-                        const sessionTimeout = 2 * 60 * 1000; // 2 minutes
+                        const sessionTimeout = 1 * 60 * 1000; // 1 minute
 
                         const isNewVisit = !lastVisitCompletion || (thisOrderCreation - lastVisitCompletion > sessionTimeout) || (parseInt(visitor.visit_count || 0) === 0);
 
