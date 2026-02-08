@@ -17,6 +17,14 @@ export const handler = async (event, context) => {
     }
 
     try {
+        // --- Schema Maintenance ---
+        try {
+            await query(`ALTER TABLE loyalty_visitors ADD COLUMN IF NOT EXISTS current_session_id TEXT`);
+            await query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS session_id TEXT`);
+        } catch (dbErr) {
+            console.warn('[DB Warning]: Could not ensure session schema:', dbErr.message);
+        }
+
         const { loyaltyId, restaurantId, restaurantName } = event.queryStringParameters;
 
         if (!loyaltyId || (!restaurantId && !restaurantName)) {

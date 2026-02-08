@@ -29,7 +29,8 @@ export const handler = async (event, context) => {
                 "ADD COLUMN IF NOT EXISTS loyalty_gift_item TEXT",
                 "ADD COLUMN IF NOT EXISTS commission_recorded BOOLEAN DEFAULT false",
                 "ADD COLUMN IF NOT EXISTS stripe_checkout_session_id TEXT",
-                "ADD COLUMN IF NOT EXISTS loyalty_id TEXT"
+                "ADD COLUMN IF NOT EXISTS loyalty_id TEXT",
+                "ADD COLUMN IF NOT EXISTS session_id TEXT"
             ];
             for (const fix of tableFixes) {
                 await query(`ALTER TABLE orders ${fix}`).catch(e => console.warn(`[DB Patch] ${fix} failed:`, e.message));

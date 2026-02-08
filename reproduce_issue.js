@@ -7,15 +7,9 @@ async function verifySessionFlow() {
     const testLoyaltyId = 'test-visitor-' + Date.now();
 
     // Get valid restaurant
-    const restRes = await query('SELECT id, restaurant_name FROM users WHERE role = \'OWNER\' LIMIT 1');
-    if (restRes.rows.length === 0) {
-        console.error('❌ No restaurant found in DB');
-        return;
-    }
-    const restaurantId = restRes.rows[0].id;
-    const restaurantName = restRes.rows[0].restaurant_name;
+    const restaurantName = 'foody';
 
-    console.log(`--- 🧪 VERIFYING SESSION FLOW FOR: ${testLoyaltyId} (Rest: ${restaurantName} ID: ${restaurantId}) ---`);
+    console.log(`--- 🧪 VERIFYING SESSION FLOW FOR: ${testLoyaltyId} (Rest: ${restaurantName}) ---`);
 
     try {
         // 1. Initial Status (Session 1, Visit 0)
