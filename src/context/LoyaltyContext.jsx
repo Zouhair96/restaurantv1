@@ -223,8 +223,17 @@ export const LoyaltyProvider = ({ children }) => {
         let currentStatus = 'NEW';
         if (isStrictlyNew) currentStatus = 'NEW';
         else if (effectiveVisits <= 2) currentStatus = 'WELCOME';
-        else if (effectiveVisits === 3) currentStatus = 'IN_PROGRESS';
-        else if (effectiveVisits >= 4) currentStatus = 'LOYAL';
+        else {
+            const threshold = parseFloat(log.config?.loyalConfig?.threshold || 50);
+            const totalSpending = parseFloat(log.totalSpending || 0);
+
+            // Tier Rule: LOYAL after 4 completed sessions (so visit 5+) AND spending >= threshold
+            if (effectiveVisits >= 5 && totalSpending >= threshold) {
+                currentStatus = 'LOYAL';
+            } else {
+                currentStatus = 'IN_PROGRESS';
+            }
+        }
 
         return {
             status: currentStatus,

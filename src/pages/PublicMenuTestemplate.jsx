@@ -280,7 +280,7 @@ const PublicMenuTestemplate = ({ restaurantName: propRestaurantName }) => {
                 {/* Restaurant Name & Badge */}
                 <div className="flex flex-col items-center flex-1 mx-4 truncate">
                     <h1 className="text-xl font-bold text-gray-900 leading-none">{config.restaurantName}</h1>
-                    {loyaltyInfo.status === 'LOYAL' && (
+                    {loyaltyInfo.status === 'LOYAL' && loyaltyInfo.totalSpending >= (loyaltyInfo.config?.loyalConfig?.threshold || 50) && (
                         <div className="flex items-center gap-1 mt-1">
                             <HiStar className="w-3 h-3 text-yellow-500 fill-yellow-500" />
                             <span className="text-[9px] font-black uppercase tracking-widest text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded-full">

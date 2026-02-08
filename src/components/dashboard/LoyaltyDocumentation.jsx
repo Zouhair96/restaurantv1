@@ -39,7 +39,7 @@ const LoyaltyDocumentation = ({ onBack, loyalConfig }) => {
                     text: "Automatic rewards for your most frequent fans.",
                     subpoints: [
                         "Soft Status: First few visits. No discount yet, but the system is tracking progress.",
-                        `Loyal Status: Reached after 4 visits in 30 days. Unlocks a ${loyalVal}% discount once per visit.`,
+                        `Loyal Status: Reached after 4 visits (starting from the 5th session) AND spending at least 50€ total. Unlocks a ${loyalVal}% discount once per visit.`,
                         "Safety Rule: Rewards are granted once per session. A session resets after 2 minutes of inactivity."
                     ]
                 },
