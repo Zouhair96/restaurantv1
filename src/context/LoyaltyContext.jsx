@@ -208,7 +208,7 @@ export const LoyaltyProvider = ({ children }) => {
 
     const getStatus = (restaurantId) => {
         const log = loyaltyData[restaurantId];
-        if (!log) return { status: 'NEW', totalVisits: 0, totalPoints: 0, activeGifts: [], sessionIsValid: false, config: null };
+        if (!log) return { status: 'NEW', uiState: 'WELCOME', totalVisits: 0, totalPoints: 0, activeGifts: [], sessionIsValid: false, config: null };
 
         const totalVisits = parseInt(log.serverTotalVisits) || 0;
         const totalPoints = parseInt(log.totalPoints) || 0;

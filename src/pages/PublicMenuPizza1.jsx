@@ -341,6 +341,16 @@ const PublicMenuPizza1 = ({ restaurantName: propRestaurantName }) => {
                     </div>
                 )}
 
+                {/* Loyalty Teaser/Progress Bar */}
+                <div className="px-4 md:px-6 my-2">
+                    <LoyaltyProgressBar
+                        loyaltyConfig={loyaltyInfo?.config || {}}
+                        isDarkMode={false}
+                        percentage={teaser.progressPercentage || 0}
+                        progressMessage={teaser.messageKey ? getLoyaltyMessage(teaser.messageKey, language, teaser.messageVariables) : null}
+                    />
+                </div>
+
                 {/* Product Focus Area - Sidebar and Hero side-by-side below categories */}
                 <div className="flex-1 flex flex-row relative z-10 w-full overflow-hidden">
                     {/* Left Sidebar - Independent Scrolling */}
