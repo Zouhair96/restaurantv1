@@ -55,7 +55,7 @@ export const handler = async (event, context) => {
         let visitCount = parseInt(visitor.visit_count || 0);
         let ordersInCurrentSession = parseInt(visitor.orders_in_current_session || 0);
 
-        // --- SESSION TIMEOUT LOGIC (Pure Time-Based: 2 Minutes) ---
+        // --- SESSION TIMEOUT LOGIC (Pure Time-Based: 1 Minute) ---
         if (ordersInCurrentSession > 0 && visitor.last_visit_at) {
             const lastVisit = new Date(visitor.last_visit_at);
             const now = new Date();
