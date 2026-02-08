@@ -245,7 +245,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, configArg = {}
         if (uiState === 'ACTIVE_EARNING') {
             return {
                 discount: 0,
-                messageKey: LOYALTY_MESSAGE_KEYS.SESSION_1_AFTER_ORDER,
+                messageKey: LOYALTY_MESSAGE_KEYS.SESSION_2_AFTER_ORDER,
                 welcomeTeaser: true
             };
         }
