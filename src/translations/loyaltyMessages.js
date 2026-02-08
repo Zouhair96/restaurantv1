@@ -21,6 +21,7 @@ export const LOYALTY_MESSAGE_KEYS = {
     POINTS_BADGE: 'POINTS_BADGE',
     POINTS_REMINDER: 'POINTS_REMINDER',
     GIFT_CONVERSION_CONFIRM: 'GIFT_CONVERSION_CONFIRM',
+    LOYAL_REACHED_CONFIRMATION: 'LOYAL_REACHED_CONFIRMATION',
 };
 
 // ============================================================================
@@ -94,6 +95,10 @@ export const loyaltyMessages = {
     [LOYALTY_MESSAGE_KEYS.GIFT_CONVERSION_CONFIRM]: {
         en: 'Convert this gift to {points} points? This action is irreversible.',
         fr: 'Convertir ce cadeau en {points} points ? Cette action est irréversible.',
+    },
+    [LOYALTY_MESSAGE_KEYS.LOYAL_REACHED_CONFIRMATION]: {
+        en: '🎉 Goal reached! Enjoy your visit, your reward will be ready for your next session.',
+        fr: '🎉 Objectif atteint ! Profitez de votre visite, votre cadeau sera prêt pour votre prochaine session.',
     },
 };
 

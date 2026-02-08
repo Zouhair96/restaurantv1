@@ -271,9 +271,8 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, configArg = {}
         if (ordersInCurrentVisit > 0 && spending >= threshold) {
             return {
                 discount: 0,
-                messageKey: LOYALTY_MESSAGE_KEYS.SESSION_2_AFTER_ORDER, // "Enjoy your visit"
-                showProgress: true,
-                progressPercentage: progress
+                messageKey: LOYALTY_MESSAGE_KEYS.LOYAL_REACHED_CONFIRMATION,
+                showProgress: false
             };
         }
 
