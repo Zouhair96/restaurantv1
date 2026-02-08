@@ -103,22 +103,22 @@ export const handler = async (event, context) => {
             uiState = 'WELCOME';
         }
         else if (visitCount === 1) {
-            // If they are currently in Session 1 (ordered > 0), show Cooldown
+            // Returning for Session 2
             if (ordersInCurrentSession > 0) {
+                // Currently in Session 2 (ordered), show generic greeting
                 uiState = 'ACTIVE_EARNING';
             } else {
-                // If they are returning for Session 2 (orders = 0), show Gift
+                // Start of Session 2, show Welcome Gift
                 uiState = 'GIFT_AVAILABLE';
             }
         }
         else if (visitCount === 2) {
-            // If they are currently in Session 2 (ordered > 0), show Cooldown
+            // Returning for Session 3
             if (ordersInCurrentSession > 0) {
-                uiState = 'ACTIVE_EARNING';
+                // Currently in Session 3 (ordered), show Progress Bar
+                uiState = 'POINTS_PROGRESS';
             } else {
-                // If they are returning for Session 3+ (orders = 0), show Progress or Loyal Gift based on spending
-                // Check if they are already loyal (spending >= threshold)
-                // Note: Spending check is done below in POINTS_PROGRESS vs GIFT_AVAILABLE logic
+                // Start of Session 3, show Gift or Progress
                 if (activeGifts.length > 0) {
                     uiState = 'GIFT_AVAILABLE';
                 } else {
@@ -127,10 +127,9 @@ export const handler = async (event, context) => {
             }
         }
         else {
-            // Session 3+
+            // Session 4+
             if (ordersInCurrentSession > 0) {
-                // USER REQUEST: After order, show Progress Bar ("You're close!")
-                // This effectively masks any newly earned gift until next session
+                // After order, show Progress Bar
                 uiState = 'POINTS_PROGRESS';
             } else {
                 // New Session

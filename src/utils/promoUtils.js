@@ -210,7 +210,35 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, configArg = {}
 
     const { uiState = 'ACTIVE_EARNING', activeGifts = [], ordersInCurrentVisit = 0 } = loyaltyInfo;
 
-    // --- CASE 1: GIFT_AVAILABLE (Deterministic) ---
+    // --- GLOBAL: AFTER-ORDER GREETINGS (Priority) ---
+    const threshold = parseFloat(config.loyalConfig?.threshold || 50);
+    const spending = parseFloat(loyaltyInfo.totalSpending || 0);
+    const progress = threshold > 0 ? Math.min((spending / threshold) * 100, 100) : 0;
+
+    if (ordersInCurrentVisit > 0) {
+        // Sessions 1 & 2: Show generic greeting after order
+        // Note: Session 1 after order is WELCOME, Session 2 after order is ACTIVE_EARNING
+        if (uiState === 'WELCOME' || uiState === 'ACTIVE_EARNING') {
+            return {
+                discount: 0,
+                messageKey: LOYALTY_MESSAGE_KEYS.SESSION_1_AFTER_ORDER,
+                welcomeTeaser: true
+            };
+        }
+
+        // Sessions 3+: Show reaching threshold if met
+        if (spending >= threshold) {
+            return {
+                discount: 0,
+                messageKey: LOYALTY_MESSAGE_KEYS.LOYAL_REACHED_CONFIRMATION,
+                showProgress: false,
+                welcomeTeaser: true
+            };
+        }
+        // Sessions 3+ and < threshold: Fall through to show progress bar 
+    }
+
+    // --- CASE 1: GIFT_AVAILABLE (Deterministic: Not yet ordered) ---
     if (uiState === 'GIFT_AVAILABLE') {
         const isWelcomeGift = (parseInt(loyaltyInfo.totalCompletedOrders) || 0) === 1;
         // Use first active gift OR fallback to a default 10% welcome gift if array is empty but state says AVAILABLE
@@ -223,7 +251,7 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, configArg = {}
                 messageKey: isWelcomeGift ? LOYALTY_MESSAGE_KEYS.SESSION_2_BEFORE_ORDER : LOYALTY_MESSAGE_KEYS.LOYAL_DISCOUNT,
                 messageVariables: { percentage: perc },
                 isApplied: useReward,
-                welcomeTeaser: true, // Show the bar for available gifts
+                welcomeTeaser: true,
                 activeGifts: activeGifts.length > 0 ? activeGifts : [primaryGift]
             };
         } else if (primaryGift.type === 'FIXED_VALUE') {
@@ -252,43 +280,29 @@ export const calculateLoyaltyDiscount = (loyaltyInfo, orderTotal, configArg = {}
         }
     }
 
-    // --- CASE 2: WELCOME (Deterministic: 0 completed orders) ---
+    // --- CASE 2: WELCOME (Deterministic: Visit 1, No order yet) ---
     if (uiState === 'WELCOME') {
         return {
             discount: 0,
-            messageKey: ordersInCurrentVisit > 0 ? LOYALTY_MESSAGE_KEYS.SESSION_1_AFTER_ORDER : LOYALTY_MESSAGE_KEYS.SESSION_1_BEFORE_ORDER,
+            messageKey: LOYALTY_MESSAGE_KEYS.SESSION_1_BEFORE_ORDER,
             welcomeTeaser: true
         };
     }
 
-    // --- GLOBAL: GOAL REACHED CHECK (If threshold met during active session) ---
-    const threshold = parseFloat(config.loyalConfig?.threshold || 50);
-    const spending = parseFloat(loyaltyInfo.totalSpending || 0);
-    const progress = threshold > 0 ? Math.min((spending / threshold) * 100, 100) : 0;
-
-    if (ordersInCurrentVisit > 0 && spending >= threshold) {
-        return {
-            discount: 0,
-            messageKey: LOYALTY_MESSAGE_KEYS.LOYAL_REACHED_CONFIRMATION,
-            showProgress: false,
-            welcomeTeaser: true // Ensure the bar stays visible to show this message
-        };
-    }
-
-    // --- CASE 3: POINTS_PROGRESS (Deterministic: Progressing towards threshold) ---
+    // --- CASE 3: POINTS_PROGRESS (Deterministic: Progressing, No order yet) ---
     if (uiState === 'POINTS_PROGRESS') {
         return {
             discount: 0,
-            messageKey: ordersInCurrentVisit > 0 ? LOYALTY_MESSAGE_KEYS.SESSION_3_AFTER_ORDER : LOYALTY_MESSAGE_KEYS.SESSION_3_PROGRESS,
+            messageKey: LOYALTY_MESSAGE_KEYS.SESSION_3_PROGRESS,
             showProgress: true,
             progressPercentage: progress
         };
     }
 
-    // --- CASE 4: ACTIVE_EARNING (Default Fallback / Post-Welcome Transition) ---
+    // --- CASE 4: ACTIVE_EARNING (Default Fallback) ---
     return {
         discount: 0,
-        messageKey: ordersInCurrentVisit > 0 ? LOYALTY_MESSAGE_KEYS.SESSION_1_AFTER_ORDER : LOYALTY_MESSAGE_KEYS.LOYAL_ACTIVE,
-        welcomeTeaser: ordersInCurrentVisit > 0 // Persist teaser for "Enjoy your visit" message
+        messageKey: LOYALTY_MESSAGE_KEYS.LOYAL_ACTIVE,
+        welcomeTeaser: false
     };
 };

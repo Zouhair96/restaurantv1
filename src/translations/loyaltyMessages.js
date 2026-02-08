@@ -37,28 +37,28 @@ export const loyaltyMessages = {
         fr: '👋 Bienvenue ! Passez votre première commande pour commencer à gagner des récompenses.',
     },
     [LOYALTY_MESSAGE_KEYS.SESSION_1_AFTER_ORDER]: {
-        en: '👋 Welcome! Enjoy your visit.',
-        fr: '👋 Bienvenue ! Profitez de votre visite.',
+        en: '🎉 Enjoy your visit!',
+        fr: '🎉 Profitez de votre visite.',
     },
     [LOYALTY_MESSAGE_KEYS.SESSION_2_BEFORE_ORDER]: {
         en: '🎉 You unlocked {percentage}% OFF on this order.',
         fr: '🎉 Vous avez débloqué {percentage} % de réduction sur cette commande.',
     },
     [LOYALTY_MESSAGE_KEYS.SESSION_2_AFTER_ORDER]: {
-        en: '👋 Enjoy your visit!',
-        fr: '👋 Profitez de votre visite.',
+        en: '🎉 Enjoy your visit!',
+        fr: '🎉 Profitez de votre visite.',
     },
     [LOYALTY_MESSAGE_KEYS.SESSION_3_PROGRESS]: {
-        en: '🔥 You\'re close! One more visit to unlock loyal rewards.',
-        fr: '🔥 Vous y êtes presque ! Encore une visite pour débloquer les récompenses fidélité.',
+        en: '🔥 You\'re getting closer to your reward!',
+        fr: '🔥 Vous vous rapprochez de votre cadeau !',
     },
     [LOYALTY_MESSAGE_KEYS.SESSION_3_FINAL]: {
         en: '🔥 Almost there! Final visit before loyal rewards unlock.',
         fr: '🔥 Presque fini ! Dernière visite avant de débloquer les récompenses fidélité.',
     },
     [LOYALTY_MESSAGE_KEYS.SESSION_3_AFTER_ORDER]: {
-        en: '🔥 You\'re close! One more visit to unlock loyal rewards.',
-        fr: '🔥 Presque fini ! Dernière visite avant de débloquer les récompenses fidélité.',
+        en: '🔥 Keep it up! Your progress is being tracked.',
+        fr: '🔥 Continuez ainsi ! Vos points sont comptabilisés.',
     },
     [LOYALTY_MESSAGE_KEYS.LOYAL_DISCOUNT]: {
         en: '⭐ Loyal Client — Enjoy {percentage}% OFF on this visit!',
@@ -97,8 +97,8 @@ export const loyaltyMessages = {
         fr: 'Convertir ce cadeau en {points} points ? Cette action est irréversible.',
     },
     [LOYALTY_MESSAGE_KEYS.LOYAL_REACHED_CONFIRMATION]: {
-        en: '🎉 Goal reached! Enjoy your visit, your reward will be ready for your next visit.',
-        fr: '🎉 Objectif atteint ! Profitez de votre visite, votre cadeau sera prêt pour votre prochaine visite.',
+        en: '🎉 Enjoy your visit, your reward will be ready for your next visit.',
+        fr: '🎉 Profitez de votre visite, votre cadeau sera prêt pour votre prochaine visite.',
     },
 };
 
