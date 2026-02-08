@@ -60,24 +60,24 @@ export const loyaltyMessages = {
         fr: '🔥 Presque fini ! Dernière visite avant de débloquer les récompenses fidélité.',
     },
     [LOYALTY_MESSAGE_KEYS.LOYAL_DISCOUNT]: {
-        en: '⭐ Loyal Client — Enjoy {percentage}% OFF on every order!',
-        fr: '⭐ Client Fidèle — Profitez de {percentage}% de réduction sur chaque commande !',
+        en: '⭐ Loyal Client — Enjoy {percentage}% OFF on this visit!',
+        fr: '⭐ Client Fidèle — Profitez de {percentage}% de réduction sur cette visite !',
     },
     [LOYALTY_MESSAGE_KEYS.LOYAL_GIFT]: {
-        en: '⭐ Loyal Client — Get a free {item} on us!',
-        fr: '⭐ Client Fidèle — On vous offre un {item} !',
+        en: '⭐ Loyal Client — Get a free {item} on this visit!',
+        fr: '⭐ Client Fidèle — On vous offre un {item} pour cette visite !',
     },
     [LOYALTY_MESSAGE_KEYS.LOYAL_INCOMPLETE_SPENDING]: {
         en: '🔥 Final step! Spend a little more to unlock loyal rewards.',
         fr: '🔥 Dernière étape ! Dépensez encore un peu pour débloquer les récompenses fidélité.',
     },
     [LOYALTY_MESSAGE_KEYS.LOYAL_ACTIVE]: {
-        en: '⭐ Loyal Client — Enjoy special rewards on every order!',
-        fr: '⭐ Client Fidèle — Profitez de récompenses spéciales sur chaque commande !',
+        en: '⭐ Loyal Client — Enjoy special rewards on your visits!',
+        fr: '⭐ Client Fidèle — Profitez de récompenses spéciales lors de vos visites !',
     },
     [LOYALTY_MESSAGE_KEYS.LOYAL_FIXED_DISCOUNT]: {
-        en: '⭐ Loyal Client — Enjoy {value}€ OFF on every order!',
-        fr: '⭐ Client Fidèle — Profitez de {value}€ de réduction sur chaque commande !',
+        en: '⭐ Loyal Client — Enjoy {value}€ OFF on this visit!',
+        fr: '⭐ Client Fidèle — Profitez de {value}€ de réduction sur cette visite !',
     },
     [LOYALTY_MESSAGE_KEYS.LOYAL_TITLE]: {
         en: 'Loyal Client',

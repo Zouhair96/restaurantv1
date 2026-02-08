@@ -39,8 +39,8 @@ const LoyaltyDocumentation = ({ onBack, loyalConfig }) => {
                     text: "Automatic rewards for your most frequent fans.",
                     subpoints: [
                         "Soft Status: First few visits. No discount yet, but the system is tracking progress.",
-                        `Loyal Status: Reached after 4 visits in 30 days. Unlocks a consistent ${loyalVal}% discount.`,
-                        "Safety Rule: Visits are only counted once every 4 hours to ensure fair use."
+                        `Loyal Status: Reached after 4 visits in 30 days. Unlocks a ${loyalVal}% discount once per visit.`,
+                        "Safety Rule: Rewards are granted once per session. A session resets after 2 minutes of inactivity."
                     ]
                 },
                 {
@@ -86,8 +86,8 @@ const LoyaltyDocumentation = ({ onBack, loyalConfig }) => {
                     text: "Récompenses automatiques pour vos fans les plus fréquents.",
                     subpoints: [
                         "Statut Soft: Premières visites. Pas encore de remise, mais le système suit la progression.",
-                        `Statut Loyal: Atteint après 4 visites en 30 jours. Débloque une remise constante de ${loyalVal}%.`,
-                        "Règle de Sécurité: Les visites ne sont comptées qu'une fois toutes les 4 heures pour garantir une utilisation équitable."
+                        `Statut Loyal: Atteint après 4 visites en 30 jours. Débloque une remise de ${loyalVal}% une fois par visite.`,
+                        "Règle de Sécurité: Les récompenses sont accordées une fois par session. Une session se réinitialise après 2 minutes d'inactivité."
                     ]
                 },
                 {
@@ -133,8 +133,8 @@ const LoyaltyDocumentation = ({ onBack, loyalConfig }) => {
                     text: "مكافآت تلقائية لمعجبيك الأكثر تردداً.",
                     subpoints: [
                         "الحالة المرنة (Soft): الزيارات القليلة الأولى. لا توجد خصومات بعد، لكن النظام يتتبع التقدم.",
-                        `حالة الولاء (Loyal): يتم الوصول إليها بعد 4 زيارات في 30 يوماً. تفتح خصماً ثابتاً بنسبة ${loyalVal}%.`,
-                        "قاعدة الأمان: يتم احتساب الزيارات مرة واحدة فقط كل 4 ساعات لضمان الاستخدام العادل."
+                        `حالة الولاء (Loyal): يتم الوصول إليها بعد 4 زيارات في 30 يوماً. تفتح خصماً بنسبة ${loyalVal}% مرة واحدة في كل زيارة.`,
+                        "قاعدة الأمان: يتم منح المكافآت مرة واحدة في كل جلسة. يتم إعادة تعيين الجلسة بعد دقيقتين من عدم النشاط."
                     ]
                 },
                 {
