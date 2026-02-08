@@ -231,44 +231,6 @@ const Checkout = ({
 
                                 {cartItems.length === 0 ? (
                                     <>
-                                        {/* Unified Loyalty Messaging */}
-                                        <div className="mb-8 empty-cart-loyalty">
-                                            {(() => {
-                                                if (!welcomeTeaser || !messageKey) return null;
-
-                                                const uiState = loyaltyInfo?.uiState || 'ACTIVE_EARNING';
-                                                const isSession1 = uiState === 'WELCOME';
-
-                                                return (
-                                                    <div className={`flex justify-between items-center p-5 rounded-3xl border-2 transition-all ${isSession1
-                                                        ? 'bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-700'
-                                                        : 'bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 border-pink-200 dark:border-pink-700'
-                                                        }`}>
-                                                        <div className="flex items-center gap-3">
-                                                            <span className="text-2xl">{isSession1 ? '👋' : '🎁'}</span>
-                                                            <div className="flex flex-col">
-                                                                <span className={`font-black text-sm ${isSession1 ? 'text-green-700 dark:text-green-400' : 'text-pink-700 dark:text-pink-400'}`}>
-                                                                    {isSession1
-                                                                        ? (translations[lang]?.auth?.welcomeTitle || "Welcome!")
-                                                                        : (translations[lang]?.auth?.welcomeBackTitle || translations[lang]?.auth?.loyaltyGift || "Reward!")
-                                                                    }
-                                                                </span>
-                                                                {(() => {
-                                                                    const title = isSession1 ? (translations[lang]?.auth?.welcomeTitle || "Welcome!") : "";
-                                                                    const subtitle = getLoyaltyMessage(messageKey, language, messageVariables);
-                                                                    if (!subtitle || subtitle === title) return null;
-                                                                    return (
-                                                                        <span className={`text-[10px] font-bold ${isSession1 ? 'text-green-600 dark:text-green-500' : 'text-pink-600 dark:text-pink-500'}`}>
-                                                                            {subtitle}
-                                                                        </span>
-                                                                    );
-                                                                })()}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })()}
-                                        </div>
 
                                         <motion.div
                                             animate={isShaking ? {
