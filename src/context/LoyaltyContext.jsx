@@ -59,6 +59,7 @@ export const LoyaltyProvider = ({ children }) => {
                     activeGifts,
                     convertedGifts,
                     loyalty_config,
+                    restaurantId,
                     totalSpending,
                     uiState,
                     eligibility
@@ -82,6 +83,7 @@ export const LoyaltyProvider = ({ children }) => {
 
                             activeGifts: activeGifts || [],
                             convertedGifts: convertedGifts || [],
+                            restaurantId: restaurantId,
                             config: loyalty_config || (prev[restaurantName]?.config) || { isAutoPromoOn: true }
                         }
                     };
@@ -179,8 +181,12 @@ export const LoyaltyProvider = ({ children }) => {
 
         try {
             const log = loyaltyData[restaurantName];
-            const restaurantId = log?.config?.restaurant_id;
-            const rId = restaurantId || log?.config?.id;
+            const restaurantId = log?.restaurantId;
+
+            if (!restaurantId) {
+                console.error('[Loyalty] Missing restaurantId for conversion');
+                return { success: false, error: 'Restaurant ID not found' };
+            }
 
             const response = await fetch('/.netlify/functions/convert-gift-to-points', {
                 method: 'POST',
@@ -188,7 +194,7 @@ export const LoyaltyProvider = ({ children }) => {
                 body: JSON.stringify({
                     giftId,
                     loyaltyId: clientId,
-                    restaurantId: rId,
+                    restaurantId: restaurantId,
                     orderTotal: orderTotal
                 })
             });
@@ -210,8 +216,12 @@ export const LoyaltyProvider = ({ children }) => {
 
         try {
             const log = loyaltyData[restaurantName];
-            const restaurantId = log?.config?.restaurant_id;
-            const rId = restaurantId || log?.config?.id;
+            const restaurantId = log?.restaurantId;
+
+            if (!restaurantId) {
+                console.error('[Loyalty] Missing restaurantId for reversal');
+                return { success: false, error: 'Restaurant ID not found' };
+            }
 
             const response = await fetch('/.netlify/functions/revert-points-to-gift', {
                 method: 'POST',
@@ -219,7 +229,7 @@ export const LoyaltyProvider = ({ children }) => {
                 body: JSON.stringify({
                     giftId,
                     loyaltyId: clientId,
-                    restaurantId: rId
+                    restaurantId: restaurantId
                 })
             });
 

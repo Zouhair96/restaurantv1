@@ -211,6 +211,7 @@ export const handler = async (event, context) => {
                 activeGifts: activeGifts,
                 convertedGifts: convertedGifts,
                 loyalty_config: loyaltyConfig,
+                restaurantId: targetRestaurantId,
                 totalSpending: totalSpending,
                 totalPotentialSpending: totalPotentialSpending,
                 activeOrdersCount: activeOrdersCount,

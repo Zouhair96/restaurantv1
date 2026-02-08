@@ -59,15 +59,23 @@ const Checkout = ({
         const { type, giftId } = modalState;
         setModalState({ ...modalState, show: false });
         setLoading(true);
+        setError('');
 
         try {
+            let result;
             if (type === 'CONVERT') {
-                await convertGift(restaurantName, giftId, subtotal);
+                result = await convertGift(restaurantName, giftId, subtotal);
             } else if (type === 'REVERT') {
-                await revertGift(restaurantName, giftId);
+                result = await revertGift(restaurantName, giftId);
+            }
+
+            if (result && !result.success && result.error) {
+                setError(result.error);
+                console.error('[Checkout] Conversion/Reversal failed:', result.error);
             }
         } catch (err) {
-            setError(err.message);
+            setError(err.message || 'An unexpected error occurred');
+            console.error('[Checkout] Exception during conversion/reversal:', err);
         } finally {
             setLoading(false);
         }
