@@ -398,6 +398,40 @@ export const handler = async (event, context) => {
                                     const rewardVal = (rewardType === 'ITEM') ? 0 : (parseInt(rVal) || 15);
                                     const giftName = (rewardType === 'ITEM') ? rVal : null;
 
+                                    // For ITEM gifts, look up the current price to store as euro_value
+                                    let itemPrice = 0;
+                                    if (rewardType === 'ITEM' && giftName) {
+                                        try {
+                                            const priceRes = await client.query(`
+                                                SELECT price FROM (
+                                                    SELECT DISTINCT ON (name)
+                                                        COALESCE(io.name_override, ti.name) as name,
+                                                        COALESCE(io.price_override, ti.price) as price
+                                                    FROM restaurant_templates rt
+                                                    JOIN templates t ON rt.template_id = t.id
+                                                    LEFT JOIN template_items ti ON ti.template_id = t.id AND ti.is_deleted = false
+                                                    LEFT JOIN item_overrides io ON io.template_item_id = ti.id AND io.restaurant_id = rt.restaurant_id
+                                                    WHERE rt.restaurant_id = $1 AND rt.status = 'active'
+                                                    
+                                                    UNION
+                                                    
+                                                    SELECT name_override as name, price_override as price
+                                                    FROM item_overrides
+                                                    WHERE restaurant_id = $1 AND template_item_id IS NULL
+                                                ) menu_lookup WHERE name = $2
+                                            `, [orderRestaurantId, giftName]);
+
+                                            if (priceRes.rows.length > 0) {
+                                                itemPrice = parseFloat(priceRes.rows[0].price || 0);
+                                                console.log(`[Loyalty] Found item price for "${giftName}": ${itemPrice}€`);
+                                            } else {
+                                                console.warn(`[Loyalty] Item "${giftName}" not found in menu, euro_value will be 0`);
+                                            }
+                                        } catch (priceErr) {
+                                            console.warn('[Loyalty] Price lookup failed:', priceErr.message);
+                                        }
+                                    }
+
                                     await client.query(`
                                         INSERT INTO gifts (restaurant_id, device_id, type, euro_value, percentage_value, gift_name, status, granted_by_order_id)
                                         VALUES ($1, $2, $3, $4, $5, $6, 'unused', $7)
@@ -405,7 +439,7 @@ export const handler = async (event, context) => {
                                         orderRestaurantId,
                                         loyaltyId,
                                         rewardType,
-                                        rewardType === 'FIXED_VALUE' ? rewardVal : 0,
+                                        rewardType === 'FIXED_VALUE' ? rewardVal : (rewardType === 'ITEM' ? itemPrice : 0),
                                         rewardType === 'PERCENTAGE' ? rewardVal : 0,
                                         giftName,
                                         orderId
