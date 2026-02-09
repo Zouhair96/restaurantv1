@@ -196,6 +196,41 @@ export const handler = async (event, context) => {
                         WHERE order_id = $1 AND device_id = $2
                     `, [orderId, loyaltyId]);
 
+                // 1b. Reverse converted gifts (gift-to-points conversions)
+                // Find any gifts that were converted during this order's checkout
+                const convertedGiftsRes = await query(`
+                    SELECT g.id, pt.amount 
+                    FROM gifts g
+                    JOIN points_transactions pt ON pt.gift_id = g.id
+                    WHERE g.device_id = $1 AND g.restaurant_id = $2 
+                    AND g.status = 'converted'
+                    AND pt.type = 'CONVERT_GIFT'
+                    AND pt.created_at >= (SELECT created_at FROM orders WHERE id = $3)
+                    AND pt.created_at <= (SELECT created_at FROM orders WHERE id = $3) + INTERVAL '5 minutes'
+                `, [loyaltyId, order.restaurant_id, orderId]);
+
+                if (convertedGiftsRes.rows.length > 0) {
+                    console.log(`[Loyalty Rollback] Reversing ${convertedGiftsRes.rows.length} converted gift(s)`);
+
+                    for (const conv of convertedGiftsRes.rows) {
+                        // Remove the conversion points
+                        await query(`
+                            UPDATE loyalty_visitors 
+                            SET total_points = GREATEST(0, COALESCE(total_points, 0) - $1) 
+                            WHERE restaurant_id = $2 AND device_id = $3
+                        `, [conv.amount, order.restaurant_id, loyaltyId]);
+
+                        // Delete the conversion transaction
+                        await query('DELETE FROM points_transactions WHERE gift_id = $1', [conv.id]);
+
+                        // Restore gift to unused
+                        await query(`UPDATE gifts SET status = 'unused' WHERE id = $1`, [conv.id]);
+
+                        console.log(`[Loyalty Rollback] Restored gift ${conv.id}, removed ${conv.amount} points`);
+                    }
+                }
+
+
                 // 2. Rollback session order count
                 await query(`
                         UPDATE loyalty_visitors 
