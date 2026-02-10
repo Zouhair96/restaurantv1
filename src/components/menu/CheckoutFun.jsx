@@ -357,6 +357,32 @@ const CheckoutFun = ({
                                     </div>
                                 )}
 
+                                {loyaltyInfo.convertedGifts?.length > 0 && (
+                                    <div className="flex justify-between items-center text-blue-600 bg-blue-50 p-3 rounded-2xl border border-blue-100">
+                                        <div className="flex flex-col">
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-bold text-sm uppercase tracking-wider">Converted to Points</span>
+                                                <button
+                                                    onClick={handleToggleReward}
+                                                    disabled={loading}
+                                                    className="w-10 h-6 rounded-full relative transition-colors shadow-inner bg-blue-500"
+                                                >
+                                                    <motion.div
+                                                        className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm"
+                                                        animate={{ left: 20 }}
+                                                    />
+                                                </button>
+                                            </div>
+                                            <span className="text-[10px] italic font-medium opacity-80">
+                                                {getLoyaltyMessage(LOYALTY_MESSAGE_KEYS.GIFT_CONVERTED_POINTS, language, { points: '? ' })}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xl">✨</span>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {(loyaltyDiscount > 0 || (isLoyal && !loyaltyGift)) && (
                                     <div className="flex justify-between items-center bg-yellow-50 p-3 rounded-2xl border border-yellow-100 text-yellow-700">
                                         <div className="flex flex-col">
@@ -409,6 +435,26 @@ const CheckoutFun = ({
 
 const ConversionConfirmationModal = ({ state, onConfirm, onCancel, isDarkMode, themeColor, language, loyaltyInfo, subtotal }) => {
     const { isOpen = state.show, type = state.type } = state;
+
+    // Calculate potential points preview
+    const activeGift = loyaltyInfo?.activeGifts?.[0];
+    const ppe = parseInt(loyaltyInfo?.config?.points_per_euro || 100);
+    let pointsPreview = 0;
+
+    if (activeGift) {
+        if (activeGift.type === 'PERCENTAGE') {
+            pointsPreview = Math.floor((subtotal * parseFloat(activeGift.percentage_value || 0) / 100) * ppe);
+        } else {
+            pointsPreview = Math.floor(parseFloat(activeGift.euro_value || 0) * ppe);
+        }
+    }
+
+    const title = type === 'CONVERT' ? 'Convert to Points?' : 'Restore Reward?';
+    const messageKey = type === 'CONVERT' ? LOYALTY_MESSAGE_KEYS.GIFT_CONVERSION_CONFIRM : LOYALTY_MESSAGE_KEYS.REVERT_CONVERSION_CONFIRM;
+    const confirmText = type === 'CONVERT' ? 'Yes, Convert' : 'Yes, Restore';
+    const cancelText = type === 'CONVERT' ? 'No, Keep Reward' : 'Cancel';
+    const icon = type === 'CONVERT' ? '💰' : '🎁';
+
     return (
         <AnimatePresence>
             {state.show && (
@@ -426,26 +472,29 @@ const ConversionConfirmationModal = ({ state, onConfirm, onCancel, isDarkMode, t
                     >
                         <div className="text-center">
                             <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 ${type === 'CONVERT' ? 'bg-blue-50 text-blue-500' : 'bg-pink-50 text-pink-500'}`}>
-                                <HiSparkles size={40} />
+                                <span className="text-4xl">{icon}</span>
                             </div>
                             <h3 className="text-xl font-black mb-4 uppercase tracking-tight text-gray-800">
-                                {type === 'CONVERT' ? 'Convert to Points?' : 'Restore Reward?'}
+                                {title}
                             </h3>
+                            <p className="text-sm font-medium mb-8 leading-relaxed text-gray-500">
+                                {getLoyaltyMessage(messageKey, language, { points: pointsPreview })}
+                            </p>
 
-                            <div className="space-y-3 mt-8">
+                            <div className="space-y-3">
                                 <motion.button
                                     whileTap={{ scale: 0.95 }}
                                     onClick={onConfirm}
                                     className={`w-full py-4 rounded-2xl text-white font-black uppercase tracking-wider shadow-lg ${type === 'CONVERT' ? 'bg-blue-500 shadow-blue-500/25' : 'bg-pink-500 shadow-pink-500/25'}`}
                                 >
-                                    {type === 'CONVERT' ? 'Yes, Convert' : 'Yes, Restore'}
+                                    {confirmText}
                                 </motion.button>
                                 <motion.button
                                     whileTap={{ scale: 0.95 }}
                                     onClick={onCancel}
                                     className="w-full py-4 rounded-2xl font-black uppercase tracking-wider transition-colors bg-gray-100 hover:bg-gray-200 text-gray-600"
                                 >
-                                    Cancel
+                                    {cancelText}
                                 </motion.button>
                             </div>
                         </div>
