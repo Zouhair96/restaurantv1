@@ -67,6 +67,7 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
     const [showConfetti, setShowConfetti] = useState(false);
     const [cartBounce, setCartBounce] = useState(false);
     const [showScrollTop, setShowScrollTop] = useState(false);
+    const [modalQuantity, setModalQuantity] = useState(1);
 
     const { trackVisit, getStatus, markWelcomeAsShown } = useLoyalty();
     const loyaltyInfo = getStatus(restaurantName);
@@ -174,9 +175,9 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
         });
     };
 
-    const handleAddToCart = (item) => {
+    const handleAddToCart = (item, quantity = 1) => {
         const { finalPrice } = getDiscountedPrice(config.promotions || [], item);
-        addToCart({ ...item, price: finalPrice, quantity: 1, size: 'Standard' });
+        addToCart({ ...item, price: finalPrice, quantity: quantity, size: 'Standard' });
 
         // Trigger confetti and cart bounce
         setShowConfetti(true);
@@ -187,6 +188,7 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
 
     const handleItemClick = (item) => {
         setSelectedItem(item);
+        setModalQuantity(1);
     };
 
     const categoryEmojis = {
@@ -471,39 +473,17 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
                                                 </span>
                                             </div>
 
-                                            {quantity > 0 ? (
-                                                <div className="flex items-center bg-gray-100 rounded-xl shadow-inner border border-gray-200 overflow-hidden" onClick={(e) => e.stopPropagation()}>
-                                                    <motion.button
-                                                        whileTap={{ scale: 0.9 }}
-                                                        onClick={() => handleUpdateQuantity(item.id, quantity - 1)}
-                                                        className="p-2 md:p-3 hover:bg-gray-200 text-orange-500 transition-colors"
-                                                    >
-                                                        <HiMinus className="w-4 h-4 md:w-5 md:h-5" />
-                                                    </motion.button>
-                                                    <span className="font-bold text-gray-900 px-2 md:px-3 text-sm md:text-base min-w-[1.5rem] text-center">
-                                                        {quantity}
-                                                    </span>
-                                                    <motion.button
-                                                        whileTap={{ scale: 0.9 }}
-                                                        onClick={() => handleUpdateQuantity(item.id, quantity + 1)}
-                                                        className="p-2 md:p-3 hover:bg-gray-200 text-orange-500 transition-colors"
-                                                    >
-                                                        <HiPlus className="w-4 h-4 md:w-5 md:h-5" />
-                                                    </motion.button>
-                                                </div>
-                                            ) : (
-                                                <motion.button
-                                                    whileHover={{ scale: 1.1, rotate: 10 }}
-                                                    whileTap={{ scale: 0.9 }}
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleAddToCart(item);
-                                                    }}
-                                                    className="p-2 md:p-3 bg-gradient-to-br from-orange-400 to-pink-400 text-white rounded-xl shadow-lg"
-                                                >
-                                                    <HiPlus className="w-5 h-5" />
-                                                </motion.button>
-                                            )}
+                                            <motion.button
+                                                whileHover={{ scale: 1.1, rotate: 10 }}
+                                                whileTap={{ scale: 0.9 }}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleAddToCart(item);
+                                                }}
+                                                className="p-2 md:p-3 bg-gradient-to-br from-orange-400 to-pink-400 text-white rounded-xl shadow-lg"
+                                            >
+                                                <HiPlus className="w-5 h-5" />
+                                            </motion.button>
                                         </div>
                                     </div>
                                 </motion.div>
@@ -589,19 +569,39 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
                                     </span>
                                 </div>
 
-                                {/* Add to Cart Button */}
-                                <motion.button
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={() => {
-                                        handleAddToCart(selectedItem);
-                                        setSelectedItem(null);
-                                    }}
-                                    className="w-full py-4 bg-gradient-to-r from-orange-400 to-pink-400 text-white font-black text-lg rounded-2xl shadow-xl flex items-center justify-center gap-3"
-                                >
-                                    <HiShoppingBag className="w-6 h-6" />
-                                    Add to Cart
-                                </motion.button>
+                                {/* Quantity and Add Button */}
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-center gap-4 bg-gray-50 rounded-2xl p-2 w-fit mx-auto">
+                                        <motion.button
+                                            whileTap={{ scale: 0.9 }}
+                                            onClick={() => setModalQuantity(Math.max(1, modalQuantity - 1))}
+                                            className="w-10 h-10 flex items-center justify-center bg-white rounded-xl shadow-sm text-gray-600 hover:text-orange-500"
+                                        >
+                                            <HiMinus className="w-5 h-5" />
+                                        </motion.button>
+                                        <span className="text-xl font-black text-gray-900 w-8">{modalQuantity}</span>
+                                        <motion.button
+                                            whileTap={{ scale: 0.9 }}
+                                            onClick={() => setModalQuantity(modalQuantity + 1)}
+                                            className="w-10 h-10 flex items-center justify-center bg-white rounded-xl shadow-sm text-gray-600 hover:text-orange-500"
+                                        >
+                                            <HiPlus className="w-5 h-5" />
+                                        </motion.button>
+                                    </div>
+
+                                    <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => {
+                                            handleAddToCart(selectedItem, modalQuantity);
+                                            setSelectedItem(null);
+                                        }}
+                                        className="w-full py-4 bg-gradient-to-r from-orange-400 to-pink-400 text-white font-black text-lg rounded-2xl shadow-xl flex items-center justify-center gap-3"
+                                    >
+                                        <HiShoppingBag className="w-6 h-6" />
+                                        Add {modalQuantity > 1 ? `${modalQuantity} items` : 'to Cart'}
+                                    </motion.button>
+                                </div>
                             </div>
                         </motion.div>
                     </motion.div>

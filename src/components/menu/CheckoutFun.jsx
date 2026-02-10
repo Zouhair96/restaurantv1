@@ -148,7 +148,7 @@ const CheckoutFun = ({
                 clearCart();
                 setIsSubmitted(false);
                 onClose();
-            }, 3000);
+            }, 5000);
 
         } catch (err) {
             setError(err.message);
