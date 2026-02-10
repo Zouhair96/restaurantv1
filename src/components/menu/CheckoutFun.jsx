@@ -85,6 +85,12 @@ const CheckoutFun = ({
         });
     };
 
+    useEffect(() => {
+        if (!isOpen) {
+            setIsSubmitted(false);
+        }
+    }, [isOpen]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -141,14 +147,12 @@ const CheckoutFun = ({
                 }));
             }
 
+            // Success!!
             setIsSubmitted(true);
+            clearCart();
             recordCompletedOrder(restaurantName, total);
 
-            setTimeout(() => {
-                clearCart();
-                setIsSubmitted(false);
-                onClose();
-            }, 5000);
+            // No timeout - wait for user to close
 
         } catch (err) {
             setError(err.message);
@@ -211,7 +215,7 @@ const CheckoutFun = ({
                             onClick={onClose}
                             className="w-12 h-12 flex items-center justify-center rounded-full shadow-lg bg-white border-2 border-orange-100 text-orange-500"
                         >
-                            <HiChevronLeft size={28} />
+                            {isSubmitted ? <HiXMark size={28} /> : <HiChevronLeft size={28} />}
                         </motion.button>
                         <motion.button
                             whileTap={{ scale: 0.9 }}
