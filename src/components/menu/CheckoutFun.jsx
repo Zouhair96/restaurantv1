@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HiXMark, HiCheckCircle, HiChevronLeft, HiTrash, HiOutlineTicket, HiSparkles } from 'react-icons/hi2';
 import { useCart } from '../../context/CartContext';
