@@ -88,15 +88,18 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
                 if (isMasterView) {
                     const response = await fetch('/.netlify/functions/templates?templateKey=pizzaFun');
                     const data = await response.json();
-                    if (data && data.items) {
+                    if (data && data.items && data.items.length > 0) {
                         setMenuItems(data.items.map(item => ({ ...item, image: item.image_url })));
-                        setConfig({
-                            restaurantName: 'MASTER BLUEPRINT',
-                            themeColor: data.config?.designConfig?.accentColor || data.config?.themeColor || '#ff6b35',
-                            logoImage: null,
-                            useLogo: false
-                        });
+                    } else {
+                        // Fallback to hardcoded items if no items in DB (for preview)
+                        setMenuItems(hardcodedMenuItems);
                     }
+                    setConfig({
+                        restaurantName: 'MASTER BLUEPRINT',
+                        themeColor: data.config?.designConfig?.accentColor || data.config?.themeColor || '#ff6b35',
+                        logoImage: null,
+                        useLogo: false
+                    });
                 } else {
                     const response = await fetch(`/.netlify/functions/public-menu?restaurantName=${encodeURIComponent(restaurantName)}`);
                     if (!response.ok) throw new Error('Failed to load menu');
