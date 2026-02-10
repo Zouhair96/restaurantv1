@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HiShoppingBag, HiMinus, HiPlus, HiBars3, HiXMark, HiTrash, HiMagnifyingGlass, HiHeart, HiSparkles } from 'react-icons/hi2';
+import { HiShoppingBag, HiMinus, HiPlus, HiBars3, HiXMark, HiTrash, HiMagnifyingGlass, HiHeart, HiSparkles, HiArrowUp } from 'react-icons/hi2';
 import { useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import PublicMenuSidebarFun from '../components/public-menu/PublicMenuSidebarFun';
@@ -66,6 +66,7 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [showConfetti, setShowConfetti] = useState(false);
     const [cartBounce, setCartBounce] = useState(false);
+    const [showScrollTop, setShowScrollTop] = useState(false);
 
     const { trackVisit, getStatus, markWelcomeAsShown } = useLoyalty();
     const loyaltyInfo = getStatus(restaurantName);
@@ -137,6 +138,40 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
 
     const handleCategorySelect = (category) => {
         setActiveCategory(category);
+    };
+
+    const getCartItemQuantity = (itemId) => {
+        // Assume 'Standard' size for grid items as per handleAddToCart
+        const item = cartItems.find(i => i.id === itemId && i.size === 'Standard');
+        return item ? item.quantity : 0;
+    };
+
+    const handleUpdateQuantity = (itemId, newQuantity) => {
+        if (newQuantity <= 0) {
+            removeFromCart(itemId, 'Standard');
+        } else {
+            updateQuantity(itemId, 'Standard', newQuantity);
+        }
+    };
+
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 300) {
+                setShowScrollTop(true);
+            } else {
+                setShowScrollTop(false);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    const scrollToTop = () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
     };
 
     const handleAddToCart = (item) => {
@@ -252,7 +287,7 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
             <motion.header
                 initial={{ y: -100 }}
                 animate={{ y: 0 }}
-                className="sticky top-0 z-50 bg-white/90 backdrop-blur-lg shadow-lg border-b-4 border-orange-200"
+                className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-lg shadow-lg border-b-4 border-orange-200"
             >
                 <div className="max-w-7xl mx-auto px-4 py-4">
                     <div className="flex items-center justify-between">
@@ -321,7 +356,7 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
             </motion.header>
 
             {/* Main Content */}
-            <div className="max-w-7xl mx-auto px-4 py-6">
+            <div className="max-w-7xl mx-auto px-4 py-6 pt-32 md:pt-40">
                 {/* Search Bar */}
                 <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}
@@ -378,76 +413,102 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
                 {/* Menu Grid */}
                 <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8">
                     <AnimatePresence>
-                        {filteredMenuItems.map((item, index) => (
-                            <motion.div
-                                key={item.id}
-                                layout
-                                initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
-                                animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                                exit={{ opacity: 0, scale: 0.8, rotate: 10 }}
-                                transition={{ delay: index * 0.05 }}
-                                whileHover={{ scale: 1.05, rotate: 2, y: -10 }}
-                                onClick={() => handleItemClick(item)}
-                                className="bg-white rounded-3xl shadow-xl overflow-visible cursor-pointer transition-all wiggle pt-4"
-                            >
-                                {/* Image */}
-                                <div className="relative aspect-square overflow-visible flex items-center justify-center p-4 md:p-8">
-                                    <motion.div
-                                        className="relative w-full h-full rounded-full shadow-2xl overflow-hidden"
-                                        whileHover={{ scale: 1.1, rotate: 360 }}
-                                        transition={{ duration: 0.8 }}
-                                    >
-                                        <img
-                                            src={item.image}
-                                            alt={localize(item, 'name')}
-                                            className="w-full h-full object-cover"
-                                        />
-                                    </motion.div>
+                        {filteredMenuItems.map((item, index) => {
+                            const quantity = getCartItemQuantity(item.id);
+                            return (
+                                <motion.div
+                                    key={item.id}
+                                    layout
+                                    initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
+                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                    exit={{ opacity: 0, scale: 0.8, rotate: 10 }}
+                                    transition={{ delay: index * 0.05 }}
+                                    whileHover={{ scale: 1.05, rotate: 2, y: -10 }}
+                                    onClick={() => handleItemClick(item)}
+                                    className="bg-white rounded-3xl shadow-xl overflow-visible cursor-pointer transition-all wiggle pt-4 flex flex-col h-full"
+                                >
+                                    {/* Image */}
+                                    <div className="relative aspect-square overflow-visible flex items-center justify-center p-4 md:p-8">
+                                        <motion.div
+                                            className="relative w-full h-full rounded-full shadow-2xl overflow-hidden"
+                                            whileHover={{ scale: 1.1, rotate: 360 }}
+                                            transition={{ duration: 0.8 }}
+                                        >
+                                            <img
+                                                src={item.image}
+                                                alt={localize(item, 'name')}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </motion.div>
 
-                                    {/* Heart Icon */}
-                                    <motion.button
-                                        whileHover={{ scale: 1.2 }}
-                                        whileTap={{ scale: 0.9 }}
-                                        className="absolute top-0 right-0 p-2 bg-white/90 rounded-full shadow-lg z-10"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                        }}
-                                    >
-                                        <HiHeart className="w-5 h-5 text-pink-400" />
-                                    </motion.button>
-                                </div>
-
-                                {/* Content */}
-                                <div className="p-5">
-                                    <h3 className="text-lg md:text-xl font-black text-gray-900 mb-2 line-clamp-1">
-                                        {localize(item, 'name')}
-                                    </h3>
-                                    <p className="text-xs md:text-sm text-gray-600 mb-4 line-clamp-2">
-                                        {localize(item, 'description')}
-                                    </p>
-
-                                    {/* Price and Add Button */}
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-baseline gap-1">
-                                            <span className="text-xl md:text-2xl font-black bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent">
-                                                ${parseFloat(getDiscountedPrice(config.promotions || [], item).finalPrice).toFixed(2)}
-                                            </span>
-                                        </div>
+                                        {/* Heart Icon */}
                                         <motion.button
-                                            whileHover={{ scale: 1.1, rotate: 10 }}
+                                            whileHover={{ scale: 1.2 }}
                                             whileTap={{ scale: 0.9 }}
+                                            className="absolute top-0 right-0 p-2 bg-white/90 rounded-full shadow-lg z-10"
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                handleAddToCart(item);
                                             }}
-                                            className="p-2 md:p-3 bg-gradient-to-br from-orange-400 to-pink-400 text-white rounded-xl shadow-lg"
                                         >
-                                            <HiPlus className="w-5 h-5" />
+                                            <HiHeart className="w-5 h-5 text-pink-400" />
                                         </motion.button>
                                     </div>
-                                </div>
-                            </motion.div>
-                        ))}
+
+                                    {/* Content */}
+                                    <div className="p-5 flex flex-col flex-1">
+                                        <h3 className="text-lg md:text-xl font-black text-gray-900 mb-2 line-clamp-1">
+                                            {localize(item, 'name')}
+                                        </h3>
+                                        <p className="text-xs md:text-sm text-gray-600 mb-4 line-clamp-2 flex-1">
+                                            {localize(item, 'description')}
+                                        </p>
+
+                                        {/* Price and Controls */}
+                                        <div className="flex items-center justify-between mt-auto">
+                                            <div className="flex items-baseline gap-1">
+                                                <span className="text-xl md:text-2xl font-black bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent">
+                                                    ${parseFloat(getDiscountedPrice(config.promotions || [], item).finalPrice).toFixed(2)}
+                                                </span>
+                                            </div>
+
+                                            {quantity > 0 ? (
+                                                <div className="flex items-center bg-gray-100 rounded-xl shadow-inner border border-gray-200 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+                                                    <motion.button
+                                                        whileTap={{ scale: 0.9 }}
+                                                        onClick={() => handleUpdateQuantity(item.id, quantity - 1)}
+                                                        className="p-2 md:p-3 hover:bg-gray-200 text-orange-500 transition-colors"
+                                                    >
+                                                        <HiMinus className="w-4 h-4 md:w-5 md:h-5" />
+                                                    </motion.button>
+                                                    <span className="font-bold text-gray-900 px-2 md:px-3 text-sm md:text-base min-w-[1.5rem] text-center">
+                                                        {quantity}
+                                                    </span>
+                                                    <motion.button
+                                                        whileTap={{ scale: 0.9 }}
+                                                        onClick={() => handleUpdateQuantity(item.id, quantity + 1)}
+                                                        className="p-2 md:p-3 hover:bg-gray-200 text-orange-500 transition-colors"
+                                                    >
+                                                        <HiPlus className="w-4 h-4 md:w-5 md:h-5" />
+                                                    </motion.button>
+                                                </div>
+                                            ) : (
+                                                <motion.button
+                                                    whileHover={{ scale: 1.1, rotate: 10 }}
+                                                    whileTap={{ scale: 0.9 }}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleAddToCart(item);
+                                                    }}
+                                                    className="p-2 md:p-3 bg-gradient-to-br from-orange-400 to-pink-400 text-white rounded-xl shadow-lg"
+                                                >
+                                                    <HiPlus className="w-5 h-5" />
+                                                </motion.button>
+                                            )}
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            );
+                        })}
                     </AnimatePresence>
                 </div>
 
@@ -669,6 +730,23 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
                             </div>
                         )}
                     </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Scroll to Top Button */}
+            <AnimatePresence>
+                {showScrollTop && (
+                    <motion.button
+                        initial={{ opacity: 0, y: 50 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 50 }}
+                        onClick={scrollToTop}
+                        className="fixed bottom-6 right-6 z-40 p-4 bg-gradient-to-br from-orange-400 to-pink-400 text-white rounded-full shadow-2xl hover:shadow-orange-200 transition-all"
+                        whileHover={{ scale: 1.1, rotate: -5 }}
+                        whileTap={{ scale: 0.9 }}
+                    >
+                        <HiArrowUp className="w-6 h-6" />
+                    </motion.button>
                 )}
             </AnimatePresence>
 
