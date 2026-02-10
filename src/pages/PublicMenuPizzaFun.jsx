@@ -376,10 +376,7 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
                 </motion.div>
 
                 {/* Menu Grid */}
-                <motion.div
-                    layout
-                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                >
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                     <AnimatePresence>
                         {filteredMenuItems.map((item, index) => (
                             <motion.div
@@ -394,7 +391,7 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
                                 className="bg-white rounded-3xl shadow-xl overflow-visible cursor-pointer transition-all wiggle pt-4"
                             >
                                 {/* Image */}
-                                <div className="relative aspect-square overflow-visible flex items-center justify-center p-4">
+                                <div className="relative aspect-square overflow-visible flex items-center justify-center p-8">
                                     <motion.div
                                         className="relative w-full h-full rounded-full shadow-2xl overflow-hidden"
                                         whileHover={{ scale: 1.1, rotate: 360 }}
