@@ -384,6 +384,7 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
                             loyaltyConfig={loyaltyInfo?.config || {}}
                             isDarkMode={false}
                             percentage={teaser.progressPercentage || 0}
+                            showProgress={teaser.showProgress === true}
                             progressMessage={teaser.messageKey ? getLoyaltyMessage(teaser.messageKey, language, teaser.messageVariables) : null}
                         />
                     </div>
