@@ -23,14 +23,28 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
     const isMasterView = !restaurantName;
 
     const hardcodedMenuItems = [
-        { id: 1, name: 'Sicilienne', description: 'Sauce tomate, fromage, poivron, oignons, olives, anchois', price: 11.90, image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?q=80&w=1000&auto=format&fit=crop', category: 'Classic' },
-        { id: 2, name: 'Calzone', description: 'Sauce tomate, fromage, jambon, champignons, olives, œuf', price: 11.90, image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=1000&auto=format&fit=crop', category: 'Classic' },
-        { id: 3, name: 'Pêcheur', description: 'Sauce tomate, fromage, thon, saumon, olives, oignon', price: 12.90, image: 'https://images.unsplash.com/photo-1604382355076-af4b0eb60143?q=80&w=1000&auto=format&fit=crop', category: 'Classic' },
-        { id: 4, name: '4 Fromages', description: 'Sauce tomate, mozzarella, emmental, chèvre, roquefort', price: 12.90, image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?q=80&w=1000&auto=format&fit=crop', category: 'Classic' },
-        { id: 5, name: 'Mexicaine', description: 'Sauce tomate, fromage, bœuf haché, poivron, olives, oignon', price: 14.90, image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?q=80&w=1000&auto=format&fit=crop', category: 'Classic' },
-        { id: 6, name: 'Chèvre', description: 'Crème fraîche, fromage, chèvre, olives, oignon', price: 13.90, image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=1000&auto=format&fit=crop', category: 'Premium' },
-        { id: 7, name: 'Chicken', description: 'Crème fraîche, fromage, poulet fumé, champignons', price: 13.90, image: 'https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?q=80&w=1000&auto=format&fit=crop', category: 'Premium' },
-        { id: 8, name: 'Bolognaise', description: 'Sauce chili BBQ, fromage, sauce bolognaise, pepperoni', price: 17.90, image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?q=80&w=1000&auto=format&fit=crop', category: 'Special' },
+        // Existing Items (Updated with Local Images)
+        { id: 1, name: 'Sicilienne', description: 'Sauce tomate, fromage, poivron, oignons, olives, anchois', price: 11.90, image: '/pizzas/sicilienne.png', category: 'Classic' },
+        { id: 2, name: 'Calzone', description: 'Sauce tomate, fromage, jambon, champignons, olives, œuf', price: 11.90, image: '/pizzas/calzone.png', category: 'Classic' },
+        { id: 3, name: 'Pêcheur', description: 'Sauce tomate, fromage, thon, saumon, olives, oignon', price: 12.90, image: '/pizzas/pecheur.png', category: 'Classic' },
+        { id: 4, name: '4 Fromages', description: 'Sauce tomate, mozzarella, emmental, chèvre, roquefort', price: 12.90, image: '/pizzas/4fromages.png', category: 'Classic' },
+        { id: 5, name: 'Mexicaine', description: 'Sauce tomate, fromage, bœuf haché, poivron, olives, oignon', price: 14.90, image: '/pizzas/mexicaine.png', category: 'Classic' },
+        { id: 6, name: 'Chèvre', description: 'Crème fraîche, fromage, chèvre, olives, oignon', price: 13.90, image: '/pizzas/chevre.png', category: 'Premium' },
+        { id: 7, name: 'Chicken', description: 'Crème fraîche, fromage, poulet fumé, champignons', price: 13.90, image: '/pizzas/4fromages.png', category: 'Premium' }, // Placeholder image
+        { id: 8, name: 'Bolognaise', description: 'Sauce chili BBQ, fromage, sauce bolognaise, pepperoni', price: 17.90, image: '/pizzas/mexicaine.png', category: 'Special' }, // Placeholder image
+
+        // New Items from Request
+        { id: 11, name: 'Marinara DOP', description: 'Blended San Marzano tomatoes, piennolo tomato, oregano, garlic', price: 9.90, image: '/pizzas/sicilienne.png', category: 'Classic' },
+        { id: 12, name: 'Margherita', description: 'Blended San Marzano tomatoes, fior di latte, basil, pecorino gran cru', price: 10.90, image: '/pizzas/chevre.png', category: 'Classic' },
+        { id: 13, name: 'Bufalaina', description: 'Blended San Marzano tomatoes, mozzarella di bufala, basil, pecorino gran cru', price: 13.90, image: '/pizzas/4fromages.png', category: 'Premium' },
+        { id: 14, name: 'Funghi', description: 'Blended San Marzano tomatoes, fior di latte, mushrooms, basil, pecorino', price: 11.90, image: '/pizzas/calzone.png', category: 'Classic' },
+        { id: 15, name: 'Puttanesca', description: 'Blended San Marzano tomatoes, fior di latte, anchovies, black olives, capers, tomatoes, parmigiano reggiano', price: 12.90, image: '/pizzas/sicilienne.png', category: 'Special' },
+        { id: 16, name: 'Salsiccia', description: 'Blended San Marzano tomatoes, fior di latte, sausage, basil, pecorino gran cru', price: 13.90, image: '/pizzas/mexicaine.png', category: 'Premium' },
+        { id: 17, name: 'Funghi e Salsiccia', description: 'Blended San Marzano tomatoes, fior di latte, mushrooms, sausage, basil, pecorino gran cru', price: 14.90, image: '/pizzas/calzone.png', category: 'Premium' },
+        { id: 18, name: 'Capricciosa', description: 'Blended San Marzano tomatoes, fior di latte, prosciutto cotto, mushrooms, black olives, artichokes', price: 14.90, image: '/pizzas/pecheur.png', category: 'Special' },
+        { id: 19, name: 'Diavola', description: 'Blended San Marzano tomatoes, fior di latte, Calabrese soppressata, basil', price: 13.90, image: '/pizzas/mexicaine.png', category: 'Classic' },
+
+        // Drinks & Desserts
         { id: 9, name: 'Coca-Cola', description: '33cl can chilled', price: 2.50, image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?q=80&w=1000&auto=format&fit=crop', category: 'Drinks' },
         { id: 10, name: 'Tiramisu', description: 'Homemade italian classic', price: 5.90, image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?q=80&w=1000&auto=format&fit=crop', category: 'Desserts' },
     ];
@@ -346,8 +360,8 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
                             whileTap={{ scale: 0.95 }}
                             onClick={() => handleCategorySelect(category)}
                             className={`px-6 py-3 rounded-2xl font-black text-sm whitespace-nowrap shadow-lg transition-all ${activeCategory === category
-                                    ? 'bg-gradient-to-r from-orange-400 to-pink-400 text-white scale-105'
-                                    : 'bg-white text-gray-600 hover:bg-gray-50'
+                                ? 'bg-gradient-to-r from-orange-400 to-pink-400 text-white scale-105'
+                                : 'bg-white text-gray-600 hover:bg-gray-50'
                                 }`}
                         >
                             <span className="mr-2">{categoryEmojis[category] || '🍴'}</span>
