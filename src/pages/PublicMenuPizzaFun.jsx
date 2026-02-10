@@ -340,15 +340,17 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
                     </div>
                 </motion.div>
 
-                {/* Loyalty Progress */}
-                <div className="mb-6">
-                    <LoyaltyProgressBar
-                        loyaltyConfig={loyaltyInfo?.config || {}}
-                        isDarkMode={false}
-                        percentage={teaser.progressPercentage || 0}
-                        progressMessage={teaser.messageKey ? getLoyaltyMessage(teaser.messageKey, language, teaser.messageVariables) : null}
-                    />
-                </div>
+                {/* Loyalty Progress - Only show if user has activity */}
+                {loyaltyInfo && (loyaltyInfo.totalOrders > 0 || loyaltyInfo.totalPoints > 0) && (
+                    <div className="mb-6">
+                        <LoyaltyProgressBar
+                            loyaltyConfig={loyaltyInfo?.config || {}}
+                            isDarkMode={false}
+                            percentage={teaser.progressPercentage || 0}
+                            progressMessage={teaser.messageKey ? getLoyaltyMessage(teaser.messageKey, language, teaser.messageVariables) : null}
+                        />
+                    </div>
+                )}
 
                 {/* Categories */}
                 <motion.div
