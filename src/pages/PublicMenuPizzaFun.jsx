@@ -224,7 +224,7 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-orange-50 via-pink-50 to-yellow-50 relative overflow-x-hidden" style={{ '--theme-color': config.themeColor }}>
             {activeOrder && !isTopTrackerHidden && (
-                <PersistentOrderTracker order={activeOrder} onClose={handleCloseTracker} themeColor={config.themeColor} />
+                <PersistentOrderTracker order={activeOrder} onClose={handleCloseTracker} themeColor={config.themeColor} variant="fun" />
             )}
 
             <style>{`

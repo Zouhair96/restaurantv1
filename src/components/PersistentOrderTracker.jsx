@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline = false, noHeader = false }) => {
+const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline = false, noHeader = false, variant = 'default' }) => {
     const [isMinimized, setIsMinimized] = useState(false)
     const [isShaking, setIsShaking] = useState(false)
     const prevStatusRef = React.useRef(order?.status);
@@ -136,6 +136,20 @@ const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline
         (order.status === 'cancelled' ? '#ef4444' :
             (['preparing', 'out_for_delivery'].includes(order.status) ? '#3b82f6' : themeColor));
 
+    const isFun = variant === 'fun';
+
+    // Styles based on variant
+    const containerClasses = isFun
+        ? `bg-white/95 backdrop-blur-md rounded-[2.5rem] shadow-xl border-4 border-orange-100 overflow-hidden`
+        : `bg-white dark:bg-gray-800 rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-700`;
+
+    const minimizedClasses = isFun
+        ? `bg-white rounded-full px-6 py-3 shadow-lg border-2 border-orange-200 flex items-center gap-3 ml-auto cursor-grab active:cursor-grabbing hover:scale-105 transition-transform`
+        : `bg-white dark:bg-gray-800 rounded-full px-6 py-3 shadow-2xl border-2 border-gray-100 dark:border-gray-700 flex items-center gap-3 ml-auto cursor-grab active:cursor-grabbing`;
+
+    const textPrimary = isFun ? 'text-gray-800' : 'text-gray-900 dark:text-white';
+    const textSecondary = isFun ? 'text-gray-500' : 'text-gray-400 dark:text-gray-500';
+
     return (
         <AnimatePresence>
             <motion.div
@@ -163,18 +177,18 @@ const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline
                             onClick={() => setIsMinimized(false)}
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            className="bg-white dark:bg-gray-800 rounded-full px-6 py-3 shadow-2xl border-2 border-gray-100 dark:border-gray-700 flex items-center gap-3 ml-auto cursor-grab active:cursor-grabbing"
+                            className={minimizedClasses}
                         >
                             <div className={`w-3 h-3 rounded-full ${statusInfo.color} animate-pulse`} />
-                            <span className="font-bold text-sm text-gray-800 dark:text-white">
+                            <span className={`font-bold text-sm ${textPrimary}`}>
                                 {statusInfo.emoji} {statusInfo.label}
                             </span>
                         </motion.button>
                     ) : (
                         // Full tracker card - Draggable
                         <div
-                            className={`bg-white dark:bg-gray-800 rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-700`}
-                            style={{ borderTop: `6px solid ${displayColor}` }}
+                            className={containerClasses}
+                            style={isFun ? {} : { borderTop: `6px solid ${displayColor}` }}
                         >
                             {/* Drag Handle Top Overlay */}
                             <div className="flex justify-center pt-2 cursor-grab active:cursor-grabbing group">
@@ -190,10 +204,10 @@ const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline
                                                 {statusInfo.emoji}
                                             </div>
                                             <div>
-                                                <h3 className="font-black text-gray-900 dark:text-white text-base leading-none mb-1">
+                                                <h3 className={`font-black ${textPrimary} text-base leading-none mb-1`}>
                                                     Order #{order.order_number || String(order.id).slice(0, 8)}
                                                 </h3>
-                                                <p className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider">
+                                                <p className={`text-[10px] ${textSecondary} font-bold uppercase tracking-wider`}>
                                                     {statusInfo.label}
                                                 </p>
                                             </div>
@@ -201,7 +215,7 @@ const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline
                                         <div className="flex items-center gap-1">
                                             <button
                                                 onClick={() => setIsMinimized(true)}
-                                                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors text-gray-400"
+                                                className={`p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors ${textSecondary}`}
                                                 title="Minimize"
                                             >
                                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -210,7 +224,7 @@ const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline
                                             </button>
                                             <button
                                                 onClick={onClose}
-                                                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors text-gray-400 hover:text-red-500"
+                                                className={`p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors ${textSecondary} hover:text-red-500`}
                                                 title="Close"
                                             >
                                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -244,10 +258,10 @@ const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline
                                             />
                                         ))}
                                     </div>
-                                    <div className="flex justify-between text-[10px] font-black uppercase tracking-tight text-gray-400 mt-1">
-                                        <span className={statusInfo.step >= 1 ? 'text-gray-900 dark:text-white' : ''}>Received</span>
-                                        <span className={statusInfo.step >= 2 ? 'text-gray-900 dark:text-white' : ''}>Preparing</span>
-                                        <span className={statusInfo.step >= 3 ? 'text-gray-900 dark:text-white' : ''}>Completed</span>
+                                    <div className={`flex justify-between text-[10px] font-black uppercase tracking-tight ${textSecondary} mt-1`}>
+                                        <span className={statusInfo.step >= 1 ? textPrimary : ''}>Received</span>
+                                        <span className={statusInfo.step >= 2 ? textPrimary : ''}>Preparing</span>
+                                        <span className={statusInfo.step >= 3 ? textPrimary : ''}>Completed</span>
                                     </div>
                                 </div>
 
@@ -257,8 +271,8 @@ const PersistentOrderTracker = ({ order, onClose, themeColor = '#6c5ce7', inline
                                 {/* Total */}
                                 <div className="flex justify-between items-center">
                                     <div>
-                                        <p className="text-[10px] text-gray-400 font-bold uppercase">Total Order</p>
-                                        <p className="text-xl font-black text-gray-900 dark:text-white tracking-tight">${order.total_price}</p>
+                                        <p className={`text-[10px] ${textSecondary} font-bold uppercase`}>Total Order</p>
+                                        <p className={`text-xl font-black ${textPrimary} tracking-tight`}>${order.total_price}</p>
                                     </div>
                                     <div className="flex -space-x-2">
                                         {/* Simple visualization of items if needed, or just status emoji */}
