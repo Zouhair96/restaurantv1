@@ -389,22 +389,27 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
                                 transition={{ delay: index * 0.05 }}
                                 whileHover={{ scale: 1.05, rotate: 2, y: -10 }}
                                 onClick={() => handleItemClick(item)}
-                                className="bg-white rounded-3xl shadow-xl overflow-hidden cursor-pointer border-4 border-transparent hover:border-orange-300 transition-all wiggle"
+                                className="bg-white rounded-3xl shadow-xl overflow-visible cursor-pointer transition-all wiggle pt-4"
                             >
                                 {/* Image */}
-                                <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-orange-100 to-pink-100">
-                                    <motion.img
+                                <div className="relative aspect-square overflow-visible flex items-center justify-center p-4">
+                                    <motion.div
+                                        className="relative w-full h-full rounded-full shadow-2xl overflow-hidden"
                                         whileHover={{ scale: 1.1, rotate: 360 }}
                                         transition={{ duration: 0.8 }}
-                                        src={item.image}
-                                        alt={localize(item, 'name')}
-                                        className="w-full h-full object-cover"
-                                    />
+                                    >
+                                        <img
+                                            src={item.image}
+                                            alt={localize(item, 'name')}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </motion.div>
+
                                     {/* Heart Icon */}
                                     <motion.button
                                         whileHover={{ scale: 1.2 }}
                                         whileTap={{ scale: 0.9 }}
-                                        className="absolute top-3 right-3 p-2 bg-white/90 rounded-full shadow-lg"
+                                        className="absolute top-0 right-0 p-2 bg-white/90 rounded-full shadow-lg z-10"
                                         onClick={(e) => {
                                             e.stopPropagation();
                                         }}
