@@ -147,12 +147,14 @@ const CheckoutFun = ({
                 }));
             }
 
-            // Success!!
             setIsSubmitted(true);
-            clearCart();
             recordCompletedOrder(restaurantName, total);
 
-            // No timeout - wait for user to close
+            setTimeout(() => {
+                clearCart();
+                setIsSubmitted(false);
+                onClose();
+            }, 5000);
 
         } catch (err) {
             setError(err.message);
