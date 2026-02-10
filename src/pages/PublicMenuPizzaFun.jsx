@@ -492,26 +492,31 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
                             onClick={(e) => e.stopPropagation()}
                         >
                             {/* Image */}
-                            <div className="relative aspect-square bg-gradient-to-br from-orange-100 to-pink-100">
-                                <motion.img
+                            <div className="relative aspect-square flex items-center justify-center p-8">
+                                <motion.div
+                                    className="relative w-full h-full rounded-full shadow-2xl overflow-hidden border-4 border-white/20"
                                     animate={{ rotate: 360 }}
                                     transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                                    src={selectedItem.image}
-                                    alt={localize(selectedItem, 'name')}
-                                    className="w-full h-full object-cover"
-                                />
+                                >
+                                    <img
+                                        src={selectedItem.image}
+                                        alt={localize(selectedItem, 'name')}
+                                        className="w-full h-full object-cover"
+                                    />
+                                </motion.div>
+
                                 <motion.button
                                     whileHover={{ scale: 1.1, rotate: 90 }}
                                     whileTap={{ scale: 0.9 }}
                                     onClick={() => setSelectedItem(null)}
-                                    className="absolute top-4 right-4 p-2 bg-white rounded-full shadow-lg"
+                                    className="absolute top-4 right-4 p-2 bg-white rounded-full shadow-lg z-10"
                                 >
                                     <HiXMark className="w-6 h-6 text-gray-600" />
                                 </motion.button>
                             </div>
 
                             {/* Content */}
-                            <div className="p-6">
+                            <div className="p-6 text-center">
                                 <h2 className="text-3xl font-black text-gray-900 mb-3">
                                     {localize(selectedItem, 'name')}
                                 </h2>
