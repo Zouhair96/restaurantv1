@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { HiShoppingBag, HiMinus, HiPlus, HiBars3, HiXMark, HiTrash, HiMagnifyingGlass, HiHeart, HiSparkles } from 'react-icons/hi2';
 import { useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import PublicMenuSidebar from '../components/public-menu/PublicMenuSidebar';
-import Checkout from '../components/menu/Checkout';
+import PublicMenuSidebarFun from '../components/public-menu/PublicMenuSidebarFun';
+import CheckoutFun from '../components/menu/CheckoutFun';
 import { useClientAuth } from '../context/ClientAuthContext';
 import PersistentOrderTracker from '../components/PersistentOrderTracker';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -449,7 +449,7 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
                             </motion.div>
                         ))}
                     </AnimatePresence>
-                </motion.div>
+                </div>
 
                 {/* Empty State */}
                 {filteredMenuItems.length === 0 && (
@@ -574,7 +574,7 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
                         </div>
 
                         {/* Cart Items */}
-                        <div className="flex-1 overflow-y-auto p-4">
+                        <div className="flex-1 overflow-y-auto p-4 bg-gradient-to-br from-orange-50 via-pink-50 to-yellow-50">
                             {cartItems.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center h-full text-center">
                                     <motion.div
@@ -594,9 +594,9 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
                                             initial={{ opacity: 0, x: 50 }}
                                             animate={{ opacity: 1, x: 0 }}
                                             exit={{ opacity: 0, x: -50 }}
-                                            className="flex gap-3 bg-gradient-to-br from-orange-50 to-pink-50 rounded-2xl p-3 border-2 border-orange-100"
+                                            className="flex gap-3 bg-white rounded-3xl p-3 border-2 border-orange-100 shadow-md"
                                         >
-                                            <div className="w-16 h-16 shrink-0 bg-white rounded-xl overflow-hidden">
+                                            <div className="w-16 h-16 shrink-0 bg-gray-50 rounded-2xl overflow-hidden">
                                                 <img src={item.image} alt={localize(item, 'name')} className="w-full h-full object-cover" />
                                             </div>
                                             <div className="flex-1 min-w-0">
@@ -613,7 +613,7 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
                                                 </div>
                                                 <div className="flex justify-between items-center">
                                                     <span className="font-black text-orange-500">${(parseFloat(item.price || 0) * item.quantity).toFixed(2)}</span>
-                                                    <div className="flex items-center gap-2 bg-white rounded-lg px-2 py-1">
+                                                    <div className="flex items-center gap-2 bg-gray-50 rounded-xl px-2 py-1 border border-gray-100">
                                                         {item.quantity > 1 && (
                                                             <motion.button
                                                                 whileHover={{ scale: 1.2 }}
@@ -642,7 +642,7 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
 
                         {/* Footer */}
                         {cartItems.length > 0 && (
-                            <div className="p-6 border-t-4 border-orange-200 bg-gradient-to-br from-orange-50 to-pink-50">
+                            <div className="p-6 border-t-4 border-orange-200 bg-white">
                                 {(() => {
                                     const subtotal = getCartTotal();
                                     const { discount: orderDiscount } = calculateOrderDiscount(config.promotions || [], subtotal);
@@ -673,7 +673,7 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
             </AnimatePresence>
 
             {/* Sidebar */}
-            <PublicMenuSidebar
+            <PublicMenuSidebarFun
                 isOpen={showAuthSidebar}
                 onClose={() => setShowAuthSidebar(false)}
                 restaurantName={restaurantName}
@@ -684,13 +684,13 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
             />
 
             {/* Checkout */}
-            <Checkout
+            <CheckoutFun
                 isOpen={isCheckoutOpen}
                 onClose={() => setIsCheckoutOpen(false)}
                 restaurantName={restaurantName}
                 themeColor={config.themeColor}
                 promotions={config.promotions || []}
-                taxConfig={{ applyTax: config.applyTax, taxPercentage: config.taxPercentage }}
+                taxConfig={{ applyTax: config.applyTax || false, taxPercentage: config.taxPercentage || 0 }}
             />
 
             {/* Loyalty Reward UI */}
