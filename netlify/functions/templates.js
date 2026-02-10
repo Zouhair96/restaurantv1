@@ -38,9 +38,9 @@ export const handler = async (event, context) => {
             const templateKey = event.queryStringParameters?.templateKey || '';
             const restaurantId = user?.id;
 
-            let sql = 'SELECT * FROM templates WHERE status = $1 AND template_key IN ($2, $3)';
-            let params = ['active', 'pizza1', 'testemplate'];
-            let paramIndex = 4;
+            let sql = 'SELECT * FROM templates WHERE status = $1 AND template_key IN ($2, $3, $4)';
+            let params = ['active', 'pizza1', 'testemplate', 'pizzaFun'];
+            let paramIndex = 5;
 
             if (templateKey) {
                 sql += ` AND template_key = $${paramIndex++}`;
