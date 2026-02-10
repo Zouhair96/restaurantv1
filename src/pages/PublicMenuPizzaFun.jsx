@@ -340,8 +340,8 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
                     </div>
                 </motion.div>
 
-                {/* Loyalty Progress - Only show if user has activity */}
-                {loyaltyInfo && (loyaltyInfo.totalOrders > 0 || loyaltyInfo.totalPoints > 0) && (
+                {/* Loyalty Progress - Show for all users (Teaser or Status) */}
+                {loyaltyInfo && (
                     <div className="mb-6">
                         <LoyaltyProgressBar
                             loyaltyConfig={loyaltyInfo?.config || {}}
@@ -376,7 +376,7 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
                 </motion.div>
 
                 {/* Menu Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8">
                     <AnimatePresence>
                         {filteredMenuItems.map((item, index) => (
                             <motion.div
@@ -391,7 +391,7 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
                                 className="bg-white rounded-3xl shadow-xl overflow-visible cursor-pointer transition-all wiggle pt-4"
                             >
                                 {/* Image */}
-                                <div className="relative aspect-square overflow-visible flex items-center justify-center p-8">
+                                <div className="relative aspect-square overflow-visible flex items-center justify-center p-4 md:p-8">
                                     <motion.div
                                         className="relative w-full h-full rounded-full shadow-2xl overflow-hidden"
                                         whileHover={{ scale: 1.1, rotate: 360 }}
@@ -419,17 +419,17 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
 
                                 {/* Content */}
                                 <div className="p-5">
-                                    <h3 className="text-xl font-black text-gray-900 mb-2 line-clamp-1">
+                                    <h3 className="text-lg md:text-xl font-black text-gray-900 mb-2 line-clamp-1">
                                         {localize(item, 'name')}
                                     </h3>
-                                    <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                                    <p className="text-xs md:text-sm text-gray-600 mb-4 line-clamp-2">
                                         {localize(item, 'description')}
                                     </p>
 
                                     {/* Price and Add Button */}
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-baseline gap-1">
-                                            <span className="text-2xl font-black bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent">
+                                            <span className="text-xl md:text-2xl font-black bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent">
                                                 ${parseFloat(getDiscountedPrice(config.promotions || [], item).finalPrice).toFixed(2)}
                                             </span>
                                         </div>
@@ -440,7 +440,7 @@ const PublicMenuPizzaFun = ({ restaurantName: propRestaurantName }) => {
                                                 e.stopPropagation();
                                                 handleAddToCart(item);
                                             }}
-                                            className="p-3 bg-gradient-to-br from-orange-400 to-pink-400 text-white rounded-xl shadow-lg"
+                                            className="p-2 md:p-3 bg-gradient-to-br from-orange-400 to-pink-400 text-white rounded-xl shadow-lg"
                                         >
                                             <HiPlus className="w-5 h-5" />
                                         </motion.button>
