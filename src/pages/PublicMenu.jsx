@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import PublicMenuPizza1 from './PublicMenuPizza1'
 import PublicMenuTestemplate from './PublicMenuTestemplate'
+import PublicMenuPizzaFun from './PublicMenuPizzaFun'
 import { useLanguage } from '../context/LanguageContext'
 import { useLoyalty } from '../context/LoyaltyContext'
 import { useCart } from '../context/CartContext'
@@ -107,6 +108,10 @@ const PublicMenu = () => {
     }
 
     // Branch to specialized templates
+    if (data.menu.template_type === 'pizzaFun' || templateKey === 'pizzaFun') {
+        return <PublicMenuPizzaFun restaurantName={decodedName} />
+    }
+
     if (data.menu.template_type === 'pizza1' || templateKey === 'pizza1') {
         return <PublicMenuPizza1 restaurantName={decodedName} />
     }
