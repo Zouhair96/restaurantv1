@@ -1,6 +1,6 @@
 import { query } from './db.js';
 
-export const handler = async (event, context) => {
+export default async function handler(req, res) {
     try {
         const tables = await query(`
             SELECT table_name 
@@ -18,17 +18,11 @@ export const handler = async (event, context) => {
             columnInfo[table.table_name] = cols.rows;
         }
 
-        return {
-            statusCode: 200,
-            body: JSON.stringify({
-                tables: tables.rows.map(t => t.table_name),
-                columns: columnInfo
-            }, null, 2)
-        };
+        return res.status(200).json({
+            tables: tables.rows.map(t => t.table_name),
+            columns: columnInfo
+        });
     } catch (error) {
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ error: error.message })
-        };
+        return res.status(500).json({ error: error.message });
     }
-};
+}

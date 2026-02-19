@@ -1,46 +1,27 @@
 import { query } from './db.js';
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
 
-dotenv.config();
+export default async function handler(req, res) {
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
 
-export const handler = async (event, context) => {
+    if (req.method !== 'PATCH') {
+        return res.status(405).json({ error: 'Method Not Allowed' });
+    }
+
     try {
-        if (event.httpMethod !== 'PATCH') {
-            return {
-                statusCode: 405,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ error: 'Method Not Allowed' })
-            };
-        }
-
-        const authHeader = event.headers.authorization;
-        if (!authHeader) {
-            return {
-                statusCode: 401,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ error: 'No token provided' })
-            };
-        }
+        const authHeader = req.headers.authorization;
+        if (!authHeader) return res.status(401).json({ error: 'No token provided' });
 
         const token = authHeader.split(' ')[1];
         const secret = process.env.JWT_SECRET;
-        let decoded;
+        if (!secret) return res.status(500).json({ error: 'Server configuration error' });
 
-        try {
-            decoded = jwt.verify(token, secret);
-        } catch (err) {
-            return {
-                statusCode: 401,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ error: 'Invalid token' })
-            };
-        }
-
+        const decoded = jwt.verify(token, secret);
         const userId = decoded.id;
-        const { name, restaurantName, address, phoneNumber } = JSON.parse(event.body);
+        const { name, restaurantName, address, phoneNumber } = req.body;
 
-        // Update user
         const result = await query(
             `UPDATE users 
              SET name = $1, restaurant_name = $2, address = $3, phone_number = $4 
@@ -50,30 +31,13 @@ export const handler = async (event, context) => {
         );
 
         if (result.rows.length === 0) {
-            return {
-                statusCode: 404,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ error: 'User not found' })
-            };
+            return res.status(404).json({ error: 'User not found' });
         }
 
-        const user = result.rows[0];
-
-        return {
-            statusCode: 200,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: 'Profile updated successfully', user }),
-        };
+        return res.status(200).json({ message: 'Profile updated successfully', user: result.rows[0] });
 
     } catch (error) {
         console.error('Update Profile Error:', error);
-        return {
-            statusCode: 500,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                error: 'Internal Server Error',
-                details: error.message
-            })
-        };
+        return res.status(500).json({ error: 'Internal Server Error' });
     }
-};
+}

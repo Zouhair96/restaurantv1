@@ -1,61 +1,52 @@
 import { query } from './db.js';
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
 
-dotenv.config();
+export default async function handler(req, res) {
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-
-export const handler = async (event, context) => {
-    const headers = {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS'
-    };
-
-    if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers, body: '' };
-
-    // Verify Token & Admin Role
-    const authHeader = event.headers.authorization;
+    const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return { statusCode: 401, headers, body: JSON.stringify({ error: 'Unauthorized' }) };
+        return res.status(401).json({ error: 'Unauthorized' });
     }
 
     const token = authHeader.split(' ')[1];
-    try {
-        const decoded = jwt.verify(token, JWT_SECRET);
-        if (decoded.role !== 'admin') {
-            return { statusCode: 403, headers, body: JSON.stringify({ error: 'Forbidden' }) };
-        }
+    const secret = process.env.JWT_SECRET;
+    if (!secret) return res.status(500).json({ error: 'Server configuration error' });
 
-        if (event.httpMethod === 'POST') {
-            const { template_id, category, category_en, name, name_en, description, description_en, price, image_url, sort_order } = JSON.parse(event.body);
-            const res = await query(
+    try {
+        const decoded = jwt.verify(token, secret);
+        if (decoded.role !== 'admin') return res.status(403).json({ error: 'Forbidden' });
+
+        if (req.method === 'POST') {
+            const { template_id, category, category_en, name, name_en, description, description_en, price, image_url, sort_order } = req.body;
+            const result = await query(
                 'INSERT INTO template_items (template_id, category, category_en, name, name_en, description, description_en, price, image_url, sort_order) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *',
                 [template_id, category, category_en, name, name_en, description, description_en, price, image_url, sort_order || 0]
             );
-            return { statusCode: 201, headers, body: JSON.stringify(res.rows[0]) };
+            return res.status(201).json(result.rows[0]);
         }
 
-        if (event.httpMethod === 'PATCH') {
-            const { id, category, category_en, name, name_en, description, description_en, price, image_url, sort_order } = JSON.parse(event.body);
-            const res = await query(
+        if (req.method === 'PATCH') {
+            const { id, category, category_en, name, name_en, description, description_en, price, image_url, sort_order } = req.body;
+            const result = await query(
                 'UPDATE template_items SET category = $1, category_en = $2, name = $3, name_en = $4, description = $5, description_en = $6, price = $7, image_url = $8, sort_order = $9, updated_at = NOW() WHERE id = $10 RETURNING *',
                 [category, category_en, name, name_en, description, description_en, price, image_url, sort_order, id]
             );
-            return { statusCode: 200, headers, body: JSON.stringify(res.rows[0]) };
+            return res.status(200).json(result.rows[0]);
         }
 
-        if (event.httpMethod === 'DELETE') {
-            const { id } = JSON.parse(event.body);
-            // Soft Delete Policy: Mark as is_deleted instead of physical removal
+        if (req.method === 'DELETE') {
+            const { id } = req.body;
             await query('UPDATE template_items SET is_deleted = true, updated_at = NOW() WHERE id = $1', [id]);
-            return { statusCode: 200, headers, body: JSON.stringify({ success: true, message: 'Item soft-deleted' }) };
+            return res.status(200).json({ success: true, message: 'Item soft-deleted' });
         }
+
+        return res.status(405).json({ error: 'Method Not Allowed' });
 
     } catch (error) {
         console.error('Template Items Error:', error);
-        return { statusCode: 500, headers, body: JSON.stringify({ error: 'Internal Server Error' }) };
+        return res.status(500).json({ error: 'Internal Server Error' });
     }
-};
+}

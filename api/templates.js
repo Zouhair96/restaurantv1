@@ -1,31 +1,19 @@
 import { query } from './db.js';
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
 
-dotenv.config({ path: '../../.env' });
-dotenv.config({ path: './.env' });
-dotenv.config();
+export default async function handler(req, res) {
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-
-export const handler = async (event, context) => {
-    const headers = {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS'
-    };
-
-    if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers, body: '' };
-
-    // Helper for auth
-    const authHeader = event.headers.authorization || event.headers.Authorization;
+    const authHeader = req.headers.authorization;
     let user = null;
-    if (authHeader) {
+    const secret = process.env.JWT_SECRET;
+    if (authHeader && secret) {
         try {
             const token = authHeader.split(' ')[1];
             if (token && token !== 'null' && token !== 'undefined') {
-                user = jwt.verify(token, JWT_SECRET);
+                user = jwt.verify(token, secret);
             }
         } catch (err) {
             console.error('[Templates Auth Error]:', err.message);
@@ -33,10 +21,9 @@ export const handler = async (event, context) => {
     }
 
     try {
-        if (event.httpMethod === 'GET') {
-            const plan = event.queryStringParameters?.plan || '';
-            const templateKey = event.queryStringParameters?.templateKey || '';
-            const restaurantId = user?.id;
+        if (req.method === 'GET') {
+            const plan = req.query.plan || '';
+            const templateKey = req.query.templateKey || '';
 
             let sql = 'SELECT * FROM templates WHERE status = $1 AND template_key IN ($2, $3, $4)';
             let params = ['active', 'pizza1', 'testemplate', 'pizzaFun'];
@@ -47,179 +34,70 @@ export const handler = async (event, context) => {
                 params.push(templateKey);
             }
 
-            // Filter if plan is provided AND user is not admin
             if (plan && (!user || user.role !== 'admin')) {
                 sql += ` AND allowed_plans ? $${paramIndex++}`;
                 params.push(plan.toLowerCase());
             }
 
             const templatesResult = await query(sql, params);
-
-            // Fetch activation status if user is a restaurant
             let restaurantTemplates = [];
             if (user && user.role !== 'admin') {
                 const rtRes = await query('SELECT * FROM restaurant_templates WHERE restaurant_id = $1 AND status = $2', [user.id, 'active']);
                 restaurantTemplates = rtRes.rows;
             }
 
-            // For each template, fetch its items (respecting soft-delete)
             const templates = [];
             for (const template of templatesResult.rows) {
-                // Subscription check for specific template if requested
                 const isActivated = user?.role === 'admin' || (user && restaurantTemplates.some(rt => rt.template_id === template.id));
-
-                // If fetching a single template specifically (usually by templateKey), 
-                // we allow it for the "Public Master Preview" regardless of session.
-                if (templateKey) {
-                    // Allowed publicly for preview
-                }
-
-                const itemsResult = await query(
-                    'SELECT * FROM template_items WHERE template_id = $1 AND is_deleted = false ORDER BY sort_order, id',
-                    [template.id]
-                );
-
-                templates.push({
-                    ...template,
-                    is_activated: isActivated,
-                    items: itemsResult.rows
-                });
+                const itemsResult = await query('SELECT * FROM template_items WHERE template_id = $1 AND is_deleted = false ORDER BY sort_order, id', [template.id]);
+                templates.push({ ...template, is_activated: isActivated, items: itemsResult.rows });
             }
 
-            if (templateKey && templates.length === 0) {
-                return { statusCode: 403, headers, body: JSON.stringify({ error: 'Access Denied: Template not activated or tier too low' }) };
-            }
-
-            return {
-                statusCode: 200,
-                headers,
-                body: JSON.stringify(templateKey ? (templates[0] || null) : templates)
-            };
+            if (templateKey && templates.length === 0) return res.status(403).json({ error: 'Access Denied' });
+            return res.status(200).json(templateKey ? (templates[0] || null) : templates);
         }
 
-        if (event.httpMethod === 'POST') {
-            if (!user || user.role !== 'admin') {
-                return { statusCode: 403, headers, body: JSON.stringify({ error: 'Unauthorized: Admin access required' }) };
-            }
+        if (req.method === 'POST') {
+            if (!user || user.role !== 'admin') return res.status(403).json({ error: 'Unauthorized' });
+            const { id, allowed_plans, config, name, icon, template_key, base_layout, status } = req.body;
 
-            if (!event.body) {
-                return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing request body' }) };
-            }
-
-            let payload;
-            try {
-                payload = JSON.parse(event.body);
-            } catch (e) {
-                return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid JSON body' }) };
-            }
-
-            const { id, allowed_plans, config, name, icon, template_key, base_layout, status } = payload;
-
-            // IF NO ID, IT'S AN INSERT (CREATE NEW)
             if (!id) {
-                if (!name || !template_key) {
-                    return { statusCode: 400, headers, body: JSON.stringify({ error: 'Name and template_key are required for new templates' }) };
-                }
-                const res = await query(
+                const resInsert = await query(
                     `INSERT INTO templates (name, template_key, icon, allowed_plans, config, base_layout, status, created_at, updated_at) 
                      VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW()) RETURNING *`,
                     [name, template_key, icon || '🍽️', JSON.stringify(allowed_plans || []), JSON.stringify(config || {}), base_layout || 'grid', status || 'active']
                 );
-                return { statusCode: 201, headers, body: JSON.stringify(res.rows[0]) };
+                return res.status(201).json(resInsert.rows[0]);
             }
 
-            // OTHERWISE, IT'S AN UPDATE
-            const targetId = parseInt(id);
-            if (isNaN(targetId)) {
-                return { statusCode: 400, headers, body: JSON.stringify({ error: 'ID must be an integer' }) };
-            }
-
-            // Build update query dynamically
             const updates = [];
-            const params = [];
-            let paramIndex = 1;
+            const sqlParams = [];
+            let pIdx = 1;
+            if (allowed_plans !== undefined) { updates.push(`"allowed_plans" = $${pIdx++}::jsonb`); sqlParams.push(JSON.stringify(allowed_plans)); }
+            if (config !== undefined) { updates.push(`"config" = $${pIdx++}::jsonb`); sqlParams.push(JSON.stringify(config)); }
+            if (name !== undefined) { updates.push(`"name" = $${pIdx++}`); sqlParams.push(name); }
+            if (icon !== undefined) { updates.push(`"icon" = $${pIdx++}`); sqlParams.push(icon); }
+            if (template_key !== undefined) { updates.push(`"template_key" = $${pIdx++}`); sqlParams.push(template_key); }
+            if (base_layout !== undefined) { updates.push(`"base_layout" = $${pIdx++}`); sqlParams.push(base_layout); }
+            if (status !== undefined) { updates.push(`"status" = $${pIdx++}`); sqlParams.push(status); }
 
-            if (allowed_plans !== undefined) {
-                updates.push(`"allowed_plans" = $${paramIndex++}::jsonb`);
-                params.push(JSON.stringify(allowed_plans));
-            }
-            if (config !== undefined) {
-                updates.push(`"config" = $${paramIndex++}::jsonb`);
-                params.push(JSON.stringify(config));
-            }
-            if (name !== undefined) {
-                updates.push(`"name" = $${paramIndex++}`);
-                params.push(name);
-            }
-            if (icon !== undefined) {
-                updates.push(`"icon" = $${paramIndex++}`);
-                params.push(icon);
-            }
-            if (template_key !== undefined) {
-                updates.push(`"template_key" = $${paramIndex++}`);
-                params.push(template_key);
-            }
-            if (base_layout !== undefined) {
-                updates.push(`"base_layout" = $${paramIndex++}`);
-                params.push(base_layout);
-            }
-            if (status !== undefined) {
-                updates.push(`"status" = $${paramIndex++}`);
-                params.push(status);
-            }
-
-            if (updates.length === 0) {
-                return { statusCode: 400, headers, body: JSON.stringify({ error: 'No fields to update' }) };
-            }
-
-            params.push(targetId);
-            const q = `UPDATE templates SET ${updates.join(', ')}, "updated_at" = NOW() WHERE "id" = $${paramIndex} RETURNING *`;
-            const result = await query(q, params);
-
-            if (result.rowCount === 0) {
-                return { statusCode: 404, headers, body: JSON.stringify({ error: 'Template not found' }) };
-            }
-
-            return {
-                statusCode: 200,
-                headers,
-                body: JSON.stringify(result.rows[0])
-            };
+            if (updates.length === 0) return res.status(400).json({ error: 'No fields to update' });
+            sqlParams.push(id);
+            const result = await query(`UPDATE templates SET ${updates.join(', ')}, "updated_at" = NOW() WHERE "id" = $${pIdx} RETURNING *`, sqlParams);
+            return res.status(200).json(result.rows[0]);
         }
 
-        if (event.httpMethod === 'DELETE') {
-            if (!user || user.role !== 'admin') {
-                return { statusCode: 403, headers, body: JSON.stringify({ error: 'Unauthorized' }) };
-            }
-
-            const { id } = JSON.parse(event.body);
-            const targetId = parseInt(id);
-            const sql = 'DELETE FROM templates WHERE id = $1 RETURNING *';
-            const result = await query(sql, [targetId]);
-
-            if (result.rowCount === 0) {
-                return { statusCode: 404, headers, body: JSON.stringify({ error: 'Template not found' }) };
-            }
-
-            return {
-                statusCode: 200,
-                headers,
-                body: JSON.stringify({ message: 'Template deleted' })
-            };
+        if (req.method === 'DELETE') {
+            if (!user || user.role !== 'admin') return res.status(403).json({ error: 'Unauthorized' });
+            const { id } = req.body;
+            await query('DELETE FROM templates WHERE id = $1', [id]);
+            return res.status(200).json({ message: 'Template deleted' });
         }
 
-        return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method Not Allowed' }) };
+        return res.status(405).json({ error: 'Method Not Allowed' });
 
     } catch (error) {
-        console.error('[Templates CRITICAL ERROR]:', error);
-        return {
-            statusCode: 500,
-            headers,
-            body: JSON.stringify({
-                error: 'Operation Failed',
-                message: error.message,
-                details: 'Please check database triggers and constraints.'
-            })
-        };
+        console.error('Templates Error:', error);
+        return res.status(500).json({ error: 'Internal Server Error' });
     }
-};
+}

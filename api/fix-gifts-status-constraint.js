@@ -1,53 +1,19 @@
 import { query } from './db.js';
-import dotenv from 'dotenv';
 
-dotenv.config();
-
-export const handler = async (event) => {
-    const headers = {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS'
-    };
-
-    if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers, body: '' };
-
+export default async function handler(req, res) {
     try {
-        console.log('[Migration] Starting gifts status constraint fix...');
-
-        // Drop the old constraint and add the new one with 'converted' status
+        console.log('Fixing gifts status constraint...');
         await query(`
-            ALTER TABLE gifts DROP CONSTRAINT IF EXISTS gifts_status_check;
+            ALTER TABLE gifts 
+            DROP CONSTRAINT IF EXISTS gifts_status_check
         `);
-
-        console.log('[Migration] Old constraint dropped');
-
         await query(`
-            ALTER TABLE gifts ADD CONSTRAINT gifts_status_check 
-            CHECK (status IN ('unused', 'consumed', 'converted'));
+            ALTER TABLE gifts 
+            ADD CONSTRAINT gifts_status_check 
+            CHECK (status IN ('unused', 'used', 'converted', 'reverted'))
         `);
-
-        console.log('[Migration] New constraint added with converted status');
-
-        return {
-            statusCode: 200,
-            headers,
-            body: JSON.stringify({
-                success: true,
-                message: 'Gifts status constraint updated successfully'
-            })
-        };
-
+        return res.status(200).json({ success: true, message: 'Constraint updated successfully' });
     } catch (error) {
-        console.error('[Migration] Error:', error);
-        return {
-            statusCode: 500,
-            headers,
-            body: JSON.stringify({
-                error: 'Migration failed',
-                details: error.message
-            })
-        };
+        return res.status(500).json({ error: error.message });
     }
-};
+}

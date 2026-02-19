@@ -1,32 +1,21 @@
 import { query } from './db.js';
-import dotenv from 'dotenv';
 
-dotenv.config();
+export default async function handler(req, res) {
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
 
-export const handler = async (event, context) => {
-    const headers = {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'GET, OPTIONS'
-    };
-
-    if (event.httpMethod === 'OPTIONS') {
-        return { statusCode: 200, headers, body: '' };
+    if (req.method !== 'GET') {
+        return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
     try {
-        const orderId = event.queryStringParameters?.orderId;
+        const orderId = req.query.orderId;
 
         if (!orderId) {
-            return {
-                statusCode: 400,
-                headers,
-                body: JSON.stringify({ error: 'Order ID is required' })
-            };
+            return res.status(400).json({ error: 'Order ID is required' });
         }
 
-        // Fetch order details (public - no auth required)
         const result = await query(
             `SELECT id, status, total_price, created_at, updated_at, order_type, table_number, items
              FROM orders
@@ -35,25 +24,13 @@ export const handler = async (event, context) => {
         );
 
         if (result.rows.length === 0) {
-            return {
-                statusCode: 404,
-                headers,
-                body: JSON.stringify({ error: 'Order not found' })
-            };
+            return res.status(404).json({ error: 'Order not found' });
         }
 
-        return {
-            statusCode: 200,
-            headers,
-            body: JSON.stringify(result.rows[0])
-        };
+        return res.status(200).json(result.rows[0]);
 
     } catch (error) {
         console.error('Get Public Order Error:', error);
-        return {
-            statusCode: 500,
-            headers,
-            body: JSON.stringify({ error: 'Internal Server Error' })
-        };
+        return res.status(500).json({ error: 'Internal Server Error' });
     }
-};
+}

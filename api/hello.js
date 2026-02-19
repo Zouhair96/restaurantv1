@@ -1,7 +1,3 @@
-export const handler = async (event, context) => {
-    return {
-        statusCode: 200,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: "Hello from the backend! Functions are working." }),
-    };
-};
+export default async function handler(req, res) {
+    return res.status(200).json({ message: "Hello from the backend! Functions are working on Vercel." });
+}

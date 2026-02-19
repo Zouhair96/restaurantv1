@@ -1,94 +1,57 @@
 import { query } from './db.js';
 import jwt from 'jsonwebtoken';
 
-export const handler = async (event, context) => {
-    if (event.httpMethod !== 'POST') {
-        return {
-            statusCode: 405,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ error: 'Method Not Allowed' })
-        };
+export default async function handler(req, res) {
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
     try {
-        // 1. Verify Token
-        const authHeader = event.headers.authorization;
+        const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return {
-                statusCode: 401,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ error: 'Unauthorized: Missing token' })
-            };
+            return res.status(401).json({ error: 'Unauthorized: Missing token' });
         }
 
         const token = authHeader.split(' ')[1];
         const secret = process.env.JWT_SECRET;
-        if (!secret) throw new Error("JWT_SECRET missing");
+        if (!secret) return res.status(500).json({ error: 'Server configuration error' });
+
         const decoded = jwt.verify(token, secret);
         const userId = decoded.id;
 
-        // 2. Check Engagement Period
-        const userQuery = 'SELECT subscription_end_date FROM users WHERE id = $1';
-        const userResult = await query(userQuery, [userId]);
+        const userResult = await query('SELECT subscription_end_date FROM users WHERE id = $1', [userId]);
         const dbUser = userResult.rows[0];
 
         if (dbUser?.subscription_end_date) {
             const endDate = new Date(dbUser.subscription_end_date);
-            const now = new Date();
-
-            if (now < endDate) {
-                return {
-                    statusCode: 403,
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        error: "Vous ne pouvez pas résilier votre abonnement avant la fin de votre période d'engagement.",
-                        engagementEndDate: dbUser.subscription_end_date
-                    })
-                };
+            if (new Date() < endDate) {
+                return res.status(403).json({
+                    error: "Vous ne pouvez pas résilier votre abonnement avant la fin de votre période d'engagement.",
+                    engagementEndDate: dbUser.subscription_end_date
+                });
             }
         }
 
-        // 3. Update Database
-        // We set subscription fields to null/inactive
-        const updateQuery = `
-            UPDATE users 
-            SET subscription_plan = NULL, 
-            subscription_status = 'inactive', 
-            subscription_start_date = NULL,
-            subscription_end_date = NULL
-            WHERE id = $1
-            RETURNING id, name, email, restaurant_name, subscription_plan, subscription_status
-        `;
+        const result = await query(
+            `UPDATE users 
+             SET subscription_plan = NULL, 
+             subscription_status = 'inactive', 
+             subscription_start_date = NULL,
+             subscription_end_date = NULL
+             WHERE id = $1
+             RETURNING id, name, email, restaurant_name, subscription_plan, subscription_status`,
+            [userId]
+        );
 
-        const result = await query(updateQuery, [userId]);
-
-        if (result.rows.length === 0) {
-            return {
-                statusCode: 404,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ error: 'User not found' })
-            };
-        }
-
-        const updatedUser = result.rows[0];
-
-        return {
-            statusCode: 200,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                message: 'Unsubscription successful',
-                user: updatedUser
-            }),
-        };
+        if (result.rows.length === 0) return res.status(404).json({ error: 'User not found' });
+        return res.status(200).json({ message: 'Unsubscription successful', user: result.rows[0] });
 
     } catch (error) {
-        console.error('Unsubscription Error:', error.message);
-        return {
-            statusCode: 500,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                error: 'Internal Server Error'
-            })
-        };
+        console.error('Unsubscription Error:', error);
+        return res.status(500).json({ error: 'Internal Server Error' });
     }
-};
+}

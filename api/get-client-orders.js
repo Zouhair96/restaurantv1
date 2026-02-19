@@ -1,85 +1,48 @@
 import { query } from './db.js';
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
 
-dotenv.config();
+export default async function handler(req, res) {
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
 
-export const handler = async (event, context) => {
+    if (req.method !== 'GET') {
+        return res.status(405).json({ error: 'Method Not Allowed' });
+    }
+
     try {
-        if (event.httpMethod !== 'GET') {
-            return {
-                statusCode: 405,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ error: 'Method Not Allowed' })
-            };
-        }
-
-        const authHeader = event.headers.authorization;
+        const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return {
-                statusCode: 401,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ error: 'Unauthorized' })
-            };
+            return res.status(401).json({ error: 'Unauthorized' });
         }
 
         const token = authHeader.split(' ')[1];
         const secret = process.env.JWT_SECRET;
-        let decoded;
+        if (!secret) return res.status(500).json({ error: 'Server configuration error' });
 
-        try {
-            decoded = jwt.verify(token, secret);
-        } catch (err) {
-            return {
-                statusCode: 401,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ error: 'Invalid or expired token' })
-            };
-        }
+        const decoded = jwt.verify(token, secret);
+        const { restaurantName } = req.query;
 
-        const { restaurantName } = event.queryStringParameters || {};
         if (!restaurantName) {
-            return {
-                statusCode: 400,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ error: 'Restaurant name is required' })
-            };
+            return res.status(400).json({ error: 'Restaurant name is required' });
         }
 
-        // Find restaurant ID
-        const restaurantResult = await query(
-            'SELECT id FROM users WHERE restaurant_name = $1',
-            [restaurantName]
-        );
-
+        const restaurantResult = await query('SELECT id FROM users WHERE restaurant_name = $1', [restaurantName]);
         if (restaurantResult.rows.length === 0) {
-            return {
-                statusCode: 404,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ error: 'Restaurant not found' })
-            };
+            return res.status(404).json({ error: 'Restaurant not found' });
         }
 
         const restaurantId = restaurantResult.rows[0].id;
 
-        // Fetch orders for this customer at this restaurant
         const ordersResult = await query(
             'SELECT * FROM orders WHERE customer_id = $1 AND restaurant_id = $2 ORDER BY created_at DESC',
             [decoded.id, restaurantId]
         );
 
-        return {
-            statusCode: 200,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(ordersResult.rows),
-        };
+        return res.status(200).json(ordersResult.rows);
 
     } catch (error) {
         console.error('Get Client Orders Error:', error);
-        return {
-            statusCode: 500,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ error: 'Internal Server Error' })
-        };
+        return res.status(500).json({ error: 'Internal Server Error' });
     }
-};
+}

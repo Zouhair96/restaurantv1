@@ -1,22 +1,20 @@
 import { query } from './db.js';
 
-async function runMigration() {
-    console.log('Migrating gifts table to support item rewards...');
+export default async function handler(req, res) {
     try {
-        // 1. Add gift_name column
-        await query(`ALTER TABLE gifts ADD COLUMN IF NOT EXISTS gift_name TEXT`).catch(e => console.log(e.message));
-
-        // 2. Update type constraint to include 'ITEM'
-        // First drop existing check if possible
-        await query(`ALTER TABLE gifts DROP CONSTRAINT IF EXISTS gifts_type_check`).catch(e => console.log(e.message));
-
-        // Add new check
-        await query(`ALTER TABLE gifts ADD CONSTRAINT gifts_type_check CHECK (type IN ('FIXED_VALUE', 'PERCENTAGE', 'ITEM'))`).catch(e => console.log(e.message));
-
-        console.log('Migration completed.');
-    } catch (e) {
-        console.error('Migration failed:', e);
+        console.log('Migrating gift names...');
+        await query(`
+            UPDATE gifts 
+            SET gift_name = CASE 
+                WHEN gift_type = 'percentage' THEN gift_value || '% Discount'
+                WHEN gift_type = 'fixed' THEN '€' || gift_value || ' Discount'
+                WHEN gift_type = 'item' THEN 'Free ' || gift_value
+                ELSE gift_name
+            END
+            WHERE gift_name IS NULL OR gift_name = ''
+        `);
+        return res.status(200).json({ success: true, message: 'Gift names migrated' });
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
     }
 }
-
-runMigration();
